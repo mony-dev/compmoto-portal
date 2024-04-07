@@ -11,6 +11,7 @@ services:
         - /app/.next
     ports:
       - "3000:3000"
+    command: ["npm", "start", "--health-check"]
   postgres: 
     image: postgres:15-alpine
     ports:
