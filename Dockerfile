@@ -23,18 +23,18 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
-CMD npm start
 
 # Install Dockerize
-RUN apt-get update && apt-get install -y wget && \
-  wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz && \
-  tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz && \
-  rm dockerize-linux-amd64-v0.6.1.tar.gz
+RUN apk add --no-cache wget
+RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz \
+  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz \
+  && rm dockerize-linux-amd64-v0.6.1.tar.gz
 # Copy Dockerize script
 COPY dockerize.sh /dockerize.sh
 # Set execute permissions for the script
 RUN chmod +x /dockerize.sh
-# Start Nginx using the Dockerize script
+
+# Start the application using Dockerize
 CMD ["/dockerize.sh"]
 
 # Dev stage
