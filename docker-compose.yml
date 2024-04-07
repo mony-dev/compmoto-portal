@@ -1,4 +1,16 @@
 services:
+  app:
+    image: compmoto-app
+    build:
+      context: ./
+      target: dev
+      dockerfile: Dockerfile
+    volumes:
+        - .:/app
+        - /app/node_modules
+        - /app/.next
+    ports:
+      - "3000:3000"
   postgres: 
     image: postgres:15-alpine
     ports:
@@ -6,3 +18,4 @@ services:
     environment:
       - POSTGRES_DB=compmoto_dev
       - POSTGRES_HOST_AUTH_METHOD=trust
+  
