@@ -1,7 +1,7 @@
 import { nativeEnum, number, object, string, z } from "zod";
 
 // import { FileAction } from "@lib-admin/controllers/file-controller";
-import { RestError } from "@lib-shared/models/rest-error";
+// import { RestError } from "@lib-shared/models/rest-error";
 import { isURL } from "@lib-shared/utils/url-helper";
 
 export const localizedStringRequiredSchema = object({

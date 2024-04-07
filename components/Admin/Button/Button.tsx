@@ -1,8 +1,8 @@
-import { KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Link, { LinkProps } from "next/link";
+// import { KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
+// import Link, { LinkProps } from "next/link";
 
-import styled from "styled-components";
-import tw from "twin.macro";
+// import styled from "styled-components";
+// import tw from "twin.macro";
 
 // import { useAdminDeleteContext } from "../Admins/AdminDeleteContext";
 // import { AdminJSON } from "@lib-admin/serializers/admin-serializer";
@@ -16,41 +16,41 @@ import tw from "twin.macro";
 // import { PostJSON } from "@lib-admin/serializers/post-serializer";
 // import { usePostDeleteContext } from "../Posts/PostDeleteContext";
 
-type BaseButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+// type BaseButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-type ButtonProps = BaseButtonProps & {
-  icon?: React.ReactElement;
-  outline?: boolean;
-  danger?: boolean;
-  cancel?: boolean;
-  fullWidth?: boolean;
-  text?: boolean;
-  size?: "small" | "medium";
-  disabled?: boolean;
-  isLoading?: boolean;
-};
+// type ButtonProps = BaseButtonProps & {
+//   icon?: React.ReactElement;
+//   outline?: boolean;
+//   danger?: boolean;
+//   cancel?: boolean;
+//   fullWidth?: boolean;
+//   text?: boolean;
+//   size?: "small" | "medium";
+//   disabled?: boolean;
+//   isLoading?: boolean;
+// };
 
-const BaseButton = styled.button<ButtonProps>(({ size = "s", ...props }) => [
-  tw`bg-l2t-purple text-white border border-l2t-purple py-1 px-2 inline-flex rounded-lg min-w-[6rem] sm:w-auto text-[15px] font-medium justify-center items-center`,
-  props.icon && tw`gap-2`,
-  props.fullWidth ? tw`w-full` : tw``,
-  props.text ? tw`min-w-0 p-0 bg-transparent border-0 text-l2t-gray` : tw``,
-  props.danger ? tw`bg-l2t-red border-l2t-red` : tw``,
-  props.outline ? tw`bg-white text-l2t-purple` : tw``,
-  props.outline && props.danger ? tw`text-l2t-red` : tw``,
-  props.cancel ? tw`bg-white border-black text-l2t-gray` : tw``,
-  size === "small" ? tw`text-[15px]` : tw``,
-  size === "medium" ? tw`text-xl` : tw``,
-]);
+// const BaseButton = styled.button<ButtonProps>(({ size = "s", ...props }) => [
+//   tw`bg-l2t-purple text-white border border-l2t-purple py-1 px-2 inline-flex rounded-lg min-w-[6rem] sm:w-auto text-[15px] font-medium justify-center items-center`,
+//   props.icon && tw`gap-2`,
+//   props.fullWidth ? tw`w-full` : tw``,
+//   props.text ? tw`min-w-0 p-0 bg-transparent border-0 text-l2t-gray` : tw``,
+//   props.danger ? tw`bg-l2t-red border-l2t-red` : tw``,
+//   props.outline ? tw`bg-white text-l2t-purple` : tw``,
+//   props.outline && props.danger ? tw`text-l2t-red` : tw``,
+//   props.cancel ? tw`bg-white border-black text-l2t-gray` : tw``,
+//   size === "small" ? tw`text-[15px]` : tw``,
+//   size === "medium" ? tw`text-xl` : tw``,
+// ]);
 
-const FormButton = styled.button<ButtonProps>(({ ...props }) => [
-  tw`relative flex justify-center w-full px-4 py-2 text-base text-white rounded-lg  bg-red-400 gap-2 items-center`,
-  props.isLoading && tw`bg-gray-500 cursor-wait hover:shadow-none`,
-]);
+// const FormButton = styled.button<ButtonProps>(({ ...props }) => [
+//   tw`relative flex justify-center w-full px-4 py-2 text-base text-white rounded-lg  bg-red-400 gap-2 items-center`,
+//   props.isLoading && tw`bg-gray-500 cursor-wait hover:shadow-none`,
+// ]);
 
-const LoadingSignInSpinner = styled.div`
-  ${tw`w-5 h-5 border-2 border-white rounded-full cursor-not-allowed  aspect-square animate-spin border-t-transparent`}
-`;
+// const LoadingSignInSpinner = styled.div`
+//   ${tw`w-5 h-5 border-2 border-white rounded-full cursor-not-allowed  aspect-square animate-spin border-t-transparent`}
+// `;
 
 // export const LinkButton: React.FC<ButtonProps & LinkProps<any>> = (props) => {
 //   const { icon, fullWidth, size, text, children, outline, ...linkProps } = props;
@@ -137,11 +137,11 @@ const LoadingSignInSpinner = styled.div`
 //   );
 // };
 
-export const SingInFormButton = (props: ButtonProps) => {
-  return (
-    <FormButton isLoading={props.isLoading} {...props}>
-      {props.isLoading && <LoadingSignInSpinner />}
-      {props.children}
-    </FormButton>
-  );
-};
+// export const SingInFormButton = (props: ButtonProps) => {
+//   return (
+//     <FormButton isLoading={props.isLoading} {...props}>
+//       {props.isLoading && <LoadingSignInSpinner />}
+//       {/* {props.children} */}
+//     </FormButton>
+//   );
+// };

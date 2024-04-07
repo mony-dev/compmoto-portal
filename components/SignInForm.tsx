@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useTranslation } from "@shared/translations/i18n-client";
-import { SingInFormButton } from "./Admin/Button/Button";
+// import { useTranslation } from "@shared/translations/i18n-client";
+// import { SingInFormButton } from "./Admin/Button/Button";
 import { useState } from "react";
 import LogoComp from "./Admin/LogoCompmoto";
 import LogoCOM from "../public/images/comp_moto_logo.png";
@@ -71,7 +71,7 @@ const SignInForm = () => {
                 {errors.password && <p className="mt-2 text-base text-red-500">{errors.password?.message}</p>}
               </div>
               <div>
-                <SingInFormButton isLoading={isLoading || isSubmitting}>sign in</SingInFormButton>
+                {/* <SingInFormButton isLoading={isLoading || isSubmitting}>sign in</SingInFormButton> */}
               </div>
               <div className="flex items-stretch justify-center hover:text-gray-500 ">
                 {/* <Link href="" passHref>

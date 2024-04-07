@@ -2,7 +2,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { UserCircleIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
-import { useTranslation } from "../../lib/shared/translations/i18n-client";
+// import { useTranslation } from "../../lib/shared/translations/i18n-client";
 import { useEffect, useMemo, useState } from "react";
 import axios from "@lib-services/axios";
 import Image from "next/image";
