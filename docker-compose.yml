@@ -1,5 +1,7 @@
 services:
   app:
+    environment:
+      - NODE_ENV=production
     image: compmoto-app
     build:
       context: ./
