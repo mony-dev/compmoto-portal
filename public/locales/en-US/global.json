@@ -1,0 +1,10 @@
+{
+  "application_name": "Link2Team",
+  "sidebar": {
+    "home": "Home",
+    "pricing": "Pricing",
+    "en": "English",
+    "th": "Thai",
+    "contact_us": "Contact us"
+  }
+}

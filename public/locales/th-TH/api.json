@@ -1,0 +1,54 @@
+{
+  "app": {
+    "name": "Link2Team"
+  },
+  "sign_in": {
+    "user_not_found": "ไม่พบผู้ใช้ในระบบ",
+    "token_not_found": "Token is incorrect",
+    "user_not_in_company": "This user is not associated with your company",
+    "incorrect_password": "Incorrect password, please try again"
+  },
+  "base": {
+    "sorry": "ขออภัย",
+    "file_not_found": "File not found"
+  },
+  "file_helper": { "invalid_format": "Invalid format, Please check again" },
+  "user_validator": { "invalid_role": "Invalid Role, Cannot perform this action", "inactivated": "User is inactivated" },
+  "error": {
+    "unknown_error": "Unknown error",
+    "internal_server_error": "Internal server error",
+    "invalid_body": "Invalid body",
+    "wrong_process": "Wrong proccess",
+    "not_found": "Not found",
+    "unauthorized": "Unauthorized",
+    "method_not_allowed": "Method not allowed",
+    "not_owner": "Unauthorized to perform this action",
+    "sms_error": "Cannot send OTP, Please try again later"
+  },
+  "comment": {
+    "deleted": "Deleted message",
+    "already_removed": "This comment was removed"
+  },
+  "post": {
+    "wrong_answer": "This answer does not associated with this Post survey",
+    "answered": "You already selected this Post survey"
+  },
+  "admin": {
+    "not_associate_with_compay": "This admin is not associate with your company",
+    "reset_password": {
+      "subject": "Request to reset your password",
+      "text": "Hello, please follow this link to reset your password: {{link}}.",
+      "html": "<div>Hello,<br><br>Please follow this link to reset your admin password:  <a href=\"{{link}}\">link</a>.<br><br>Thank you.<br>Link2Team ({{companyName}})</div>"
+    },
+    "validators": {
+      "token_not_found": "Authentication token not found.",
+      "verification_code_expired": "Your verification code is expired. Please try again."
+    }
+  },
+  "user": {
+    "import_incorrect_format": "File format is incorrect, please try again.",
+    "otp": {
+      "message": "Your Link2Team{{company}}OTP code is: {{token}} (ref: {{reference}}). It will be valid for {{duration}} minutes"
+    }
+  }
+}

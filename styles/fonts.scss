@@ -1,0 +1,23 @@
+//Anuphan font
+@font-face {
+  font-family: 'AnuphanRegular';
+  src: url('../public/fonts/Anuphan-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.default-font{
+  font-family: 'AnuphanRegular', sans-serif;
+}
+
+//Gotham font
+@font-face {
+  font-family: 'GothamRegular';
+  src: url('../public/fonts/Gotham-Book.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.gotham-font{
+  font-family: 'GothamRegular', sans-serif;
+}

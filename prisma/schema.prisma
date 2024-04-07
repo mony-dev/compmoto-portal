@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                 @id @default(autoincrement())
+  email              String              @unique
+  name               String?
+  role               Role                @default(USER)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  status             UserStatus          @default(Pending)
+  language           Language            @default(English)
+  verificationTokens VerificationToken[]
+  sessions           Session[]
+
+  @@index([id])
+  @@map("users")
+}
+
+model Admin {
+  id                 Int                 @id @default(autoincrement())
+  firstName          Json                @default("{}") @map("first_name") @db.Json
+  lastName           Json                @default("{}") @map("last_name") @db.Json
+  title              Json                @default("{}") @db.Json
+  encryptedPassword  String              @map("encrypted_password") @db.VarChar(255)
+  email              String              @unique @db.VarChar(255)
+  role               AdminRole
+  status             AdminStatus         @default(Active)
+  createdAt          DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt          DateTime            @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt          DateTime?           @map("deleted_at") @db.Timestamp(6)
+  language           Language            @default(English)
+  verificationTokens VerificationToken[]
+
+  @@index([id])
+  @@map("admins")
+}
+
+model VerificationToken {
+  id               Int              @id @default(autoincrement())
+  userId           Int?             @map("user_id")
+  adminId          Int?             @map("admin_id")
+  verificationType VerificationType @map("verification_type")
+  token            String           @db.VarChar(255)
+  reference        String           @db.VarChar(255)
+  data             Json             @default("{}") @db.Json
+  expiredAt        DateTime         @map("expired_at") @db.Timestamp(6)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
+  user             User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin            Admin?           @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@unique([token, verificationType])
+  @@unique([userId, verificationType])
+  @@unique([adminId, verificationType])
+  @@map("verification_tokens")
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  sessionToken String   @map("session_token")
+  refreshToken String   @map("refresh_token")
+  expireIn     Int      @map("expires_in")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+enum Language {
+  English @map("english")
+  Thai    @map("thai")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+  CLAIM
+}
+
+enum AdminRole {
+  SuperAdmin @map("super_admin")
+  Admin      @map("admin")
+  Claim      @map("claim")
+}
+
+enum AdminStatus {
+  Pending  @map("pending")
+  Active   @map("active")
+  Inactive @map("inactive")
+}
+
+enum UserStatus {
+  Pending  @map("pending")
+  Active   @map("active")
+  Inactive @map("inactive")
+}
+
+enum VerificationType {
+  PhoneAuthentication @map("phone_authentication")
+  ResetPassword       @map("reset_password")
+}
