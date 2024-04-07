@@ -18,4 +18,11 @@ services:
     environment:
       - POSTGRES_DB=compmoto_dev
       - POSTGRES_HOST_AUTH_METHOD=trust
-  
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - app
