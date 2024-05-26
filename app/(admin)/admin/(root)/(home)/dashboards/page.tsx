@@ -6,8 +6,6 @@ import Usa from "@public/images/usa.png";
 import AccountMock from "@public/images/logo/account-mock.png";
 import Star from "@public/images/star.png";
 import '@fancyapps/ui/dist/carousel/carousel.css';
-import TripCard from '@components/Admin/TripCard';
-import TicketFrame from "@public/images/ticket-frame.png";
 import Calendar from "@public/images/calendar.png";
 
 const Carousel = typeof window !== 'undefined' ? require('@fancyapps/ui').Carousel : null;
