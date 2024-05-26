@@ -15,6 +15,7 @@ services:
       - "3000:3000"
     networks:
       - compmoto-net
+
   postgres: 
     image: postgres:15-alpine
     ports:
@@ -24,13 +25,13 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
       - compmoto-net
+
   nginx:
     image: nginx:latest
     build:
-      context: .
-      dockerfile: ./nginx/Dockerfile
+      context: ./nginx
+      dockerfile: Dockerfile
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - "80:80"
@@ -39,6 +40,7 @@ services:
       - app
     networks:
       - compmoto-net
+
 networks:
   compmoto-net:
     driver: bridge
