@@ -7,6 +7,10 @@ import AccountMock from "@public/images/logo/account-mock.png";
 import Star from "@public/images/star.png";
 import '@fancyapps/ui/dist/carousel/carousel.css';
 import Calendar from "@public/images/calendar.png";
+import Total from "@public/images/logo/total-order.png";
+import BonusPoint from "@public/images/logo/bonus-point.png";
+import Chart from "@public/images/logo/chart.png";
+import News from "@public/images/logo/news.png";
 
 const Carousel = typeof window !== 'undefined' ? require('@fancyapps/ui').Carousel : null;
 
@@ -227,7 +231,17 @@ const Dashboard = () => {
         </div>
       </div>
       <div className='mt-4 p-4 rounded-lg flex bg-white' style={{boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`}}>
-        <p className='default-font font-medium text-xl text-black leading-7'>ยอดสั่งซื้อรวม</p>
+        <IconFooter width={2000} height={600} src={Total.src} alt="logo" />
+      </div>
+      <div className='mt-4 p-4 rounded-lg flex bg-white' style={{boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`}}>
+        {/* <p className='default-font font-medium text-xl text-black leading-7'>ยอดสั่งซื้อรวม</p> */}
+        <IconFooter width={2000} height={600} src={BonusPoint.src} alt="logo" />
+      </div>
+      <div className='mt-4 p-4 rounded-lg flex bg-white' style={{boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`}}>
+        <IconFooter width={2000} height={600} src={Chart.src} alt="logo" />
+      </div>
+      <div className='mt-4 p-4 rounded-lg flex bg-white' style={{boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`}}>
+        <IconFooter width={2000} height={600} src={News.src} alt="logo" />
       </div>
     </div>
   );
