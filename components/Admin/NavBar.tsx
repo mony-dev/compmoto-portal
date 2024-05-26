@@ -101,7 +101,7 @@ const NavBar = ({ onToggle, isOpen }: NavBarProps) => {
 
   return (
     <>
-      <nav className="fixed top-0 z-20 w-full border border-slate-500" style={{ background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040`}}>
+      <nav className="fixed top-0 z-20 w-full border border-slate-500" style={{ background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.25)`}}>
         <div className="flex flex-wrap items-center justify-between p-2 mx-auto">
           <Link href={"/admin/dashboards"} className="relative flex items-center ">
             <LogoComp src={LogoCOM.src} width={175} height={45} alt="logo" />

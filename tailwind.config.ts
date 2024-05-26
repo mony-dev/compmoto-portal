@@ -33,6 +33,8 @@ module.exports = withMT({
         "comp-grey": "#909AAA",
         "comp-red-lighter": "#fef1f3",
         "comp-natural-gray": "#D3D7DD",
+        "comp-natural-base": "#7A8699",
+        "comp-line-gray": "#E4E7EB",
         "comp-gray-line": "#484949",
         "l2t-dark-purple": "#613097",
         "l2t-purple": "#7816C5",
