@@ -21,7 +21,7 @@ services:
   nginx:
     image: nginx:latest
     volumes:
-      - /nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - "80:80"
