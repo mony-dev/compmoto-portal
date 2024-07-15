@@ -34,6 +34,7 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
+    command: ["/wait-for.sh", "app:3000", "--", "nginx", "-g", "daemon off;"]
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
