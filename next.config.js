@@ -10,13 +10,8 @@ const nextConfig = {
  output: "standalone",
  swcMinify: false,
  images: {
-  // domains: [
-  //   "link-2-team-development.s3.ap-southeast-1.amazonaws.com",
-  //   "link-2-team-staging.s3.ap-southeast-1.amazonaws.com",
-  //   "link-2-team-production.s3.ap-southeast-1.amazonaws.com",
-  //   "link-2-team-public.s3.ap-southeast-1.amazonaws.com",
-  // ],
- },
+    domains: ['res.cloudinary.com'],
+  },
  eslint: {
   ignoreDuringBuilds: true,
  },

@@ -34,11 +34,11 @@ const Hr = styled.hr`
 const Footer = ({ isOpen }: FooterProps) => {
   return (
     <>
-      <div style={{ marginTop: "20rem" }}>
-        <footer className="z-20" style={{ position: "relative", bottom: 0, left: 0, right: 0, background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040` }}>
+      {/* <div style={{ marginTop: "20rem" }}> */}
+        <footer className="z-20 pr-12 ms-12" style={{ background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040` }}>
            <div className="flex justify-between px-24 py-8">
           <div className="flex justify-start flex-col">
-            <Link href={"/admin/dashboards"} className="relative flex items-start">
+            <Link href={"/admin"} className="relative flex items-start">
               <LogoComp src={LogoCOM.src} width={175} height={45} alt="logo" />
             </Link>
             <p className="text-white pl-5 text-sm pt-4">บริษัท คอมพ์ โมโต จำกัด</p>
@@ -102,75 +102,6 @@ const Footer = ({ isOpen }: FooterProps) => {
           </p>
         </div>
         </footer>
-      </div>
-      {/* <footer className="fixed bottom-0 z-20 w-full border border-slate-500" style={{ background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040`}}> */}
-        {/* <div className="flex justify-between px-24 py-8">
-          <div className="flex justify-start flex-col">
-            <Link href={"/admin/dashboards"} className="relative flex items-start">
-              <LogoComp src={LogoCOM.src} width={175} height={45} alt="logo" />
-            </Link>
-            <p className="text-white pl-5 text-sm pt-4">บริษัท คอมพ์ โมโต จำกัด</p>
-            <p className="text-white pl-5 text-sm">ที่อยู่ 1696,1698,1690,1692,1694,1688/4 ถนนอ่อนนุช แขวงอ่อนนุช เขตสวนหลวง จ.กรุงเทพมหานคร 10250</p>
-            <div className="flex pt-4 ml-2">
-              <IconCompmoto src={FacebookIcon.src} alt="logo" />
-              <IconCompmoto src={LineIcon.src} alt="logo" />
-              <IconCompmoto src={MapIcon.src} alt="logo" />
-            </div>
-          </div>
-          <div className="flex justify-start flex-col">
-            <p className="text-base	font-medium text-white gotham-font">
-              Operating Hours
-            </p>
-            <p className="text-sm gotham-font text-white pt-4 pb-2">
-              Monday-Friday 08:30 AM - 05:30 PM
-            </p>
-            <p className="text-sm gotham-font text-white">
-              Saturday 09:00 AM - 04:00 PM
-            </p>
-            <p className="text-sm gotham-font text-white pt-4">
-              (Closed every Sunday)
-            </p>
-          </div>
-          <div className="flex justify-start flex-col">
-            <p className="text-base	font-medium text-white gotham-font pl-4">
-              Contact
-            </p>
-            <div className="text-sm gotham-font text-white pt-4 flex">
-              <span className="self-center">
-                <IconCompmoto src={SmsIcon.src} alt="logo" />
-              </span>
-              <p className="self-center">info@comp-moto.com</p>
-            </div>
-            <div className="text-sm gotham-font text-white flex">
-              <span className="self-center">
-                <IconCompmoto src={CallIcon.src} alt="logo" />
-              </span>
-              <p className="self-center">02-320-1910</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-between px-24 border-y-2 border-comp-gray-line">
-          <IconFooter src={PirelliIcon.src} alt="logo" />
-          <IconFooter src={AirsupplyIcon.src} alt="logo" />
-          <IconFooter src={HelIcon.src} alt="logo" />
-          <IconFooter src={FerodoIcon.src} alt="logo" />
-          <IconFooter src={DidIcon.src} alt="logo" />
-          <IconFooter src={BsbatteryIcon.src} alt="logo" />
-          <IconFooter src={SilkoleneIcon.src} alt="logo" />
-          <IconFooter src={RccossatoIcon.src} alt="logo" />
-        </div>
-        <div className="flex justify-between px-24 py-8">
-          <p className="font-gotham text-sm text-white pl-5">
-            ©2023 COMP MOTO CO.,LTD, All right reserved.
-          </p>
-          <p className="font-gotham text-sm text-white">
-            <span className="pl-4">Privacy Policy</span>
-            <span className="pl-4">Terms of Service</span>
-            <span className="pl-4">Cookies Settings</span>
-          </p>
-        </div> */}
-      {/* </footer> */}
-      <footer  style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>ccccc</footer>
     </>
   );
 };

@@ -2,31 +2,48 @@
 
 import NavBar from "@components/Admin/NavBar";
 import { Session } from "next-auth";
-// import SessionLayout from "@components/Layout";
-// import SideBar from "@components/Admin/SideBar";
 import { GRAY_BG } from "@components/Colors";
 import { useState } from "react";
 import SideBar from "@components/Admin/SideBar";
 import Footer from "@components/Admin/Footer";
-import { BLACK_BG_COLOR } from "@components/Colors";
-
-const Layout = ({ children, session }: { children: React.ReactNode; session: Session }) => {
+import { useSession } from "next-auth/react"
+const Layout = ({
+  children
+}: {
+  children: React.ReactNode;
+}) => {
   const [isMobileOpened, setIsMobileOpened] = useState(false);
   const toggleMobileMenu = () => {
     setIsMobileOpened((opened) => !opened);
   };
+  // const session = await getServerSession();
+  const { data: session, status } = useSession()
+  if (status === "loading") {
+    return <div>Loading...</div> // or a loading spinner
+  }
+  console.log("session", session)
 
   return (
     // <SessionLayout session={session}>
     <>
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-        <NavBar onToggle={toggleMobileMenu} isOpen={isMobileOpened} />
-        <div style={{ display: "flex", flexGrow: 1 }}>
-          <SideBar isOpen={isMobileOpened} onToggle={toggleMobileMenu} />
-          <div className={`relative w-full h-full py-8 border-none pt-28 sm:ml-60 bg-comp-gray-bg`}>{children}</div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+          }}
+        >
+          <NavBar onToggle={toggleMobileMenu} isOpen={isMobileOpened} userData={session?.user}/>
+          <div style={{ display: "flex", flexGrow: 1 }}>
+            <SideBar isOpen={isMobileOpened} onToggle={toggleMobileMenu} role={session?.user.role}/>
+            <div
+              className={`relative w-full h-full pt-28 border-none sm:ml-60 bg-comp-gray-bg`}
+            >
+              {children}
+              <Footer isOpen={isMobileOpened} />
+            </div>
+          </div>
         </div>
-        <Footer isOpen={isMobileOpened} />
-      </div>
     </>
     // </SessionLayout>
   );

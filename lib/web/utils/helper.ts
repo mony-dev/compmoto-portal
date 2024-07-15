@@ -1,9 +1,5 @@
 import { signOut } from "next-auth/react";
 import { toast } from "react-toastify";
-// import { DataTablePaginated } from "@components/Admin/DataTable/DataTable";
-// import BaseResponse from "./responses";
-// import { DEFAULT_PAGE_SIZE } from "@lib-shared/params/pagination-params";
-// import axios from "@lib-services/axios";
 import { AxiosError } from "axios";
 
 export function handleAPIError(error: unknown) {

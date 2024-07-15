@@ -6,8 +6,19 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'AnuphanMedium';
+  src: url('../public/fonts/Anuphan-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .default-font{
   font-family: 'AnuphanRegular', sans-serif;
+}
+
+.anuphan-medium-font{
+  font-family: 'AnuphanMedium', sans-serif;
 }
 
 //Gotham font

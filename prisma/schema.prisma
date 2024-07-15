@@ -16,56 +16,45 @@ datasource db {
 model User {
   id                 Int                 @id @default(autoincrement())
   email              String              @unique
+  encryptedPassword  String              @map("encrypted_password") @db.VarChar(255)
   name               String?
   role               Role                @default(USER)
+  saleUserId         Int?                
+  saleUser           User?               @relation("UserToSaleUser", fields: [saleUserId], references: [id])
+  users              User[]              @relation("UserToSaleUser")
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   status             UserStatus          @default(Pending)
   language           Language            @default(English)
-  verificationTokens VerificationToken[]
+  paymentTerms       String? 
+  creditPoint        Int?                @default(0)
+  rewardPoint        Int                 @default(0)
+  phoneNumber        String?
+  birthDate          DateTime?
+  gender             String?
+  vatNo              String?
+  custAddress        String?
+  shipToAddress      String?
+  balanceLCY         Int?
+  contactName        String?
+  custPriceGroup     String?
+  custNo             String
   sessions           Session[]
+  userLogs           UserLog[]          
 
   @@index([id])
   @@map("users")
 }
 
-model Admin {
-  id                 Int                 @id @default(autoincrement())
-  firstName          Json                @default("{}") @map("first_name") @db.Json
-  lastName           Json                @default("{}") @map("last_name") @db.Json
-  title              Json                @default("{}") @db.Json
-  encryptedPassword  String              @map("encrypted_password") @db.VarChar(255)
-  email              String              @unique @db.VarChar(255)
-  role               AdminRole
-  status             AdminStatus         @default(Active)
-  createdAt          DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt          DateTime            @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt          DateTime?           @map("deleted_at") @db.Timestamp(6)
-  language           Language            @default(English)
-  verificationTokens VerificationToken[]
+model UserLog {                         
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  ipAddress String
+  createdAt DateTime @default(now())
 
   @@index([id])
-  @@map("admins")
-}
-
-model VerificationToken {
-  id               Int              @id @default(autoincrement())
-  userId           Int?             @map("user_id")
-  adminId          Int?             @map("admin_id")
-  verificationType VerificationType @map("verification_type")
-  token            String           @db.VarChar(255)
-  reference        String           @db.VarChar(255)
-  data             Json             @default("{}") @db.Json
-  expiredAt        DateTime         @map("expired_at") @db.Timestamp(6)
-  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
-  user             User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  admin            Admin?           @relation(fields: [adminId], references: [id], onDelete: Cascade)
-
-  @@unique([token, verificationType])
-  @@unique([userId, verificationType])
-  @@unique([adminId, verificationType])
-  @@map("verification_tokens")
+  @@map("user_logs")
 }
 
 model Session {
@@ -81,6 +70,49 @@ model Session {
   @@map("sessions")
 }
 
+model RewardCategory {
+  id        Int       @id @default(autoincrement())
+  name      String
+  isActive  Boolean
+  rewards   Reward[]
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model Image {
+  id          Int           @id @default(autoincrement())
+  url        String
+  rewardAlbumId Int
+  rewardAlbum  RewardAlbum @relation(fields: [rewardAlbumId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model Reward {
+  id              Int            @id @default(autoincrement())
+  rewardCategoryId Int
+  rewardCategory  RewardCategory @relation(fields: [rewardCategoryId], references: [id])
+  name            String
+  point           Int
+  startDate       DateTime
+  endDate         DateTime
+  file            String
+  image           String
+  rewardAlbum     RewardAlbum?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model RewardAlbum {
+  id        Int     @id @default(autoincrement())
+  name      String
+  rewardId  Int     @unique
+  reward    Reward  @relation(fields: [rewardId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  images    Image[]
+}
+
 enum Language {
   English @map("english")
   Thai    @map("thai")
@@ -91,6 +123,7 @@ enum Role {
   ADMIN
   SUPER_ADMIN
   CLAIM
+  SALE
 }
 
 enum AdminRole {

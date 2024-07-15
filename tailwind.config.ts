@@ -36,6 +36,11 @@ module.exports = withMT({
         "comp-natural-base": "#7A8699",
         "comp-line-gray": "#E4E7EB",
         "comp-gray-line": "#484949",
+        "comp-gray-text": "#A6AEBB",
+        "text-gray-hover": "#bcc2c9",
+        "comp-sub-header": "#878787",
+        "comp-blue-link": "#00a1ff",
+        "comp-gray-layout": "#d9d9d9",
         "l2t-dark-purple": "#613097",
         "l2t-purple": "#7816C5",
         "l2t-light-purple": "#BA63FF",
@@ -72,6 +77,12 @@ module.exports = withMT({
       },
       spacing: {
         '1px': '1px',
+      },
+      flexGrow: {
+        '02': "0.2"
+      },
+      width: {
+        'wc-17': '17rem'
       }
     },
   },

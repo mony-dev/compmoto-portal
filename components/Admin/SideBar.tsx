@@ -1,5 +1,12 @@
-import { ChevronDownIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { signOut } from "next-auth/react";
+import {
+  ChevronDownIcon,
+  DocumentTextIcon,
+  GiftIcon,
+  ShoppingBagIcon,
+  Squares2X2Icon,
+  UserIcon,
+} from "@heroicons/react/24/solid";
+
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,23 +20,24 @@ import GridRed from "../../public/images/logo/grid-red.png";
 import GridGrey from "../../public/images/logo/grid-grey.png";
 import BagGrey from "../../public/images/logo/bag-grey.png";
 import BagRed from "../../public/images/logo/bag-red.png";
-import TaskSqureGrey from "../../public/images/logo/task-square-grey.png"
+import TaskSqureGrey from "../../public/images/logo/task-square-grey.png";
 import TaskSqureRed from "../../public/images/logo/task-square-red.png";
-import GiftGrey from "../../public/images/logo/gift-grey.png"
+import GiftGrey from "../../public/images/logo/gift-grey.png";
 import GiftRed from "../../public/images/logo/gift-red.png";
-import BoxGrey from "../../public/images/logo/box-grey.png"
+import BoxGrey from "../../public/images/logo/box-grey.png";
 import BoxRed from "../../public/images/logo/box-red.png";
-import BookGrey from "../../public/images/logo/book-grey.png"
+import BookGrey from "../../public/images/logo/book-grey.png";
 import BookRed from "../../public/images/logo/book-red.png";
-import { log } from "console";
-import Footer from "./Footer";
+import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 
 type SideBarItemProps = {
   title: string;
-  icon:  JSX.Element;
+  icon: JSX.Element;
   items?: SidebarLinkProps[];
   href?: any;
   id: string;
+  openMenuId: any;
+  forRole: string[];
 };
 
 const Hr = styled.hr`
@@ -37,7 +45,11 @@ const Hr = styled.hr`
 `;
 
 const btnClass = (isSelect: boolean) =>
-  `flex w-full rounded-lg	${isSelect ? "text-comp-red bg-comp-red-hover" : "bg-comp-gray-bg text-comp-grey"} items-center justify-start pl-8 pr-1 py-4 text-sm ${
+  `flex w-full rounded-lg	${
+    isSelect
+      ? "text-comp-red bg-comp-red-hover"
+      : "bg-comp-gray-bg text-comp-grey"
+  } items-center justify-start pl-8 pr-1 py-4 text-sm ${
     !isSelect && "hover:bg-comp-red-hover"
   } transition-colors duration-75 focus:outline-none flex justify-between`;
 
@@ -46,17 +58,29 @@ type SideBarProps = {
   onToggle: () => void;
   href?: any;
   onToggleIconColor?: (menu: string) => void;
+  role: string;
 };
 
 type SideBarToggleProps = Omit<SideBarProps, "isOpen">;
 
-export default function SideBar({ isOpen, href, onToggle }: SideBarProps) {
+export default function SideBar({
+  isOpen,
+  href,
+  onToggle,
+  role,
+}: SideBarProps) {
   const [iconColor, setIconColor] = useState(false);
-  const [menuId, setMenuId] = useState('');
+  const [menuId, setMenuId] = useState("");
+  const [openMenuId, setOpenMenuId] = useState("");
 
+  // const toggleIconColor = (menu: string) => {
+  //   setIconColor(!iconColor);
+  //   setMenuId(menu);
+  //   onToggle();
+  // };
   const toggleIconColor = (menu: string) => {
     setIconColor(!iconColor);
-    setMenuId(menu);
+    setOpenMenuId((prevMenuId) => (prevMenuId === menu ? "" : menu));
     onToggle();
   };
   const pathname = usePathname();
@@ -64,13 +88,22 @@ export default function SideBar({ isOpen, href, onToggle }: SideBarProps) {
   const sidebarItems: SideBarItemProps[] = [
     {
       title: "แดชบอร์ด",
-      icon: <Image src={ pathname == '/admin/dashboards' ?  GridRed : GridGrey} alt="Grid Red" /> ,
+      icon: (
+        <Image
+          src={pathname == "/admin/dashboards" ? GridRed : GridGrey}
+          alt="Grid Red"
+        />
+      ),
       href: "/admin/dashboards",
-      id: "dashboard"
+      id: "dashboard",
+      openMenuId: openMenuId,
+      forRole: ["USER"],
     },
     {
       title: "สั่งซื้อสินค้า",
-      icon: <Image src={menuId == 'shopping' && iconColor ?  BagRed : BagGrey} alt="Cart" />,
+      icon: (
+        <Image src={openMenuId == "shopping" ? BagRed : BagGrey} alt="Cart" />
+      ),
       items: [
         { title: "Accossato", href: "/admin/shoping" },
         { title: "Air Supply", href: "/admin/shoping" },
@@ -81,39 +114,228 @@ export default function SideBar({ isOpen, href, onToggle }: SideBarProps) {
         { title: "Fuchs", href: "/admin/shoping" },
         { title: "Pirelli", href: "/admin/shoping" },
       ],
-      id: "shopping"
+      id: "shopping",
+      openMenuId: openMenuId,
+      forRole: ["USER"],
     },
     {
       title: "สรุปรายการสั่งซื้อ",
-      icon: <Image src={menuId == 'orders' && iconColor ? TaskSqureRed : TaskSqureGrey} alt="Order" />,
+      icon: (
+        <Image
+          src={openMenuId == "orders" ? TaskSqureRed : TaskSqureGrey}
+          alt="Order"
+        />
+      ),
       items: [
         { title: "คำสั่งซื้อทั่วไป", href: "/admin/normal-order" },
         { title: "Back Order", href: "/admin/back-order" },
       ],
-      id: "orders"
+      id: "orders",
+      openMenuId: openMenuId,
+      forRole: ["USER"],
     },
     {
       title: "แลกรางวัล",
-      icon: <Image src={menuId == 'rewards' && iconColor ? GiftRed : GiftGrey} alt="Reward" />,
-      items: [
-        { title: "รางวัลของฉัน", href: "/admin/my-reward" },
-      ],
-      id: "rewards"
+      icon: (
+        <Image
+          src={openMenuId == "rewards" ? GiftRed : GiftGrey}
+          alt="Reward"
+        />
+      ),
+      items: [{ title: "รางวัลของฉัน", href: "/admin/my-reward" }],
+      id: "rewards",
+      openMenuId: openMenuId,
+      forRole: ["USER"],
     },
     {
       title: "เคลมสินค้า",
-      icon: <Image src={menuId == 'claims' && iconColor ? BoxRed : BoxGrey} alt="claim" />,
+      icon: (
+        <Image src={openMenuId == "claims" ? BoxRed : BoxGrey} alt="claim" />
+      ),
       items: [
         { title: "กรอกแบบฟอร์มเคลม", href: "/admin/new-claim" },
         { title: "รายการเคลมสินค้า", href: "/admin/claim-list" },
       ],
-      id: "claims"
+      id: "claims",
+      openMenuId: openMenuId,
+      forRole: ["USER"],
     },
     {
       title: "คู่มือการใช้งาน",
-      icon: <Image src={ pathname == '/admin/user-manuals' ? BookRed : BookGrey} alt="Grid Red" /> ,
+      icon: (
+        <Image
+          src={pathname == "/admin/user-manuals" ? BookRed : BookGrey}
+          alt="Grid Red"
+        />
+      ),
       href: "/admin/user-manuals",
-      id: "manual"
+      id: "manual",
+      openMenuId: openMenuId,
+      forRole: ["USER"],
+    },
+
+    {
+      title: "จัดการผู้ใช้งาน",
+      icon:
+        openMenuId == "adminUser" || pathname == "/admin/admins" || pathname == "/admin/users" || pathname == "/admin/userLogs" ? (
+          <UserIcon className="size-6 text-comp-red" />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6 text-comp-grey"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+            />
+          </svg>
+        ),
+      items: [
+        { title: "ตั้งค่าพนักงาน", href: "/admin/admins" },
+        { title: "ตั้งค่าผู้ใช้งาน", href: "/admin/users" },
+        { title: "ข้อมูลการเข้าสู่ระบบ", href: "/admin/userLogs" },
+      ],
+      id: "adminUser",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN"],
+    },
+    {
+      title: "จัดการแดชบอร์ด",
+      icon:
+        openMenuId == "adminDashboard" ? (
+          <Squares2X2Icon className="size-6 text-comp-red" />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
+            />
+          </svg>
+        ),
+      items: [
+        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: "/admin/orderSetting" },
+        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: "/admin/bonusSetting" },
+      ],
+      id: "adminDashboard",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN"],
+    },
+    {
+      title: "จัดการมินิไซส์",
+      icon:
+        openMenuId == "adminMinisize" ? (
+          <ShoppingBagIcon className="size-6 text-comp-red" />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+            />
+          </svg>
+        ),
+      items: [
+        { title: "ตั้งค่ามินิไซส์", href: "/admin/adminMinisize" },
+        { title: "สินค้า", href: "/admin/adminProduct" },
+        { title: "โปรโมชั่น", href: "/admin/adminPromotion" },
+        { title: "สื่อการตลาด", href: "/admin/adminMedia" },
+        { title: "ข่าว และกิจกรรม", href: "/admin/adminNewsAndEvent" },
+      ],
+      id: "adminMinisize",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN"],
+    },
+    {
+      title: "จัดการรายการสั่งซื้อ",
+      icon:
+        openMenuId == "adminOrder" ? (
+          <DocumentTextIcon className="size-6 text-comp-red" />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+            />
+          </svg>
+        ),
+      items: [
+        { title: "รายการสั่งซื้อทั่วไป", href: "/admin/adminOrder" },
+        { title: "Back Order", href: "/admin/adminBackOrder" },
+        { title: "รายการเคลมสินค้า", href: "/admin/adminClaim" },
+      ],
+      id: "adminOrder",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN", "SALE"],
+    },
+    {
+      title: "จัดการแลกรางวัล",
+      icon: (
+        <Image
+          src={openMenuId == "adminReward" ? GiftRed : GiftGrey}
+          alt="Reward"
+        />
+      ),
+      items: [
+        { title: "รายการแลกรางวัล", href: "/admin/adminRewardOrder" },
+        { title: "หมวดหมู่แลกรางวัล", href: "/admin/adminRewardCategory" },
+               ],
+      id: "adminReward",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN"],
+    },
+    {
+      title: "จัดการคู่มือการใช้งาน",
+      icon: (
+        <Image
+          src={pathname == "/admin/adminUserManual" ? BookRed : BookGrey}
+          alt="Grid Red"
+        />
+      ),
+      href: "/admin/adminUserManual",
+      id: "adminUserManual",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN"],
+    },
+    {
+      title: "จัดการเคลมสินค้า",
+      icon: (
+        <Image
+          src={pathname == "/admin/adminClaim" ? BookRed : BookGrey}
+          alt="Grid Red"
+        />
+      ),
+      href: "/admin/adminClaim",
+      id: "adminClaim",
+      openMenuId: openMenuId,
+      forRole: ["CLAIM"],
     },
   ];
 
@@ -121,26 +343,30 @@ export default function SideBar({ isOpen, href, onToggle }: SideBarProps) {
     <>
       <aside
         id="default-sidebar"
-        className={`bg-comp-gray-bg fixed py-10 overflow-x-auto sm:mt-0 top-0 left-0 h-screen w-full sm:w-64 pr-8 transition-transform z-10 bg-white ${isOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0 border border-slate-500 flex flex-col justify-between`}
+        className={`bg-comp-gray-bg fixed overflow-x-auto sm:mt-0 top-0 left-0 h-screen w-full sm:w-wc-17 transition-transform z-10 pt-12 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } sm:translate-x-0 flex flex-col justify-between`}
         aria-label="Sidebar"
       >
         <div className="mt-16 overflow-y-auto font-bold hidden-scroll">
-          {sidebarItems.map((item, index) => (
-            <div key={index + item.title}>
-              <SidebarItem {...item} onToggle={onToggle} onToggleIconColor={toggleIconColor} />
-            </div>
-          ))}
+          {sidebarItems.map(
+            (item, index) =>
+              item.forRole.includes(role) && (
+                <div key={index + item.title}>
+                  <SidebarItem
+                    role={role}
+                    {...item}
+                    onToggle={onToggle}
+                    onToggleIconColor={toggleIconColor}
+                    openMenuId={openMenuId}
+                  />
+                </div>
+              )
+          )}
           <Hr />
-          {/* <button className={btnClass(false)} onClick={() => signOut()}>
-        <span className="flex items-center gap-2">
-          <ArrowLeftOnRectangleIcon className="w-6 h-6" />
-          {t("sidebar.signout")}
-        </span>
-      </button> */}
         </div>
       </aside>
     </>
-
   );
 }
 
@@ -150,11 +376,18 @@ type SidebarLinkProps = {
   icon?: JSX.Element;
 };
 
-const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({ title, href, icon, onToggle }) => {
+const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
+  title,
+  href,
+  icon,
+  onToggle,
+}) => {
   const pathname = usePathname();
   const isSelect = pathname.includes(href);
   const btnClassWithLine = (isSelect: boolean) =>
-    `relative flex w-full rounded-lg ${isSelect ? "text-comp-red" : "bg-comp-gray-bg text-comp-grey"} items-center justify-start pl-8 pr-1 py-1 text-sm transition-colors duration-75 focus:outline-none`;
+    `relative flex w-full rounded-lg ${
+      isSelect ? "text-comp-red" : "bg-comp-gray-bg text-comp-grey"
+    } items-center justify-start pl-8 pr-1 py-1 text-sm transition-colors duration-75 focus:outline-none`;
 
   const verticalLine = `absolute left-0 top-0 bottom-0 w-1 bg-gray-300`;
 
@@ -163,63 +396,50 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({ title, h
       <div className="ml-2 pl-8">
         <button className={`${btnClassWithLine(isSelect)} `} onClick={onToggle}>
           <div className={verticalLine}></div>
-          <div className={`hover:bg-comp-red-hover p-2.5 rounded-lg ${isSelect && "bg-comp-red-hover"}`}>
+          <div
+            className={`hover:bg-comp-red-hover p-2.5 rounded-lg ${
+              isSelect && "bg-comp-red-hover"
+            }`}
+          >
             <span className={`flex items-center gap-2`}>
               {icon && <div className="w-6 h-6">{icon}</div>}
-              {title} 
+              {title}
             </span>
           </div>
-          
-          <div className="absolute left-[1px] top-1/2 h-0.5 bg-gray-300 right-0 w-6 rounded-full"></div> {/* Extended Horizontal line */}
+          <div className="absolute left-[1px] top-1/2 h-0.5 bg-gray-300 right-0 w-6 rounded-full"></div>{" "}
+          {/* Extended Horizontal line */}
         </button>
       </div>
     </Link>
   );
 };
 
-// const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({ title, href, icon, onToggle }) => {
-//   const pathname = usePathname();
-//   const isSelect = pathname.includes(href);
-//   const btnClassWithLine = (isSelect: boolean) =>
-//     `relative flex w-full rounded-lg ${isSelect ? "text-comp-red bg-comp-red-hover" : "bg-comp-gray-bg text-comp-grey"} items-center justify-start pl-8 pr-1 py-4 text-sm ${
-//       !isSelect && "hover:bg-comp-red-hover"
-//     } transition-colors duration-75 focus:outline-none`;
-
-//   const verticalLine = `absolute left-0 top-0 bottom-0 w-1 bg-comp-natural-gray`;
-
-//   return (
-//     <Link href={href}>
-//       <button className={`ml-2 pl-8 relative ${btnClassWithLine(isSelect)} ${isSelect && "bg-comp-red-hover"}`} onClick={onToggle}>
-//         <div className={verticalLine}></div>
-//         <span className="flex items-center gap-2">
-//           {icon && <div className="w-6 h-6">{icon}</div>}
-//           {title} 
-//         </span>
-//         <svg className="absolute left-0 top-1/2 transform -translate-y-1/2" height="100%" width="10px" viewBox="0 0 10 10">
-//           <path d="M 5 0 Q 5 0 5 5 T 10 10" fill="none" stroke="#D3D7DD" strokeWidth="3" />
-//         </svg>
-//       </button>
-//     </Link>
-//   );
-// };
-
-
-const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (props) => {
+const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (
+  props
+) => {
   const pathname = usePathname();
   const routeList = props.items ? props.items.map((item) => item.href) : [];
   const isCurrentRoute = routeList.some((path) => path === pathname);
-  const [isSelect, setIsSelect] = useState(isCurrentRoute);
+  // const [isSelect, setIsSelect] = useState(isCurrentRoute);
+  const isSelect = props.id === props.openMenuId;
 
   const setColor = (id: string) => {
-    setIsSelect(!isSelect); 
+    // setIsSelect(!isSelect);
     props.onToggleIconColor && props.onToggleIconColor(id);
   };
 
   return (
     <div className="bg-comp-grey-bg">
       {props.href ? (
-        <Link href={props.href} aria-controls="dropdown-sidebar" data-collapse-toggle="dropdown-sidebar">
-          <button className={btnClass(isSelect || props.href === pathname)} onClick={props.onToggle}>
+        <Link
+          href={props.href}
+          aria-controls="dropdown-sidebar"
+          data-collapse-toggle="dropdown-sidebar"
+        >
+          <button
+            className={btnClass(isSelect || props.href === pathname)}
+            onClick={props.onToggle}
+          >
             <span className="flex justify-between items-center gap-2">
               <div className="w-6 h-6">{props.icon}</div>
               {props.title}
@@ -237,15 +457,27 @@ const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (props) => 
             <div className="w-6 h-6">{props.icon}</div>
             {props.title}
           </div>
-          <ChevronDownIcon className={`w-6 h-6 transition-transform duration-200 ${isSelect && "rotate-180"}`} />
+          <ChevronDownIcon
+            className={`w-6 h-6 transition-transform duration-200 ${
+              isSelect && "rotate-180"
+            }`}
+          />
         </button>
       )}
       {props.items && (
-        <div className={`grid transition-all duration-200 ${isSelect ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div
+          className={`grid transition-all duration-200 ${
+            isSelect ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
           <ul className="overflow-hidden transition-all duration-200">
             {props.items.map((item) => (
               <li key={item.title}>
-                <SidebarLink {...item} onToggle={props.onToggle} />
+                <SidebarLink
+                  role={props.role}
+                  {...item}
+                  onToggle={props.onToggle}
+                />
               </li>
             ))}
           </ul>

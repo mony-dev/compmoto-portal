@@ -29,10 +29,11 @@
       "@lib-services/*": ["./lib/server/services/*"],
       "@lib-utils/*": ["./lib/web/utils/*"],
       "@components/*": ["./components/*"],
-      "@public/*": ["./public/*"]
+      "@public/*": ["./public/*"],
+      "@lib-schemas/*": ["./lib/web/schemas/*"],
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-i18next.config.js"],
+  "include": ["next-env.d.ts","next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-i18next.config.js", "lib/web/utils/fetchUsers.mjs", "lib/web/utils/fetchAdmin.mjs", "app/api/change-password/routests"],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
