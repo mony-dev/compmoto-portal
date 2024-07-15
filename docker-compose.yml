@@ -15,6 +15,8 @@ services:
       - "3000:3000"
     networks:
       - compmoto-net
+    env_file:
+      - .env
   postgres: 
     image: postgres:15-alpine
     environment:
