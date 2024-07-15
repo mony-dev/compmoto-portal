@@ -145,6 +145,14 @@ body {
 .is-prev{
   left: 53rem!important;
 }
-.test{
-  color: black;
+.button-backend:hover {
+  background-color: black!important;
+}
+
+.switch-backend button{
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.reward-modal .ant-picker{
+  width: 100%;
 }
