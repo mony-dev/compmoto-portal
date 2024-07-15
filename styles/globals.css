@@ -145,3 +145,7 @@ body {
 .is-prev{
   left: 53rem!important;
 }
+
+.test{
+  color: black;
+}
