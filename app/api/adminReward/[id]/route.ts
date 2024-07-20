@@ -16,7 +16,6 @@ export async function GET(
         OR: [{ name: { contains: q } }],
       },
     });
-    console.log("reward", reward);
     return NextResponse.json(reward);
   } catch (error) {
     return NextResponse.json(error);

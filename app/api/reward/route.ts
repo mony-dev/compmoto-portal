@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 export async function POST( request: Request,
   { body }: {  body: any }) {
   const data = await request.json();
-  console.log("data", data)
   try {
     const createCate = await prisma.reward.create({
       data: {
@@ -18,8 +17,6 @@ export async function POST( request: Request,
         file: data.file,
       }
     })
-  console.log("createCate",createCate)
-
     return NextResponse.json(createCate);
   } catch (error) {
   console.log(error)

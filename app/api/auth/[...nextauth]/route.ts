@@ -27,7 +27,6 @@ const handler = NextAuth({
         req
       ) {
         if (credentials) {
-          console.log("credentials", credentials);
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
@@ -60,7 +59,6 @@ const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user, account, profile, isNewUser }) {
-      console.log("user", user)
       if (user) {
         token.role = user.role;
         token.id = user.id || undefined;

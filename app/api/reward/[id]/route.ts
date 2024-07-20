@@ -15,7 +15,6 @@ export async function GET(
         id: Number(id),
       },
     });
-    console.log("reward", reward);
     return NextResponse.json(reward);
   } catch (error) {
     return NextResponse.json(error);

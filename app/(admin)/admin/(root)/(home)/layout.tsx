@@ -21,8 +21,6 @@ const Layout = ({
   if (status === "loading") {
     return <div>Loading...</div> // or a loading spinner
   }
-  console.log("session", session)
-
   return (
     // <SessionLayout session={session}>
     <>

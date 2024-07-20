@@ -115,7 +115,6 @@ export default function adminsRewardCategory({ params }: { params: { id: number 
     axios
       .get(`/api/adminReward/${params.id}?q=${searchText}`)
       .then((response) => {
-        console.log(response)
         const useReward = response.data.map((reward: DataType) => ({
           key: reward.id,
           id: reward.id,

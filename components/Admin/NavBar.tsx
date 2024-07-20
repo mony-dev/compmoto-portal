@@ -75,7 +75,6 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
   ];
 
   useEffect(() => {
-    console.log(userData)
     if (userData?.data?.CustPriceGroup) {
       if (userData.data.CustPriceGroup.includes("3STARS")) {
         setStarLevel(3);
@@ -180,7 +179,7 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                     <div className="flex justify-between grow-2">
                       <div className="flex flex-col">
                         <p className="gotham-font text-base self-end">
-                          {userData.rewardPoint}
+                          {userData ? (userData.rewardPoint ? userData.rewardPoint : 0) : 0}
                         </p>
                         <p className="default-font text-xs text-comp-gray-text self-end">
                           คะแนน
@@ -197,7 +196,7 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                     <div className="flex justify-between grow-2">
                       <div className="flex flex-col">
                         <p className="gotham-font text-base self-end">
-                          {userData.data?.CreditPoint[0] ? userData.data?.CreditPoint[0] : 0}
+                          {userData ? (userData.data?.CreditPoint[0] ? userData.data?.CreditPoint[0] : 0) : 0}
                         </p>
                         <p className="default-font text-xs text-comp-gray-text self-end">
                           บาท

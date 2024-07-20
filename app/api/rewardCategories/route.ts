@@ -30,7 +30,6 @@ export async function GET(request: Request) {
 export async function POST( request: Request,
   { body }: {  body: any }) {
   const data = await request.json();
-  console.log("data", data)
   try {
     const createCate = await prisma.rewardCategory.create({
       data: {
