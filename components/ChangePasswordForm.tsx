@@ -23,11 +23,10 @@ const ChangePasswordForm = () => {
           'Content-Type': 'application/json',
         },
       });
-      router.replace("/admin/sign-in");
+      router.replace("/en/admin/sign-in");
 
       toastSuccess("Password updated successfully")  ;
     } catch (error: any) {
-      console.log("error", error.response.data.message)
       toastError(error.response.data.message)  ;
 
     }

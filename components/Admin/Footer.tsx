@@ -21,6 +21,8 @@ import { BLACK_BG_COLOR } from "@components/Colors";
 import styled from "styled-components";
 import tw from "twin.macro";
 import IconFooter from "./IconFooter";
+import { useCurrentLocale } from "next-i18n-router/client";
+import i18nConfig from "../../i18nConfig";
 
 type FooterProps = {
   isOpen: boolean;
@@ -32,13 +34,15 @@ const Hr = styled.hr`
 `;
 
 const Footer = ({ isOpen }: FooterProps) => {
+  const locale = useCurrentLocale(i18nConfig);
+
   return (
     <>
       {/* <div style={{ marginTop: "20rem" }}> */}
         <footer className="z-20 pr-12 ms-12" style={{ background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040` }}>
            <div className="flex justify-between px-24 py-8">
           <div className="flex justify-start flex-col">
-            <Link href={"/admin"} className="relative flex items-start">
+            <Link href={`/${locale}/admin`} className="relative flex items-start">
               <LogoComp src={LogoCOM.src} width={175} height={45} alt="logo" />
             </Link>
             <p className="text-white pl-5 text-sm pt-4">บริษัท คอมพ์ โมโต จำกัด</p>

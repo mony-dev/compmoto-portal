@@ -12,8 +12,16 @@ export async function GET(
   try {
     const reward = await prisma.reward.findMany({
       where: {
-        rewardCategoryId: { equals: Number(id) },
-        OR: [{ name: { contains: q } }],
+        AND: [
+          {
+            rewardCategoryId: { equals: Number(id) },
+          },
+          {
+            OR: [
+              { name: { contains: q, mode: 'insensitive' } },
+            ],
+          },
+        ],
       },
     });
     return NextResponse.json(reward);

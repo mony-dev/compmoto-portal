@@ -19,8 +19,18 @@ export async function POST( request: Request,
     })
     return NextResponse.json(createCate);
   } catch (error) {
-  console.log(error)
+    return NextResponse.json(error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
 
+   
+export async function GET() {
+  try {
+    const reward = await prisma.reward.findMany({});
+    return NextResponse.json(reward);
+  } catch (error) {
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();

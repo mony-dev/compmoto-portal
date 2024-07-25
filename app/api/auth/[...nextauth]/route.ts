@@ -10,11 +10,11 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   pages: {
-    signIn: "/admin/sign-in",
-    signOut: "/admin/sign-in",
-    error: "/admin/sign-in",
-    verifyRequest: "/admin/sign-in",
-    newUser: "/admin/sign-in",
+    signIn: "/en/admin/sign-in",
+    signOut: "/en/admin/sign-in",
+    error: "/en/admin/sign-in",
+    verifyRequest: "/en/admin/sign-in",
+    newUser: "/en/admin/sign-in",
   },
   providers: [
     CredentialsProvider({

@@ -11,8 +11,13 @@ import { Button, Checkbox, Form, FormProps, Input } from "antd";
 import { getSession, signIn, SignInResponse, useSession } from "next-auth/react";
 import { handleAPIError, toastError, toastSuccess } from "@lib-utils/helper";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
-const SignInForm = () => {
+const SignInForm = ({
+  params,
+}: {
+  params: { locale: string };
+}) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -20,6 +25,7 @@ const SignInForm = () => {
   } = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
   });
+  const { t } = useTranslation();
 
   type FieldType = {
     email?: string;
@@ -40,7 +46,7 @@ const SignInForm = () => {
       if (signInResult.error.startsWith("Change password required")) {
         const email = signInResult.error.split(":")[1];
         localStorage.setItem("email", email);
-        router.push("/admin/change-password");
+        router.push(`/${params.locale}/admin/change-password`);
       }
       handleAPIError(signInResult.error);
     } else {
@@ -56,7 +62,7 @@ const SignInForm = () => {
           },
         })
         .then((response) => {
-          router.replace("/admin");
+          router.replace(`/${params.locale}/admin`);
           toastSuccess("sign_in_successfully");
         })
         .catch((error) => {
@@ -99,7 +105,7 @@ const SignInForm = () => {
               className="login100-form validate-form"
             >
               <span className="login100-form-title font-bold">
-                Member Login
+              ​ {t('member_login')}
               </span>
 
               <div className="wrap-input100">

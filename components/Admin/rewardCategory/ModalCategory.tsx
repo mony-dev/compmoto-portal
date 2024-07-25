@@ -8,11 +8,13 @@ import { toastError, toastSuccess } from "@lib-utils/helper";
 import { Button, Form, Input, Modal, Space, Switch } from "antd";
 import { triggerFocus } from "antd/es/input/Input";
 import axios from "axios";
+import { useCurrentLocale } from "next-i18n-router/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import tw from "twin.macro";
+import i18nConfig from "../../../i18nConfig";
 
 type Props = {
   isModalVisible: boolean;
@@ -21,7 +23,9 @@ type Props = {
   cateDate?: { name: string; isActive: boolean; id: number };
   triggerCategory: boolean;
   mode: string;
+  title: string;
 };
+const locale = useCurrentLocale(i18nConfig);
 
 const Hr = styled.hr`
   ${tw`bg-comp-gray-line mx-24`}
@@ -33,6 +37,7 @@ const ModalCategory = ({
   cateDate,
   triggerCategory,
   mode,
+  title,
 }: Props) => {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -63,7 +68,7 @@ const ModalCategory = ({
         });
         setIsModalVisible(false);
         toastSuccess("Category updated successfully");
-        router.replace("/admin/adminRewardCategory");
+        router.replace(`/${locale}/admin/adminRewardCategory`);
       } catch (error: any) {
         toastError(error.message);
       }
@@ -76,7 +81,7 @@ const ModalCategory = ({
         });
         setIsModalVisible(false);
         toastSuccess("Category created successfully");
-        router.replace("/admin/adminRewardCategory");
+        router.replace(`/${locale}/admin/adminRewardCategory`);
       } catch (error: any) {
         toastError(error.message);
       }
@@ -90,8 +95,8 @@ const ModalCategory = ({
   return (
     <>
       <Modal
-        title="เพิ่มหมวดหมู่"
-        visible={isModalVisible}
+        title={title}
+        open={isModalVisible}
         // onOk={false}
         onCancel={() => {
           setIsModalVisible(false);

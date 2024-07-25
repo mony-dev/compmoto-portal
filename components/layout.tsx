@@ -7,7 +7,9 @@ import { SessionProvider } from "next-auth/react";
 import { getServerSession } from "next-auth";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider>{children}</SessionProvider>
+  );
 };
 
 export default Layout;

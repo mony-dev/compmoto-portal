@@ -29,6 +29,8 @@ import BoxRed from "../../public/images/logo/box-red.png";
 import BookGrey from "../../public/images/logo/book-grey.png";
 import BookRed from "../../public/images/logo/book-red.png";
 import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { useCurrentLocale } from "next-i18n-router/client";
+import i18nConfig from "../../i18nConfig";
 
 type SideBarItemProps = {
   title: string;
@@ -43,6 +45,7 @@ type SideBarItemProps = {
 const Hr = styled.hr`
   ${tw`m-2 bg-comp-gray-bg`}
 `;
+const locale = useCurrentLocale(i18nConfig);
 
 const btnClass = (isSelect: boolean) =>
   `flex w-full rounded-lg	${
@@ -84,17 +87,16 @@ export default function SideBar({
     onToggle();
   };
   const pathname = usePathname();
-  const { t } = useTranslation("admin");
   const sidebarItems: SideBarItemProps[] = [
     {
       title: "แดชบอร์ด",
       icon: (
         <Image
-          src={pathname == "/admin/dashboards" ? GridRed : GridGrey}
+          src={pathname == `/${locale}/admin/dashboards` ? GridRed : GridGrey}
           alt="Grid Red"
         />
       ),
-      href: "/admin/dashboards",
+      href: `/${locale}/dashboards`,
       id: "dashboard",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -105,14 +107,14 @@ export default function SideBar({
         <Image src={openMenuId == "shopping" ? BagRed : BagGrey} alt="Cart" />
       ),
       items: [
-        { title: "Accossato", href: "/admin/shoping" },
-        { title: "Air Supply", href: "/admin/shoping" },
-        { title: "BS Battery", href: "/admin/shoping" },
-        { title: "DID", href: "/admin/shoping" },
-        { title: "Dynavolt", href: "/admin/shoping" },
-        { title: "Ferodo", href: "/admin/shoping" },
-        { title: "Fuchs", href: "/admin/shoping" },
-        { title: "Pirelli", href: "/admin/shoping" },
+        { title: "Accossato", href: `/${locale}/shoping` },
+        { title: "Air Supply", href: `/${locale}/shoping` },
+        { title: "BS Battery", href: `/${locale}/shoping` },
+        { title: "DID", href: `/${locale}/shoping` },
+        { title: "Dynavolt", href: `/${locale}/shoping` },
+        { title: "Ferodo", href: `/${locale}/shoping` },
+        { title: "Fuchs", href: `/${locale}/shoping` },
+        { title: "Pirelli", href: `/${locale}/shoping` },
       ],
       id: "shopping",
       openMenuId: openMenuId,
@@ -127,8 +129,8 @@ export default function SideBar({
         />
       ),
       items: [
-        { title: "คำสั่งซื้อทั่วไป", href: "/admin/normal-order" },
-        { title: "Back Order", href: "/admin/back-order" },
+        { title: "คำสั่งซื้อทั่วไป", href: `/${locale}/normal-order` },
+        { title: "Back Order", href: `/${locale}/back-order` },
       ],
       id: "orders",
       openMenuId: openMenuId,
@@ -142,7 +144,7 @@ export default function SideBar({
           alt="Reward"
         />
       ),
-      items: [{ title: "รางวัลของฉัน", href: "/admin/my-reward" }],
+      items: [{ title: "รางวัลของฉัน", href: `/${locale}/reward` }],
       id: "rewards",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -153,8 +155,8 @@ export default function SideBar({
         <Image src={openMenuId == "claims" ? BoxRed : BoxGrey} alt="claim" />
       ),
       items: [
-        { title: "กรอกแบบฟอร์มเคลม", href: "/admin/new-claim" },
-        { title: "รายการเคลมสินค้า", href: "/admin/claim-list" },
+        { title: "กรอกแบบฟอร์มเคลม", href: `/${locale}/new-claim` },
+        { title: "รายการเคลมสินค้า", href: `/${locale}/claim-list` },
       ],
       id: "claims",
       openMenuId: openMenuId,
@@ -164,11 +166,11 @@ export default function SideBar({
       title: "คู่มือการใช้งาน",
       icon: (
         <Image
-          src={pathname == "/admin/user-manuals" ? BookRed : BookGrey}
+          src={pathname == `/${locale}/user-manuals` ? BookRed : BookGrey}
           alt="Grid Red"
         />
       ),
-      href: "/admin/user-manuals",
+      href: `/${locale}/user-manuals`,
       id: "manual",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -177,7 +179,7 @@ export default function SideBar({
     {
       title: "จัดการผู้ใช้งาน",
       icon:
-        openMenuId == "adminUser" || pathname == "/admin/admins" || pathname == "/admin/users" || pathname == "/admin/userLogs" ? (
+        openMenuId == "adminUser" || pathname == `/${locale}/admins` || pathname == `/${locale}/users` || pathname == `/${locale}/userLogs` ? (
           <UserIcon className="size-6 text-comp-red" />
         ) : (
           <svg
@@ -196,9 +198,9 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่าพนักงาน", href: "/admin/admins" },
-        { title: "ตั้งค่าผู้ใช้งาน", href: "/admin/users" },
-        { title: "ข้อมูลการเข้าสู่ระบบ", href: "/admin/userLogs" },
+        { title: "ตั้งค่าพนักงาน", href: `/${locale}/admins` },
+        { title: "ตั้งค่าผู้ใช้งาน", href: `/${locale}/users` },
+        { title: "ข้อมูลการเข้าสู่ระบบ", href: `/${locale}/userLogs` },
       ],
       id: "adminUser",
       openMenuId: openMenuId,
@@ -226,8 +228,8 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: "/admin/orderSetting" },
-        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: "/admin/bonusSetting" },
+        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `/${locale}/orderSetting` },
+        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `/${locale}/bonusSetting` },
       ],
       id: "adminDashboard",
       openMenuId: openMenuId,
@@ -255,11 +257,11 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่ามินิไซส์", href: "/admin/adminMinisize" },
-        { title: "สินค้า", href: "/admin/adminProduct" },
-        { title: "โปรโมชั่น", href: "/admin/adminPromotion" },
-        { title: "สื่อการตลาด", href: "/admin/adminMedia" },
-        { title: "ข่าว และกิจกรรม", href: "/admin/adminNewsAndEvent" },
+        { title: "ตั้งค่ามินิไซส์", href: `/${locale}/adminMinisize` },
+        { title: "สินค้า", href: `/${locale}/adminProduct` },
+        { title: "โปรโมชั่น", href: `/${locale}/adminPromotion` },
+        { title: "สื่อการตลาด", href: `/${locale}/adminMedia` },
+        { title: "ข่าว และกิจกรรม", href: `/${locale}/adminNewsAndEvent` },
       ],
       id: "adminMinisize",
       openMenuId: openMenuId,
@@ -287,9 +289,9 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "รายการสั่งซื้อทั่วไป", href: "/admin/adminOrder" },
-        { title: "Back Order", href: "/admin/adminBackOrder" },
-        { title: "รายการเคลมสินค้า", href: "/admin/adminClaim" },
+        { title: "รายการสั่งซื้อทั่วไป", href: `/${locale}/adminOrder` },
+        { title: "Back Order", href: `/${locale}/adminBackOrder` },
+        { title: "รายการเคลมสินค้า", href: `/${locale}/adminClaim` },
       ],
       id: "adminOrder",
       openMenuId: openMenuId,
@@ -304,8 +306,8 @@ export default function SideBar({
         />
       ),
       items: [
-        { title: "รายการแลกรางวัล", href: "/admin/adminRewardOrder" },
-        { title: "หมวดหมู่แลกรางวัล", href: "/admin/adminRewardCategory" },
+        { title: "รายการแลกรางวัล", href: `/${locale}/adminRewardOrder` },
+        { title: "หมวดหมู่แลกรางวัล", href: `/${locale}/adminRewardCategory` },
                ],
       id: "adminReward",
       openMenuId: openMenuId,
@@ -315,11 +317,11 @@ export default function SideBar({
       title: "จัดการคู่มือการใช้งาน",
       icon: (
         <Image
-          src={pathname == "/admin/adminUserManual" ? BookRed : BookGrey}
+          src={pathname == `/${locale}/adminUserManual` ? BookRed : BookGrey}
           alt="Grid Red"
         />
       ),
-      href: "/admin/adminUserManual",
+      href: `/${locale}/adminUserManual`,
       id: "adminUserManual",
       openMenuId: openMenuId,
       forRole: ["ADMIN"],
@@ -328,11 +330,11 @@ export default function SideBar({
       title: "จัดการเคลมสินค้า",
       icon: (
         <Image
-          src={pathname == "/admin/adminClaim" ? BookRed : BookGrey}
+          src={pathname == `/${locale}/adminClaim` ? BookRed : BookGrey}
           alt="Grid Red"
         />
       ),
-      href: "/admin/adminClaim",
+      href: `/${locale}/adminClaim`,
       id: "adminClaim",
       openMenuId: openMenuId,
       forRole: ["CLAIM"],

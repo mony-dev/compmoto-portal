@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const withTwin = require("./withTwin.js");
-const { i18n } = require("./next-i18next.config");
+const { i18n } = require("./i18nConfig");
+
 const nextConfig = {
  i18n,
  reactStrictMode: true,
@@ -18,3 +19,4 @@ const nextConfig = {
 };
 
 module.exports = withTwin(nextConfig);
+

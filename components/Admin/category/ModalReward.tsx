@@ -29,20 +29,25 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import tw from "twin.macro";
 import UploadRewardImage from "../UploadRewardImage";
-import { CldUploadWidget } from "next-cloudinary";
-import { sources } from "next/dist/compiled/webpack/webpack";
 import DatePickers from "../DatePickers";
-import { DateTime } from "luxon";
-import dayjs from "dayjs";
 
 type Props = {
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
   setTriggerReward: (value: boolean) => void;
-  reData?: { name: string; id: number, point: number,  startDate: string, endDate: string, image: string, file: string};
+  reData?: {
+    name: string;
+    id: number;
+    point: number;
+    startDate: string;
+    endDate: string;
+    image: string;
+    file: string;
+  };
   triggerReward: boolean;
   mode: string;
   id: number;
+  title: string;
 };
 
 const Hr = styled.hr`
@@ -56,6 +61,7 @@ const ModalReward = ({
   triggerReward,
   mode,
   id,
+  title,
 }: Props) => {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -64,14 +70,15 @@ const ModalReward = ({
     control,
     watch,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm<RewardSchema>({
     resolver: zodResolver(rewardSchema),
   });
 
-  const [trigger, setTrigger] = useState(false);
-  const [image, setImage] = useState<string | null>();
-  const [file, setFile] = useState<string | null>();
+  const [triggera, setTriggera] = useState(false);
+  const [image, setImage] = useState<string | { url: string }[]>([]);
+  const [file, setFile] = useState<string>();
 
   useEffect(() => {
     if (mode === "EDIT" && reData && reData.id > 0) {
@@ -79,17 +86,57 @@ const ModalReward = ({
       setValue("point", reData.point);
       setValue("startDate", reData.startDate);
       setValue("endDate", reData.endDate);
+      setValue("file", reData.file);
+      setValue("image", reData.image);
+      setImage(reData?.image);
+      setFile(reData?.file);
+    } else {
+      setValue("name", "");
+      setValue("point", 0);
+      setValue("startDate", "");
+      setValue("endDate", "");
+      setValue("file", "");
+      setValue("image", "");
+      setImage("");
+      setFile("");
     }
-  }, [reData, trigger]);
+  }, [trigger, reData, mode]);
+
+
+  useEffect(() => {
+    let effFile = ""
+    let effImage:any = ""
+    if (file) {
+      effFile = file
+    } 
+    if (image) {
+      effImage = image
+    } 
+    setValue("file", effFile);
+    setValue("image", effImage);
+    mode == "EDIT" &&  trigger(["file", "image"]);
+  }, [file, image]);
 
   const onSubmit: SubmitHandler<RewardSchema> = async (values) => {
     if (mode === "EDIT" && reData && reData.id > 0) {
       try {
-        const response = await axios.put(`/api/reward/${reData.id}`, values, {
-          headers: {
-            "Content-Type": "application/json",
+        const response = await axios.put(
+          `/api/reward/${reData.id}`,
+          {
+            name: values.name,
+            startDate: values.startDate,
+            endDate: values.endDate,
+            point: values.point,
+            image: image,
+            file: file,
+            rewardCategoryId: id,
           },
-        });
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         setIsModalVisible(false);
         toastSuccess("Category updated successfully");
         // router.replace("/admin/adminRewardCategory");
@@ -98,28 +145,25 @@ const ModalReward = ({
       }
     } else {
       try {
-        const rewardResponse = await axios.post(`/api/reward`, {
-          name: values.name,
-          startDate: values.startDate,
-          endDate: values.endDate,
-          point: values.point,
-          image: image,
-          file: file,
-          rewardCategoryId: id
-        }, {
-          headers: {
-            "Content-Type": "application/json",
+        const rewardResponse = await axios.post(
+          `/api/reward`,
+          {
+            name: values.name,
+            startDate: values.startDate,
+            endDate: values.endDate,
+            point: values.point,
+            image: image,
+            file: file,
+            rewardCategoryId: id,
           },
-        });
-        
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         setIsModalVisible(false);
-        setValue("name", "");
-        setValue("startDate", "");
-        setValue("endDate", "");
-        setValue("point", null);
-        setValue("image", "");
-        setValue("file", "");
-        setTrigger(!trigger);
         toastSuccess("Category reward successfully");
         // router.replace("/admin/adminRewardCategory");
       } catch (error: any) {
@@ -127,27 +171,21 @@ const ModalReward = ({
       }
     }
     setTriggerReward(!triggerReward);
-    setTrigger(!trigger);
+    setTriggera(!triggera);
   };
- 
+
   return (
     <>
       <Modal
-        title="เพิ่มสินค้า"
-        visible={isModalVisible}
+        title={title}
+        open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
-          setValue("name", "");
-          setValue("startDate", "");
-          setValue("endDate", "");
-          setValue("point", null);
-          setValue("image", "");
-          setValue("file", "");
-          setTrigger(!trigger);
+          setTriggera(!triggera);
+          setTriggerReward(!triggerReward);
         }}
         footer={false}
       >
-
         <Form
           form={form}
           name="form"
@@ -160,6 +198,8 @@ const ModalReward = ({
             label="Upload Image"
             required
             tooltip="This is a required field"
+            help={errors.image && "Please upload reward image"}
+            validateStatus={errors.image ? "error" : ""}
           >
             <Controller
               control={control}
@@ -169,7 +209,8 @@ const ModalReward = ({
                   setImage={setImage}
                   fileType="image"
                   allowType={["jpg", "png", "jpeg"]}
-                  initialImage={mode === "EDIT" ? reData?.image : null}
+                  initialImage={image}
+                  multiple={false}
                 />
               )}
             />
@@ -195,6 +236,8 @@ const ModalReward = ({
             label="Point"
             required
             tooltip="This is a required field"
+            help={errors.point && "Please enter reward point"}
+            validateStatus={errors.point ? "error" : ""}
           >
             <Controller
               control={control}
@@ -216,28 +259,26 @@ const ModalReward = ({
                 label="Start Date"
                 required
                 tooltip="This is a required field"
-               
               >
                 <DatePickers
-                    placeholder="Start Date"
-                    name="startDate"
-                    control={control}
-                  />
+                  placeholder="Start Date"
+                  name="startDate"
+                  control={control}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
-            <Form.Item
+              <Form.Item
                 name="endDate"
                 label="End Date"
                 required
                 tooltip="This is a required field"
-               
               >
                 <DatePickers
-                    placeholder="End Date"
-                    name="endDate"
-                    control={control}
-                  />
+                  placeholder="End Date"
+                  name="endDate"
+                  control={control}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -246,6 +287,8 @@ const ModalReward = ({
             label="Upload File"
             required
             tooltip="This is a required field"
+            help={errors.file && "Please upload reward file"}
+            validateStatus={errors.file ? "error" : ""}
           >
             <Controller
               control={control}
@@ -255,7 +298,8 @@ const ModalReward = ({
                   setFile={setFile}
                   fileType="auto"
                   allowType={["pdf"]}
-                  initialImage={mode === "EDIT" ? reData?.file : null}
+                  initialImage={file}
+                  multiple={false}
                 />
               )}
             />

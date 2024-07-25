@@ -42,6 +42,55 @@ export function toastError(message: string) {
   });
 }
 
+export function formatDateRange(startDate: string, endDate: string) {
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  const startDay = start.getUTCDate();
+  const endDay = end.getUTCDate();
+  const month = monthNames[start.getUTCMonth()];
+
+  return `${startDay}-${endDay} ${month}`;
+}
+
+export function formatDate(date: string) {
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const start = new Date(date);
+
+  const startDay = start.getUTCDate();
+  const month = start.getUTCMonth();
+  const year = start.getUTCFullYear();
+
+  return `${startDay}-${month}-${year}`;
+}
+
 // export const fetchItemPaginated = async <T>(
 //   path: string,
 //   pageIndex: number,

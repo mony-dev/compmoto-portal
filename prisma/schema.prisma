@@ -41,6 +41,7 @@ model User {
   custNo             String
   sessions           Session[]
   userLogs           UserLog[]          
+  userRewards        UserReward[]     
 
   @@index([id])
   @@map("users")
@@ -98,19 +99,32 @@ model Reward {
   endDate         DateTime
   file            String
   image           String
-  rewardAlbum     RewardAlbum?
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  userRewards          UserReward[]     
 }
 
 model RewardAlbum {
   id        Int     @id @default(autoincrement())
   name      String
-  rewardId  Int     @unique
-  reward    Reward  @relation(fields: [rewardId], references: [id])
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
   images    Image[]
+}
+
+model UserReward {
+  id          Int      @id @default(autoincrement())
+  rewardId    Int
+  reward      Reward   @relation(fields: [rewardId], references: [id])
+  userId      Int
+  quantity    Int
+  user      User     @relation(fields: [userId], references: [id])
+  isComplete  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([rewardId])
+  @@index([userId])
 }
 
 enum Language {
