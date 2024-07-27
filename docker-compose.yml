@@ -35,7 +35,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     volumes:
-      - ./nginx/ssl:/etc/nginx/ssl  # Mount SSL certificates from a local directory
+      - /etc/letsencrypt:/etc/letsencrypt:ro 
     ports:
       - "80:80"
       - "443:443"
@@ -43,7 +43,6 @@ services:
       - app
     networks:
       - compmoto-net
-
 networks:
   compmoto-net:
     driver: bridge
