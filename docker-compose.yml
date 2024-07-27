@@ -8,11 +8,11 @@ services:
       # target: dev
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - .:/app # This line might be redundant (see note below) 
       - /app/node_modules
       - /app/.next
     ports:
-      - "3000:3000"
+      - "3000:3000" 
     networks:
       - compmoto-net
     env_file:
@@ -35,7 +35,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
+      - ./nginx/ssl:/etc/nginx/ssl  # Mount SSL certificates from a local directory
     ports:
       - "80:80"
       - "443:443"
