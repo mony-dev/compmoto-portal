@@ -19,7 +19,7 @@ export function handleAPIError(error: unknown) {
 export function toastSuccess(message: string) {
   toast.success(message, {
     position: "top-center",
-    autoClose: 5000,
+    autoClose: 1000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -32,7 +32,7 @@ export function toastSuccess(message: string) {
 export function toastError(message: string) {
   toast.error(message, {
     position: "top-center",
-    autoClose: 5000,
+    autoClose: 1000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,

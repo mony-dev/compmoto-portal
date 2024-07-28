@@ -37,7 +37,7 @@ body {
   display: none;
 }
 
-.icon-footer{
+.icon-footer {
   width: 128px;
   height: 90px;
 }
@@ -54,14 +54,30 @@ body {
 }
 
 .wavy-border::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   width: 20px; /* Adjust width as needed */
   background: #f87171; /* Tailwind color: bg-red-200 */
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 calc(100% - 10px), 10px calc(100% - 20px), 0 calc(100% - 30px), 10px calc(100% - 40px), 0 calc(100% - 50px), 10px calc(100% - 60px), 0 calc(100% - 70px), 10px calc(100% - 80px), 0 calc(100% - 90px), 10px 100%, 0 100%);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 calc(100% - 10px),
+    10px calc(100% - 20px),
+    0 calc(100% - 30px),
+    10px calc(100% - 40px),
+    0 calc(100% - 50px),
+    10px calc(100% - 60px),
+    0 calc(100% - 70px),
+    10px calc(100% - 80px),
+    0 calc(100% - 90px),
+    10px 100%,
+    0 100%
+  );
 }
 
 #cardSlider {
@@ -72,7 +88,7 @@ body {
   --f-button-prev-pos: 5rem;
   --f-button-next-pos: 5rem;
 
-  --f-button-bg: #E4E7EB;
+  --f-button-bg: #e4e7eb;
   --f-button-color: white;
 
   --f-button-width: 30px;
@@ -89,7 +105,7 @@ body {
 }
 
 .f-carousel__slide {
-  margin-right: 1rem!important;
+  margin-right: 1rem !important;
 }
 @media screen and (min-width: 640px) {
   #cardSlider {
@@ -113,19 +129,19 @@ body {
   outline: none;
 }
 
-.cut{
+.cut {
   width: 5px;
   height: 7px;
   background-color: white;
   border-top-left-radius: 100%;
   border-bottom-left-radius: 100%;
-  border: 1px solid #DD2C37;
+  border: 1px solid #dd2c37;
   border-right: 0;
 }
 
-.cuts{
+.cuts {
   position: absolute;
-  right:-1px;
+  right: -1px;
   top: 8px;
   width: fit-content;
   height: 55px;
@@ -135,38 +151,38 @@ body {
   flex-direction: column;
 }
 
-.f-carousel__nav{
-  top: -30%!important;
-  position: absolute!important;
+.f-carousel__nav {
+  top: -30% !important;
+  position: absolute !important;
 }
-.is-next{
-  left: 56rem!important;
+.is-next {
+  left: 56rem !important;
 }
-.is-prev{
-  left: 53rem!important;
+.is-prev {
+  left: 53rem !important;
 }
 .button-backend:hover {
-  background-color: black!important;
+  background-color: black !important;
 }
 
-.switch-backend button{
+.switch-backend button {
   background: rgba(0, 0, 0, 0.45);
 }
 
-.reward-modal .ant-picker{
+.reward-modal .ant-picker {
   width: 100%;
 }
-.reward-card .ant-card-actions{
-  background-color: #FFE8EB!important;
+.reward-card .ant-card-actions {
+  background-color: #ffe8eb !important;
 }
-.redeem-card .ant-card-actions{
-  background-color: #f5f5f5!important;
+.redeem-card .ant-card-actions {
+  background-color: #f5f5f5 !important;
 }
 
 .custom-input-number {
   .ant-input-number {
-  border-radius: 0px;
-  border: none;
+    border-radius: 0px;
+    border: none;
   }
   .ant-input-number-input {
     text-align: center;
@@ -179,7 +195,7 @@ body {
 }
 
 .plus-icon .ant-btn-icon {
-  border-left: 1px solid #7A8699;
+  border-left: 1px solid #7a8699;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
@@ -187,6 +203,35 @@ body {
 .minus-icon .ant-btn-icon {
   padding-right: 0.5rem;
 }
-  // :where(.css-dev-only-do-not-override-98ntnt).ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-  //   color: #DD2C37!important;
-  // }
+
+.redeem-tab .ant-tabs-nav::before {
+  border-bottom: none;
+}
+
+.redeem-tab .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #dd2c37 !important;
+}
+
+.redeem-tab .ant-tabs-ink-bar {
+  background-color: #dd2c37 !important;
+}
+
+/* Target the <span> that usually contains the text directly */
+.redeem-tab .ant-tabs-tab-btn > span {
+  color: #000; /* Default tab text color */
+}
+
+.redeem-tab .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn > span {
+  color: #dd2c37 !important; /* Active tab text color */
+}
+
+.redeem-tab .ant-tabs-tab .ant-badge-count {
+  /* Target all badges */
+  background-color: #bcc2c9; /* Default badge background color (gray) */
+  color: #000; /* Default badge text color (black) */
+}
+
+.redeem-tab .ant-tabs-tab.ant-tabs-tab-active .ant-badge-count {
+  background-color: #ffe8eb !important; /* Active badge background */
+  color: #dd2c37 !important; /* Active badge text color */
+}
