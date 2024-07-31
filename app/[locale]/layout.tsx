@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "../../styles/globals.scss";
 import "../../styles/fonts.scss";
 import Layout from "@components/layout";
+import Head from "next/head";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -30,6 +31,9 @@ export default async function RootLayout({
 }: RootLayoutProps) {
   return (
     <html lang={locale}>
+      <Head>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <body className={`${inter.className} min-h-screen default-font`}>
         <Layout children={children}/>
       </body>

@@ -50,7 +50,6 @@ const SignInForm = ({
       }
       handleAPIError(signInResult.error);
     } else {
-      // toastSuccess(t("signIn.sign_in_successfully"));
       const session = await getSession();
       const response = await axios
         .post(`/api/userLogs`, {

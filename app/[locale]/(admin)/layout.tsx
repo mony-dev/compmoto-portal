@@ -15,7 +15,7 @@ const Layout = ({ children, params: { locale }  }: { children: React.ReactNode, 
 
   useEffect(() => {
       const lastPart = pathname.substring(pathname.lastIndexOf('/') + 1);
-      const array: string[] = ['common'];
+      const array: string[] = [];
       array.push(lastPart);
       setI18nNamespaces(array);
       const fetchTranslations = async () => {
