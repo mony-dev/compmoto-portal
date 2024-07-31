@@ -4,6 +4,8 @@ import "../../styles/globals.scss";
 import "../../styles/fonts.scss";
 import Layout from "@components/layout";
 import Head from "next/head";
+import i18nConfig from "../../i18nConfig";
+import { dir } from "i18next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -13,10 +15,9 @@ export const metadata: Metadata = {
 
 
 
-// export function generateStaticParams() {
-//   // return i18nConfig.locales.map(locale => ({ locale }));
-//   return [{ lang: "en" }, { lang: "th" }];
-// }
+export function generateStaticParams() {
+  return i18nConfig.locales.map(locale => ({ locale }));
+}
 
 type RootLayoutProps = {
   children: React.ReactNode;
@@ -30,7 +31,7 @@ export default async function RootLayout({
   params: { locale } // Provide a default value for 'locale'
 }: RootLayoutProps) {
   return (
-    <html lang={locale}>
+    <html lang={locale} dir={dir(locale)}>
       <Head>
         <link rel="icon" href="/favicon.ico" />
       </Head>

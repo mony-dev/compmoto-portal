@@ -8,7 +8,7 @@
 const i18nConfig = {
     locales: ['en', 'th'],
     defaultLocale: 'en',
-    prefixDefault: false,
+    prefixDefault: true,
   };
   
   module.exports = i18nConfig;

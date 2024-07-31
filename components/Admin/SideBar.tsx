@@ -75,12 +75,12 @@ export default function SideBar({
   const [iconColor, setIconColor] = useState(false);
   const [menuId, setMenuId] = useState("");
   const [openMenuId, setOpenMenuId] = useState("");
-
   // const toggleIconColor = (menu: string) => {
   //   setIconColor(!iconColor);
   //   setMenuId(menu);
   //   onToggle();
   // };
+  const [locale, setLocale] = useState('');
   const toggleIconColor = (menu: string) => {
     setIconColor(!iconColor);
     setOpenMenuId((prevMenuId) => (prevMenuId === menu ? "" : menu));
@@ -96,7 +96,7 @@ export default function SideBar({
           alt="Grid Red"
         />
       ),
-      href: `/${locale}/dashboards`,
+      href: `/${locale}/admin/dashboards`,
       id: "dashboard",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -144,7 +144,7 @@ export default function SideBar({
           alt="Reward"
         />
       ),
-      items: [{ title: "รางวัลของฉัน", href: `/admin/${locale}/reward` }],
+      items: [{ title: "รางวัลของฉัน", href: `/${locale}/admin/reward` }],
       id: "rewards",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -341,6 +341,12 @@ export default function SideBar({
     },
   ];
 
+  useEffect(() => {
+    const match = pathname.match(/^\/(en|th)\//);
+    if (match) {
+      setLocale(match[1]);
+    }
+  }, [pathname]);
   return (
     <>
       <aside
