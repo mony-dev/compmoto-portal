@@ -70,6 +70,10 @@ export default function adminRewardOrder({
     reward: {
       name: string;
       point: number;
+      image: string;
+      file: string;
+      startDate: string;
+      endDate: string;
     };
   }
 
@@ -193,6 +197,10 @@ export default function adminRewardOrder({
           reward: {
             name: reward.reward.name,
             point: reward.reward.point,
+            image: reward.reward.image,
+            file: reward.reward.file,
+            startDate: reward.reward.startDate,
+            endDate: reward.reward.endDate,
           },
         }));
         setRewardUserData(useReward);
@@ -213,19 +221,6 @@ export default function adminRewardOrder({
       });
   }, [searchText, triggerReward]);
 
-  //   useEffect(() => {
-  //     if (id > 0) {
-  //       axios
-  //         .get(`/api/rewardCategories/${id}`)
-  //         .then((response) => {
-  //           setCateData(response.data);
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error fetching data: ", error);
-  //         });
-  //       setMode("EDIT");
-  //     }
-  //   }, [id, triggerReward]);
 
   function showModal(isShow: boolean, idCate: number) {
     return () => {
@@ -266,7 +261,7 @@ export default function adminRewardOrder({
           onChange={onChange}
           className="redeem-tab"
         />
-
+        
         <ModalVerify
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

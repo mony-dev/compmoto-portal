@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const rewardUserSchema = z.object({
-  custNo: z.string().nullable().optional(),
+  isComplete: z.boolean().default(false),
 });
 
 export type RewardUserSchema = z.infer<typeof rewardUserSchema>;
