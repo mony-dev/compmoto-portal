@@ -121,7 +121,7 @@ const Reward = () => {
       toastError("Amount cannot be zero");
       return;
     }
-    if (session?.user.point < amount) {
+    if (session?.user.rewardPoint < (point * amount)) {
       toastError("Your point not enough");
       return;
     }
@@ -135,7 +135,7 @@ const Reward = () => {
             rewardId: rewardId,
             quantity: amount,
             isComplete: false,
-            point: point,
+            point: (point * amount),
           },
           {
             headers: {

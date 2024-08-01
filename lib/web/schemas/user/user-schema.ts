@@ -6,6 +6,7 @@ export const userSchema = z.object({
   name: z.string().nonempty("Name is required!"),
   phoneNumber: z.string().nullable().optional(),
   saleUserId: z.number().nullable().optional(),
+  rewardPoint: z.number().nullable().optional(),
 });
 
 export type UserSchema = z.infer<typeof userSchema>;

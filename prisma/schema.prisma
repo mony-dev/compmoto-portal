@@ -162,3 +162,126 @@ enum VerificationType {
   PhoneAuthentication @map("phone_authentication")
   ResetPassword       @map("reset_password")
 }
+
+model ProductGroup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Rim {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Size {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ComReate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Family {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GroupType {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Brand {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  minisizes Minisize[]
+  products  Product[]
+}
+
+model Minisize {
+  id        Int      @id @default(autoincrement())
+  isActive  Boolean
+  name      String
+  brandId   Int
+  lv1       Json
+  lv2       Json
+  lv3       Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  brand     Brand    @relation(fields: [brandId], references: [id])
+  products  Product[]
+  promotions Promotion[]
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  productCode  Int
+  name         String
+  brandId      Int
+  price        Float
+  navStock     Int
+  portalStock  Int
+  minisizeId   Int
+  promotionId  Int
+  years        Json
+  lv1Id        Int?
+  lv2Id        Int?
+  lv3Id        Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  brand        Brand    @relation(fields: [brandId], references: [id])
+  minisize     Minisize @relation(fields: [minisizeId], references: [id])
+  promotion    Promotion @relation(fields: [promotionId], references: [id])
+  imageProducts    ImageProduct[]
+}
+
+model Promotion {
+  id            Int      @id @default(autoincrement())
+  startDate     DateTime
+  endDate       DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean
+  name          String
+  amount        Float
+  minisizeId    Int
+  userGroup     String
+  productRedeem String
+  minisize      Minisize @relation(fields: [minisizeId], references: [id])
+  products      Product[]
+  imagePromotions    ImagePromotion[]
+}
+
+model ImageProduct {
+  id          Int           @id @default(autoincrement())
+  url        String
+  productId Int
+  product  Product @relation(fields: [productId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model ImagePromotion {
+  id          Int           @id @default(autoincrement())
+  url        String
+  promotionId Int
+  promotion  Promotion @relation(fields: [promotionId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}

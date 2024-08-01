@@ -391,7 +391,7 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
   onToggle,
 }) => {
   const pathname = usePathname();
-  const isSelect = pathname.includes(href);
+  const isSelect = pathname.startsWith(href);
   const btnClassWithLine = (isSelect: boolean) =>
     `relative flex w-full rounded-lg ${
       isSelect ? "text-comp-red" : "bg-comp-gray-bg text-comp-grey"

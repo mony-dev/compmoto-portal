@@ -29,6 +29,7 @@ interface dataBodyInterface {
   phoneNumber?: string;
   saleUserId?: number;
   custNo?: string;
+  rewardPoint?: number;
 }
 
 export async function PUT( request: Request,
@@ -52,6 +53,9 @@ export async function PUT( request: Request,
   }
   if(data.custNo) {
     dataBody.custNo = data.custNo
+  }
+  if(data.rewardPoint) {
+    dataBody.rewardPoint = data.rewardPoint
   }
   
   try {

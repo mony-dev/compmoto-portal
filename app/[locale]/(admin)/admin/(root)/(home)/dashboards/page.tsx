@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import Link from "next/link";
-import { formatDateRange } from "@lib-utils/helper";
+import { formatEndDate } from "@lib-utils/helper";
 const Carousel =
   typeof window !== "undefined" ? require("@fancyapps/ui").Carousel : null;
 
@@ -67,7 +67,7 @@ const Dashboard = () => {
             id: reward.id,
             name: reward.name,
             point: reward.point,
-            date: formatDateRange(reward.startDate, reward.endDate),
+            date: formatEndDate(reward.endDate),
             image: reward.image,
           };
         });

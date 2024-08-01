@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Form, Input, Button, Select } from "antd";
+import { Form, Input, Button, Select, InputNumber } from "antd";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
@@ -61,6 +61,7 @@ export default function Admin({ params }: { params: { id: number } }) {
         setValue('name', response.data.name);
         setValue('phoneNumber', response.data.phoneNumber);
         setValue('saleUserId', response.data.saleUserId);
+        setValue('rewardPoint', response.data.rewardPoint);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
@@ -187,7 +188,18 @@ export default function Admin({ params }: { params: { id: number } }) {
                   )}
                 />
               </Form.Item>
-
+              <Form.Item
+                name="rewardPoint"
+                label="Point"
+              >
+                <Controller
+                  control={control}
+                  name="rewardPoint"
+                  render={({ field }) => (
+                    <InputNumber {...field} value={field.value || ''} placeholder="Point" size="large" className="w-full"/>
+                  )}
+                />
+              </Form.Item>
               <Form.Item
                 name="saleUserId"
                 label="Sale User"

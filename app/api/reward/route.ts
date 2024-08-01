@@ -28,8 +28,21 @@ export async function POST( request: Request,
    
 export async function GET() {
   try {
-    const reward = await prisma.reward.findMany({});
-    return NextResponse.json(reward);
+    const currentDate = new Date();
+    const rewards = await prisma.reward.findMany({
+      where: {
+        startDate: {
+          lte: currentDate,
+        },
+        endDate: {
+          gte: currentDate,
+        },
+        rewardCategory: {
+          isActive: true,
+        },
+      },
+    });
+    return NextResponse.json(rewards);
   } catch (error) {
     return NextResponse.json(error);
   } finally {

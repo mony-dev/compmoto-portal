@@ -63,8 +63,34 @@ export function formatDateRange(startDate: string, endDate: string) {
   const startDay = start.getUTCDate();
   const endDay = end.getUTCDate();
   const month = monthNames[start.getUTCMonth()];
+  const endMonth = monthNames[end.getUTCMonth()];
 
-  return `${startDay}-${endDay} ${month}`;
+
+  return `${startDay} ${month}-${endDay} ${endMonth}`;
+}
+
+export function formatEndDate(endDate: string) {
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const end = new Date(endDate);
+
+  const endDay = end.getUTCDate();
+  const endMonth = monthNames[end.getUTCMonth()];
+
+
+  return `${endDay} ${endMonth}`;
 }
 
 export function formatDate(date: string) {
