@@ -6,7 +6,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { signOut, useSession } from "next-auth/react";
 // import { useTranslation } from "../../lib/shared/translations/i18n-client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import axios from "@lib-services/axios";
 import Image from "next/image";
 
@@ -60,6 +60,7 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("0");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const sidebarItems: NavBarItemProps[] = [
     {
@@ -95,6 +96,22 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   return (
     <>
       <nav
@@ -105,10 +122,7 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
         }}
       >
         <div className="flex flex-wrap items-center justify-between p-2 mx-auto">
-          <Link
-            href={"/admin"}
-            className="relative flex items-center "
-          >
+          <Link href={"/admin"} className="relative flex items-center ">
             <LogoComp src={LogoCOM.src} width={175} height={45} alt="logo" />
           </Link>
           {/* <button onClick={changeLanguage}>change lang</button> */}
@@ -140,11 +154,14 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
             </button>
             {/* <DropDownMenu options={sidebarItems} qrCode={qrCodeImage} /> */}
             {isDropdownVisible && (
-              <div className="absolute bg-white top-16 right-8 rounded-lg">
+              <div
+                ref={dropdownRef}
+                className="absolute bg-white top-16 right-8 rounded-lg"
+              >
                 <div className="pt-8 px-8 pb-2">
                   <div className="flex items-center">
                     <Image
-                      className="rounded-lg w-fit	h-4/5"
+                      className="rounded-lg w-fit h-4/5"
                       alt="logo"
                       width={50}
                       height={30}
@@ -180,7 +197,11 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                     <div className="flex justify-between grow-2">
                       <div className="flex flex-col">
                         <p className="gotham-font text-base self-end">
-                          {userData ? (userData.rewardPoint ? userData.rewardPoint : 0) : 0}
+                          {userData
+                            ? userData.rewardPoint
+                              ? userData.rewardPoint
+                              : 0
+                            : 0}
                         </p>
                         <p className="default-font text-xs text-comp-gray-text self-end">
                           คะแนน
@@ -197,7 +218,11 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                     <div className="flex justify-between grow-2">
                       <div className="flex flex-col">
                         <p className="gotham-font text-base self-end">
-                          {userData ? (userData.data?.CreditPoint[0] ? userData.data?.CreditPoint[0] : 0) : 0}
+                          {userData
+                            ? userData.data?.CreditPoint[0]
+                              ? userData.data?.CreditPoint[0]
+                              : 0
+                            : 0}
                         </p>
                         <p className="default-font text-xs text-comp-gray-text self-end">
                           บาท
@@ -206,10 +231,9 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                     </div>
                   </div>
                   <div className="flex justify-center">
-               
-                    <LanguageChanger/>
+                    <LanguageChanger />
 
-                    <div className="flex items-center text-comp-red text-sm px-12	gotham-font">
+                    <div className="flex items-center text-comp-red text-sm px-12 gotham-font">
                       <svg
                         width="14"
                         height="15"
@@ -231,7 +255,7 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                         />
                       </svg>
                       <p
-                        className="ps-2 cursor-pointer	text-comp-red"
+                        className="ps-2 cursor-pointer text-comp-red"
                         onClick={() =>
                           signOut({ callbackUrl: "/", redirect: true })
                         }
@@ -242,11 +266,9 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                   </div>
                 </div>
                 <div className="flex justify-center py-4 rounded-b-lg bg-comp-red-hover">
-                  <div
-                    className="flex items-center text-comp-red text-sm px-12	gotham-font"
-                  >
+                  <div className="flex items-center text-comp-red text-sm px-12 gotham-font">
                     <Link
-                      className="ps-2 cursor-pointer	text-comp-red hover:text-gray-hover"
+                      className="ps-2 cursor-pointer text-comp-red hover:text-gray-hover"
                       href={"/en"}
                     >
                       Privacy policy
@@ -263,9 +285,9 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
                     <circle cx="2.5" cy="2.5" r="2" fill="#DD2C37" />
                   </svg>
 
-                  <div className="flex items-center text-comp-red text-sm px-12	gotham-font">
+                  <div className="flex items-center text-comp-red text-sm px-12 gotham-font">
                     <Link
-                      className="ps-2 cursor-pointer	text-comp-red  hover:text-gray-hover"
+                      className="ps-2 cursor-pointer text-comp-red  hover:text-gray-hover"
                       href={"/en"}
                     >
                       Term of service
