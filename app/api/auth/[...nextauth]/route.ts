@@ -44,12 +44,9 @@ const handler = NextAuth({
               ...user,
               id: user?.id.toString() || "",
               role: user?.role,
+              status: user?.status
             };
-            if (user?.status === "Pending") {
-              throw new Error("Change password required:" + user.email);
-            } else {
-              return Promise.resolve(userWithRole);
-            }
+            return Promise.resolve(userWithRole);
           }
         }
         return Promise.resolve(null);
@@ -64,6 +61,7 @@ const handler = NextAuth({
         token.id = user.id || undefined;
         token.custNo = user.custNo;
         token.rewardPoint = user.rewardPoint;
+        token.status = user.status
       }
       return token;
     },
@@ -73,7 +71,7 @@ const handler = NextAuth({
         session.user.id = token.id;
         session.user.custNo = token.custNo;
         session.user.rewardPoint = token.rewardPoint;
-
+        session.user.status = token.status;
         // Fetch the latest userLog entry for this user
         const userLog = await prisma.userLog.findFirst({
           where: { userId: Number(token.id) },

@@ -8,16 +8,17 @@ import LoginLogo from "@public/images/login.png";
 import Image from "next/image";
 import "../styles/login.scss";
 import { Button, Checkbox, Form, FormProps, Input } from "antd";
-import { getSession, signIn, SignInResponse, useSession } from "next-auth/react";
-import { handleAPIError, toastError, toastSuccess } from "@lib-utils/helper";
+import {
+  getSession,
+  signIn,
+  SignInResponse,
+  useSession,
+} from "next-auth/react";
+import { handleAPIError, toastError, toastSuccess, toastWarning } from "@lib-utils/helper";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 
-const SignInForm = ({
-  params,
-}: {
-  params: { locale: string };
-}) => {
+const SignInForm = ({ params }: { params: { locale: string } }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -34,39 +35,44 @@ const SignInForm = ({
   };
 
   const onSubmit: SubmitHandler<SignInSchema> = async (data) => {
-    const ipResponse = await axios.get('/api/ip');
+    const ipResponse = await axios.get("/api/ip");
     const ipAddress = ipResponse.data;
     const signInResult = await signIn("credentials", {
       redirect: false,
       email: data.email,
       password: data.password,
     });
-
     if (signInResult?.error) {
-      if (signInResult.error.startsWith("Change password required")) {
-        const email = signInResult.error.split(":")[1];
-        localStorage.setItem("email", email);
-        router.push(`/${params.locale}/admin/change-password`);
-      }
       handleAPIError(signInResult.error);
     } else {
       const session = await getSession();
-      const response = await axios
-        .post(`/api/userLogs`, {
-          userId: session?.user.id,
-          ipAddress: ipAddress
-        }, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          router.replace(`/${params.locale}/admin`);
-          toastSuccess("sign_in_successfully");
-        })
-        .catch((error) => {
-          toastError(error);
-        });
+
+      if (session?.user.status === "Pending") {
+        localStorage.setItem("email", session.user.email);
+        toastWarning(t("please_change_password"));
+        router.push(`/${params.locale}/admin/change-password`);
+      } else {
+        const response = await axios
+          .post(
+            `/api/userLogs`,
+            {
+              userId: session?.user.id,
+              ipAddress: ipAddress,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then((response) => {
+            router.replace(`/${params.locale}/admin`);
+            toastSuccess(t("sign_in_successfully"));
+          })
+          .catch((error) => {
+            toastError(error);
+          });
+      }
     }
   };
 
@@ -104,7 +110,7 @@ const SignInForm = ({
               className="login100-form validate-form"
             >
               <span className="login100-form-title font-bold">
-              ​ {t('member_login')}
+                ​ {t("member_login")}
               </span>
 
               <div className="wrap-input100">

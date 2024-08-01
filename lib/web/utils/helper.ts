@@ -29,6 +29,18 @@ export function toastSuccess(message: string) {
   });
 }
 
+export function toastWarning(message: string) {
+  toast.warning(message, {
+    position: "top-center",
+    autoClose: 1000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+}
 export function toastError(message: string) {
   toast.error(message, {
     position: "top-center",

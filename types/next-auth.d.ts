@@ -59,6 +59,7 @@ declare module "next-auth" {
     id: string;
     custNo: string;
     rewardPoint: number;
+    status: string;
   }
   
   interface Session {
@@ -67,6 +68,7 @@ declare module "next-auth" {
       role: string;
       rewardPoint: internal;
       id: int; // Add this line
+      status: string;
     } & DefaultSession["user"]
   }
 }
