@@ -166,10 +166,13 @@ iframe {
 [  ]*/
 .login100-pic {
   width: 316px;
+  display: flex;
+  justify-content: center;
 }
 
 .login100-pic img {
-  max-width: 100%;
+  width: 100%;
+  align-self: center;
 }
 
 

@@ -18,6 +18,7 @@ import React, { useEffect, useState } from "react";
 import { Image } from "antd";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
+import NoImage from "@public/images/no_image.png";
 
 export default function adminsRewardCategory({
   params,
@@ -274,7 +275,7 @@ export default function adminsRewardCategory({
                 alt="reward album"
                 width={176}
                 height={176}
-                src={albumItem.images[0].url}
+                src={albumItem.images[0]?.url ? albumItem.images[0]?.url : NoImage.src}
               />
               <p
                 className="cursor-pointer hover:text-comp-blue-primary"

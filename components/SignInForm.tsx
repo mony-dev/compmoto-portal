@@ -4,7 +4,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import LoginLogo from "@public/images/login.png";
+import LoginLogo from "@public/images/login.jpg";
 import Image from "next/image";
 import "../styles/login.scss";
 import { Button, Checkbox, Form, FormProps, Input } from "antd";

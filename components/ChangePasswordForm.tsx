@@ -1,7 +1,7 @@
 "use client";
 import { Form, Input, Button } from "antd";
 import { LockOutlined } from "@ant-design/icons";
-import LoginLogo from "@public/images/login.png";
+import LoginLogo from "@public/images/login.jpg";
 import "../styles/login.scss";
 
 import Image from "next/image";
