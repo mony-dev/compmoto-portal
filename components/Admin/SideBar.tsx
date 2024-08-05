@@ -1,7 +1,6 @@
 import {
   ChevronDownIcon,
   DocumentTextIcon,
-  GiftIcon,
   ShoppingBagIcon,
   Squares2X2Icon,
   UserIcon,
@@ -62,6 +61,7 @@ type SideBarProps = {
   href?: any;
   onToggleIconColor?: (menu: string) => void;
   role: string;
+  minisizeItems: { name: string }[];
 };
 
 type SideBarToggleProps = Omit<SideBarProps, "isOpen">;
@@ -71,6 +71,7 @@ export default function SideBar({
   href,
   onToggle,
   role,
+  minisizeItems,
 }: SideBarProps) {
   const [iconColor, setIconColor] = useState(false);
   const [menuId, setMenuId] = useState("");
@@ -106,16 +107,10 @@ export default function SideBar({
       icon: (
         <Image src={openMenuId == "shopping" ? BagRed : BagGrey} alt="Cart" />
       ),
-      items: [
-        { title: "Accossato", href: `/${locale}/admin/shoping` },
-        { title: "Air Supply", href: `/${locale}/admin/shoping` },
-        { title: "BS Battery", href: `/${locale}/admin/shoping` },
-        { title: "DID", href: `/${locale}/admin/shoping` },
-        { title: "Dynavolt", href: `/${locale}/admin/shoping` },
-        { title: "Ferodo", href: `/${locale}/admin/shoping` },
-        { title: "Fuchs", href: `/${locale}/admin/shoping` },
-        { title: "Pirelli", href: `/${locale}/admin/shoping` },
-      ],
+      items: minisizeItems.map((item) => ({
+        title: item.name,
+        href: `/${locale}/admin/shoping`,
+      })),
       id: "shopping",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -367,6 +362,7 @@ export default function SideBar({
                     onToggle={onToggle}
                     onToggleIconColor={toggleIconColor}
                     openMenuId={openMenuId}
+                    minisizeItems={minisizeItems}
                   />
                 </div>
               )
@@ -485,6 +481,7 @@ const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (
                   role={props.role}
                   {...item}
                   onToggle={props.onToggle}
+                  minisizeItems={props.minisizeItems}
                 />
               </li>
             ))}

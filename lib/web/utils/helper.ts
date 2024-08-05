@@ -32,7 +32,7 @@ export function toastSuccess(message: string) {
 export function toastWarning(message: string) {
   toast.warning(message, {
     position: "top-center",
-    autoClose: 1000,
+    autoClose: 200,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,

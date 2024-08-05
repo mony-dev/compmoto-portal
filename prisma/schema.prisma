@@ -165,49 +165,49 @@ enum VerificationType {
 
 model ProductGroup {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Rim {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Size {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model ComReate {
+model ComRate {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
 
 model Family {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model GroupType {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Brand {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   minisizes Minisize[]
@@ -231,14 +231,14 @@ model Minisize {
 
 model Product {
   id           Int      @id @default(autoincrement())
-  productCode  Int
+  code         String   @unique
   name         String
   brandId      Int
   price        Float
   navStock     Int
   portalStock  Int
-  minisizeId   Int
-  promotionId  Int
+  minisizeId   Int?
+  promotionId  Int?
   years        Json
   lv1Id        Int?
   lv2Id        Int?
@@ -246,8 +246,8 @@ model Product {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   brand        Brand    @relation(fields: [brandId], references: [id])
-  minisize     Minisize @relation(fields: [minisizeId], references: [id])
-  promotion    Promotion @relation(fields: [promotionId], references: [id])
+  minisize     Minisize? @relation(fields: [minisizeId], references: [id])
+  promotion    Promotion? @relation(fields: [promotionId], references: [id])
   imageProducts    ImageProduct[]
 }
 

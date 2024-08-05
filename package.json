@@ -11,7 +11,15 @@
     "seed-prod": "ts-node seeds/seed-prod.ts",
     "db-reset-seed": "npx prisma migrate reset && npm run seed-dev",
     "fetch-users": "node lib/web/utils/fetchUsers.mjs",
-    "fetch-admin": "node lib/web/utils/fetchAdmin.mjs"
+    "fetch-admin": "node lib/web/utils/fetchAdmin.mjs",
+    "fetch-brands": "node lib/web/utils/fetchBrands.mjs",
+    "fetch-product-groups": "node lib/web/utils/fetchProductGroups.mjs",
+    "fetch-rims": "node lib/web/utils/fetchRims.mjs",
+    "fetch-sizes": "node lib/web/utils/fetchSizes.mjs",
+    "fetch-family": "node lib/web/utils/fetchFamily.mjs",
+    "fetch-group-type": "node lib/web/utils/fetchGroupType.mjs",
+    "fetch-products": "node lib/web/utils/fetchProducts.mjs"
+
   },
   "dependencies": {
     "@babel/core": "^7.24.3",

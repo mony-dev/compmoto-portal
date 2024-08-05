@@ -6,7 +6,7 @@ import {
   PencilSquareIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
-import { toastSuccess } from "@lib-utils/helper";
+import { toastError, toastSuccess } from "@lib-utils/helper";
 import { Button, Input, Space, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
@@ -119,10 +119,6 @@ export default function users() {
       });
   }, [searchText]);
 
-  function errorSuccess(arg0: string) {
-    throw new Error("Function not implemented.");
-  }
-
   return (
     <div className="px-12">
       <div
@@ -147,7 +143,7 @@ export default function users() {
                   const response = await axios.get('/api/fetchUsers');
                   toastSuccess("Sync user successfully");
                 } catch (error: any) {
-                  errorSuccess(error);
+                  toastError(error);
                 }
               }}
             >

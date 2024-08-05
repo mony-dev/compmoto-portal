@@ -83,10 +83,6 @@ export default function userLogs() {
       });
   }, [searchText]);
 
-  function errorSuccess(arg0: string) {
-    throw new Error("Function not implemented.");
-  }
-
   return (
     <div className="px-12">
       <div
