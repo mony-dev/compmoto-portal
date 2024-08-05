@@ -35,25 +35,27 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
   };
 
   const onSubmit: SubmitHandler<SignInSchema> = async (data) => {
-    const ipResponse = await axios.get("/api/ip");
-    const ipAddress = ipResponse.data;
-    const signInResult = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
-    if (signInResult?.error) {
-      handleAPIError(signInResult.error);
-    } else {
-      const session = await getSession();
+    setIsLoading(true);
+    try {
+      const ipResponse = await axios.get("/api/ip");
+      const ipAddress = ipResponse.data;
+      const signInResult = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
 
-      if (session?.user.status === "Pending") {
-        localStorage.setItem("email", session.user.email);
-        toastWarning(t("please_change_password"));
-        router.push(`/${params.locale}/admin/change-password`);
+      if (signInResult?.error) {
+        handleAPIError(signInResult.error);
       } else {
-        const response = await axios
-          .post(
+        const session = await getSession();
+
+        if (session?.user.status === "Pending") {
+          localStorage.setItem("email", session.user.email);
+          toastWarning(t("please_change_password"));
+          router.push(`/${params.locale}/admin/change-password`);
+        } else {
+          await axios.post(
             `/api/userLogs`,
             {
               userId: session?.user.id,
@@ -64,15 +66,15 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
                 "Content-Type": "application/json",
               },
             }
-          )
-          .then((response) => {
-            router.replace(`/${params.locale}/admin`);
-            toastSuccess(t("sign_in_successfully"));
-          })
-          .catch((error) => {
-            toastError(error);
-          });
+          );
+          toastSuccess(t("sign_in_successfully"));
+          router.replace(`/${params.locale}/admin`);
+        }
       }
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -151,6 +153,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
                   type="primary"
                   className="login100-form-btn"
                   htmlType="submit"
+                  loading={isLoading}
                 >
                   Submit
                 </Button>
