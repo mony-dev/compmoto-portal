@@ -191,7 +191,7 @@ const ModalMinisize = ({
         resetForm();
         setTriggerMinisize(!triggerMinisize);
         setTrigger(!trigger)
-        toastSuccess("Category updated successfully");
+        toastSuccess("Minisize updated successfully");
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);
@@ -206,7 +206,7 @@ const ModalMinisize = ({
         resetForm();
         setTriggerMinisize(!triggerMinisize);
         setTrigger(!trigger)
-        toastSuccess("minisize updated successfully");
+        toastSuccess("minisize created successfully");
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);

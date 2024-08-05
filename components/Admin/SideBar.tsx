@@ -107,10 +107,10 @@ export default function SideBar({
       icon: (
         <Image src={openMenuId == "shopping" ? BagRed : BagGrey} alt="Cart" />
       ),
-      items: minisizeItems.map((item) => ({
+      items: minisizeItems ? minisizeItems.map((item) => ({
         title: item.name,
         href: `/${locale}/admin/shoping`,
-      })),
+      })) : [],
       id: "shopping",
       openMenuId: openMenuId,
       forRole: ["USER"],
