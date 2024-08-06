@@ -47,6 +47,15 @@ export async function GET(request: Request) {
           lv3: JSON.stringify(data.lv3),
         },
       });
+
+      const updatedProducts = await prisma.product.updateMany({
+        where: {
+          brandId: Number(data.brandId)
+        },
+        data: {
+          minisizeId: Number(newMinisize.id)
+        }
+      });
       return NextResponse.json(newMinisize);
     } catch (error) {
       return NextResponse.json(error);

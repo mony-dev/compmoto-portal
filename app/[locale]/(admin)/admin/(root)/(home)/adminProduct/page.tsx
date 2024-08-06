@@ -48,13 +48,17 @@ export default function adminProduct({ params }: { params: { id: number } }) {
     };
     minisize?: {
       name: string;
+      lv1?: any;
+      lv2?: any;
+      lv3?: any;
     };
     promotion?: {
       name: string;
     };
-    lv1Name?: string;
-    lv2Name?: string;
-    lv3Name?: string;
+    imageProducts?: { url: string }[];
+    lv1Name: string ;
+    lv2Name: string ;
+    lv3Name: string ;
   }
 
   const columns: ColumnsType<DataType> = [
@@ -162,10 +166,14 @@ export default function adminProduct({ params }: { params: { id: number } }) {
           },
           minisize: {
             name: product?.minisize?.name,
+            lv1: product?.minisize?.lv1,
+            lv2: product?.minisize?.lv2,
+            lv3: product?.minisize?.lv3,
           },
           promotion: {
             name: product?.promotion?.name,
           },
+          imageProducts: product?.imageProducts,
           lv1Name: product.lv1Name,
           lv2Name: product.lv2Name,
           lv3Name: product.lv3Name,

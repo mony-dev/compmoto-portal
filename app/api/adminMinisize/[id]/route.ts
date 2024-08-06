@@ -32,6 +32,15 @@ export async function PUT( request: Request,
       },
       data: dataBody,
     });
+
+    const updatedProducts = await prisma.product.updateMany({
+      where: {
+        brandId: Number(data.brandId)
+      },
+      data: {
+        minisizeId: Number(id)
+      }
+    });
     return NextResponse.json(updatedMinisize);
   } catch (error) {
     return NextResponse.json(error);
