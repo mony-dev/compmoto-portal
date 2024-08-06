@@ -187,10 +187,14 @@ const ModalProduct = ({
     }
   }, [productData, id]);
 
+  function toCamelCase(str: string) {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+  }
+  
   useEffect(() => {
     const fetchCategoryOptions = async (category: string, setter: any) => {
       try {
-        const response = await axios.get(`/api/${category.toLowerCase()}`);
+        const response = await axios.get(`/api/${toCamelCase(category)}`);
         const options = response.data.map((item: any) => ({
           value: item.id,
           label: item.name,
