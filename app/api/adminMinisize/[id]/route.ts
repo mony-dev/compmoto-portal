@@ -14,6 +14,7 @@ export async function PUT( request: Request,
     lv1: string,
     lv2: string,
     lv3: string,
+    image: string;
   }
 
   let dataBody: dataBodyInterface = {
@@ -23,6 +24,7 @@ export async function PUT( request: Request,
     lv1: JSON.stringify(data.lv1),
     lv2: JSON.stringify(data.lv2),
     lv3: JSON.stringify(data.lv3),
+    image: data.image
   }
   
   try {
@@ -67,3 +69,23 @@ export async function DELETE(
     await prisma.$disconnect();
   }
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: number } }
+) {
+  const id = params.id;
+  try {
+    const minisize = await prisma.minisize.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+    return NextResponse.json(minisize);
+  } catch (error) {
+    return NextResponse.json(error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+

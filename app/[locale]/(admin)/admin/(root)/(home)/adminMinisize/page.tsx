@@ -43,6 +43,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
     lv2: JSON;
     lv3: JSON;
     productCount: number;
+    image: string;
   }
 
   interface AlbumDataType {
@@ -152,6 +153,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
           lv1: minisize.lv1,
           lv2: minisize.lv2,
           lv3: minisize.lv3,
+          image: minisize?.image
         }));
         setMinisizeData(useMinisize);
       })

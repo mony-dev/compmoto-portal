@@ -172,18 +172,20 @@ const ModalProduct = ({
       const product = productData.find(
         (item: { id: number }) => item.id === id
       );
-      setEditProductData(product);
-      // Set form values
-      setValue("portalStock", product.portalStock);
-      setValue("promotionId", product.promotionId);
-      setValue("lv1Id", product.lv1Id);
-      setValue("lv2Id", product.lv2Id);
-      setValue("lv3Id", product.lv3Id);
-      if (product.years) {
-        const yearsData = JSON.parse(product.years);
-        replace(yearsData); // Replace the entire years array
+      if (product) {
+        setEditProductData(product);
+        // Set form values
+        setValue("portalStock", product.portalStock);
+        setValue("promotionId", product.promotionId);
+        setValue("lv1Id", product.lv1Id);
+        setValue("lv2Id", product.lv2Id);
+        setValue("lv3Id", product.lv3Id);
+        if (product.years) {
+          const yearsData = JSON.parse(product.years);
+          replace(yearsData); // Replace the entire years array
+        }
+        setImage(product?.imageProducts || []);
       }
-      setImage(product?.imageProducts || []);
     }
   }, [productData, id]);
 

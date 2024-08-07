@@ -12,8 +12,8 @@ const DataTable: React.FC<TableComponentProps<any>> = ({
   data,
 }) => (
   <>
-    <div className="flex flex-col w-full">
-      <Table columns={columns} dataSource={data} className="w-full" />
+    <div className="flex flex-col w-full ">
+      <Table columns={columns} dataSource={data} className="w-full default-font" />
     </div>
   </>
 );

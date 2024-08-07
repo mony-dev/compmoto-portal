@@ -109,7 +109,7 @@ export default function SideBar({
       ),
       items: minisizeItems ? minisizeItems.map((item) => ({
         title: item.name,
-        href: `/${locale}/admin/shoping`,
+        href: `/${locale}/admin/product?name=${item.name}`,
       })) : [],
       id: "shopping",
       openMenuId: openMenuId,

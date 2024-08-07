@@ -37,6 +37,7 @@ import {
   MinisizeSchema,
   minisizeSchema,
 } from "@lib-schemas/user/minisize-schema";
+import UploadRewardImage from "../UploadRewardImage";
 
 type Props = {
   isModalVisible: boolean;
@@ -58,6 +59,7 @@ interface MinisizeDataType {
   lv2: JSON;
   lv3: JSON;
   productCount: number;
+  image: string;
 }
 
 const Hr = styled.hr`
@@ -78,6 +80,7 @@ const ModalMinisize = ({
     handleSubmit,
     control,
     setValue,
+    trigger,
     formState: { errors },
     reset
   } = useForm<MinisizeSchema>({
@@ -88,7 +91,7 @@ const ModalMinisize = ({
       lv3: [{ name: "", isActive: false, data: "" }],
     },
   });
-  const [trigger, setTrigger] = useState(false);
+  const [triggerMini, setTriggerMini] = useState(false);
   const { fields: lv1Fields } = useFieldArray({ control, name: "lv1" });
   const { fields: lv2Fields } = useFieldArray({ control, name: "lv2" });
   const { fields: lv3Fields } = useFieldArray({ control, name: "lv3" });
@@ -98,6 +101,7 @@ const ModalMinisize = ({
     { value: string; label: string }[]
   >([]);
   const [editMinisizeData, setEditMinisizeData] = useState<MinisizeDataType | null>(null);
+  const [image, setImage] = useState<string | { url: string }[]>([]);
 
   const [productCount, setProductCount] = useState<number | null>(null);
   const { t } = useTranslation();
@@ -147,7 +151,10 @@ const ModalMinisize = ({
       setValue("lv1", parsedLv1);
       setValue("lv2", parsedLv2);
       setValue("lv3", parsedLv3);
+      setValue("image", minisize.image);
+      setImage(minisize?.image);
     } else {
+      setImage("");
       reset({
         name: "",
         isActive: true,
@@ -155,9 +162,20 @@ const ModalMinisize = ({
         lv1: [{ name: "", isActive: false, data: "" }],
         lv2: [{ name: "", isActive: false, data: "" }],
         lv3: [{ name: "", isActive: false, data: "" }],
+        image: "",
       });
     }
   }, [minisizeData, id]);
+
+  useEffect(() => {
+    let effImage: any = "";
+
+    if (image) {
+      effImage = image;
+    }
+    setValue("image", effImage);
+    mode == "EDIT" && trigger(["image"]);
+  }, [image]);
 
   const fetchProductCount = async (brandId: number) => {
     try {
@@ -190,7 +208,7 @@ const ModalMinisize = ({
         });
         resetForm();
         setTriggerMinisize(!triggerMinisize);
-        setTrigger(!trigger)
+        setTriggerMini(!triggerMini)
         toastSuccess("Minisize updated successfully");
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
@@ -205,7 +223,7 @@ const ModalMinisize = ({
         });
         resetForm();
         setTriggerMinisize(!triggerMinisize);
-        setTrigger(!trigger)
+        setTriggerMini(!triggerMini)
         toastSuccess("minisize created successfully");
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
@@ -224,7 +242,30 @@ const ModalMinisize = ({
       <h2 className="font-semibold">ตั้งค่า</h2>
       <hr className="my-2" />
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
+      <Form.Item
+          name="image"
+          label="Upload Image"
+          required
+          tooltip="This is a required field"
+          help={errors.image && "Please upload minisize image"}
+          validateStatus={errors.image ? "error" : ""}
+        >
+          <Controller
+            control={control}
+            name="image"
+            render={({ field }) => (
+              <UploadRewardImage
+                setImage={setImage}
+                fileType="image"
+                allowType={["jpg", "png", "jpeg"]}
+                initialImage={image}
+                multiple={false}
+              />
+            )}
+          />
+        </Form.Item>
         <div className="flex w-full pb-2">
+    
           <Form.Item
             name="name"
             label="ชื่อ"

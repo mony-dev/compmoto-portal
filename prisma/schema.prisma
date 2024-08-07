@@ -222,6 +222,7 @@ model Minisize {
   lv1       Json
   lv2       Json
   lv3       Json
+  image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   brand     Brand    @relation(fields: [brandId], references: [id])
