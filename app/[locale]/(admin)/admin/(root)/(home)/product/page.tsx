@@ -25,7 +25,7 @@ import Image from "next/image";
 import { Controller, useForm } from "react-hook-form";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
 import { ColumnsType } from "antd/es/table";
@@ -49,6 +49,45 @@ interface PromotionDataType {
   endDate: string;
   image: string;
 }
+
+interface DataType {
+  id: number;
+  code: string;
+  name: string;
+  brandId: number;
+  price: number;
+  navStock: number;
+  portalStock: number;
+  minisizeId?: number;
+  promotionId?: number;
+  years: YearDataType[];
+  lv1Id?: number;
+  lv2Id?: number;
+  lv3Id?: number;
+  brand?: {
+    name: string;
+  };
+  minisize?: {
+    name: string;
+    lv1?: any;
+    lv2?: any;
+    lv3?: any;
+  };
+  promotion?: {
+    name: string;
+  };
+  imageProducts?: { url: string }[];
+  lv1Name: string;
+  lv2Name: string;
+  lv3Name: string;
+}
+
+interface YearDataType {
+  year: string;
+  isActive: boolean;
+  discount: number;
+}
+
 const Product = () => {
   const {
     handleSubmit,
@@ -63,9 +102,8 @@ const Product = () => {
   const { data: session, status } = useSession();
   const [promotiondData, setPromotionData] = useState<PromotionDataType[]>([]);
   const router = useRouter();
-  const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(
-    null
-  );
+  const searchParams = useSearchParams();
+  const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(null);
   const [trigger, setTrigger] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [productData, setProductData] = useState<DataType[]>([]);
@@ -182,6 +220,13 @@ const Product = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const name = searchParams.get("name");
+    if (name) {
+      fetchProduct(name, selectedFilters);
+    }
+  }, [searchParams, selectedFilters]);
+
   const handleFilterChange = (filters: { lv1?: string; lv2?: string; lv3?: string }) => {
     setSelectedFilters(filters);
     const query = new URLSearchParams(window.location.search);
@@ -190,6 +235,7 @@ const Product = () => {
       fetchProduct(name, filters);
     }
   };
+
   const onSubmit = async (data: any, rewardId: any, point: number) => {
     const key = `amount_${rewardId}`;
     const amount = data[key];
@@ -241,44 +287,6 @@ const Product = () => {
       setValue(name, currentValue - 1);
     }
   };
-
-  interface DataType {
-    id: number;
-    code: string;
-    name: string;
-    brandId: number;
-    price: number;
-    navStock: number;
-    portalStock: number;
-    minisizeId?: number;
-    promotionId?: number;
-    years: YearDataType[];
-    lv1Id?: number;
-    lv2Id?: number;
-    lv3Id?: number;
-    brand?: {
-      name: string;
-    };
-    minisize?: {
-      name: string;
-      lv1?: any;
-      lv2?: any;
-      lv3?: any;
-    };
-    promotion?: {
-      name: string;
-    };
-    imageProducts?: { url: string }[];
-    lv1Name: string;
-    lv2Name: string;
-    lv3Name: string;
-  }
-
-  interface YearDataType {
-    year: string;
-    isActive: boolean;
-    discount: number;
-  }
 
   const SuccessIcon = (color: any) => (
     <svg
@@ -536,7 +544,7 @@ const Product = () => {
           className="flex justify-between flex default-font text-white text-sm"
           style={{
             background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`,
-            boxShadow: `0px 4px 4px 0px #00000040`,
+            boxShadow: "0px 4px 4px 0px #00000040",
           }}
         >
           <div className="flex gap-4 items-center pl-4">
