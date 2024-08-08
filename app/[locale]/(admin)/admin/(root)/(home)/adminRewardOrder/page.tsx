@@ -1,6 +1,6 @@
 "use client";
 import ModalAlbum from "@components/Admin/category/ModalAlbum";
-import DataTable from "@components/Admin/datatable";
+import DataTable from "@components/Admin/Datatable";
 import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
 import {
   CheckBadgeIcon,

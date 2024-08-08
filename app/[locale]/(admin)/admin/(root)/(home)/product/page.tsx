@@ -29,7 +29,8 @@ import { useRouter } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
 import { ColumnsType } from "antd/es/table";
-import DataTable from "@components/Admin/datatable";
+import DataTable from "@components/Admin/Datatable";
+import Submenu from "@components/Admin/Submenu";
 
 interface MinisizeDataType {
   id: number;
@@ -68,15 +69,22 @@ const Product = () => {
   const [trigger, setTrigger] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [productData, setProductData] = useState<DataType[]>([]);
-  const [brandName, setbrandName] = useState("");
+  const [brandName, setBrandName] = useState("");
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedProductYear, setSelectedProductYear] = useState<{
     [key: number]: string | null;
   }>({});
+  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
+
+  const [selectedFilters, setSelectedFilters] = useState<{
+    lv1?: string;
+    lv2?: string;
+    lv3?: string;
+  }>({});
+
   const fetchMinisizeData = async (name: string) => {
     try {
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
-
       if (response.data) {
         const minisize = response.data.map((data: MinisizeDataType) => ({
           id: data.id,
@@ -88,10 +96,13 @@ const Product = () => {
       console.error("Error fetching data: ", error);
     }
   };
-  const fetchProduct = async (name: string) => {
-    setbrandName(name);
+
+  const fetchProduct = async (name: string, filters = {}) => {
+    setBrandName(name);
     axios
-      .get(`/api/getProduct?q=${searchText}&brandName=${name}`)
+      .get(`/api/getProduct?q=${searchText}&brandName=${name}`, {
+        params: filters,
+      })
       .then((response) => {
         const useProduct = response.data.map((product: DataType) => ({
           key: product.id,
@@ -131,24 +142,23 @@ const Product = () => {
         console.error("Error fetching data: ", error);
       });
   };
+
   useEffect(() => {
     axios
       .get(`/api/getPromotion`)
       .then((response) => {
-        const promotions = response.data.map((promotion: PromotionDataType) => {
-          return {
-            id: promotion.id,
-            name: promotion.name,
-            isActive: promotion.isActive,
-            minisizeId: promotion.minisizeId,
-            amount: promotion.amount,
-            productRedeem: promotion.productRedeem,
-            userGroup: promotion.userGroup,
-            startDate: promotion.startDate,
-            endDate: promotion.endDate,
-            image: promotion?.image,
-          };
-        });
+        const promotions = response.data.map((promotion: PromotionDataType) => ({
+          id: promotion.id,
+          name: promotion.name,
+          isActive: promotion.isActive,
+          minisizeId: promotion.minisizeId,
+          amount: promotion.amount,
+          productRedeem: promotion.productRedeem,
+          userGroup: promotion.userGroup,
+          startDate: promotion.startDate,
+          endDate: promotion.endDate,
+          image: promotion?.image,
+        }));
         setPromotionData(promotions);
       })
       .catch((error) => {
@@ -159,8 +169,10 @@ const Product = () => {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
-    name && fetchProduct(name);
-  }, [searchText]);
+    if (name) {
+      fetchProduct(name, selectedFilters);
+    }
+  }, [searchText, selectedFilters]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -170,6 +182,14 @@ const Product = () => {
     }
   }, []);
 
+  const handleFilterChange = (filters: { lv1?: string; lv2?: string; lv3?: string }) => {
+    setSelectedFilters(filters);
+    const query = new URLSearchParams(window.location.search);
+    const name = query.get("name");
+    if (name) {
+      fetchProduct(name, filters);
+    }
+  };
   const onSubmit = async (data: any, rewardId: any, point: number) => {
     const key = `amount_${rewardId}`;
     const amount = data[key];
@@ -260,7 +280,7 @@ const Product = () => {
     discount: number;
   }
 
-  const SuccessIcon = () => (
+  const SuccessIcon = (color: any) => (
     <svg
       width="25"
       height="24"
@@ -270,16 +290,16 @@ const Product = () => {
     >
       <path
         d="M20.21 8.9599C19.54 8.2199 18.53 7.7899 17.13 7.6399V6.8799C17.13 5.5099 16.55 4.1899 15.53 3.2699C14.5 2.3299 13.16 1.8899 11.77 2.0199C9.37999 2.2499 7.36999 4.5599 7.36999 7.0599V7.6399C5.96999 7.7899 4.95999 8.2199 4.28999 8.9599C3.31999 10.0399 3.34999 11.4799 3.45999 12.4799L4.15999 18.0499C4.36999 19.9999 5.15999 21.9999 9.45999 21.9999H15.04C19.34 21.9999 20.13 19.9999 20.34 18.0599L21.04 12.4699C21.15 11.4799 21.18 10.0399 20.21 8.9599ZM11.91 3.4099C12.91 3.3199 13.86 3.6299 14.6 4.2999C15.33 4.9599 15.74 5.8999 15.74 6.8799V7.5799H8.75999V7.0599C8.75999 5.2799 10.23 3.5699 11.91 3.4099ZM12.25 18.5799C10.16 18.5799 8.45999 16.8799 8.45999 14.7899C8.45999 12.6999 10.16 10.9999 12.25 10.9999C14.34 10.9999 16.04 12.6999 16.04 14.7899C16.04 16.8799 14.34 18.5799 12.25 18.5799Z"
-        fill="#1BA345"
+        fill={color.color}
       />
       <path
         d="M11.6799 16.64C11.4899 16.64 11.2999 16.57 11.1499 16.42L10.1599 15.43C9.86988 15.14 9.86988 14.66 10.1599 14.37C10.4499 14.08 10.9299 14.08 11.2199 14.37L11.6999 14.85L13.2999 13.37C13.5999 13.09 14.0799 13.11 14.3599 13.41C14.6399 13.71 14.6199 14.19 14.3199 14.47L12.1899 16.44C12.0399 16.57 11.8599 16.64 11.6799 16.64Z"
-        fill="#1BA345"
+        fill={color.color}
       />
     </svg>
   );
 
-  const ErrorIcon = () => (
+  const ErrorIcon = (color: any) => (
     <svg
       width="25"
       height="24"
@@ -289,16 +309,16 @@ const Product = () => {
     >
       <path
         d="M20.21 8.9599C19.54 8.2199 18.53 7.7899 17.13 7.6399V6.8799C17.13 5.5099 16.55 4.1899 15.53 3.2699C14.5 2.3299 13.16 1.8899 11.77 2.0199C9.37999 2.2499 7.36999 4.5599 7.36999 7.0599V7.6399C5.96999 7.7899 4.95999 8.2199 4.28999 8.9599C3.31999 10.0399 3.34999 11.4799 3.45999 12.4799L4.15999 18.0499C4.36999 19.9999 5.15999 21.9999 9.45999 21.9999H15.04C19.34 21.9999 20.13 19.9999 20.34 18.0599L21.04 12.4699C21.15 11.4799 21.18 10.0399 20.21 8.9599ZM11.91 3.4099C12.91 3.3199 13.86 3.6299 14.6 4.2999C15.33 4.9599 15.74 5.8999 15.74 6.8799V7.5799H8.75999V7.0599C8.75999 5.2799 10.23 3.5699 11.91 3.4099ZM12.25 18.5799C10.16 18.5799 8.45999 16.8799 8.45999 14.7899C8.45999 12.6999 10.16 10.9999 12.25 10.9999C14.34 10.9999 16.04 12.6999 16.04 14.7899C16.04 16.8799 14.34 18.5799 12.25 18.5799Z"
-        fill="#DD2C37"
+        fill={color.color}
       />
       <path
         d="M13.8501 15.3099L13.3201 14.7799L13.8201 14.2799C14.1101 13.9899 14.1101 13.5099 13.8201 13.2199C13.5301 12.9299 13.0501 12.9299 12.7601 13.2199L12.2601 13.7199L11.7301 13.1899C11.4401 12.8999 10.9601 12.8999 10.6701 13.1899C10.3801 13.4799 10.3801 13.9599 10.6701 14.2499L11.2001 14.7799L10.6501 15.3299C10.3601 15.6199 10.3601 16.0999 10.6501 16.3899C10.8001 16.5399 10.9901 16.6099 11.1801 16.6099C11.3701 16.6099 11.5601 16.5399 11.7101 16.3899L12.2601 15.8399L12.7901 16.3699C12.9401 16.5199 13.1301 16.5899 13.3201 16.5899C13.5101 16.5899 13.7001 16.5199 13.8501 16.3699C14.1401 16.0799 14.1401 15.6099 13.8501 15.3099Z"
-        fill="#DD2C37"
+        fill={color.color}
       />
     </svg>
   );
 
-  const WarningIcon = () => (
+  const WarningIcon = (color: any) => (
     <svg
       width="25"
       height="24"
@@ -308,7 +328,7 @@ const Product = () => {
     >
       <path
         d="M20.21 8.9599C19.54 8.2199 18.53 7.7899 17.13 7.6399V6.8799C17.13 5.5099 16.55 4.1899 15.53 3.2699C14.5 2.3299 13.16 1.8899 11.77 2.0199C9.37999 2.2499 7.36999 4.5599 7.36999 7.0599V7.6399C5.96999 7.7899 4.95999 8.2199 4.28999 8.9599C3.31999 10.0399 3.34999 11.4799 3.45999 12.4799L4.15999 18.0499C4.36999 19.9999 5.15999 21.9999 9.45999 21.9999H15.04C19.34 21.9999 20.13 19.9999 20.34 18.0599L21.04 12.4699C21.15 11.4799 21.18 10.0399 20.21 8.9599ZM11.91 3.4099C12.91 3.3199 13.86 3.6299 14.6 4.2999C15.33 4.9599 15.74 5.8999 15.74 6.8799V7.5799H8.75999V7.0599C8.75999 5.2799 10.23 3.5699 11.91 3.4099ZM12.25 18.5799C10.16 18.5799 8.45999 16.8799 8.45999 14.7899C8.45999 12.6999 10.16 10.9999 12.25 10.9999C14.34 10.9999 16.04 12.6999 16.04 14.7899C16.04 16.8799 14.34 18.5799 12.25 18.5799Z"
-        fill="#FEC001"
+        fill={color.color}
       />
     </svg>
   );
@@ -417,7 +437,7 @@ const Product = () => {
       title: "สถานะ",
       key: "action",
       sorter: (a, b) => {
-        const getStatusValue = (record: any) => {
+        const getStatusValue = (record: DataType) => {
           if (record.portalStock === 0) return 0;
           if (record.portalStock > 100) return 2;
           return 1;
@@ -425,71 +445,73 @@ const Product = () => {
         return getStatusValue(a) - getStatusValue(b);
       },
       render: (_, record) => {
-        if (record.portalStock === 0) {
-          return (
-            <Tag
-              bordered={false}
-              color="error"
-              style={{
-                backgroundColor: "#FDE6E6",
-                color: "#DD2C37",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "9999px",
-                padding: "8px 8px",
-                width: "75%",
-              }}
-            >
-              <ErrorIcon />
-              <p className="text-sm default-font">ไม่มีสินค้า</p>
-            </Tag>
-          );
-        } else if (record.portalStock > 100) {
-          return (
-            <Tag
-              bordered={false}
-              color="success"
-              style={{
-                backgroundColor: "#E6F9E9",
-                color: "#1BA345",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "9999px",
-                padding: "8px 8px",
-                width: "75%",
-              }}
-            >
-              <SuccessIcon />
-              <p className="text-sm default-font">มีสินค้า</p>
-            </Tag>
-          );
-        } else if (record.portalStock < 100) {
-          return (
-            <Tag
-              bordered={false}
-              color="warning"
-              style={{
-                backgroundColor: "#FFF5E6",
-                color: "#FEC001",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "9999px",
-                padding: "8px 8px",
-                width: "75%",
-              }}
-            >
-              <WarningIcon />
-              <p className="text-sm default-font">จำนวนจำกัด</p>
-            </Tag>
-          );
-        }
+        const backgroundColor =
+          hoveredProduct === record.id && record.portalStock === 0
+            ? "#DD2C37"
+            : hoveredProduct === record.id && record.portalStock > 100
+            ? "#1ba345"
+            : hoveredProduct === record.id && record.portalStock < 100 && record.portalStock > 0
+            ? "#fec001"
+            : ( record.portalStock === 0
+              ? "#FFE8EB"
+              :record.portalStock > 100
+              ? "#D1EDDA"
+              :record.portalStock < 100 && record.portalStock > 0
+              ? "#FFF2CC" : "#D1EDDA") ;
+        const textColor =
+          hoveredProduct === record.id && record.portalStock === 0
+            ? "#FFFFFF"
+            : hoveredProduct === record.id && record.portalStock > 100
+            ? "#FFFFFF"
+            : hoveredProduct === record.id && record.portalStock < 100 && record.portalStock > 0
+            ? "#FFFFFF"
+            : (record.portalStock === 0
+              ? "#DD2C37"
+              :record.portalStock > 100
+              ? "#1BA345"
+              :record.portalStock < 100 && record.portalStock > 0
+              ? "#FEC001" : "#FEC001");
+
+        return (
+          <Tag
+            bordered={false}
+            color="error"
+            style={{
+              backgroundColor: backgroundColor,
+              color: textColor,
+              display: "flex",
+              alignItems: "center",
+              borderRadius: "9999px",
+              padding: "8px 8px",
+              width: "60%",
+              cursor: 'pointer'
+            }}
+            onMouseEnter={() => setHoveredProduct(record.id)}
+            onMouseLeave={() => setHoveredProduct(null)}
+          >
+            {record.portalStock === 0 ? (
+              <ErrorIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#DD2C37"}/>
+            ) : record.portalStock > 100 ? (
+              <SuccessIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#1BA345"}/>
+            ) : (
+              <WarningIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#fec001"}/>
+            )}
+            <p className="text-sm default-font">
+              {record.portalStock === 0
+                ? "ไม่มีสินค้า"
+                : record.portalStock > 100
+                ? "มีสินค้า"
+                : "จำนวนจำกัด"}
+            </p>
+          </Tag>
+        );
       },
     },
   ];
   return (
     <div className="px-12">
       <div className="px-4 pb rounded-lg">
-        <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 promotion-card">
+        <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 promotion-card pb-4">
           {promotiondData.map((promotion, index) => (
             <Card
               title={false}
@@ -518,7 +540,12 @@ const Product = () => {
           }}
         >
           <div className="flex gap-4 items-center pl-4">
-            <div className="cursor-pointer">รุ่นสินค้า</div>
+            {minisizeData && (
+              <Submenu
+                minisizeId={minisizeData.id}
+                onFilterChange={handleFilterChange}
+              />
+            )}
             <div className="cursor-pointer">ข่าวและกิจกรรม</div>
             <div className="cursor-pointer">การตลาด</div>
           </div>

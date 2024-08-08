@@ -1,6 +1,6 @@
 "use client";
 import ModalReward from "@components/Admin/category/ModalReward";
-import DataTable from "@components/Admin/datatable";
+import DataTable from "@components/Admin/Datatable";
 import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
 import {
   ChevronRightIcon,

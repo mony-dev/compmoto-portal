@@ -13,26 +13,33 @@ const tableModelMap: Record<string, keyof PrismaClient> = {
   };
 
   
-export async function GET(request: Request) {
+  export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const q = searchParams.get("q") || "";
     const brandName = searchParams.get('brandName')?.toUpperCase() || '';
+    const lv1 = searchParams.get('lv1') || null;
+    const lv2 = searchParams.get('lv2') || null;
+    const lv3 = searchParams.get('lv3') || null;
+
     try {
       const products = await prisma.product.findMany({
         where: {
-            AND: [
-                {
-                    OR: [
-                        { name: { contains: q, mode: "insensitive" } },
-                        { code: { contains: q, mode: "insensitive" } },
-                    ],
-                },
-                brandName ? {
-                    brand: {
-                        name: { contains: brandName, mode: "insensitive" }
-                    }
-                } : {},
-            ],
+          AND: [
+            {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { code: { contains: q, mode: "insensitive" } },
+              ],
+            },
+            brandName ? {
+              brand: {
+                name: { contains: brandName, mode: "insensitive" }
+              }
+            } : {},
+            lv1 ? { lv1Id: parseInt(lv1) } : {},
+            lv2 ? { lv2Id: parseInt(lv2) } : {},
+            lv3 ? { lv3Id: parseInt(lv3) } : {},
+          ],
         },
         include: {
           brand: {
@@ -97,7 +104,7 @@ export async function GET(request: Request) {
       await prisma.$disconnect();
     }
   }
-
+  
   async function getCategoryName(tableName: string, id: number) {
     const model = tableModelMap[tableName];
     if (!model) return null;
@@ -107,3 +114,4 @@ export async function GET(request: Request) {
       select: { name: true },
     });
   }
+  

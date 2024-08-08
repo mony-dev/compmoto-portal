@@ -8,7 +8,7 @@ import {
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams  } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -88,6 +88,7 @@ export default function SideBar({
     onToggle();
   };
   const pathname = usePathname();
+  const searchParam = useSearchParams();
   const sidebarItems: SideBarItemProps[] = [
     {
       title: "แดชบอร์ด",
@@ -387,14 +388,16 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
   onToggle,
 }) => {
   const pathname = usePathname();
-  const isSelect = pathname.startsWith(href);
+  const searchParam = useSearchParams();
+  const name = searchParam.get("name");
+
+  const isSelect = pathname.startsWith(href) || (href.includes(`name=${name}`));
   const btnClassWithLine = (isSelect: boolean) =>
     `relative flex w-full rounded-lg ${
       isSelect ? "text-comp-red" : "bg-comp-gray-bg text-comp-grey"
     } items-center justify-start pl-8 pr-1 py-1 text-sm transition-colors duration-75 focus:outline-none`;
 
   const verticalLine = `absolute left-0 top-0 bottom-0 w-1 bg-gray-300`;
-
   return (
     <Link href={href}>
       <div className="ml-2 pl-8">
@@ -424,14 +427,11 @@ const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (
   const pathname = usePathname();
   const routeList = props.items ? props.items.map((item) => item.href) : [];
   const isCurrentRoute = routeList.some((path) => path === pathname);
-  // const [isSelect, setIsSelect] = useState(isCurrentRoute);
   const isSelect = props.id === props.openMenuId;
-
+  
   const setColor = (id: string) => {
-    // setIsSelect(!isSelect);
     props.onToggleIconColor && props.onToggleIconColor(id);
   };
-
   return (
     <div className="bg-comp-grey-bg">
       {props.href ? (

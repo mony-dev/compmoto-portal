@@ -1,5 +1,5 @@
 "use client";
-import DataTable from "@components/Admin/datatable";
+import DataTable from "@components/Admin/Datatable";
 import {
   ArrowPathIcon,
   Cog6ToothIcon,

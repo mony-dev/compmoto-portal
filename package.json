@@ -19,9 +19,9 @@
     "fetch-family": "node lib/web/utils/fetchFamily.mjs",
     "fetch-group-type": "node lib/web/utils/fetchGroupType.mjs",
     "fetch-products": "node lib/web/utils/fetchProducts.mjs"
-
   },
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
     "@babel/core": "^7.24.3",
     "@babel/plugin-syntax-typescript": "^7.24.1",
     "@emotion/css": "^11.11.2",
