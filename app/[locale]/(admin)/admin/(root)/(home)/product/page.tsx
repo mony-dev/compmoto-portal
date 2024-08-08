@@ -491,7 +491,7 @@ const Product = () => {
               alignItems: "center",
               borderRadius: "9999px",
               padding: "8px 8px",
-              width: "60%",
+              width: "80%",
               cursor: 'pointer'
             }}
             onMouseEnter={() => setHoveredProduct(record.id)}
