@@ -48,6 +48,8 @@ export async function GET(request: Request) {
           lv3: JSON.stringify(data.lv3),
         },
       });
+      console.log("brandId", data.brandId)
+      console.log("newMinisize", newMinisize)
 
       const updatedProducts = await prisma.product.updateMany({
         where: {
@@ -57,6 +59,8 @@ export async function GET(request: Request) {
           minisizeId: Number(newMinisize.id)
         }
       });
+      console.log("updatedProducts", updatedProducts)
+
       return NextResponse.json(newMinisize);
     } catch (error) {
       return NextResponse.json(error);
