@@ -1,6 +1,5 @@
 "use client";
 import ModalReward from "@components/Admin/category/ModalReward";
-import DataTable from "@components/Admin/Datatable";
 import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
 import {
   ChevronRightIcon,
@@ -21,6 +20,7 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
 import ModalMinisize from "@components/Admin/minisize/ModalMinisize";
+import DataTable from "@components/Admin/Datatable";
 
 export default function adminMinisize({ params }: { params: { id: number } }) {
   const router = useRouter();
@@ -43,14 +43,9 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
     lv2: JSON;
     lv3: JSON;
     productCount: number;
-    image: string;
+    imageProfile: string;
   }
 
-  interface AlbumDataType {
-    id: number;
-    name: string;
-    images: any;
-  }
 
   const deleteMinisize = (id: number) => {
     Modal.confirm({
@@ -153,7 +148,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
           lv1: minisize.lv1,
           lv2: minisize.lv2,
           lv3: minisize.lv3,
-          image: minisize?.image
+          imageProfile: minisize?.imageProfile
         }));
         setMinisizeData(useMinisize);
       })

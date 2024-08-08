@@ -44,7 +44,7 @@ export const minisizeSchema = z.object({
   lv1: atLeastOneActiveLv1,
   lv2: z.array(levelSchema),
   lv3: z.array(levelSchema),
-  image: z.string().nonempty("Please upload file"),
+  imageProfile: z.string().nonempty("Please upload file"),
 });
 
 export type MinisizeSchema = z.infer<typeof minisizeSchema>;

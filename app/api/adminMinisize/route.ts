@@ -41,7 +41,7 @@ export async function GET(request: Request) {
         data: {
           brandId: data.brandId,
           name: data.name,
-          image: data.image,
+          imageProfile: data.imageProfile,
           isActive: data.isActive,
           lv1: JSON.stringify(data.lv1),
           lv2: JSON.stringify(data.lv2),

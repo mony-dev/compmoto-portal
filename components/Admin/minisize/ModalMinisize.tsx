@@ -59,7 +59,7 @@ interface MinisizeDataType {
   lv2: JSON;
   lv3: JSON;
   productCount: number;
-  image: string;
+  imageProfile: string;
 }
 
 const Hr = styled.hr`
@@ -151,8 +151,8 @@ const ModalMinisize = ({
       setValue("lv1", parsedLv1);
       setValue("lv2", parsedLv2);
       setValue("lv3", parsedLv3);
-      setValue("image", minisize.image);
-      setImage(minisize?.image);
+      setValue("imageProfile", minisize.imageProfile);
+      setImage(minisize?.imageProfile);
     } else {
       setImage("");
       reset({
@@ -162,7 +162,7 @@ const ModalMinisize = ({
         lv1: [{ name: "", isActive: false, data: "" }],
         lv2: [{ name: "", isActive: false, data: "" }],
         lv3: [{ name: "", isActive: false, data: "" }],
-        image: "",
+        imageProfile: "",
       });
     }
   }, [minisizeData, id]);
@@ -173,8 +173,8 @@ const ModalMinisize = ({
     if (image) {
       effImage = image;
     }
-    setValue("image", effImage);
-    mode == "EDIT" && trigger(["image"]);
+    setValue("imageProfile", effImage);
+    mode == "EDIT" && trigger(["imageProfile"]);
   }, [image]);
 
   const fetchProductCount = async (brandId: number) => {
@@ -243,16 +243,16 @@ const ModalMinisize = ({
       <hr className="my-2" />
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
       <Form.Item
-          name="image"
-          label="Upload Image"
+          name="imageProfile"
+          label="Upload image"
           required
           tooltip="This is a required field"
-          help={errors.image && "Please upload minisize image"}
-          validateStatus={errors.image ? "error" : ""}
+          help={errors.imageProfile && "Please upload minisize image"}
+          validateStatus={errors.imageProfile ? "error" : ""}
         >
           <Controller
             control={control}
-            name="image"
+            name="imageProfile"
             render={({ field }) => (
               <UploadRewardImage
                 setImage={setImage}

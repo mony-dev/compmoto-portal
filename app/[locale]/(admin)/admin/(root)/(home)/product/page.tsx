@@ -29,12 +29,12 @@ import { useRouter } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
 import { ColumnsType } from "antd/es/table";
-import DataTable from "@components/Admin/Datatable";
 import Submenu from "@components/Admin/Submenu";
+import DataTable from "@components/Admin/Datatable";
 
 interface MinisizeDataType {
   id: number;
-  image: string;
+  imageProfile: string;
 }
 
 interface PromotionDataType {
@@ -88,7 +88,7 @@ const Product = () => {
       if (response.data) {
         const minisize = response.data.map((data: MinisizeDataType) => ({
           id: data.id,
-          image: data.image,
+          image: data.imageProfile,
         }));
         minisize[0] && setMinisizeData(minisize[0]);
       }
@@ -555,7 +555,7 @@ const Product = () => {
               alt="reward album"
               width={176}
               height={176}
-              src={minisizeData ? minisizeData.image : NoImage.src}
+              src={minisizeData ? minisizeData.imageProfile : NoImage.src}
             />
           </div>
         </nav>
