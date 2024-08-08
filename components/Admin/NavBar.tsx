@@ -21,6 +21,9 @@ import Star from "@public/images/star.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
 import { number } from "zod";
 import LanguageChanger from "@components/LanguageChanger";
+import { Badge } from "antd";
+import { Session } from "inspector";
+import { useCart } from "./Cartcontext";
 
 type NavBarProps = {
   isOpen: boolean;
@@ -37,6 +40,7 @@ type NavBarProps = {
       PaymentTerms: string[];
     };
   };
+  userId: Number;
 };
 
 type NavBarItemProps = {
@@ -56,12 +60,14 @@ type SettingJSON = {
   updatedAt: Date;
 };
 
-const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
+const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
+  console.log("userId1", userId);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("0");
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  // const [cartItemCount, setCartItemCount] = useState(0);
+  const { cartItemCount, setCartItemCount } = useCart();
   const sidebarItems: NavBarItemProps[] = [
     {
       title: "admin_account",
@@ -75,6 +81,21 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
       href: "signout",
     },
   ];
+
+  const fetchCartCount = async () => {
+    console.log("userData?.id", userId);
+
+    try {
+      const response = await axios.get(
+        `${window.location.origin}/api/cartCount?userId=${userId}`
+      );
+
+      // const response = await axios.get(`/api/cartCount?userId=${userId}`);
+      setCartItemCount(response.data.count);
+    } catch (error) {
+      console.error("Error fetching cart count:", error);
+    }
+  };
 
   useEffect(() => {
     if (userData?.data?.CustPriceGroup) {
@@ -94,7 +115,14 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
         paymentTerm && setPayment(paymentTerm[0]);
       }
     }
-  }, []);
+  }, [userData]);
+
+  useEffect(() => {
+    if (userId) {
+      console.log("userId2", userId);
+      fetchCartCount();
+    }
+  }, [userId]);
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
@@ -137,7 +165,34 @@ const NavBar = ({ onToggle, isOpen, userData }: NavBarProps) => {
               type="button"
               className="inline-flex items-center text-gray-500 rounded-lg"
             >
-              <IconCompmoto src={BagIcon.src} alt="logo" />
+              <a href="#">
+                <Badge count={cartItemCount}>
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.5 8.62993C16.09 8.62993 15.75 8.28993 15.75 7.87993V6.49993C15.75 5.44993 15.3 4.42993 14.52 3.71993C13.73 2.99993 12.71 2.66993 11.63 2.76993C9.83 2.93993 8.25 4.77993 8.25 6.69993V7.66993C8.25 8.07993 7.91 8.41993 7.5 8.41993C7.09 8.41993 6.75 8.07993 6.75 7.66993V6.68993C6.75 3.99993 8.92 1.51993 11.49 1.26993C12.99 1.12993 14.43 1.59993 15.53 2.60993C16.62 3.59993 17.25 5.01993 17.25 6.49993V7.87993C17.25 8.28993 16.91 8.62993 16.5 8.62993Z"
+                      fill="white"
+                    />
+                    <path
+                      d="M14.9998 22.75H8.99982C4.37982 22.75 3.51982 20.6 3.29982 18.51L2.54982 12.52C2.43982 11.44 2.39982 9.89 3.44982 8.73C4.34982 7.73 5.83982 7.25 7.99982 7.25H15.9998C18.1698 7.25 19.6598 7.74 20.5498 8.73C21.5898 9.89 21.5598 11.44 21.4498 12.5L20.6998 18.51C20.4798 20.6 19.6198 22.75 14.9998 22.75ZM7.99982 8.75C6.30982 8.75 5.14982 9.08 4.55982 9.74C4.06982 10.28 3.90982 11.11 4.03982 12.35L4.78982 18.34C4.95982 19.94 5.39982 21.26 8.99982 21.26H14.9998C18.5998 21.26 19.0398 19.95 19.2098 18.36L19.9598 12.35C20.0898 11.13 19.9298 10.3 19.4398 9.75C18.8498 9.08 17.6898 8.75 15.9998 8.75H7.99982Z"
+                      fill="white"
+                    />
+                    <path
+                      d="M15.4202 13.15C14.8602 13.15 14.4102 12.7 14.4102 12.15C14.4102 11.6 14.8602 11.15 15.4102 11.15C15.9602 11.15 16.4102 11.6 16.4102 12.15C16.4102 12.7 15.9702 13.15 15.4202 13.15Z"
+                      fill="white"
+                    />
+                    <path
+                      d="M8.42016 13.15C7.86016 13.15 7.41016 12.7 7.41016 12.15C7.41016 11.6 7.86016 11.15 8.41016 11.15C8.96016 11.15 9.41016 11.6 9.41016 12.15C9.41016 12.7 8.97016 13.15 8.42016 13.15Z"
+                      fill="white"
+                    />
+                  </svg>
+                </Badge>
+              </a>
             </button>
             <button
               type="button"

@@ -42,7 +42,8 @@ model User {
   sessions           Session[]
   userLogs           UserLog[]          
   userRewards        UserReward[]     
-
+  cart               Cart?
+  orders             Order[]     
   @@index([id])
   @@map("users")
 }
@@ -276,4 +277,59 @@ model ImageProduct {
   product  Product @relation(fields: [productId], references: [id])
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+enum OrderType {
+  Normal  @map("normal")
+  Back   @map("back")
+}
+
+model Cart {
+  id       Int        @id @default(autoincrement())
+  userId   Int        @unique
+  user     User       @relation(fields: [userId], references: [id])
+  items    CartItem[]
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId Int
+  amount    Int
+  type      OrderType
+  price     Float
+  discount  Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+  totalAmount Float
+  type        OrderType    
+  externalDocument String?
+  documentNo String
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model OrderItem {
+  id         Int     @id @default(autoincrement())
+  orderId    Int
+  order      Order   @relation(fields: [orderId], references: [id])
+  productId  Int
+  amount     Int
+  type       String
+  price      Float
+  discount   Int
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
 }

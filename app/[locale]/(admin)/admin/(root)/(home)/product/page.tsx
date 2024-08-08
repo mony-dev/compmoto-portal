@@ -31,6 +31,7 @@ import { BLACK_BG_COLOR } from "@components/Colors";
 import { ColumnsType } from "antd/es/table";
 import Submenu from "@components/Admin/Submenu";
 import DataTable from "@components/Admin/Datatable";
+import { useCart } from "@components/Admin/Cartcontext";
 
 interface MinisizeDataType {
   id: number;
@@ -96,7 +97,7 @@ const Product = () => {
     getValues,
     formState: { errors },
   } = useForm();
-
+  const { cartItemCount, setCartItemCount } = useCart();
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { data: session, status } = useSession();
@@ -236,55 +237,46 @@ const Product = () => {
     }
   };
 
-  const onSubmit = async (data: any, rewardId: any, point: number) => {
-    const key = `amount_${rewardId}`;
-    const amount = data[key];
-    if (!amount) {
-      toastError("Amount cannot be zero");
-      return;
-    }
-    if (session?.user.rewardPoint < point * amount) {
-      toastError("Your point not enough");
+  const addToCart = async (product: DataType, type: "Normal" | "Back", discount: number = 0) => {
+    if (!session?.user) {
+      toastError("Please login before adding to cart");
       return;
     }
 
-    if (session?.user.id) {
-      try {
-        const redeem = await axios.post(
-          `/api/rewardUser`,
-          {
-            userId: session?.user.id,
-            rewardId: rewardId,
-            quantity: amount,
-            isComplete: false,
-            point: point * amount,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
+    try {
+      const cartItem = await axios.post(
+        `/api/cart`,
+        {
+          productId: product.id,
+          amount: 1,
+          type,
+          price: product.price,
+          discount,
+          userId: session.user.id
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
           }
-        );
-        setTrigger((prev) => !prev);
-        toastSuccess("Redeem successfully");
-        router.replace(`/${locale}/admin/reward`);
-      } catch (error: any) {
-        toastError(error.message);
-      }
-    } else {
-      toastError("Please login before redeem");
+        }
+      );
+      setCartItemCount(cartItemCount + 1); 
+      toastSuccess("Added to cart successfully");
+    } catch (error: any) {
+      toastError(error.message);
     }
   };
 
-  const handleIncrement = (name: string) => {
-    const currentValue = getValues(name) || 0;
-    setValue(name, currentValue + 1);
-  };
+  const handleStatusClick = (product: DataType) => {
+    const selectedYearData = product.years.find(
+      (yearData) => yearData.year === selectedProductYear[product.id]
+    );
+    const discount = selectedYearData ? selectedYearData.discount : 0;
 
-  const handleDecrement = (name: string) => {
-    const currentValue = getValues(name) || 0;
-    if (currentValue > 0) {
-      setValue(name, currentValue - 1);
+    if (product.portalStock > 0) {
+      addToCart(product, "Normal", discount);
+    } else {
+      addToCart(product, "Back", discount);
     }
   };
 
@@ -496,6 +488,7 @@ const Product = () => {
             }}
             onMouseEnter={() => setHoveredProduct(record.id)}
             onMouseLeave={() => setHoveredProduct(null)}
+            onClick={() => handleStatusClick(record)}
           >
             {record.portalStock === 0 ? (
               <ErrorIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#DD2C37"}/>
