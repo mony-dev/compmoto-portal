@@ -88,7 +88,7 @@ const Product = () => {
       if (response.data) {
         const minisize = response.data.map((data: MinisizeDataType) => ({
           id: data.id,
-          image: data.imageProfile,
+          imageProfile: data.imageProfile,
         }));
         minisize[0] && setMinisizeData(minisize[0]);
       }
@@ -512,7 +512,7 @@ const Product = () => {
     <div className="px-12">
       <div className="px-4 pb rounded-lg">
         <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 promotion-card pb-4">
-          {promotiondData.map((promotion, index) => (
+          {promotiondData && promotiondData.map((promotion, index) => (
             <Card
               title={false}
               bordered={false}
@@ -552,10 +552,10 @@ const Product = () => {
           <div>
             <Image
               className=""
-              alt="reward album"
+              alt="minisize"
               width={176}
               height={176}
-              src={minisizeData ? minisizeData.imageProfile : NoImage.src}
+              src={minisizeData ? (minisizeData.imageProfile ? minisizeData.imageProfile : NoImage.src) : NoImage.src}
             />
           </div>
         </nav>
