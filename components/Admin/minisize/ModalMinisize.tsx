@@ -221,6 +221,7 @@ const ModalMinisize = ({
             "Content-Type": "application/json",
           },
         });
+        console.log("response", response)
         resetForm();
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
