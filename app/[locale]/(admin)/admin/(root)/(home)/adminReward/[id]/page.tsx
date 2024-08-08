@@ -1,6 +1,5 @@
 "use client";
 import ModalReward from "@components/Admin/category/ModalReward";
-import DataTable from "@components/Admin/Datatable";
 import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
 import {
   ChevronRightIcon,
@@ -19,6 +18,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import i18nConfig from "../../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
+import DataTable from "@components/Admin/Datatable";
 
 export default function adminsRewardCategory({
   params,
