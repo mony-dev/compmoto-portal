@@ -29,6 +29,25 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'GothamBlack';
+  src: url('../public/fonts/Gotham-Black.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GothamThin';
+  src: url('../public/fonts/Gotham-Thin.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 .gotham-font{
   font-family: 'GothamRegular', sans-serif;
+}
+.gotham-black{
+  font-family: 'GothamRegular', sans-serif;
+}
+.gotham-thin{
+  font-family: 'GothamThin', sans-serif;
 }

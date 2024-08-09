@@ -24,6 +24,8 @@ import LanguageChanger from "@components/LanguageChanger";
 import { Badge } from "antd";
 import { Session } from "inspector";
 import { useCart } from "./Cartcontext";
+import { useCurrentLocale } from "next-i18n-router/client";
+import i18nConfig from "../../i18nConfig";
 
 type NavBarProps = {
   isOpen: boolean;
@@ -61,13 +63,13 @@ type SettingJSON = {
 };
 
 const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
-  console.log("userId1", userId);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("0");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  // const [cartItemCount, setCartItemCount] = useState(0);
   const { cartItemCount, setCartItemCount } = useCart();
+  const locale = useCurrentLocale(i18nConfig);
+
   const sidebarItems: NavBarItemProps[] = [
     {
       title: "admin_account",
@@ -83,8 +85,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   ];
 
   const fetchCartCount = async () => {
-    console.log("userData?.id", userId);
-
     try {
       const response = await axios.get(
         `${window.location.origin}/api/cartCount?userId=${userId}`
@@ -165,7 +165,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
               type="button"
               className="inline-flex items-center text-gray-500 rounded-lg"
             >
-              <a href="#">
+              <Link href={`/${locale}/admin/cart/${Number(userId)}}`}>
                 <Badge count={cartItemCount}>
                   <svg
                     width="24"
@@ -192,7 +192,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                     />
                   </svg>
                 </Badge>
-              </a>
+              </Link>
             </button>
             <button
               type="button"

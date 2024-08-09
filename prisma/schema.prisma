@@ -251,6 +251,7 @@ model Product {
   minisize     Minisize? @relation(fields: [minisizeId], references: [id])
   promotion    Promotion? @relation(fields: [promotionId], references: [id])
   imageProducts    ImageProduct[]
+  cartItems     CartItem[] 
 }
 
 model Promotion {
@@ -298,6 +299,7 @@ model CartItem {
   cartId    Int
   cart      Cart    @relation(fields: [cartId], references: [id])
   productId Int
+  product   Product  @relation(fields: [productId], references: [id])
   amount    Int
   type      OrderType
   price     Float
