@@ -1,36 +1,21 @@
 import React, { useState } from 'react';
-import { Divider, Radio, Table } from 'antd';
-import type { TableColumnsType } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-
-interface DataType {
-  key: React.Key;
-  name: string;
-  age: number;
-  address: string;
-}
-
-// rowSelection object indicates the need for row selection
-const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-  },
-  getCheckboxProps: (record: DataType) => ({
-    disabled: record.name === 'Disabled User', // Column configuration not to be checked
-    name: record.name,
-  }),
-};
+import { Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import getCustomPagination from './CustomPaginationConfig';
 
 interface TableComponentProps<T> {
-    columns: ColumnsType<T>;
-    data: T[];
-  }
+  columns: ColumnsType<T>;
+  data: T[];
+  rowSelection: any;
+}
 
 const DatatableSelect: React.FC<TableComponentProps<any>> = ({
-    columns,
-    data,
-  }) => {
+  columns,
+  data,
+  rowSelection, 
+}) => {
   const [selectionType, setSelectionType] = useState<'checkbox' | 'radio'>('checkbox');
+  const customPagination = getCustomPagination(data.length);
 
   return (
     <div>
@@ -41,6 +26,8 @@ const DatatableSelect: React.FC<TableComponentProps<any>> = ({
         }}
         columns={columns}
         dataSource={data}
+        pagination={customPagination}
+        className="thead-white-table"
       />
     </div>
   );

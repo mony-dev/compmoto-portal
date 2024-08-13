@@ -104,7 +104,9 @@ const Product = () => {
   const [promotiondData, setPromotionData] = useState<PromotionDataType[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(null);
+  const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(
+    null
+  );
   const [trigger, setTrigger] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [productData, setProductData] = useState<DataType[]>([]);
@@ -154,7 +156,9 @@ const Product = () => {
           portalStock: product.portalStock,
           minisizeId: product.minisizeId,
           promotionId: product.promotionId,
-          years: JSON.parse(product.years as unknown as string) as YearDataType[],
+          years: JSON.parse(
+            product.years as unknown as string
+          ) as YearDataType[],
           lv1Id: product.lv1Id,
           lv2Id: product.lv2Id,
           lv3Id: product.lv3Id,
@@ -182,28 +186,62 @@ const Product = () => {
       });
   };
 
-  useEffect(() => {
+  const fetchPromotion = async (name: string, filters = {}) => {
+    const group = session?.user.custPriceGroup
+    minisizeData &&
     axios
-      .get(`/api/getPromotion`)
+      .get(`/api/getPromotion?group=${group}&minisizeId=${minisizeData.id}`)
       .then((response) => {
-        const promotions = response.data.map((promotion: PromotionDataType) => ({
-          id: promotion.id,
-          name: promotion.name,
-          isActive: promotion.isActive,
-          minisizeId: promotion.minisizeId,
-          amount: promotion.amount,
-          productRedeem: promotion.productRedeem,
-          userGroup: promotion.userGroup,
-          startDate: promotion.startDate,
-          endDate: promotion.endDate,
-          image: promotion?.image,
-        }));
+        const promotions = response.data.map(
+          (promotion: PromotionDataType) => ({
+            id: promotion.id,
+            name: promotion.name,
+            isActive: promotion.isActive,
+            minisizeId: promotion.minisizeId,
+            amount: promotion.amount,
+            productRedeem: promotion.productRedeem,
+            userGroup: promotion.userGroup,
+            startDate: promotion.startDate,
+            endDate: promotion.endDate,
+            image: promotion?.image,
+          })
+        );
         setPromotionData(promotions);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
-  }, []);
+  
+  };
+
+  // useEffect(() => {
+  //   const query = new URLSearchParams(window.location.search);
+  //   const name = query.get("name");
+  //   const group = session?.user
+  //   console.log("session?.user", session)
+  //   axios
+  //     .get(`/api/getPromotion?group=${group}&brandName=${name}`)
+  //     .then((response) => {
+  //       const promotions = response.data.map(
+  //         (promotion: PromotionDataType) => ({
+  //           id: promotion.id,
+  //           name: promotion.name,
+  //           isActive: promotion.isActive,
+  //           minisizeId: promotion.minisizeId,
+  //           amount: promotion.amount,
+  //           productRedeem: promotion.productRedeem,
+  //           userGroup: promotion.userGroup,
+  //           startDate: promotion.startDate,
+  //           endDate: promotion.endDate,
+  //           image: promotion?.image,
+  //         })
+  //       );
+  //       setPromotionData(promotions);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data: ", error);
+  //     });
+  // }, []);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -218,8 +256,9 @@ const Product = () => {
     const name = query.get("name");
     if (name) {
       fetchMinisizeData(name);
+      fetchPromotion(name);
     }
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     const name = searchParams.get("name");
@@ -228,7 +267,11 @@ const Product = () => {
     }
   }, [searchParams, selectedFilters]);
 
-  const handleFilterChange = (filters: { lv1?: string; lv2?: string; lv3?: string }) => {
+  const handleFilterChange = (filters: {
+    lv1?: string;
+    lv2?: string;
+    lv3?: string;
+  }) => {
     setSelectedFilters(filters);
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
@@ -237,7 +280,11 @@ const Product = () => {
     }
   };
 
-  const addToCart = async (product: DataType, type: "Normal" | "Back", discount: number = 0) => {
+  const addToCart = async (
+    product: DataType,
+    type: "Normal" | "Back",
+    discount: number = 0
+  ) => {
     if (!session?.user) {
       toastError("Please login before adding to cart");
       return;
@@ -252,15 +299,15 @@ const Product = () => {
           type,
           price: product.price,
           discount,
-          userId: session.user.id
+          userId: session.user.id,
         },
         {
           headers: {
             "Content-Type": "application/json",
-          }
+          },
         }
       );
-      setCartItemCount(cartItemCount + 1); 
+      setCartItemCount(cartItemCount + 1);
       toastSuccess("Added to cart successfully");
     } catch (error: any) {
       toastError(error.message);
@@ -358,34 +405,51 @@ const Product = () => {
       render: (years: YearDataType[], record) => (
         <div>
           {years.map((yearData, index) => (
-            <Tag
-              color={yearData.isActive ? (selectedProductYear[record.id] === yearData.year ? "#B8252E" : "red") : "#FFFFFF"}
-              key={index}
-              style={{
-                borderColor: yearData.isActive ? (selectedProductYear[record.id] === yearData.year ? "#E4E7EB" : "#B8252E") : "#A6AEBB",
-                cursor: yearData.isActive ? 'pointer' : 'default',
-                color: yearData.isActive ? (selectedProductYear[record.id] === yearData.year ? "#E4E7EB" : "#B8252E") : "#A6AEBB"
-              }}
-              onClick={() => {
-                if (yearData.isActive) {
-                  setSelectedProductYear({
-                    ...selectedProductYear,
-                    [record.id]: yearData.year,
-                  });
-                }
-              }}
-            >
-             <span
-                className={`gotham-font ${
+            <Tooltip placement="top" title={`${yearData.discount}%`} key={index}>
+              <Tag
+                color={
                   yearData.isActive
-                    ? selectedProductYear[record.id] === yearData.year ? "text-white font-semibold" : "text-[#B8252E] font-semibold"
-                    : "text-comp-gray-text font-normal"
-                }`}
+                    ? selectedProductYear[record.id] === yearData.year
+                      ? "#B8252E"
+                      : "red"
+                    : "#FFFFFF"
+                }
+                key={index}
+                style={{
+                  borderColor: yearData.isActive
+                    ? selectedProductYear[record.id] === yearData.year
+                      ? "#E4E7EB"
+                      : "#B8252E"
+                    : "#A6AEBB",
+                  cursor: yearData.isActive ? "pointer" : "default",
+                  color: yearData.isActive
+                    ? selectedProductYear[record.id] === yearData.year
+                      ? "#E4E7EB"
+                      : "#B8252E"
+                    : "#A6AEBB",
+                }}
+                onClick={() => {
+                  if (yearData.isActive) {
+                    setSelectedProductYear({
+                      ...selectedProductYear,
+                      [record.id]: yearData.year,
+                    });
+                  }
+                }}
               >
-                
-                {yearData.year.slice(-2)}
-              </span>
-            </Tag>
+                <span
+                  className={`gotham-font ${
+                    yearData.isActive
+                      ? selectedProductYear[record.id] === yearData.year
+                        ? "text-white font-semibold"
+                        : "text-[#B8252E] font-semibold"
+                      : "text-comp-gray-text font-normal"
+                  }`}
+                >
+                  {yearData.year.slice(-2)}
+                </span>
+              </Tag>
+            </Tooltip>
           ))}
         </div>
       ),
@@ -425,10 +489,15 @@ const Product = () => {
                 ฿{new Intl.NumberFormat("en-US").format(discountedPrice)}
               </div>
             )}
-            <div className={selectedYearData ? "line-through text-xs text-comp-gray-text" : ""}>
+            <div
+              className={
+                selectedYearData
+                  ? "line-through text-xs text-comp-gray-text"
+                  : ""
+              }
+            >
               ฿{new Intl.NumberFormat("en-US").format(price)}
             </div>
-            
           </div>
         );
       },
@@ -450,27 +519,33 @@ const Product = () => {
             ? "#DD2C37"
             : hoveredProduct === record.id && record.portalStock > 100
             ? "#1ba345"
-            : hoveredProduct === record.id && record.portalStock < 100 && record.portalStock > 0
+            : hoveredProduct === record.id &&
+              record.portalStock < 100 &&
+              record.portalStock > 0
             ? "#fec001"
-            : ( record.portalStock === 0
-              ? "#FFE8EB"
-              :record.portalStock > 100
-              ? "#D1EDDA"
-              :record.portalStock < 100 && record.portalStock > 0
-              ? "#FFF2CC" : "#D1EDDA") ;
+            : record.portalStock === 0
+            ? "#FFE8EB"
+            : record.portalStock > 100
+            ? "#D1EDDA"
+            : record.portalStock < 100 && record.portalStock > 0
+            ? "#FFF2CC"
+            : "#D1EDDA";
         const textColor =
           hoveredProduct === record.id && record.portalStock === 0
             ? "#FFFFFF"
             : hoveredProduct === record.id && record.portalStock > 100
             ? "#FFFFFF"
-            : hoveredProduct === record.id && record.portalStock < 100 && record.portalStock > 0
+            : hoveredProduct === record.id &&
+              record.portalStock < 100 &&
+              record.portalStock > 0
             ? "#FFFFFF"
-            : (record.portalStock === 0
-              ? "#DD2C37"
-              :record.portalStock > 100
-              ? "#1BA345"
-              :record.portalStock < 100 && record.portalStock > 0
-              ? "#FEC001" : "#FEC001");
+            : record.portalStock === 0
+            ? "#DD2C37"
+            : record.portalStock > 100
+            ? "#1BA345"
+            : record.portalStock < 100 && record.portalStock > 0
+            ? "#FEC001"
+            : "#FEC001";
 
         return (
           <Tag
@@ -484,18 +559,24 @@ const Product = () => {
               borderRadius: "9999px",
               padding: "8px 8px",
               width: "80%",
-              cursor: 'pointer'
+              cursor: "pointer",
             }}
             onMouseEnter={() => setHoveredProduct(record.id)}
             onMouseLeave={() => setHoveredProduct(null)}
             onClick={() => handleStatusClick(record)}
           >
             {record.portalStock === 0 ? (
-              <ErrorIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#DD2C37"}/>
+              <ErrorIcon
+                color={hoveredProduct === record.id ? "#FFFFFF" : "#DD2C37"}
+              />
             ) : record.portalStock > 100 ? (
-              <SuccessIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#1BA345"}/>
+              <SuccessIcon
+                color={hoveredProduct === record.id ? "#FFFFFF" : "#1BA345"}
+              />
             ) : (
-              <WarningIcon color={hoveredProduct === record.id ? "#FFFFFF" : "#fec001"}/>
+              <WarningIcon
+                color={hoveredProduct === record.id ? "#FFFFFF" : "#fec001"}
+              />
             )}
             <p className="text-sm default-font">
               {record.portalStock === 0
@@ -513,25 +594,26 @@ const Product = () => {
     <div className="px-12">
       <div className="px-4 pb rounded-lg">
         <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 promotion-card pb-4">
-          {promotiondData && promotiondData.map((promotion, index) => (
-            <Card
-              title={false}
-              bordered={false}
-              style={{ width: 300 }}
-              key={index}
-              className="rounded-lg"
-            >
-              <div className="flex-shrink-0">
-                <Image
-                  className="w-full rounded-lg py-1"
-                  alt={promotion.name}
-                  width={50}
-                  height={50}
-                  src={promotion.image}
-                />
-              </div>
-            </Card>
-          ))}
+          {promotiondData &&
+            promotiondData.map((promotion, index) => (
+              <Card
+                title={false}
+                bordered={false}
+                style={{ width: 300 }}
+                key={index}
+                className="rounded-lg"
+              >
+                <div className="flex-shrink-0">
+                  <Image
+                    className="w-full rounded-lg py-1"
+                    alt={promotion.name}
+                    width={50}
+                    height={50}
+                    src={promotion.image}
+                  />
+                </div>
+              </Card>
+            ))}
         </div>
         <nav
           className="flex justify-between flex default-font text-white text-sm"
@@ -556,7 +638,13 @@ const Product = () => {
               alt="minisize"
               width={176}
               height={176}
-              src={minisizeData ? (minisizeData.imageProfile ? minisizeData.imageProfile : NoImage.src) : NoImage.src}
+              src={
+                minisizeData
+                  ? minisizeData.imageProfile
+                    ? minisizeData.imageProfile
+                    : NoImage.src
+                  : NoImage.src
+              }
             />
           </div>
         </nav>

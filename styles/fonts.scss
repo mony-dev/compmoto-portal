@@ -51,3 +51,15 @@
 .gotham-thin{
   font-family: 'GothamThin', sans-serif;
 }
+
+//inter
+@font-face {
+  font-family: 'InterBold';
+  src: url('../public/fonts/Inter_18pt-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.inter-bold-font{
+  font-family: 'InterBold', sans-serif;
+}

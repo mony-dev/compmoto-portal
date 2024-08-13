@@ -245,6 +245,7 @@ model Product {
   lv1Id        Int?
   lv2Id        Int?
   lv3Id        Int?
+  image        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   brand        Brand    @relation(fields: [brandId], references: [id])
@@ -252,6 +253,7 @@ model Product {
   promotion    Promotion? @relation(fields: [promotionId], references: [id])
   imageProducts    ImageProduct[]
   cartItems     CartItem[] 
+  orderItems     OrderItem[] 
 }
 
 model Promotion {
@@ -316,6 +318,9 @@ model Order {
   user        User         @relation(fields: [userId], references: [id])
   items       OrderItem[]
   totalAmount Float
+  totalPrice  Float
+  subTotal    Float
+  groupDiscount  Int
   type        OrderType    
   externalDocument String?
   documentNo String
@@ -328,10 +333,15 @@ model OrderItem {
   orderId    Int
   order      Order   @relation(fields: [orderId], references: [id])
   productId  Int
+  product   Product  @relation(fields: [productId], references: [id])
   amount     Int
   type       String
   price      Float
+  year       Int?
   discount   Int
+  discountPrice Float
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@unique([orderId, productId])
 }

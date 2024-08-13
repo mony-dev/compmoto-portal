@@ -89,8 +89,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
       const response = await axios.get(
         `${window.location.origin}/api/cartCount?userId=${userId}`
       );
-
-      // const response = await axios.get(`/api/cartCount?userId=${userId}`);
       setCartItemCount(response.data.count);
     } catch (error) {
       console.error("Error fetching cart count:", error);
@@ -119,7 +117,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
 
   useEffect(() => {
     if (userId) {
-      console.log("userId2", userId);
       fetchCartCount();
     }
   }, [userId]);
@@ -165,7 +162,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
               type="button"
               className="inline-flex items-center text-gray-500 rounded-lg"
             >
-              <Link href={`/${locale}/admin/cart/${Number(userId)}}`}>
+              <Link href={`/${locale}/admin/cart/${userId}`}>
                 <Badge count={cartItemCount}>
                   <svg
                     width="24"

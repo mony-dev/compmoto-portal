@@ -18,7 +18,9 @@
     "fetch-sizes": "node lib/web/utils/fetchSizes.mjs",
     "fetch-family": "node lib/web/utils/fetchFamily.mjs",
     "fetch-group-type": "node lib/web/utils/fetchGroupType.mjs",
-    "fetch-products": "node lib/web/utils/fetchProducts.mjs"
+    "fetch-products": "node lib/web/utils/fetchProducts.mjs",
+    "update-products": "node lib/web/utils/updateProductImg.mjs"
+
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",

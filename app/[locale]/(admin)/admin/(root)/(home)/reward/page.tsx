@@ -108,7 +108,6 @@ const Reward = () => {
   }, []);
 
   useEffect(() => {
-    console.log("reee")
     if (session?.user.id) {
       fetchRewardUserData();
     }

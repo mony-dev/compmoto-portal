@@ -157,6 +157,10 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
       });
   }, [searchText, triggerMinisize]);
 
+  useEffect(() => {
+    isModalVisible ? setMode('EDIT') : setMode('ADD');
+  }, [isModalVisible]);
+
   function showModal(isShow: boolean, idReward: number) {
     return () => {
       setIsModalVisible(isShow);

@@ -8,7 +8,6 @@ export async function PUT(
   ) {
   const { searchParams } = new URL(request.url);
   const id = params.id;
-    console.log(searchParams.get("id"))
   if (!id) {
     return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
   }

@@ -367,3 +367,98 @@ body {
 .menuItem:hover > .subMenu {
   display: block;
 }
+
+.count-items {
+  font-size: 14px !important;
+  color: #bcc2c9 !important;
+  font-weight: 400 !important;
+  font-family: "GothamRegular", sans-serif !important;
+}
+
+.border-year {
+  border-left: 1px dashed #bcc2c9;
+}
+
+.add-cart-form {
+  padding-left: 0.5rem;
+  .ant-input-number-disabled {
+    background: none;
+    width: 50%;
+  }
+  .ant-input-number-disabled:hover {
+    background: none !important;
+  }
+  .ant-btn-icon {
+    border-left: none;
+  }
+
+  .minus-icon-cart {
+    padding-left: 0px !important;
+  }
+
+  .plus-icon-cart {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .minus-icon-cart:hover,
+  .plus-icon-cart:hover {
+    border-color: #dd2c37 !important;
+  }
+}
+
+.ant-table-cell {
+  vertical-align: middle; /* Default */
+}
+
+.ant-table-cell + :not(.force-bottom) {
+  vertical-align: bottom !important;
+}
+
+.thead-white-table .ant-table-thead > tr > th {
+  background-color: white !important;
+}
+.thead-white-table .ant-table-thead > tr > th::before {
+  background-color: white !important;
+}
+
+.checkout-box {
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+}
+
+.thead-white-table {
+  .ant-table-row-selected {
+    .ant-table-cell {
+      background: #ffe8eb !important;
+    }
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-checked
+    .ant-checkbox-inner {
+    background-color: #a62129;
+    border-color: #a62129;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-wrapper:not(
+      .ant-checkbox-wrapper-disabled
+    ):hover
+    .ant-checkbox-inner,
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox:not(
+      .ant-checkbox-disabled
+    ):hover
+    .ant-checkbox-inner {
+    border-color: #a62129;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-wrapper-checked:not(
+      .ant-checkbox-wrapper-disabled
+    ):hover
+    .ant-checkbox-inner,
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-checked:not(
+      .ant-checkbox-disabled
+    ):hover
+    .ant-checkbox-inner {
+    background-color: #af8084 !important;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-indeterminate
+    .ant-checkbox-inner:after {
+    background-color: #a62129;
+  }
+}

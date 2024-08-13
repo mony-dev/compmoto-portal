@@ -62,6 +62,7 @@ const handler = NextAuth({
         token.custNo = user.custNo;
         token.rewardPoint = user.rewardPoint;
         token.status = user.status
+        token.custPriceGroup = user.custPriceGroup
       }
       return token;
     },
@@ -72,6 +73,8 @@ const handler = NextAuth({
         session.user.custNo = token.custNo;
         session.user.rewardPoint = token.rewardPoint;
         session.user.status = token.status;
+        session.user.custPriceGroup = token.custPriceGroup
+
         // Fetch the latest userLog entry for this user
         const userLog = await prisma.userLog.findFirst({
           where: { userId: Number(token.id) },

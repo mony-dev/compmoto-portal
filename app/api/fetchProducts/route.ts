@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
-    console.log("api")
   try {
     exec('node lib/web/utils/fetchProducts.mjs', (error, stdout, stderr) => {
         if (error) {
