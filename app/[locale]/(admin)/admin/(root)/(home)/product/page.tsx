@@ -6,8 +6,10 @@ import {
   Divider,
   Empty,
   Form,
+  Input,
   InputNumber,
   Segmented,
+  Select,
   Space,
   Tabs,
   TabsProps,
@@ -32,6 +34,7 @@ import { ColumnsType } from "antd/es/table";
 import Submenu from "@components/Admin/Submenu";
 import DataTable from "@components/Admin/Datatable";
 import { useCart } from "@components/Admin/Cartcontext";
+import FilterTag from "@components/Admin/FilterTag";
 
 interface MinisizeDataType {
   id: number;
@@ -89,6 +92,17 @@ interface YearDataType {
   discount: number;
 }
 
+interface FilterType {
+  id: string;
+  label: string;
+}
+
+interface SelectedFilters {
+  lv1?: FilterType;
+  lv2?: FilterType;
+  lv3?: FilterType;
+}
+
 const Product = () => {
   const {
     handleSubmit,
@@ -109,6 +123,8 @@ const Product = () => {
   );
   const [trigger, setTrigger] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [sortBy, setSortBy] = useState("");
+
   const [productData, setProductData] = useState<DataType[]>([]);
   const [brandName, setBrandName] = useState("");
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
@@ -118,9 +134,9 @@ const Product = () => {
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
 
   const [selectedFilters, setSelectedFilters] = useState<{
-    lv1?: string;
-    lv2?: string;
-    lv3?: string;
+    lv1?: { id: string; label: string };
+    lv2?: { id: string; label: string };
+    lv3?: { id: string; label: string };
   }>({});
 
   const fetchMinisizeData = async (name: string) => {
@@ -138,11 +154,19 @@ const Product = () => {
     }
   };
 
-  const fetchProduct = async (name: string, filters = {}) => {
+  const fetchProduct = async (
+    name: string,
+    filters = {} as SelectedFilters
+  ) => {
     setBrandName(name);
+    const simplifiedFilters = {
+      lv1: filters.lv1?.id,
+      lv2: filters.lv2?.id,
+      lv3: filters.lv3?.id,
+    };
     axios
-      .get(`/api/getProduct?q=${searchText}&brandName=${name}`, {
-        params: filters,
+      .get(`/api/getProduct?q=${searchText}&brandName=${name}&sortBy=${sortBy}`, {
+        params: simplifiedFilters,
       })
       .then((response) => {
         const useProduct = response.data.map((product: DataType) => ({
@@ -187,61 +211,31 @@ const Product = () => {
   };
 
   const fetchPromotion = async (name: string, filters = {}) => {
-    const group = session?.user.custPriceGroup
+    const group = session?.user.custPriceGroup;
     minisizeData &&
-    axios
-      .get(`/api/getPromotion?group=${group}&minisizeId=${minisizeData.id}`)
-      .then((response) => {
-        const promotions = response.data.map(
-          (promotion: PromotionDataType) => ({
-            id: promotion.id,
-            name: promotion.name,
-            isActive: promotion.isActive,
-            minisizeId: promotion.minisizeId,
-            amount: promotion.amount,
-            productRedeem: promotion.productRedeem,
-            userGroup: promotion.userGroup,
-            startDate: promotion.startDate,
-            endDate: promotion.endDate,
-            image: promotion?.image,
-          })
-        );
-        setPromotionData(promotions);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  
+      axios
+        .get(`/api/getPromotion?group=${group}&minisizeId=${minisizeData.id}`)
+        .then((response) => {
+          const promotions = response.data.map(
+            (promotion: PromotionDataType) => ({
+              id: promotion.id,
+              name: promotion.name,
+              isActive: promotion.isActive,
+              minisizeId: promotion.minisizeId,
+              amount: promotion.amount,
+              productRedeem: promotion.productRedeem,
+              userGroup: promotion.userGroup,
+              startDate: promotion.startDate,
+              endDate: promotion.endDate,
+              image: promotion?.image,
+            })
+          );
+          setPromotionData(promotions);
+        })
+        .catch((error) => {
+          console.error("Error fetching data: ", error);
+        });
   };
-
-  // useEffect(() => {
-  //   const query = new URLSearchParams(window.location.search);
-  //   const name = query.get("name");
-  //   const group = session?.user
-  //   console.log("session?.user", session)
-  //   axios
-  //     .get(`/api/getPromotion?group=${group}&brandName=${name}`)
-  //     .then((response) => {
-  //       const promotions = response.data.map(
-  //         (promotion: PromotionDataType) => ({
-  //           id: promotion.id,
-  //           name: promotion.name,
-  //           isActive: promotion.isActive,
-  //           minisizeId: promotion.minisizeId,
-  //           amount: promotion.amount,
-  //           productRedeem: promotion.productRedeem,
-  //           userGroup: promotion.userGroup,
-  //           startDate: promotion.startDate,
-  //           endDate: promotion.endDate,
-  //           image: promotion?.image,
-  //         })
-  //       );
-  //       setPromotionData(promotions);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching data: ", error);
-  //     });
-  // }, []);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -249,7 +243,7 @@ const Product = () => {
     if (name) {
       fetchProduct(name, selectedFilters);
     }
-  }, [searchText, selectedFilters]);
+  }, [searchText, selectedFilters, sortBy]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -268,15 +262,15 @@ const Product = () => {
   }, [searchParams, selectedFilters]);
 
   const handleFilterChange = (filters: {
-    lv1?: string;
-    lv2?: string;
-    lv3?: string;
+    lv1?: { id: string; label: string };
+    lv2?: { id: string; label: string };
+    lv3?: { id: string; label: string };
   }) => {
-    setSelectedFilters(filters);
+    setSelectedFilters(filters); // Store the full filter object (with labels)
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct(name, filters);
+      fetchProduct(name, filters); // Pass only the IDs to fetchProduct
     }
   };
 
@@ -405,7 +399,11 @@ const Product = () => {
       render: (years: YearDataType[], record) => (
         <div>
           {years.map((yearData, index) => (
-            <Tooltip placement="top" title={`${yearData.discount}%`} key={index}>
+            <Tooltip
+              placement="top"
+              title={`${yearData.discount}%`}
+              key={index}
+            >
               <Tag
                 color={
                   yearData.isActive
@@ -472,7 +470,7 @@ const Product = () => {
       title: "ราคา",
       dataIndex: "price",
       key: "price",
-      defaultSortOrder: "descend",
+      defaultSortOrder: sortBy === "asc" ? "ascend" : "descend",
       sorter: (a, b) => a.price - b.price,
       render: (price, record) => {
         const selectedYearData = record.years.find(
@@ -590,6 +588,21 @@ const Product = () => {
       },
     },
   ];
+  const handleSortChange = (value: any) => {
+    setSortBy(value); // Update the sortBy state with selected value
+  
+    // Optional: Trigger sorting directly if data is already loaded
+    const sortedData = [...productData].sort((a, b) => {
+      if (value === "asc") {
+        return a.price - b.price;
+      } else if (value === "desc") {
+        return b.price - a.price;
+      }
+      return 0;
+    });
+  
+    setProductData(sortedData); // Update the table with sorted data
+  };
   return (
     <div className="px-12">
       <div className="px-4 pb rounded-lg">
@@ -648,6 +661,41 @@ const Product = () => {
             />
           </div>
         </nav>
+        {(selectedFilters.lv1 ||
+          selectedFilters.lv2 ||
+          selectedFilters.lv3) && (
+          <>
+            <div className="flex pt-4 items-center gap-4">
+              <p className="text-comp-text-filter default-font text-sm">
+                ตัวกรองที่ใช้ :
+              </p>
+              <FilterTag
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
+            <Divider style={{ borderColor: "#E4E7EB" }} dashed />
+          </>
+        )}
+        <div className="flex justify-end items-center gap-4 sort-filter">
+          <Input.Search
+            placeholder="Search"
+            size="middle"
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: "200px", margin: "1rem 0 1rem 0" }}
+          />
+          {/* <p className="text-comp-text-filter default-font text-sm">เรียงตาม</p>
+          <Select
+            defaultValue="asc"
+            style={{ width: 120 }}
+            allowClear
+            options={[
+              { value: "desc", label: "ราคา มาก-น้อย" },
+              { value: "asc", label: "ราคา น้อย-มาก" },
+            ]}
+            onChange={handleSortChange}
+          /> */}
+        </div>
         <DataTable columns={columns} data={productData}></DataTable>
       </div>
     </div>

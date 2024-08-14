@@ -462,3 +462,39 @@ body {
     background-color: #a62129;
   }
 }
+
+.filter-tag {
+  .ant-tag-close-icon {
+    background-color: #A6AEBB;
+    padding: 2px;
+    border-radius: 10px;
+    color: white;
+    margin-left: 8px;
+  }
+}
+
+.dropdown-filter {
+  .dropdownToggle {
+    cursor: pointer;
+  }
+  
+  .dropdownToggle svg {
+    transition: transform 0.3s ease;
+  }
+  
+  .dropdownToggle:hover svg {
+    transform: rotate(180deg);
+  }
+}
+
+.ant-input-search {
+  input:hover {
+    border-color: #FFE8EB;
+  }
+}
+
+.sort-filter {
+  .ant-select-show-arrow {
+    width: 10%!important;
+  }
+}

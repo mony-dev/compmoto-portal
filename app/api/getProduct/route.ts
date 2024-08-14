@@ -16,6 +16,7 @@ const tableModelMap: Record<string, keyof PrismaClient> = {
   export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const q = searchParams.get("q") || "";
+    const sortBy = searchParams.get("sortBy") || "";
     const brandName = searchParams.get('brandName')?.toUpperCase() || '';
     const lv1 = searchParams.get('lv1') || null;
     const lv2 = searchParams.get('lv2') || null;
@@ -63,7 +64,7 @@ const tableModelMap: Record<string, keyof PrismaClient> = {
           imageProducts: true,
         },
       });
-  
+
       const detailedProducts = await Promise.all(
         products.map(async (product) => {
           if (!product.minisize) {
@@ -95,7 +96,6 @@ const tableModelMap: Record<string, keyof PrismaClient> = {
           };
         })
       );
-  
       return NextResponse.json(detailedProducts);
     } catch (error) {
       console.error("Error fetching data: ", error);

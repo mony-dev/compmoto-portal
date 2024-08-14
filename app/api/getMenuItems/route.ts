@@ -87,12 +87,15 @@ export async function GET(req: Request) {
 
     const menuItems = lv1Names.map((lv1: any) => ({
       ...lv1,
+      labelTag: `${lv1.label}`,
       children: lv2Names.map((lv2: any) => ({
         ...lv2,
         key: `${lv1.key}-${lv2.key}`,
+        labelTag: `${lv1.label}>${lv2.label}`,
         children: lv3Names.map((lv3: any) => ({
           ...lv3,
           key: `${lv1.key}-${lv2.key}-${lv3.key}`,
+          labelTag: `${lv1.label}>${lv2.label}>${lv3.label}`,
         })),
       })),
     }));

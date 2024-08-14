@@ -45,7 +45,8 @@ module.exports = withMT({
         "comp-blue-primary": "#1677ff",
         "comp-red-reward": "#E34F58",
         "comp-disable-input": "#f5f5f5",
-        "comp-red-price": "#A62129"
+        "comp-red-price": "#A62129",
+        "comp-text-filter": "rgba(144, 154, 170, 1)"
       },
       flex: {
         "1-auto": "1 0 auto",

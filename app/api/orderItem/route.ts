@@ -30,6 +30,7 @@ export async function POST(request: Request, { body }: { body: any }) {
       })
     )
   );
+  
     return NextResponse.json(orderItems);
   } catch (error) {
     return NextResponse.json(error);
