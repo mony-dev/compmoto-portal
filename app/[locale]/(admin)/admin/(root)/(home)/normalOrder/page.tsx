@@ -39,7 +39,7 @@ import { DateTime } from "luxon";
 import ModalVerify from "@components/Admin/RewardUser/ModalVerify";
 import { useSession } from "next-auth/react";
 
-export default function backOrder({ params }: { params: { id: number } }) {
+export default function normalOrder({ params }: { params: { id: number } }) {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [orderData, setOrderData] = useState<OrderDataType[]>([]);
@@ -87,7 +87,9 @@ export default function backOrder({ params }: { params: { id: number } }) {
       key: "documentNo",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.documentNo.localeCompare(b.documentNo),
-      render: (_, record) => <p>{record.documentNo}</p>,
+      render: (_, record) => (
+        <Link href={`/${locale}/admin/normalOrder/${record.id}`}>{record.documentNo}</Link>
+      ),
     },
     {
       title: "Customer no.",
@@ -130,19 +132,27 @@ export default function backOrder({ params }: { params: { id: number } }) {
           count={orderTotal}
           offset={[10, 1]}
         >
-          <p>Back orders</p>
+          <p>Sale Quotes</p>
         </Badge>
       ),
       children: <DataTable columns={columns} data={orderData} />,
-    }
+    },
+    {
+      key: "2",
+      label: (
+        <Badge className="redeem-badge default-font" count={0} offset={[10, 1]}>
+          <p>Invoice</p>
+        </Badge>
+      ),
+      children: <DataTable columns={columns} data={orderData} />,
+    },
   ];
 
   useEffect(() => {
     if (session?.user?.id) {
       axios
-        .get(`/api/order?q=${searchText}&type=Back&userId=${session.user.id}`)
+        .get(`/api/order?q=${searchText}&type=Normal&userId=${session.user.id}`)
         .then((response) => {
-          console.log(response);
           const useOrder = response.data.map((order: any) => ({
             key: order.id,
             id: order.id,
@@ -186,7 +196,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-end items-center">
-          <p className="text-lg font-semibold pb-4 grow">Back orders</p>
+          <p className="text-lg font-semibold pb-4 grow">คำสั่งซื้อทั่วไป</p>
           <div className="flex">
             <Input.Search
               placeholder="Search"

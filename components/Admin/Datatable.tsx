@@ -22,6 +22,7 @@ const DataTable: React.FC<TableComponentProps<any>> = ({
         dataSource={data}
         className="w-full default-font"
         pagination={customPagination}
+        style={{boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`}}
       />
     </div>
   );

@@ -36,7 +36,6 @@ const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId }) => {
         const response = await axios.get(`/api/getMenuItems`, {
           params: { minisizeId },
         });
-        console.log("response", response);
         const items: MenuItemType[] = response.data;
         setMenuItems(items);
       } catch (error) {
@@ -93,7 +92,7 @@ const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId }) => {
   return (
     <div className="dropdown dropdown-filter">
       <div className="dropdownToggle flex items-center gap-4">
-        <p className="m-0">รุ่นสินค้า</p>
+        <p className="m-0 text-white">รุ่นสินค้า</p>
         <svg
           width="10"
           height="6"

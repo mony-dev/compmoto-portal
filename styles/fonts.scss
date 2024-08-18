@@ -42,6 +42,12 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: 'GothamBook';
+  src: url('../public/fonts/Gotham-Book.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 .gotham-font{
   font-family: 'GothamRegular', sans-serif;
 }
@@ -51,7 +57,9 @@
 .gotham-thin{
   font-family: 'GothamThin', sans-serif;
 }
-
+.gotham-book{
+  font-family: 'GothamBook', sans-serif;
+}
 //inter
 @font-face {
   font-family: 'InterBold';

@@ -79,7 +79,6 @@ const Reward = () => {
           image: data.reward.image,
           file: data.reward.file,
         }));
-        console.log(rewardUser)
         setRewardUserData(rewardUser);
       }
     } catch (error) {

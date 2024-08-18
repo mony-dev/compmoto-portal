@@ -29,6 +29,9 @@ const handler = NextAuth({
         if (credentials) {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
+            include: {
+              saleUser: true,
+            },
           });
           if (!user) {
             // User not found
@@ -63,6 +66,17 @@ const handler = NextAuth({
         token.rewardPoint = user.rewardPoint;
         token.status = user.status
         token.custPriceGroup = user.custPriceGroup
+         // Fetch the custNo of saleUser if it exists
+         if (user.saleUserId) {
+          const saleUser = await prisma.user.findUnique({
+            where: { id: user.saleUserId },
+            select: { custNo: true },
+          });
+
+          if (saleUser) {
+            token.saleUserCustNo = saleUser.custNo;
+          }
+        }
       }
       return token;
     },
@@ -74,7 +88,9 @@ const handler = NextAuth({
         session.user.rewardPoint = token.rewardPoint;
         session.user.status = token.status;
         session.user.custPriceGroup = token.custPriceGroup
-
+        if (token.saleUserCustNo) {
+          session.user.saleUserCustNo = token.saleUserCustNo;
+        }
         // Fetch the latest userLog entry for this user
         const userLog = await prisma.userLog.findFirst({
           where: { userId: Number(token.id) },

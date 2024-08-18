@@ -29,6 +29,7 @@ import { Image } from "antd";
 import NoImage from "@public/images/no_img_cart.png";
 import { Controller, useForm } from "react-hook-form";
 import { useCart } from "@components/Admin/Cartcontext";
+import xml2js from 'xml2js';
 
 type CheckoutProps = {
   totalAmount: number;
@@ -63,6 +64,7 @@ interface CartDataType {
     years: YearDataType[];
     image: string;
     minisizeId: number;
+    code: string;
     brand: {
       id: Number;
       name: string;
@@ -70,6 +72,19 @@ interface CartDataType {
     imageProduct: any;
     promotion: any;
   };
+}
+
+interface OrderItem {
+  cartId: number;
+  orderId: number;
+  productId: number;
+  amount: number;
+  type: string;
+  price: number;
+  year: number | null;
+  discount: number;
+  discountPrice: number;
+  code: string;
 }
 
 const Cart = ({ params }: { params: { id: number } }) => {
@@ -120,7 +135,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
     selectedYear: string | null = null
   ) => {
     let totalPrice = record.product.price * amount;
-
     // Use the passed `selectedYear` if available, otherwise fallback to state
     const yearToUse = selectedYear || selectedProductYear[record.id];
     if (yearToUse) {
@@ -577,6 +591,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
             brandName: item.product.brandName,
             price: item.product.price,
             minisizeId: item.product.minisizeId,
+            code: item.product.code,
             years: JSON.parse(
               item.product.years as unknown as string
             ) as YearDataType[],
@@ -768,14 +783,14 @@ const Checkout: React.FC<CheckoutProps> = ({
   const router = useRouter();
   const locale = useCurrentLocale(i18nConfig);
   const { cartItemCount, setCartItemCount } = useCart();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const onSubmit = async () => {
     if (!session?.user?.id) {
       toastError("Please login before checkout");
       return;
     }
-
-    // Filter the selected items
+  
     const selectedCartItems = cartData.filter((item: any) =>
       selectedItems.includes(item.id)
     );
@@ -783,9 +798,8 @@ const Checkout: React.FC<CheckoutProps> = ({
       toastError("No items selected for checkout");
       return;
     }
-
+    setIsProcessing(true);
     try {
-      // Prepare the order data
       let joinedString = "";
       if (promotionText) {
         joinedString = promotionText.join(", ");
@@ -796,32 +810,30 @@ const Checkout: React.FC<CheckoutProps> = ({
         totalPrice: totalPrice - totalPrice * (discountRate / 100),
         subTotal: totalPrice,
         groupDiscount: discountRate,
-        type: selectedCartItems[0].type, // Assuming all items have the same type
+        type: selectedCartItems[0].type,
         externalDocument: joinedString,
       };
-
-      // Send the request to create an order
+  
       const { data: createdOrder } = await axios.post("/api/order", orderData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      // Prepare the order items data
+  
       const orderItemsData = selectedCartItems.map(
         (item: {
-          product: { years: any[]; id: any };
+          product: { years: any[]; id: any; code: string };
           id: string | number;
           type: any;
         }) => {
           const selectedYearData = item.product.years.find(
             (yearData) => yearData.year === selectedProductYear[item.id]
           );
-
           return {
             cartId: item.id,
             orderId: createdOrder.id,
             productId: item.product.id,
+            code: item.product.code,
             amount: getValues(`amount_${item.id}`),
             type: item.type,
             price: calculateOriginalPrice(item, getValues(`amount_${item.id}`)),
@@ -829,15 +841,13 @@ const Checkout: React.FC<CheckoutProps> = ({
               ? parseInt(selectedYearData.year)
               : null,
             discount: selectedYearData?.discount || 0,
-            discountPrice:
-              (calculateTotalPrice(item, getValues(`amount_${item.id}`)) *
-                (selectedYearData?.discount || 0)) /
-              100,
+            discountPrice: selectedYearData?.discount
+              ? calculateTotalPrice(item, getValues(`amount_${item.id}`)) 
+              : calculateOriginalPrice(item, getValues(`amount_${item.id}`)),
           };
         }
       );
-
-      // Send the request to create order items
+  
       const res = await axios.post(
         "/api/orderItem",
         { items: orderItemsData },
@@ -847,20 +857,132 @@ const Checkout: React.FC<CheckoutProps> = ({
           },
         }
       );
+  
+     // Determine whether to call createSalesQuote or CreateSalesBlanket
+     const soapResponse =
+     selectedCartItems[0].type === "Normal"
+       ? await createSalesQuote(
+           session.user.custNo,
+           joinedString,
+           session.user.saleUserCustNo || "",
+           orderItemsData.map((item: OrderItem) => ({
+             itemNo: item.code,
+             qty: getValues(`amount_${item.cartId}`),
+             unitPrice: item.discountPrice,
+           }))
+         )
+       : await createSalesBlanket(
+           session.user.custNo,
+           joinedString,
+           session.user.saleUserCustNo || "",
+           orderItemsData.map((item: OrderItem) => ({
+             itemNo: item.code,
+             qty: getValues(`amount_${item.cartId}`),
+             unitPrice: item.discountPrice,
+             BlanketRemainQty: getValues(`amount_${item.cartId}`),
+           }))
+         );
 
-      setCartItemCount(cartItemCount - res.data.count);
-
-      toastSuccess("Order placed successfully");
-      if (selectedCartItems[0].type == "normal") {
-        router.replace(`/${locale}/admin/normal-order`);
+      if (soapResponse) {
+        const parsedResponse = await xml2js.parseStringPromise(soapResponse, {
+          explicitArray: false,
+        });
+  
+        const returnValue = selectedCartItems[0].type === "Normal" ? parsedResponse['Soap:Envelope']['Soap:Body']
+        .CreateSalesQuote_Result.return_value: parsedResponse['Soap:Envelope']['Soap:Body']
+        .CreateSalesBlanket_Result.return_value;
+       
+  
+        if (returnValue) {
+          // Update the order with the return_value as documentNo
+          await axios.put(`/api/order/${createdOrder.id}`, {
+            documentNo: returnValue,
+          });
+  
+          toastSuccess("Order placed successfully");
+          setCartItemCount(cartItemCount - res.data.count);
+          if (selectedCartItems[0].type === "Normal") {
+            router.replace(`/${locale}/admin/normalOrder`);
+          } else {
+            router.replace(`/${locale}/admin/backOrder`);
+          }
+        } else {
+          toastError("Failed to create order, return_value missing");
+        }
       } else {
-        router.replace(`/${locale}/admin/back-order`);
+        toastError("Failed to create order");
       }
     } catch (error: any) {
       toastError(error.message);
+    } finally {
+      setIsProcessing(false); // End the spinner or enable the button
     }
   };
+  
+  
 
+  const createSalesQuote = async (
+    customerNo: string,
+    externalDoc: string,
+    createBy: string,
+    orderItems: {
+      itemNo: string;
+      qty: number;
+      unitPrice: number;
+    }[]
+  ) => {
+    const response = await fetch('/api/createSalesQuote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customerNo,
+        externalDoc,
+        createBy,
+        orderItems,
+      }),
+    });
+  
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create sales quote');
+    }
+  
+    const data = await response.json();
+    return data;
+  };
+  const createSalesBlanket = async (
+    customerNo: string,
+    externalDoc: string,
+    createBy: string,
+    orderItems: {
+      itemNo: string;
+      qty: number;
+      unitPrice: number;
+      BlanketRemainQty: number;
+    }[]
+  ) => {
+    const response = await fetch('/api/createSalesBlanket', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customerNo,
+        externalDoc,
+        createBy,
+        orderItems,
+      }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create bo');
+    }
+  
+    const data = await response.json();
+    return data;
+  };
   return (
     <div className="bg-white row-end-2 row-span-1 p-4 rounded-lg checkout-box">
       <p className="gotham-font text-black text-base pt-4 font-medium">
@@ -924,6 +1046,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             onClick={() => onSubmit()}
             type="primary"
             htmlType="submit"
+            loading={isProcessing}
             className="gotham-font bg-comp-red-price button-backend w-full mt-4 p-6 flex justify-between text-base font-medium"
           >
             <p>Checkout</p>

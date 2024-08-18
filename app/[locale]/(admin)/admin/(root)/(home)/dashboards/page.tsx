@@ -62,7 +62,6 @@ const Dashboard = () => {
       .get(`/api/reward`)
       .then((response) => {
         const rewards = response.data.map((reward: RewardDataType) => {
-          console.log(reward.startDate);
           return {
             id: reward.id,
             name: reward.name,

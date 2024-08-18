@@ -125,8 +125,8 @@ export default function SideBar({
         />
       ),
       items: [
-        { title: "คำสั่งซื้อทั่วไป", href: `/${locale}/admin/normal-order` },
-        { title: "Back Order", href: `/${locale}/admin/back-order` },
+        { title: "คำสั่งซื้อทั่วไป", href: `/${locale}/admin/normalOrder` },
+        { title: "Back Order", href: `/${locale}/admin/backOrder` },
       ],
       id: "orders",
       openMenuId: openMenuId,

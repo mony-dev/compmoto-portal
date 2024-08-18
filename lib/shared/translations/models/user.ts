@@ -22,5 +22,6 @@ export interface User {
   contactName?: string;
   custPriceGroup?: string;
   custNo: string;
+  saleUserId?: number;
 }
 

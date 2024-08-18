@@ -70,7 +70,6 @@ const ModalAlbum = ({
   useEffect(() => {
     if (mode === "EDIT" && alData && alData.id > 0) {
       setValue("name", alData.name);
-      console.log(alData?.images)
       setImage(alData?.images);
     } else {
       setValue("name", "");

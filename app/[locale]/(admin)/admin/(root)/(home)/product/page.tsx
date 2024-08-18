@@ -22,7 +22,7 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { formatDateRange, toastError, toastSuccess } from "@lib-utils/helper";
+import { formatDate, formatDateRange, toastError, toastSuccess } from "@lib-utils/helper";
 import Image from "next/image";
 import { Controller, useForm } from "react-hook-form";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
@@ -30,7 +30,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType, TableProps } from "antd/es/table";
 import Submenu from "@components/Admin/Submenu";
 import DataTable from "@components/Admin/Datatable";
 import { useCart } from "@components/Admin/Cartcontext";
@@ -64,10 +64,12 @@ interface DataType {
   portalStock: number;
   minisizeId?: number;
   promotionId?: number;
+  updatedAt: string;
   years: YearDataType[];
   lv1Id?: number;
   lv2Id?: number;
   lv3Id?: number;
+  totalOrder: number;
   brand?: {
     name: string;
   };
@@ -139,6 +141,32 @@ const Product = () => {
     lv3?: { id: string; label: string };
   }>({});
 
+  type OnChange = NonNullable<TableProps<DataType>['onChange']>;
+  type GetSingle<T> = T extends (infer U)[] ? U : never;
+  type Sorts = GetSingle<Parameters<OnChange>[2]>;
+  const [sortedInfo, setSortedInfo] = useState<Sorts>({});
+  const handleSortChange = (value: string) => {
+    if (value === "descend" || value === "ascend") {
+      setSortedInfo({
+        order: value,
+        columnKey: 'price',
+      });
+    } else if (value === "new") {
+      const sortedData = [...productData].sort((a, b) => {
+        const dateA = new Date(a.updatedAt);
+        const dateB = new Date(b.updatedAt);
+        return dateB.getTime() - dateA.getTime(); 
+      });
+      setProductData(sortedData); 
+      setSortedInfo({});
+    } else if (value === "popular") {
+      const sortedData = [...productData].sort((a, b) => {
+        return a.totalOrder - b.totalOrder
+      });
+      setProductData(sortedData); 
+      setSortedInfo({});
+    }
+  };
   const fetchMinisizeData = async (name: string) => {
     try {
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
@@ -180,12 +208,14 @@ const Product = () => {
           portalStock: product.portalStock,
           minisizeId: product.minisizeId,
           promotionId: product.promotionId,
+          updatedAt: product.updatedAt,
           years: JSON.parse(
             product.years as unknown as string
           ) as YearDataType[],
           lv1Id: product.lv1Id,
           lv2Id: product.lv2Id,
           lv3Id: product.lv3Id,
+          totalOrder: product.totalOrder,
           brand: {
             name: product?.brand?.name,
           },
@@ -472,6 +502,7 @@ const Product = () => {
       key: "price",
       defaultSortOrder: sortBy === "asc" ? "ascend" : "descend",
       sorter: (a, b) => a.price - b.price,
+      sortOrder: sortedInfo.columnKey === 'price' ? sortedInfo.order : null,
       render: (price, record) => {
         const selectedYearData = record.years.find(
           (yearData) => yearData.year === selectedProductYear[record.id]
@@ -518,14 +549,14 @@ const Product = () => {
             : hoveredProduct === record.id && record.portalStock > 100
             ? "#1ba345"
             : hoveredProduct === record.id &&
-              record.portalStock < 100 &&
+              record.portalStock <= 100 &&
               record.portalStock > 0
             ? "#fec001"
             : record.portalStock === 0
             ? "#FFE8EB"
             : record.portalStock > 100
             ? "#D1EDDA"
-            : record.portalStock < 100 && record.portalStock > 0
+            : record.portalStock <= 100 && record.portalStock > 0
             ? "#FFF2CC"
             : "#D1EDDA";
         const textColor =
@@ -534,14 +565,14 @@ const Product = () => {
             : hoveredProduct === record.id && record.portalStock > 100
             ? "#FFFFFF"
             : hoveredProduct === record.id &&
-              record.portalStock < 100 &&
+              record.portalStock <= 100 &&
               record.portalStock > 0
             ? "#FFFFFF"
             : record.portalStock === 0
             ? "#DD2C37"
             : record.portalStock > 100
             ? "#1BA345"
-            : record.portalStock < 100 && record.portalStock > 0
+            : record.portalStock <= 100 && record.portalStock > 0
             ? "#FEC001"
             : "#FEC001";
 
@@ -588,21 +619,6 @@ const Product = () => {
       },
     },
   ];
-  const handleSortChange = (value: any) => {
-    setSortBy(value); // Update the sortBy state with selected value
-  
-    // Optional: Trigger sorting directly if data is already loaded
-    const sortedData = [...productData].sort((a, b) => {
-      if (value === "asc") {
-        return a.price - b.price;
-      } else if (value === "desc") {
-        return b.price - a.price;
-      }
-      return 0;
-    });
-  
-    setProductData(sortedData); // Update the table with sorted data
-  };
   return (
     <div className="px-12">
       <div className="px-4 pb rounded-lg">
@@ -684,17 +700,18 @@ const Product = () => {
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: "200px", margin: "1rem 0 1rem 0" }}
           />
-          {/* <p className="text-comp-text-filter default-font text-sm">เรียงตาม</p>
+          <p className="text-comp-text-filter default-font text-sm">เรียงตาม</p>
           <Select
-            defaultValue="asc"
             style={{ width: 120 }}
             allowClear
             options={[
-              { value: "desc", label: "ราคา มาก-น้อย" },
-              { value: "asc", label: "ราคา น้อย-มาก" },
+              { value: "descend", label: "ราคา มาก-น้อย" },
+              { value: "ascend", label: "ราคา น้อย-มาก" },
+              { value: "popular", label: "สินค้ายอดนิยม" },
+              { value: "new", label: "สินค้าใหม่" },
             ]}
             onChange={handleSortChange}
-          /> */}
+          />
         </div>
         <DataTable columns={columns} data={productData}></DataTable>
       </div>

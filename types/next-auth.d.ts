@@ -61,7 +61,7 @@ declare module "next-auth" {
     rewardPoint: number;
     status: string;
     custPriceGroup: string;
-
+    saleUserId: number;
   }
   
   interface Session {
@@ -72,6 +72,7 @@ declare module "next-auth" {
       id: int; // Add this line
       status: string;
       custPriceGroup: string;
+      saleUserId: number;
     } & DefaultSession["user"]
   }
 }

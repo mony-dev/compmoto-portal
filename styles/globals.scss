@@ -463,6 +463,7 @@ body {
   }
 }
 
+
 .filter-tag {
   .ant-tag-close-icon {
     background-color: #A6AEBB;
@@ -496,5 +497,17 @@ body {
 .sort-filter {
   .ant-select-show-arrow {
     width: 10%!important;
+  }
+}
+
+.order-table {
+  .ant-table-cell {
+    color: #919FAF!important;
+  }
+  th {
+    background: white!important;
+  }
+  .ant-card-actions {
+    border-top: 1px dashed #919FAF;
   }
 }
