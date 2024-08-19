@@ -39,7 +39,7 @@ import { DateTime } from "luxon";
 import ModalVerify from "@components/Admin/RewardUser/ModalVerify";
 import { useSession } from "next-auth/react";
 
-export default function adminOrder({ params }: { params: { id: number } }) {
+export default function adminBackOrder({ params }: { params: { id: number } }) {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [orderData, setOrderData] = useState<OrderDataType[]>([]);
@@ -91,7 +91,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) => a.documentNo.localeCompare(b.documentNo),
       render: (_, record) => (
-        <Link href={`/${locale}/admin/adminOrder/${record.id}`}>{record.documentNo}</Link>
+        <Link href={`/${locale}/admin/adminBackOrder/${record.id}`}>{record.documentNo}</Link>
       ),
     },
     {
@@ -149,28 +149,19 @@ export default function adminOrder({ params }: { params: { id: number } }) {
         <Badge
           className="redeem-badge default-font"
           count={orderTotal}
-          offset={[10, 1]}
+          offset={[15, 1]}
         >
-          <p>Sale Quotes</p>
+          <p>Back orders</p>
         </Badge>
       ),
       children: <DataTable columns={columns} data={orderData} />,
-    },
-    {
-      key: "2",
-      label: (
-        <Badge className="redeem-badge default-font" count={0} offset={[10, 1]}>
-          <p>Invoice</p>
-        </Badge>
-      ),
-      children: <DataTable columns={columns} data={orderData} />,
-    },
+    }
   ];
 
   useEffect(() => {
     if (session?.user?.id) {
       axios
-        .get(`/api/adminOrder?q=${searchText}&type=Normal&userId=${session.user.id}&role=${session.user.role}`)
+        .get(`/api/adminOrder?q=${searchText}&type=Back&userId=${session.user.id}&role=${session.user.role}`)
         .then((response) => {
           const useOrder = response.data.map((order: any) => ({
             key: order.id,

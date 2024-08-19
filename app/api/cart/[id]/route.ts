@@ -34,8 +34,6 @@ export async function GET(
     }
     return NextResponse.json(cart);
   } catch (error) {
-    console.log("error", error)
-
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();

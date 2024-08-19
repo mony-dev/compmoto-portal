@@ -21,7 +21,7 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import DataTable from "@components/Admin/Datatable";
 import { Decimal } from "@prisma/client/runtime/library";
 
-export default function normalOrder({ params }: { params: { id: number } }) {
+export default function adminBackOrder({ params }: { params: { id: number } }) {
   const router = useRouter();
   const [reData, setReData] = useState<DataType>();
   const locale = useCurrentLocale(i18nConfig);
@@ -92,7 +92,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
 
   useEffect(() => {
     axios
-      .get(`/api/order/${params.id}?type=Normal`)
+      .get(`/api/order/${params.id}?type=Back`)
       .then((response) => {
         const order = response.data;
         const normalOrder: DataType = {
@@ -262,7 +262,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
         <div className="text-lg pb-4 default-font flex">
           <Link
             className="text-comp-sub-header"
-            href={`/${locale}/admin/normalOrder`}
+            href={`/${locale}/admin/adminBackOrder`}
           >
             Order lists
           </Link>{" "}
@@ -274,7 +274,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
         <div className="text-lg pb-4 default-font flex">
           <Link
             className="flex items-center gap-2 hover:underline"
-            href={`/${locale}/admin/normalOrder`}
+            href={`/${locale}/admin/adminBackOrder`}
           >
             <svg
               width="40"
@@ -323,7 +323,9 @@ export default function normalOrder({ params }: { params: { id: number } }) {
           </div>
           <div className="col-span-1 col-start-4">
             <Card
-              title="You’re paying"
+              title={ <p className="gotham-book text-xl font-thin grow pb-1">
+                SaleAdmin : {reData?.user.saleUser.custNo}
+              </p>}
               bordered={false}
               className="gotham-thin"
               actions={actions}

@@ -60,11 +60,8 @@ export async function GET(
         },
       },
     });
-    console.log(order)
-
     return NextResponse.json(order);
   } catch (error) {
-    console.log(error)
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();

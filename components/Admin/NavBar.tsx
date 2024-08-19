@@ -152,19 +152,20 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
           </Link>
           {/* <button onClick={changeLanguage}>change lang</button> */}
           <div className="flex p-2.5">
-            <button
+            {/* <button
               type="button"
               className="inline-flex items-center  text-gray-500 rounded-lg"
             >
               <IconCompmoto src={SearchIcon.src} alt="logo" />
-            </button>
+            </button> */}
             <button
               type="button"
               className="inline-flex items-center text-gray-500 rounded-lg"
             >
-              <Link href={`/${locale}/admin/cart/${userId}`}>
+              <Link href={`/${locale}/admin/cart/${userId}`} className="flex">
                 <Badge count={cartItemCount}>
                   <svg
+                    className="self-center m-1"
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
@@ -195,14 +196,51 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
               type="button"
               className="inline-flex items-center text-gray-500 rounded-lg"
             >
-              <IconCompmoto src={NoticeIcon.src} alt="logo" />
+              <Badge count={0}>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="m-1"
+                >
+                  <path
+                    d="M12.0201 20.5299C9.69005 20.5299 7.36005 20.1599 5.15005 19.4199C4.31005 19.1299 3.67005 18.5399 3.39005 17.7699C3.10005 16.9999 3.20005 16.1499 3.66005 15.3899L4.81005 13.4799C5.05005 13.0799 5.27005 12.2799 5.27005 11.8099V8.91992C5.27005 5.19992 8.30005 2.16992 12.0201 2.16992C15.7401 2.16992 18.7701 5.19992 18.7701 8.91992V11.8099C18.7701 12.2699 18.9901 13.0799 19.2301 13.4899L20.3701 15.3899C20.8001 16.1099 20.8801 16.9799 20.5901 17.7699C20.3001 18.5599 19.6701 19.1599 18.8801 19.4199C16.6801 20.1599 14.3501 20.5299 12.0201 20.5299ZM12.0201 3.66992C9.13005 3.66992 6.77005 6.01992 6.77005 8.91992V11.8099C6.77005 12.5399 6.47005 13.6199 6.10005 14.2499L4.95005 16.1599C4.73005 16.5299 4.67005 16.9199 4.80005 17.2499C4.92005 17.5899 5.22005 17.8499 5.63005 17.9899C9.81005 19.3899 14.2401 19.3899 18.4201 17.9899C18.7801 17.8699 19.0601 17.5999 19.1901 17.2399C19.3201 16.8799 19.2901 16.4899 19.0901 16.1599L17.9401 14.2499C17.5601 13.5999 17.2701 12.5299 17.2701 11.7999V8.91992C17.2701 6.01992 14.9201 3.66992 12.0201 3.66992Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M13.8801 3.93993C13.8101 3.93993 13.7401 3.92993 13.6701 3.90993C13.3801 3.82993 13.1001 3.76993 12.8301 3.72993C11.9801 3.61993 11.1601 3.67993 10.3901 3.90993C10.1101 3.99993 9.81005 3.90993 9.62005 3.69993C9.43005 3.48993 9.37005 3.18993 9.48005 2.91993C9.89005 1.86993 10.8901 1.17993 12.0301 1.17993C13.1701 1.17993 14.1701 1.85993 14.5801 2.91993C14.6801 3.18993 14.6301 3.48993 14.4401 3.69993C14.2901 3.85993 14.0801 3.93993 13.8801 3.93993Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M12.02 22.8101C11.03 22.8101 10.07 22.4101 9.36996 21.7101C8.66996 21.0101 8.26996 20.0501 8.26996 19.0601H9.76996C9.76996 19.6501 10.01 20.2301 10.43 20.6501C10.85 21.0701 11.43 21.3101 12.02 21.3101C13.26 21.3101 14.27 20.3001 14.27 19.0601H15.77C15.77 21.1301 14.09 22.8101 12.02 22.8101Z"
+                    fill="white"
+                  />
+                </svg>
+              </Badge>
             </button>
             <button
               type="button"
               className="inline-flex items-center text-gray-500 rounded-lg"
               onClick={() => setDropdownVisible(!isDropdownVisible)}
             >
-              <IconCompmoto src={AccountMock.src} alt="logo" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="text-white m-1"
+                width="26"
+                height="26"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                />
+              </svg>
             </button>
             {/* <DropDownMenu options={sidebarItems} qrCode={qrCodeImage} /> */}
             {isDropdownVisible && (
