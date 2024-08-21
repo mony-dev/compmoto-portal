@@ -247,6 +247,7 @@ export default function adminProduct({ params }: { params: { id: number } }) {
           {...(productData && { productData })}
           mode={mode}
           id={id}
+          setId={setId}
         />
       </div>
     </div>

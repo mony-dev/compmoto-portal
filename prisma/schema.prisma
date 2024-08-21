@@ -17,6 +17,7 @@ model User {
   id                 Int                 @id @default(autoincrement())
   email              String              @unique
   encryptedPassword  String              @map("encrypted_password") @db.VarChar(255)
+  encryptedPasswordtext String?             @db.VarChar(255) 
   name               String?
   role               Role                @default(USER)
   saleUserId         Int?                
@@ -229,6 +230,8 @@ model Minisize {
   brand     Brand    @relation(fields: [brandId], references: [id])
   products  Product[]
   promotions Promotion[]
+  media Media[]
+  news News[]
 }
 
 model Product {
@@ -344,4 +347,36 @@ model OrderItem {
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
 
   @@unique([orderId, productId])
+}
+
+enum MediaType {
+  File  @map("file")
+  Video   @map("video")
+  Image   @map("image")
+}
+
+model Media {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean
+  name          String
+  minisizeId    Int
+  minisize      Minisize @relation(fields: [minisizeId], references: [id])
+  image         String
+  type          MediaType   
+  url           String
+  coverImg      String
+}
+
+model News {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean
+  name          String
+  minisizeId    Int
+  minisize      Minisize @relation(fields: [minisizeId], references: [id])
+  coverImg      String
+  content       String
 }

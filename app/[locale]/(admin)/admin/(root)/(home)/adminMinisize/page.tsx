@@ -216,6 +216,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
           mode={mode}
           title={title}
           id={id}
+          setId={setId}
         />
       </div>
     </div>

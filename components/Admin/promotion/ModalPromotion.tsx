@@ -57,6 +57,7 @@ type Props = {
   mode: string;
   title: string;
   id: number;
+  setId: (value: number) => void;
 };
 
 interface PromotionDataType {
@@ -85,6 +86,7 @@ const ModalPromotion = ({
   title,
   id,
   mode,
+  setId,
 }: Props) => {
   const {
     handleSubmit,
@@ -185,6 +187,7 @@ const ModalPromotion = ({
       endDate: "",
     });
     setIsModalVisible(false);
+    setId(0);
   };
   const onSubmit: SubmitHandler<PromotionSchema> = async (values) => {
     if (mode === "EDIT" && editPromotionData) {

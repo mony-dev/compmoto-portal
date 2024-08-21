@@ -36,6 +36,7 @@ type Props = {
   triggerProduct: boolean;
   mode: string;
   id: number;
+  setId: (value: number) => void;
 };
 
 interface ProductDataType {
@@ -83,6 +84,7 @@ const ModalProduct = ({
   triggerProduct,
   id,
   mode,
+  setId,
 }: Props) => {
   const {
     handleSubmit,
@@ -271,6 +273,7 @@ const ModalProduct = ({
       onCancel={() => {
         setIsModalVisible(false);
         setTrigger(!trigger);
+        setId(0);
       }}
       footer={false}
       className="product-modal"

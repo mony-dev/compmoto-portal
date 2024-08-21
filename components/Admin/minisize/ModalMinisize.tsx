@@ -48,6 +48,7 @@ type Props = {
   mode: string;
   title: string;
   id: number;
+  setId: (value: number) => void;
 };
 
 interface MinisizeDataType {
@@ -75,6 +76,7 @@ const ModalMinisize = ({
   title,
   id,
   mode,
+  setId,
 }: Props) => {
   const {
     handleSubmit,
@@ -197,6 +199,7 @@ const ModalMinisize = ({
     });
     setIsModalVisible(false)
     setProductCount(null);
+    setId(0);
   };
   const onSubmit: SubmitHandler<MinisizeSchema> = async (values) => {
     if(mode === 'EDIT' && editMinisizeData) {

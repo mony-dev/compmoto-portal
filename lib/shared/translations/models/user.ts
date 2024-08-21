@@ -23,5 +23,6 @@ export interface User {
   custPriceGroup?: string;
   custNo: string;
   saleUserId?: number;
+  encryptedPasswordtext: any;
 }
 

@@ -872,6 +872,7 @@ const Checkout: React.FC<CheckoutProps> = ({
            }))
          )
        : await createSalesBlanket(
+           session.user.id,
            session.user.custNo,
            joinedString,
            session.user.saleUserCustNo || "",
@@ -953,6 +954,7 @@ const Checkout: React.FC<CheckoutProps> = ({
     return data;
   };
   const createSalesBlanket = async (
+    id: number,
     customerNo: string,
     externalDoc: string,
     createBy: string,
@@ -969,6 +971,7 @@ const Checkout: React.FC<CheckoutProps> = ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        id,
         customerNo,
         externalDoc,
         createBy,

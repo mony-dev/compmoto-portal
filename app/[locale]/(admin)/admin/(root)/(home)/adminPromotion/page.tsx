@@ -223,6 +223,7 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
           mode={mode}
           title={title}
           id={id}
+          setId={setId}
         />
       </div>
     </div>

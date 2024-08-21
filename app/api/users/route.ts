@@ -2,6 +2,7 @@ import { PrismaClient, Role, UserStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 import bcrypt from 'bcrypt'
+import { encrypt } from "@lib-shared/utils/encryption";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -38,7 +39,8 @@ export async function POST( request: Request,
   { body }: {  body: any }) {
   const data = await request.json();
   try {
-    const hashedPassword = await bcrypt.hash('password', 10)
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10)
+    const encrypted = encrypt(data.newPassword);
     const createUser = await prisma.user.create({
       data: {
         email: data.email,
@@ -46,6 +48,7 @@ export async function POST( request: Request,
         role: data.role,
         custNo: data.custNo,
         encryptedPassword: hashedPassword,
+        encryptedPasswordtext: encrypted
       }
     })
     
