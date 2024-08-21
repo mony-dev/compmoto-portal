@@ -76,10 +76,10 @@ export default function backOrder({ params }: { params: { id: number } }) {
   const columns: ColumnsType<OrderDataType> = [
     {
       title: "ลำดับ",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
       title: "Document",
@@ -144,8 +144,8 @@ export default function backOrder({ params }: { params: { id: number } }) {
       axios
         .get(`/api/order?q=${searchText}&type=Back&userId=${session.user.id}`)
         .then((response) => {
-          const useOrder = response.data.map((order: any) => ({
-            key: order.id,
+          const useOrder = response.data.map((order: any, index: number) => ({
+            key: index + 1,
             id: order.id,
             documentNo: order.documentNo,
             externalDocument: order.externalDocument,

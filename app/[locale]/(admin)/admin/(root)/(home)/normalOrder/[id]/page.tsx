@@ -114,8 +114,8 @@ export default function normalOrder({ params }: { params: { id: number } }) {
               custNo: order.user.saleUser.custNo,
             },
           },
-          items: order.items.map((item: any) => ({
-            key: item.id,
+          items: order.items.map((item: any, index: number) => ({
+            key: index + 1,
             id: item.id,
             orderId: item.orderId,
             productId: item.productId,
@@ -156,10 +156,11 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   const columns: ColumnsType<ItemType> = [
     {
       title: "ลำดับ",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
+      render: (_, record) => <p>{record.key}</p>,
     },
     {
       title: "Item code",
@@ -167,7 +168,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       key: "Itemcode",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.product.code.localeCompare(b.product.code),
-      render: (_, record) => <p>{record.amount}</p>,
+      render: (_, record) => <p>{record.product.code}</p>,
     },
     {
       title: "Product",

@@ -79,10 +79,10 @@ export default function adminOrder({ params }: { params: { id: number } }) {
   const columns: ColumnsType<OrderDataType> = [
     {
       title: "ลำดับ",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
       title: "Document",
@@ -172,8 +172,8 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       axios
         .get(`/api/adminOrder?q=${searchText}&type=Normal&userId=${session.user.id}&role=${session.user.role}`)
         .then((response) => {
-          const useOrder = response.data.map((order: any) => ({
-            key: order.id,
+          const useOrder = response.data.map((order: any, index: number) => ({
+            key:index + 1,
             id: order.id,
             documentNo: order.documentNo,
             externalDocument: order.externalDocument,
