@@ -183,7 +183,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
       key: "qty",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.amount.toString().localeCompare(b.amount.toString()),
-      render: (_, record) => <p>{record.product.name}</p>,
+      render: (_, record) => <p>{record.amount}</p>,
     },
     {
       title: "Unit price",
