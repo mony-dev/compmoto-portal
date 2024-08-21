@@ -73,9 +73,6 @@ const handler = NextAuth({
           });
           if (saleUser) {
             token.saleUserCustNo = saleUser.custNo;
-            token.saleUserEmail = saleUser.email;
-            token.saleUserPassword = saleUser.encryptedPassword;
-
           }
         }
       }
@@ -91,8 +88,6 @@ const handler = NextAuth({
         session.user.custPriceGroup = token.custPriceGroup
         if (token.saleUserCustNo) {
           session.user.saleUserCustNo = token.saleUserCustNo;
-          session.user.saleUserEmail = token.saleUserEmail;
-          session.user.saleUserPassword = token.saleUserPassword;
         }
         // Fetch the latest userLog entry for this user
         const userLog = await prisma.userLog.findFirst({
