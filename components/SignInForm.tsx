@@ -52,7 +52,6 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
 
         if (session?.user.status === "Pending") {
           localStorage.setItem("email", session.user.email);
-          toastWarning(t("please_change_password"));
           router.push(`/${params.locale}/admin/change-password`);
         } else {
           await axios.post(
@@ -107,7 +106,6 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
                 remember: true,
               }}
               onFinish={onSubmit}
-              // onFinishFailed={}
               autoComplete="off"
               className="login100-form validate-form"
             >
@@ -117,10 +115,10 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
 
               <div className="wrap-input100">
                 <Form.Item<FieldType>
-                  label="Email"
+                  label={t("email")}
                   name="email"
                   rules={[
-                    { required: true, message: "Please input your username!" },
+                    { required: true, message: t("please_input_your_email") },
                   ]}
                 >
                   <Input />
@@ -129,33 +127,25 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
 
               <div className="wrap-input100">
                 <Form.Item<FieldType>
-                  label="Password"
+                  label={t("password")}
                   name="password"
                   rules={[
-                    { required: true, message: "Please input your password!" },
+                    { required: true, message: t("please_input_your_password") },
                   ]}
                 >
                   <Input.Password />
                 </Form.Item>
               </div>
-              {/* <div className="wrap-input100">
-                <Form.Item<FieldType>
-                  name="remember"
-                  valuePropName="checked"
-                  wrapperCol={{ offset: 8, span: 16 }}
-                >
-                  <Checkbox>Remember me</Checkbox>
-                </Form.Item>
-              </div> */}
-
+         
               <div className="container-login100-form-btn">
                 <Button
                   type="primary"
                   className="login100-form-btn"
                   htmlType="submit"
                   loading={isLoading}
+                  disabled={isSubmitting || isLoading} 
                 >
-                  Submit
+                  {t("submit")}
                 </Button>
               </div>
 

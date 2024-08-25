@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import IconFooter from "@components/Admin/IconFooter";
-import Image from "next/image";
-import AccountMock from "@public/images/logo/account-mock.png";
+import { Image } from "antd";
 import Star from "@public/images/star.png";
 import "@fancyapps/ui/dist/carousel/carousel.css";
 import Total from "@public/images/logo/total-order.png";
@@ -16,6 +15,10 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import Link from "next/link";
 import { formatEndDate } from "@lib-utils/helper";
+import ModalProfile from "@components/Admin/profile/ModalProfile";
+import NoImage from "@public/images/no_img_cart.png";
+import { useCart } from "@components/Admin/Cartcontext";
+
 const Carousel =
   typeof window !== "undefined" ? require("@fancyapps/ui").Carousel : null;
 
@@ -32,15 +35,18 @@ const Dashboard = () => {
     file: string;
     date: string;
   }
-
+  const { data: session, status } = useSession();
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("");
   const [rewardPoint, setRewardPoint] = useState(0);
   const [lastedLogin, setLastedLogin] = useState("");
   const [rewardData, setRewardData] = useState<RewardDataType[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [title, setTitle] = useState("แก้ไขรูปโปรไฟล์");
+  const [triggerProfile, setTriggerProfile] = useState(false);
+  // const [profileImage, setProfileImage] = useState("");
+  const { profileImage, setProfileImage } = useCart();
 
-
-  const { data: session, status } = useSession();
   useEffect(() => {
     if (Carousel) {
       new Carousel(document.getElementById("cardSlider"), {
@@ -115,214 +121,277 @@ const Dashboard = () => {
       const formattedDate = `${day}/${month}/${year}, ${hours}.${minutes}`;
       setLastedLogin(formattedDate);
     }
-  }, [session]);
-  return (
-    <div className="px-12">
-      <div
-        className="p-4 rounded-lg flex bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-      >
-        <div className="flex border-r-2 border-dashed border-comp-line-gray items-center w-2/6">
-          <Image
-            className="rounded-lg w-fit	h-4/5"
-            alt="logo"
-            width={150}
-            height={30}
-            src={AccountMock.src}
-          />
-          <div className="ml-16 mr-4">
-            <p className="default-font text-base leading-5 text-black">
-              {session?.user.name}
-            </p>
-            <div className="flex space-x-2 pt-2">
-              {[...Array(starLevel)].map((_, index) => (
-                <Image
-                  key={index}
-                  width={20}
-                  height={20}
-                  src={Star.src}
-                  alt="star"
-                />
-              ))}
-            </div>
-            <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
-              ​ {t("lastest_login")} {lastedLogin}
-            </p>
-            <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
-              คะแนนของคุณ{" "}
-              <span className=" bg-comp-red-hover p-1 rounded">
-                <span className="text-black">{`${rewardPoint}`} คะแนน</span> |{" "}
-                <Link className="text-comp-red font-semibold" href={`/${locale}/admin/reward`}>แลกคะแนน</Link>
-              </span>
-              ​
-            </p>
-          </div>
-        </div>
-        <div className="ml-4">
-          <p className="default-font font-medium text-xl text-black leading-7">
-            รางวัล
-          </p>
-          <div className="max-w-5xl mx-auto">
-            <div id="cardSlider" className="f-carousel pt-4">
-              <div className="f-carousel__viewport px-12">
-                {Array.from(
-                  { length: Math.max(10, rewardData.length) },
-                  (_, index) => rewardData[index % rewardData.length]
-                ).map((reward, index) => (
-                  <figure
-                    key={index}
-                    className="f-carousel__slide rounded-md border border-comp-red flex justify-start items-center bg-comp-red-hover"
-                  >
-                    {reward && (
-                      <>
-                        <div className="flex-shrink-0">
-                          <Image
-                            className="w-full rounded-lg py-1"
-                            alt={reward.name}
-                            width={50}
-                            height={50}
-                            src={reward.image}
-                          />
-                        </div>
-                        <div className="pl-4">
-                          <p className="text-comp-red leading-4 default-font">
-                            {reward.name}
-                          </p>
-                          <p className="text-base default-font font-semibold text-comp-red">
-                            {reward.point}
-                            <span className="text-comp-red leading-4 font-normal pl-2">
-                              คะแนน
-                            </span>
-                          </p>
-                          <div className="text-comp-red leading-4 font-normal flex items-center">
-                            <svg
-                              width="14"
-                              height="15"
-                              viewBox="0 0 14 15"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M4.66669 1.66663V3.41663"
-                                stroke="#DD2C37"
-                                strokeWidth="0.875"
-                                strokeMiterlimit="10"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M9.33331 1.66663V3.41663"
-                                stroke="#DD2C37"
-                                strokeWidth="0.875"
-                                strokeMiterlimit="10"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M2.04169 5.80249H11.9584"
-                                stroke="#DD2C37"
-                                strokeWidth="0.875"
-                                strokeMiterlimit="10"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M12.25 5.45829V10.4166C12.25 12.1666 11.375 13.3333 9.33333 13.3333H4.66667C2.625 13.3333 1.75 12.1666 1.75 10.4166V5.45829C1.75 3.70829 2.625 2.54163 4.66667 2.54163H9.33333C11.375 2.54163 12.25 3.70829 12.25 5.45829Z"
-                                stroke="#DD2C37"
-                                strokeWidth="0.875"
-                                strokeMiterlimit="10"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M9.15522 8.4915H9.16046"
-                                stroke="#DD2C37"
-                                strokeWidth="1.16667"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M9.15522 10.2415H9.16046"
-                                stroke="#DD2C37"
-                                strokeWidth="1.16667"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M6.99739 8.4915H7.00263"
-                                stroke="#DD2C37"
-                                strokeWidth="1.16667"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M6.99739 10.2415H7.00263"
-                                stroke="#DD2C37"
-                                strokeWidth="1.16667"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M4.83833 8.4915H4.84357"
-                                stroke="#DD2C37"
-                                strokeWidth="1.16667"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M4.83833 10.2415H4.84357"
-                                stroke="#DD2C37"
-                                strokeWidth="1.16667"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+    fetchData();
+  }, [session, triggerProfile]);
 
-                            <span className="pl-2 text-xs"> {reward.date}</span>
-                          </div>
-                        </div>
-                        <div className="cuts">
-                          <div className="cut"></div>
-                          <div className="cut"></div>
-                          <div className="cut"></div>
-                          <div className="cut"></div>
-                          <div className="cut"></div>
-                        </div>
-                      </>
-                    )}
-                  </figure>
+  async function fetchData() {
+    try {
+      const [userResponse] = await Promise.all([
+        axios.get(`/api/users/${session?.user.id}`),
+      ]);
+
+      setProfileImage(userResponse.data.image);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  }
+
+  function showModal(isShow: boolean, idCate: number) {
+    return () => {
+      setIsModalVisible(isShow);
+    };
+  }
+
+  return (
+    <>
+      <div className="px-12">
+        <div
+          className="p-4 rounded-lg flex bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <div className="flex justify-around border-r-2 border-dashed border-comp-line-gray items-center w-2/6 relative group">
+            <div className="relative w-fit group-hover:blur-xs overflow-hidden rounded-full">
+              <Image
+                className="transition duration-300 ease-in-out"
+                alt="User profile"
+                width={150}
+                height={150}
+                src={profileImage ? profileImage : "error"}
+                fallback="data:image/png;base64,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"
+              />
+
+              <div
+                className="absolute rounded-lg inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-sm font-semibold cursor-pointer opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
+                onClick={showModal(true, session?.user.id)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div>
+              <p className="default-font text-base leading-5 text-black">
+                {session?.user.name}
+              </p>
+              <div className="flex space-x-2 pt-2">
+                {[...Array(starLevel)].map((_, index) => (
+                  <Image
+                    width={20}
+                    height={20}
+                    src={Star.src}
+                    alt="star"
+                  />
                 ))}
+              </div>
+              <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
+                {t("lastest_login")} {lastedLogin}
+              </p>
+              <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
+                คะแนนของคุณ{" "}
+                <span className=" bg-comp-red-hover p-1 rounded">
+                  <span className="text-black">{`${rewardPoint}`} คะแนน</span> |{" "}
+                  <Link
+                    className="text-comp-red font-semibold"
+                    href={`/${locale}/admin/reward`}
+                  >
+                    แลกคะแนน
+                  </Link>
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="ml-4">
+            <p className="default-font font-medium text-xl text-black leading-7">
+              รางวัล
+            </p>
+            <div className="max-w-5xl mx-auto">
+              <div id="cardSlider" className="f-carousel pt-4">
+                <div className="f-carousel__viewport px-12">
+                  {Array.from(
+                    { length: Math.max(10, rewardData.length) },
+                    (_, index) => rewardData[index % rewardData.length]
+                  ).map((reward, index) => (
+                    <figure
+                      key={index}
+                      className="f-carousel__slide rounded-md border border-comp-red flex justify-start items-center bg-comp-red-hover"
+                    >
+                      {reward && (
+                        <>
+                          <div className="flex-shrink-0">
+                            <Image
+                              className="w-full rounded-lg py-1"
+                              alt={reward.name}
+                              width={50}
+                              height={50}
+                              src={reward.image}
+                            />
+                          </div>
+                          <div className="pl-4">
+                            <p className="text-comp-red leading-4 default-font">
+                              {reward.name}
+                            </p>
+                            <p className="text-base default-font font-semibold text-comp-red">
+                              {reward.point}
+                              <span className="text-comp-red leading-4 font-normal pl-2">
+                                คะแนน
+                              </span>
+                            </p>
+                            <div className="text-comp-red leading-4 font-normal flex items-center">
+                              <svg
+                                width="14"
+                                height="15"
+                                viewBox="0 0 14 15"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M4.66669 1.66663V3.41663"
+                                  stroke="#DD2C37"
+                                  strokeWidth="0.875"
+                                  strokeMiterlimit="10"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M9.33331 1.66663V3.41663"
+                                  stroke="#DD2C37"
+                                  strokeWidth="0.875"
+                                  strokeMiterlimit="10"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M2.04169 5.80249H11.9584"
+                                  stroke="#DD2C37"
+                                  strokeWidth="0.875"
+                                  strokeMiterlimit="10"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M12.25 5.45829V10.4166C12.25 12.1666 11.375 13.3333 9.33333 13.3333H4.66667C2.625 13.3333 1.75 12.1666 1.75 10.4166V5.45829C1.75 3.70829 2.625 2.54163 4.66667 2.54163H9.33333C11.375 2.54163 12.25 3.70829 12.25 5.45829Z"
+                                  stroke="#DD2C37"
+                                  strokeWidth="0.875"
+                                  strokeMiterlimit="10"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M9.15522 8.4915H9.16046"
+                                  stroke="#DD2C37"
+                                  strokeWidth="1.16667"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M9.15522 10.2415H9.16046"
+                                  stroke="#DD2C37"
+                                  strokeWidth="1.16667"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M6.99739 8.4915H7.00263"
+                                  stroke="#DD2C37"
+                                  strokeWidth="1.16667"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M6.99739 10.2415H7.00263"
+                                  stroke="#DD2C37"
+                                  strokeWidth="1.16667"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M4.83833 8.4915H4.84357"
+                                  stroke="#DD2C37"
+                                  strokeWidth="1.16667"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M4.83833 10.2415H4.84357"
+                                  stroke="#DD2C37"
+                                  strokeWidth="1.16667"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+
+                              <span className="pl-2 text-xs">
+                                {" "}
+                                {reward.date}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="cuts">
+                            <div className="cut"></div>
+                            <div className="cut"></div>
+                            <div className="cut"></div>
+                            <div className="cut"></div>
+                            <div className="cut"></div>
+                          </div>
+                        </>
+                      )}
+                    </figure>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <div
+          className="mt-4 p-4 rounded-lg flex bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <IconFooter width={2000} height={600} src={Total.src} alt="logo" />
+        </div>
+        <div
+          className="mt-4 p-4 rounded-lg flex bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          {/* <p className='default-font font-medium text-xl text-black leading-7'>ยอดสั่งซื้อรวม</p> */}
+          <IconFooter
+            width={2000}
+            height={600}
+            src={BonusPoint.src}
+            alt="logo"
+          />
+        </div>
+        <div
+          className="mt-4 p-4 rounded-lg flex bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <IconFooter width={2000} height={600} src={Chart.src} alt="logo" />
+        </div>
+        <div
+          className="mt-4 p-4 rounded-lg flex bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <IconFooter width={2000} height={600} src={News.src} alt="logo" />
+        </div>
       </div>
-      <div
-        className="mt-4 p-4 rounded-lg flex bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-      >
-        <IconFooter width={2000} height={600} src={Total.src} alt="logo" />
-      </div>
-      <div
-        className="mt-4 p-4 rounded-lg flex bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-      >
-        {/* <p className='default-font font-medium text-xl text-black leading-7'>ยอดสั่งซื้อรวม</p> */}
-        <IconFooter width={2000} height={600} src={BonusPoint.src} alt="logo" />
-      </div>
-      <div
-        className="mt-4 p-4 rounded-lg flex bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-      >
-        <IconFooter width={2000} height={600} src={Chart.src} alt="logo" />
-      </div>
-      <div
-        className="mt-4 p-4 rounded-lg flex bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-      >
-        <IconFooter width={2000} height={600} src={News.src} alt="logo" />
-      </div>
-    </div>
+      <ModalProfile
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+        setTriggerProfile={setTriggerProfile}
+        triggerProfile={triggerProfile}
+        title={title}
+      />
+    </>
   );
 };
 

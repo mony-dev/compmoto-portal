@@ -1,31 +1,45 @@
-'use client'; // Add this line
+"use client"; // Add this line
 
 import initTranslations from "@/i18n";
 import TranslationsProvider from "@components/TranslationsProvider";
 import React, { useEffect, useState } from "react";
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-const Layout = ({ children, params: { locale }  }: { children: React.ReactNode, params: { locale: string }  }) => {
-  const [t, setT] = React.useState<Function | null>(null); // Use useState to manage translations
-  const [resources, setResources] = React.useState<any>(null); // Manage resources
-  const pathname = usePathname()
+import { Flex, Spin } from "antd";
+import Loading from "@components/Loading";
+import { useCart } from "@components/Admin/Cartcontext";
+const Layout = ({
+  children,
+  params: { locale },
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) => {
+  const [t, setT] = useState<Function | null>(null);
+  const [resources, setResources] = useState<any>(null);
+  const pathname = usePathname();
   const [i18nNamespaces, setI18nNamespaces] = useState<string[]>([]);
+  const { i18nName, updateNamespaces } = useCart();
+
   const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-      const lastPart = pathname.substring(pathname.lastIndexOf('/') + 1);
-      const array: string[] = [];
-      array.push(lastPart);
-      setI18nNamespaces(array);
-      const fetchTranslations = async () => {
-          const { t, resources } = await initTranslations(locale, array);
-          setT(() => t);
-          setResources(resources);
-      };
+    updateNamespaces((namespaces: string[]) => setI18nNamespaces(namespaces)); // Pass a function that updates the state
+  }, [updateNamespaces]);
 
-      fetchTranslations();
-  }, [locale]);
+  useEffect(() => {
+    const array: string[] = [i18nName];
+    setI18nNamespaces(array);
+
+    const fetchTranslations = async () => {
+      const { t, resources } = await initTranslations(locale, array);
+      setT(() => t);
+      setResources(resources);
+    };
+
+    fetchTranslations();
+  }, [locale, i18nName]);
 
   useEffect(() => {
     if (status !== "loading") {
@@ -51,18 +65,16 @@ const Layout = ({ children, params: { locale }  }: { children: React.ReactNode, 
       }
     }
   }, [status, session, locale, router]);
-  
-  if (!t || !resources || status === "loading" ) return <h1>Loading...</h1>; // Show loading state
+
+  if (!t || !resources || status === "loading") return <Loading />;
 
   return (
-    <TranslationsProvider
-      namespaces={i18nNamespaces}
-      locale={locale}
-      resources={resources}
-    >
+    <TranslationsProvider namespaces={i18nNamespaces} locale={locale} resources={resources}>
       <div>{children}</div>
     </TranslationsProvider>
   );
 };
+
+
 
 export default Layout;

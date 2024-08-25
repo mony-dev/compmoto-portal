@@ -62,6 +62,7 @@ declare module "next-auth" {
     status: string;
     custPriceGroup: string;
     saleUserId: number;
+    image: string;
   }
   
   interface Session {
@@ -72,6 +73,7 @@ declare module "next-auth" {
       id: int; // Add this line
       status: string;
       custPriceGroup: string;
+      image: string;
       saleUserId: number;
     } & DefaultSession["user"]
   }

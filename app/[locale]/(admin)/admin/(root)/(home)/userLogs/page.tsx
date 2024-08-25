@@ -1,24 +1,34 @@
 "use client";
+import { useCart } from "@components/Admin/Cartcontext";
 import DataTable from "@components/Admin/Datatable";
+import Loading from "@components/Loading";
 import {
   ArrowPathIcon,
   PencilIcon,
   PencilSquareIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
-import { toastSuccess } from "@lib-utils/helper";
+import { toastError, toastSuccess } from "@lib-utils/helper";
 import { Button, Input, Space, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { exec } from "child_process";
 import { DateTime } from "luxon";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function userLogs() {
+  const { t } = useTranslation();
+  const [loading, setLoading ] = useState(true);
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
   const router = useRouter();
+  const [searchText, setSearchText] = useState("");
+  const [userLogData, setUserLogData] = useState<DataLogType[]>([]);
 
   interface DataLogType {
+    key: number;
     user: any;
     id: number;
     ipAddress: string;
@@ -30,10 +40,10 @@ export default function userLogs() {
   const columns: ColumnsType<DataLogType> = [
     {
       title: "ID",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key
     },
     {
       title: "IP Address",
@@ -61,27 +71,43 @@ export default function userLogs() {
       sorter: (a, b) => a.createdAt.valueOf() - b.createdAt.valueOf(),
     },
   ];
-  const [searchText, setSearchText] = useState("");
-  const [userLogData, setUserLogData] = useState<DataLogType[]>([]);
-  useEffect(() => {
-    axios
-      .get(`/api/userLogs?q=${searchText}`)
-      .then((response) => {
-        const userLogData = response.data.map((userLog: DataLogType) => ({
-          key: userLog.id,
-          id: userLog.id,
-          ipAddress: userLog.ipAddress,
-          userEmail: userLog.user.email,
-          userName: userLog.user.name,
-          createdAt: userLog.createdAt
-        }));
 
-        setUserLogData(userLogData);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
+  useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart)
+    async function fetchData() {
+      try {
+        const [userLogResponse] = await Promise.all([
+          axios
+            .get(`/api/userLogs?q=${searchText}`)
+            .then((response) => {
+              const userLogData = response.data.map((userLog: DataLogType, index: number) => ({
+                key: index + 1,
+                id: userLog.id,
+                ipAddress: userLog.ipAddress,
+                userEmail: userLog.user.email,
+                userName: userLog.user.name,
+                createdAt: userLog.createdAt
+              }));
+
+              setUserLogData(userLogData);
+            }),
+        ]);
+      } catch (error: any) {
+        toastError(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
   }, [searchText]);
+
+  if (loading || !t) {
+    return (
+      <Loading/>
+    );
+  }
 
   return (
     <div className="px-12">

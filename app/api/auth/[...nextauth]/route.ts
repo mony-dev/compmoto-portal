@@ -47,7 +47,7 @@ const handler = NextAuth({
               ...user,
               id: user?.id.toString() || "",
               role: user?.role,
-              status: user?.status
+              status: user?.status,
             };
             return Promise.resolve(userWithRole);
           }
@@ -64,12 +64,13 @@ const handler = NextAuth({
         token.id = user.id || undefined;
         token.custNo = user.custNo;
         token.rewardPoint = user.rewardPoint;
-        token.status = user.status
-        token.custPriceGroup = user.custPriceGroup
-         // Fetch the custNo of saleUser if it exists
-         if (user.saleUserId) {
+        token.status = user.status;
+        token.custPriceGroup = user.custPriceGroup;
+        token.image = user.image;
+        // Fetch the custNo of saleUser if it exists
+        if (user.saleUserId) {
           const saleUser = await prisma.user.findUnique({
-            where: { id: user.saleUserId }
+            where: { id: user.saleUserId },
           });
           if (saleUser) {
             token.saleUserCustNo = saleUser.custNo;
@@ -85,14 +86,15 @@ const handler = NextAuth({
         session.user.custNo = token.custNo;
         session.user.rewardPoint = token.rewardPoint;
         session.user.status = token.status;
-        session.user.custPriceGroup = token.custPriceGroup
+        session.user.custPriceGroup = token.custPriceGroup;
+        session.user.image = token.image;
         if (token.saleUserCustNo) {
           session.user.saleUserCustNo = token.saleUserCustNo;
         }
         // Fetch the latest userLog entry for this user
         const userLog = await prisma.userLog.findFirst({
           where: { userId: Number(token.id) },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         });
 
         // Add the latest createdAt to the session
@@ -100,17 +102,18 @@ const handler = NextAuth({
           session.user.latestUserLogCreatedAt = userLog.createdAt;
         }
         if (token.custNo) {
-          // Fetch user data from external API
-          const response = await fetch(
-            "http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration",
-            {
-              method: "POST",
-              headers: {
-                SOAPACTION: "MasterCustomerDetail",
-                "Content-Type": "application/xml",
-                Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
-              },
-              body: `<?xml version="1.0" encoding="UTF-8"?>
+          try {
+            // Fetch user data from external API
+            const response = await fetch(
+              "http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration",
+              {
+                method: "POST",
+                headers: {
+                  SOAPACTION: "MasterCustomerDetail",
+                  "Content-Type": "application/xml",
+                  Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
+                },
+                body: `<?xml version="1.0" encoding="UTF-8"?>
           <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
              <soapenv:Header/>
              <soapenv:Body>
@@ -120,24 +123,26 @@ const handler = NextAuth({
                 </wsc:MasterCustomerDetail>
               </soapenv:Body>
           </soapenv:Envelope>`,
-            }
-          );
+              }
+            );
 
-          const xml = await response.text();
+            const xml = await response.text();
 
-          xml2js.parseString(xml, (err, result) => {
-            if (err) {
-              throw err;
-            }
-            // Add the data to the session
-            const customerInfo =
-              result["Soap:Envelope"]["Soap:Body"][0][
-                "MasterCustomerDetail_Result"
-              ][0]["p_oCustomers"][0]["PT_CustomerInfo"][0];
-            session.user.data = customerInfo;
-          });
+            xml2js.parseString(xml, (err, result) => {
+              if (err) {
+                throw err;
+              }
+              // Add the data to the session
+              const customerInfo =
+                result["Soap:Envelope"]["Soap:Body"][0][
+                  "MasterCustomerDetail_Result"
+                ][0]["p_oCustomers"][0]["PT_CustomerInfo"][0];
+              session.user.data = customerInfo;
+            });
+          } catch (error) {
+            console.error("Error fetching customer data:", error);
+          }
         }
-
       }
       return session;
     },

@@ -1,41 +1,44 @@
 "use client";
-import ModalReward from "@components/Admin/category/ModalReward";
-import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
+import dynamic from 'next/dynamic';
+
 import {
-  ChevronRightIcon,
-  PencilIcon,
   PencilSquareIcon,
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Form, Input, Modal, Space, Switch, Tag } from "antd";
+import { Button, Input, Modal, Switch } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { DateTime } from "luxon";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
-import ModalMinisize from "@components/Admin/minisize/ModalMinisize";
-import DataTable from "@components/Admin/Datatable";
+import { useCart } from "@components/Admin/Cartcontext";
+const Loading = dynamic(() => import('@components/Loading'));
+const DataTable = dynamic(() => import('@components/Admin/Datatable'));
+const ModalMinisize = dynamic(() => import('@components/Admin/minisize/ModalMinisize'));
 
 export default function adminMinisize({ params }: { params: { id: number } }) {
+  const locale = useCurrentLocale(i18nConfig);
+  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [minisizeData, setMinisizeData] = useState<DataType[]>([]);
   const [triggerMinisize, setTriggerMinisize] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  // const [Data, setReData] = useState<DataType | null>(null);
   const [mode, setMode] = useState("ADD");
   const [id, setId] = useState(0);
   const [title, setTitle] = useState("ตั้งค่ามินิไซต์");
-  const locale = useCurrentLocale(i18nConfig);
+
 
   interface DataType {
     id: number;
+    key: number;
     name: string;
     isActive: boolean;
     brandId: number;
@@ -73,11 +76,11 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: t('no'),
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
       title: "Name",
@@ -134,28 +137,34 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
     },
   ];
 
+
   useEffect(() => {
-    axios
-      .get(`/api/adminMinisize?q=${searchText}`)
-      .then((response) => {
-        const useMinisize = response.data.map((minisize: DataType) => ({
-          key: minisize.id,
-          id: minisize.id,
-          name: minisize.name,
-          isActive: minisize.isActive,
-          productCount: minisize.productCount,
-          brandId: minisize.brandId,
-          lv1: minisize.lv1,
-          lv2: minisize.lv2,
-          lv3: minisize.lv3,
-          imageProfile: minisize?.imageProfile
-        }));
-        setMinisizeData(useMinisize);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart)
+    async function fetchData() {
+      try {
+        const [minisizeResponse] = await Promise.all([
+          axios
+            .get(`/api/adminMinisize?q=${searchText}`)
+            .then((response) => {
+              const minisizeDate = response.data.map((mini: DataType, index: number) => ({
+                ...mini,
+                key: index + 1,
+              }));
+
+              setMinisizeData(minisizeDate);
+            }),
+        ]);
+      } catch (error: any) {
+        toastError(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
   }, [searchText, triggerMinisize]);
+
 
   useEffect(() => {
     isModalVisible ? setMode('EDIT') : setMode('ADD');
@@ -174,7 +183,12 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
       }
     };
   }
-  const { t } = useTranslation();
+  
+  if (loading || !t) {
+    return (
+      <Loading/>
+    );
+  }
 
   return (
     <div className="px-12">

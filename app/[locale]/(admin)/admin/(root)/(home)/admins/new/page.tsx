@@ -14,8 +14,10 @@ import { toastError, toastSuccess } from "@lib-utils/helper";
 import { useSession } from "next-auth/react";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../../i18nConfig";
+import { useTranslation } from "react-i18next";
 
 export default function Admin({ params }: { params: { id: number } }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -63,10 +65,10 @@ export default function Admin({ params }: { params: { id: number } }) {
         >
           <div className="text-lg pb-4 default-font flex">
             <Link className="text-comp-sub-header" href={`/${locale}/admin/admins`}>
-              ตั้งค่าพนักงาน
+             {t('staff_setting')}
             </Link>{" "}
             <ChevronRightIcon className="w-4 mx-4" />{" "}
-            <p className="">เพิ่มพนักงาน</p>
+            <p className="">{t('add_staff')}</p>
           </div>
           <div className="flex justify-between">
             <Form
@@ -77,15 +79,15 @@ export default function Admin({ params }: { params: { id: number } }) {
               className="grow pr-12"
             >
               <span className="login100-form-title font-bold text-black">
-                เพิ่มพนักงาน
+                {t('add_staff')}
               </span>
               <Form.Item
                 name="email"
-                label="Email"
+                label={t('email')}
                 className="pt-4"
                 required
-                tooltip="This is a required field"
-                help={errors.email && "Please enter a valid email"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.email && t('please_enter_a_valid_email')}
                 validateStatus={errors.email ? "error" : ""}
               >
                 <Controller
@@ -99,10 +101,10 @@ export default function Admin({ params }: { params: { id: number } }) {
 
               <Form.Item
                 name="name"
-                label="Name"
+                label={t('name')}
                 required
-                tooltip="This is a required field"
-                help={errors.name && "Please enter your name"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.name && t('please_enter_a_name')}
                 validateStatus={errors.name ? "error" : ""}
               >
                 <Controller
@@ -118,18 +120,18 @@ export default function Admin({ params }: { params: { id: number } }) {
                 name="role"
                 label="Role"
                 required
-                tooltip="This is a required field"
-                help={errors.role && "Please select your role"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.role && t('please_enter_a_role')}
                 validateStatus={errors.role ? "error" : ""}
               >
                 <Controller
                   control={control} // control from useForm()
                   name="role"
                   render={({ field }) => (
-                    <Select {...field} placeholder="Select a role" size="large">
-                      <Option value="ADMIN">Admin</Option>
-                      <Option value="CLAIM">Claim</Option>
-                      <Option value="SALE">Sale</Option>
+                    <Select {...field} placeholder={t('select_a_role')} size="large">
+                      <Option value="ADMIN">{t('admin')}</Option>
+                      <Option value="CLAIM">{t('claim')}</Option>
+                      <Option value="SALE">{t('sale')}</Option>
                     </Select>
                   )}
                 />
@@ -137,10 +139,10 @@ export default function Admin({ params }: { params: { id: number } }) {
               {role == "SALE" ? (
                 <Form.Item
                   name="custNo"
-                  label="Sale ID"
+                  label={t('sale_admin')}
                   required
-                  tooltip="This is a required field"
-                  help={errors.role && "Please select your sale id"}
+                  tooltip={t('this_is_a_required_field')}
+                  help={errors.role && t('please_select_sale_admin')}
                   validateStatus={errors.role ? "error" : ""}
                 >
                   <Controller
@@ -150,7 +152,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                       <Input
                         {...field}
                         value={field.value || ""}
-                        placeholder="Sale ID"
+                        placeholder={t('sale_admin')}
                         size="large"
                       />
                     )}
@@ -159,10 +161,10 @@ export default function Admin({ params }: { params: { id: number } }) {
               ) : (
                 <Form.Item
                   name="custNo"
-                  label="Cust ID"
+                  label={t('customer_no')}
                   required
-                  tooltip="This is a required field"
-                  help={errors.role && "Please input your cust no"}
+                  tooltip={t('this_is_a_required_field')}
+                  help={errors.role && t('please_enter_customer_no')}
                   validateStatus={errors.role ? "error" : ""}
                 >
                   <Controller
@@ -172,7 +174,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                       <Input
                         {...field}
                         value={field.value || ""}
-                        placeholder="Cust ID"
+                        placeholder={t('customer_no')}
                         size="large"
                       />
                     )}
@@ -181,11 +183,11 @@ export default function Admin({ params }: { params: { id: number } }) {
               )}
               <div className="wrap-input100">
                 <Form.Item<FieldType>
-                  label="password"
+                  label={t('password')}
                   name="newPassword"
                   help={
                     errors.newPassword &&
-                    "Password must be at least 6 characters long"
+                    t('password_must_be_at_least_6_characters_long')
                   }
                   validateStatus={errors.newPassword ? "error" : ""}
                 >
@@ -199,7 +201,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           <LockOutlined className="site-form-item-icon" />
                         }
                         type="password"
-                        placeholder="New Password"
+                        placeholder={t('new_password')}
                         size="large"
                       />
                     )}
@@ -208,9 +210,9 @@ export default function Admin({ params }: { params: { id: number } }) {
               </div>
               <div className="wrap-input100">
                 <Form.Item<FieldType>
-                  label="confirm password"
+                  label={t('confirm_password')}
                   name="confirmPassword"
-                  help={errors.confirmPassword && "Passwords do not match"}
+                  help={errors.confirmPassword && t('passwords_do_not_match')}
                   validateStatus={errors.confirmPassword ? "error" : ""}
                 >
                   <Controller
@@ -223,7 +225,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           <LockOutlined className="site-form-item-icon" />
                         }
                         type="password"
-                        placeholder="confirm Password"
+                        placeholder={t('confirm_password')}
                         size="large"
                       />
                     )}
@@ -236,7 +238,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   htmlType="submit"
                   className="bg-comp-red button-backend"
                 >
-                  Submit
+                  {t('submit')}
                 </Button>
               </Form.Item>
             </Form>

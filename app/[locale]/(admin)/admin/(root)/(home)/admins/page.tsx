@@ -7,47 +7,51 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Input, Modal, Space, Tag } from "antd";
+import { Button, Flex, Input, Modal, Space, Spin, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
+import Loading from "@components/Loading";
+import { useTranslation } from "react-i18next";
+import { useCart } from "@components/Admin/Cartcontext";
 
 export default function admins() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [userData, setUserData] = useState<DataType[]>([]);
   const [triggerUser, setTriggerUser] = useState(false);
   const locale = useCurrentLocale(i18nConfig);
+  const [loading, setLoading ] = useState(true);
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
 
   interface DataType {
+    key: number;
     id: number;
     name: string;
     email: string;
     status: string;
     role: string;
   }
-
   const deleteAdmin = (id: number) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this admin?',
-      content: 'This action cannot be undone.',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
+      title: "Are you sure you want to delete this admin?",
+      content: "This action cannot be undone.",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
       onOk: async () => {
         try {
-          const response = await axios.delete(
-            `/api/users/${id}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          setTriggerUser(!triggerUser)
+          const response = await axios.delete(`/api/users/${id}`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          setTriggerUser(!triggerUser);
           router.replace(`/${locale}/admin/admins`);
           toastSuccess("User deleted successfully");
         } catch (error: any) {
@@ -59,27 +63,27 @@ export default function admins() {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: t('no'),
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Name",
+      title: t('name'),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "Email",
+      title: t('email'),
       dataIndex: "email",
       key: "email",
       sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
-      title: "role",
+      title: t('role'),
       key: "role",
       dataIndex: "role",
       sorter: (a, b) => a.role.localeCompare(b.role),
@@ -97,13 +101,13 @@ export default function admins() {
       ),
     },
     {
-      title: "Status",
+      title: t('status'),
       dataIndex: "status",
       key: "status",
       sorter: (a, b) => a.status.localeCompare(b.status),
     },
     {
-      title: "Action",
+      title: t('action'),
       key: "action",
       render: (_, record) => (
         <div className="flex">
@@ -112,7 +116,7 @@ export default function admins() {
             onClick={() => router.push(`/${locale}/admin/admins/${record.id}`)}
           >
             <PencilSquareIcon className="w-4 mr-0.5" />
-            <span>Edit</span>
+            <span>{t('edit')}</span>
           </p>
           |
           <p
@@ -120,7 +124,7 @@ export default function admins() {
             onClick={() => deleteAdmin(record.id)}
           >
             <TrashIcon className="w-4 mr-0.5" />
-            <span>Delete</span>
+            <span>{t('delete')}</span>
           </p>
         </div>
       ),
@@ -128,26 +132,43 @@ export default function admins() {
   ];
 
   useEffect(() => {
-    const roles = ["ADMIN", "CLAIM", "SALE"];
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart)
+    async function fetchData() {
+      const roles = ["ADMIN", "CLAIM", "SALE"];
+      try {
+        // Use Promise.all to make both API requests in parallel
+        const [userResponse] = await Promise.all([
+          axios
+            .get(`/api/users?role=${roles}&q=${searchText}`)
+            .then((response) => {
+              const userData = response.data.map((user: DataType, index: number) => ({
+                key: index + 1,
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                status: user.status,
+              }));
 
-    axios
-      .get(`/api/users?role=${roles}&q=${searchText}`)
-      .then((response) => {
-        const userData = response.data.map((user: DataType) => ({
-          key: user.id,
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          status: user.status,
-        }));
+              setUserData(userData);
+            }),
+        ]);
+      } catch (error: any) {
+        toastError(error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-        setUserData(userData);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
+    fetchData();
   }, [searchText, triggerUser]);
+
+  if (loading || !t) {
+    return (
+      <Loading/>
+    );
+  }
 
   return (
     <div className="px-12">
@@ -156,10 +177,10 @@ export default function admins() {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">ตั้งค่าพนักงาน</p>
+          <p className="text-lg font-semibold pb-4 grow">{t('staff_setting')}</p>
           <div className="flex">
             <Input.Search
-              placeholder="Search"
+              placeholder={t('search')}
               size="middle"
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
@@ -170,7 +191,7 @@ export default function admins() {
               icon={<PlusIcon className="w-4" />}
               onClick={() => router.push(`/${locale}/admin/admins/new`)}
             >
-              Add
+              {t('add')}
             </Button>
           </div>
         </div>

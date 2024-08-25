@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Form, Input, Button, Select, InputNumber } from "antd";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -19,8 +19,12 @@ import { User } from "@shared/translations/models/user";
 import { editPasswordSchema, EditPasswordSchema } from "@lib-schemas/user/edit-password-schema";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../../i18nConfig";
+import { useCart } from "@components/Admin/Cartcontext";
+import Loading from "@components/Loading";
+import { useTranslation } from "react-i18next";
 
 export default function Admin({ params }: { params: { id: number } }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -28,7 +32,10 @@ export default function Admin({ params }: { params: { id: number } }) {
   const [userData, setUserData] = useState<User>();
   const [saleUsers, setSaleUsers] = useState<User[]>([]);
   const locale = useCurrentLocale(i18nConfig);
-
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(true); 
+  
   type FieldType = {
     confirmPassword: string;
     newPassword: string;
@@ -53,29 +60,35 @@ export default function Admin({ params }: { params: { id: number } }) {
 
   const { data: session, status } = useSession();
   useEffect(() => {
-    axios
-      .get(`/api/users/${params.id}`)
-      .then((response) => {
-        setUserData(response.data);
-        setValue('email', response.data.email);
-        setValue('name', response.data.name);
-        setValue('phoneNumber', response.data.phoneNumber);
-        setValue('saleUserId', response.data.saleUserId);
-        setValue('rewardPoint', response.data.rewardPoint);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-      axios
-      .get(`/api/users?role=SALE`)
-      .then((response) => {
-        setSaleUsers(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  }, []);
+    const parts = pathname.split("/");
+    const lastPart = parts[parts.length - 2];
+    setI18nName(lastPart);
 
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const [userResponse, saleUsersResponse] = await Promise.all([
+          axios.get(`/api/users/${params.id}`),
+          axios.get(`/api/users?role=SALE`)
+        ]);
+  
+        setUserData(userResponse.data);
+        setSaleUsers(saleUsersResponse.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+        setLoading(false);
+      }
+    }
+  
+    fetchData();
+  }, [params.id]);
+  
+  if (loading || !t) {
+    return (
+      <Loading/>
+    );
+  }
   const onFinish: SubmitHandler<UserSchema> = async (values) => {
       try {
         const response = await axios.put(
@@ -89,7 +102,7 @@ export default function Admin({ params }: { params: { id: number } }) {
         );
         router.replace(`/${locale}/admin/users`);
   
-        toastSuccess("User updated successfully");
+        toastSuccess("user_updated_successfully");
       } catch (error: any) {
         toastError(error.response.data.message);
       }
@@ -111,7 +124,7 @@ export default function Admin({ params }: { params: { id: number } }) {
       );
       router.replace(`/${locale}/admin/users`);
 
-      toastSuccess("Password updated successfully");
+      toastSuccess("password_updated_successfully");
     } catch (error: any) {
       toastError(error.response.data.message);
     }
@@ -125,10 +138,10 @@ export default function Admin({ params }: { params: { id: number } }) {
         >
           <div className="text-lg pb-4 default-font flex">
             <Link className="text-comp-sub-header" href={`/${locale}/admin/admins`}>
-              ตั้งค่าผู้ใช้งาน
+              {t('user_setting')}
             </Link>{" "}
             <ChevronRightIcon className="w-4 mx-4" />{" "}
-            <p className="font-semibold">แก้ไขผู้ใช้งาน</p>
+            <p className="font-semibold">{t('edit_user')}</p>
           </div>
           <div className="flex justify-between">
             <Form
@@ -139,32 +152,32 @@ export default function Admin({ params }: { params: { id: number } }) {
               className="grow pr-12"
             >
               <span className="login100-form-title font-bold text-black">
-                แก้ไขผู้ใช้งาน
+                {t('edit_user')}
               </span>
               <Form.Item
                 name="email"
-                label="Email"
+                label= {t('email')}
                 className="pt-4"
                 required
-                tooltip="This is a required field"
-                help={errors.email && "Please enter a valid email"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.email && t('please_enter_a_valid_email')}
                 validateStatus={errors.email ? "error" : ""}
               >
                 <Controller
                   control={control}
                   name="email"
                   render={({ field }) => (
-                    <Input {...field} placeholder="Email" size="large" />
+                    <Input {...field} placeholder={t('email')} size="large" />
                   )}
                 />
               </Form.Item>
 
               <Form.Item
                 name="name"
-                label="Name"
+                label={t('name')}
                 required
-                tooltip="This is a required field"
-                help={errors.name && "Please enter your name"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.name && t('please_enter_a_name')}
                 validateStatus={errors.name ? "error" : ""}
               >
                 <Controller
@@ -178,37 +191,37 @@ export default function Admin({ params }: { params: { id: number } }) {
 
               <Form.Item
                 name="phoneNumber"
-                label="Phone Number"
+                label={t('phone_number')}
               >
                 <Controller
                   control={control}
                   name="phoneNumber"
                   render={({ field }) => (
-                    <Input {...field} value={field.value || ''} placeholder="Phone Number" size="large" />
+                    <Input {...field} value={field.value || ''} placeholder={t('phone_number')} size="large" />
                   )}
                 />
               </Form.Item>
               <Form.Item
                 name="rewardPoint"
-                label="Point"
+                label={t('point')}
               >
                 <Controller
                   control={control}
                   name="rewardPoint"
                   render={({ field }) => (
-                    <InputNumber {...field} value={field.value || ''} placeholder="Point" size="large" className="w-full"/>
+                    <InputNumber {...field} value={field.value || ''} placeholder={t('point')} size="large" className="w-full"/>
                   )}
                 />
               </Form.Item>
               <Form.Item
                 name="saleUserId"
-                label="Sale User"
+                label={t('sale_admin')}
                 >
                 <Controller
                     control={control}
                     name="saleUserId"
                     render={({ field }) => (
-                    <Select {...field} placeholder="Select a Sale User" size="large">
+                    <Select {...field} placeholder={t('select_a_sale_admin')} size="large">
                         {saleUsers.map((user) => (
                         <Option key={user.id} value={user.id}>
                             {user.name}
@@ -224,7 +237,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   htmlType="submit"
                   className="bg-comp-red button-backend"
                 >
-                  Submit
+                  {t('submit')}
                 </Button>
               </Form.Item>
             </Form>
@@ -236,15 +249,15 @@ export default function Admin({ params }: { params: { id: number } }) {
               className="grow pr-12"
             >
               <span className="login100-form-title font-bold text-black">
-                เปลี่ยนรหัสผ่าน
+                {t('change_password')}
               </span>
               <div className="wrap-input100 pt-4">
                 <Form.Item<FieldType>
-                  label="password"
+                  label={t('password')}
                   name="newPassword"
                   help={
                     errorsPassword.newPassword &&
-                    "Password must be at least 6 characters long"
+                    t('password_must_be_at_least_6_characters_long')
                   }
                   validateStatus={errorsPassword.newPassword ? "error" : ""}
                 >
@@ -258,7 +271,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           <LockOutlined className="site-form-item-icon" />
                         }
                         type="password"
-                        placeholder="New Password"
+                        placeholder={t('new_password')}
                         size="large"
                       />
                     )}
@@ -267,9 +280,9 @@ export default function Admin({ params }: { params: { id: number } }) {
               </div>
               <div className="wrap-input100">
                 <Form.Item<FieldType>
-                  label="confirm password"
+                  label={t('confirm_password')}
                   name="confirmPassword"
-                  help={errorsPassword.confirmPassword && "Passwords do not match"}
+                  help={errorsPassword.confirmPassword && t('passwords_do_not_match')}
                   validateStatus={errorsPassword.confirmPassword ? "error" : ""}
                 >
                   <Controller
@@ -282,7 +295,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           <LockOutlined className="site-form-item-icon" />
                         }
                         type="password"
-                        placeholder="confirm Password"
+                        placeholder={t('confirm_password')}
                         size="large"
                       />
                     )}
@@ -295,7 +308,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   htmlType="submit"
                   className="bg-comp-red button-backend"
                 >
-                  Submit
+                   {t('submit')}
                 </Button>
               </Form.Item>
             </Form>

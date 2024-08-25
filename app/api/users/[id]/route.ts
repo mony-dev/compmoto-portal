@@ -7,6 +7,7 @@ export async function GET(
   { params }: { params: { id: number } }
 ) {
   const id = params.id; 
+  console.log("id", id)
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -15,6 +16,7 @@ export async function GET(
     });
     return NextResponse.json(user);
   } catch (error) {
+    console.log(error)
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();

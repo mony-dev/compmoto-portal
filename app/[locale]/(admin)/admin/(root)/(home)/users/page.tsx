@@ -12,15 +12,25 @@ import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { exec } from "child_process";
 import { useCurrentLocale } from "next-i18n-router/client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import i18nConfig from "../../../../../../../i18nConfig";
+import { useCart } from "@components/Admin/Cartcontext";
+import { useTranslation } from "react-i18next";
+import Loading from "@components/Loading";
 
 export default function users() {
+  const { t } = useTranslation();
   const router = useRouter();
   const locale = useCurrentLocale(i18nConfig);
+  const [searchText, setSearchText] = useState("");
+  const [userData, setUserData] = useState<DataType[]>([]);
+  const [loading, setLoading ] = useState(true);
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
 
   interface DataType {
+    key: number;
     id: number;
     name: string;
     email: string;
@@ -29,35 +39,74 @@ export default function users() {
     custNo: string;
   }
 
+  useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart)
+    async function fetchData() {
+      const roles = ["USER"];
+      try {
+        const [userResponse] = await Promise.all([
+          axios
+            .get(`/api/users?role=${roles}&q=${searchText}`)
+            .then((response) => {
+              const userData = response.data.map((user: DataType, index: number) => ({
+                key: index + 1,
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                status: user.status,
+                custNo: user.custNo,
+              }));
+
+              setUserData(userData);
+            }),
+        ]);
+      } catch (error: any) {
+        toastError(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [searchText]);
+
+  if (loading || !t) {
+    return (
+      <Loading/>
+    );
+  }
+
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: t('no'),
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Name",
+      title: t('name'),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "Email",
+      title: t('email'),
       dataIndex: "email",
       key: "email",
       sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
-      title: "Cust No.",
+      title: t('cust_no'),
       dataIndex: "custNo",
       key: "custNo",
       sorter: (a, b) => a.custNo.localeCompare(b.custNo),
     },
     {
-      title: "role",
+      title: t('role'),
       key: "role",
       dataIndex: "role",
       sorter: (a, b) => a.role.localeCompare(b.role),
@@ -75,13 +124,13 @@ export default function users() {
       ),
     },
     {
-      title: "Status",
+      title: t('status'),
       dataIndex: "status",
       key: "status",
       sorter: (a, b) => a.status.localeCompare(b.status),
     },
     {
-      title: "Action",
+      title: t('action'),
       key: "action",
       render: (_, record) => (
         <p
@@ -89,35 +138,11 @@ export default function users() {
           onClick={() => router.push(`/${locale}/admin/users/${record.id}`)}
         >
           <PencilSquareIcon className="w-4 mr-0.5" />
-          <span>Edit</span>
+          <span>{t('edit')}</span>
         </p>
       ),
     },
   ];
-  const [searchText, setSearchText] = useState("");
-  const [userData, setUserData] = useState<DataType[]>([]);
-  useEffect(() => {
-    const roles = ["USER"];
-
-    axios
-      .get(`/api/users?role=${roles}&q=${searchText}`)
-      .then((response) => {
-        const userData = response.data.map((user: DataType) => ({
-          key: user.id,
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          status: user.status,
-          custNo: user.custNo,
-        }));
-
-        setUserData(userData);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  }, [searchText]);
 
   return (
     <div className="px-12">
@@ -126,10 +151,10 @@ export default function users() {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">ตั้งค่าผู้ใช้งาน</p>
+          <p className="text-lg font-semibold pb-4 grow">{t('user_setting')}</p>
           <div className="flex">
             <Input.Search
-              placeholder="Search"
+              placeholder={t('search')}
               size="middle"
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
@@ -147,7 +172,7 @@ export default function users() {
                 }
               }}
             >
-              Sync
+              {t('sync')}
             </Button>
           </div>
         </div>

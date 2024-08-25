@@ -26,6 +26,7 @@ import { Session } from "inspector";
 import { useCart } from "./Cartcontext";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../i18nConfig";
+import { profile } from "console";
 
 type NavBarProps = {
   isOpen: boolean;
@@ -35,6 +36,7 @@ type NavBarProps = {
     email: string;
     rewardPoint: number;
     creditPoint: number;
+    image: string;
     data: {
       CreditPoint: string[];
       RewardPoint: string[];
@@ -67,7 +69,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("0");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { cartItemCount, setCartItemCount } = useCart();
+  const { cartItemCount, setCartItemCount, profileImage, setProfileImage } = useCart();
   const locale = useCurrentLocale(i18nConfig);
 
   const sidebarItems: NavBarItemProps[] = [
@@ -95,6 +97,23 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
     }
   };
 
+  async function fetchUser() {
+    console.log("user", userId)
+    try {
+      const [userResponse] = await Promise.all([
+        axios.get(`/api/updateProfile/${userId}`),
+      ]);
+      console.log("userResponse.data.image", userResponse.data.image)
+
+      setProfileImage(userResponse.data.image);
+    } catch (error) {
+    console.log("error", error)
+
+      console.error("Error fetching data: ", error);
+    }
+  }
+
+
   useEffect(() => {
     if (userData?.data?.CustPriceGroup) {
       if (userData.data.CustPriceGroup.includes("3STARS")) {
@@ -113,11 +132,13 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
         paymentTerm && setPayment(paymentTerm[0]);
       }
     }
+    // setProfileImage(userData.image)
   }, [userData]);
 
   useEffect(() => {
     if (userId) {
       fetchCartCount();
+      fetchUser();
     }
   }, [userId]);
 
@@ -222,25 +243,35 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
             </button>
             <button
               type="button"
-              className="inline-flex items-center text-gray-500 rounded-lg"
+              className="inline-flex items-center text-gray-500"
               onClick={() => setDropdownVisible(!isDropdownVisible)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="text-white m-1"
-                width="26"
-                height="26"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-              </svg>
+              {profileImage ?  <Image
+                className="rounded-full transition duration-300 ease-in-out"
+                alt="User profile"
+                width={24}
+                height={24}
+                src={
+                  profileImage 
+                }
+              /> 
+               :  <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="text-white m-1 rounded-full"
+              width="26"
+              height="26"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+            </svg>}
+         
             </button>
             {/* <DropDownMenu options={sidebarItems} qrCode={qrCodeImage} /> */}
             {isDropdownVisible && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Form, Input, Button, Select } from "antd";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -22,15 +22,21 @@ import {
 } from "@lib-schemas/user/edit-password-schema";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../../i18nConfig";
+import { useTranslation } from "react-i18next";
+import { useCart } from "@components/Admin/Cartcontext";
+import Loading from "@components/Loading";
 
 export default function Admin({ params }: { params: { id: number } }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { Option } = Select;
   const [form] = Form.useForm();
   const [formPassword] = Form.useForm();
   const [userData, setUserData] = useState<User>();
   const locale = useCurrentLocale(i18nConfig);
-
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(true); 
   type FieldType = {
     confirmPassword: string;
     newPassword: string;
@@ -54,20 +60,35 @@ export default function Admin({ params }: { params: { id: number } }) {
     resolver: zodResolver(editPasswordSchema),
   });
   const role = watchRole('role');
+
   useEffect(() => {
-    axios
-      .get(`/api/users/${params.id}`)
-      .then((response) => {
+    const parts = pathname.split("/");
+    const lastPart = parts[parts.length - 2];
+    setI18nName(lastPart);
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/api/users/${params.id}`);
         setUserData(response.data);
         setValue("email", response.data.email);
         setValue("name", response.data.name);
         setValue("role", response.data.role);
-        response.data.custNo &&  setValue("custNo", response.data.custNo);
-      })
-      .catch((error) => {
+        response.data.custNo && setValue("custNo", response.data.custNo);
+      } catch (error) {
         console.error("Error fetching data: ", error);
-      });
-  }, []);
+      } finally {
+        setLoading(false); // Data fetching is complete
+      }
+    };
+
+    fetchUserData();
+  }, [params.id, pathname, setI18nName, setValue]);
+
+  if (loading || !t) {
+    return (
+      <Loading/>
+    );
+  }
 
   const onFinish: SubmitHandler<EditAdminSchema> = async (values) => {
     try {
@@ -78,7 +99,7 @@ export default function Admin({ params }: { params: { id: number } }) {
       });
       router.replace(`/${locale}/admin/admins`);
 
-      toastSuccess("User updated successfully");
+      toastSuccess("user_updated_successfully");
     } catch (error: any) {
       toastError(error.response.data.message);
     }
@@ -102,7 +123,7 @@ export default function Admin({ params }: { params: { id: number } }) {
       );
       router.replace(`/${locale}/admin/admins`);
 
-      toastSuccess("Password updated successfully");
+      toastSuccess("password_updated_successfully");
     } catch (error: any) {
       toastError(error.response.data.message);
     }
@@ -116,10 +137,10 @@ export default function Admin({ params }: { params: { id: number } }) {
         >
           <div className="text-lg pb-4 default-font flex">
             <Link className="text-comp-sub-header" href={`/${locale}/admin/admins`}>
-              ตั้งค่าพนักงาน
+              {t('staff_setting')}
             </Link>{" "}
             <ChevronRightIcon className="w-4 mx-4" />{" "}
-            <p className="font-semibold">แก้ไขพนักงาน</p>
+            <p className="font-semibold">{t('edit_staff')}</p>
           </div>
           <div className="flex justify-between">
             <Form
@@ -130,59 +151,59 @@ export default function Admin({ params }: { params: { id: number } }) {
               className="grow pr-12"
             >
               <span className="login100-form-title font-bold text-black">
-                แก้ไขพนักงาน
+                {t('edit_staff')}
               </span>
               <Form.Item
                 name="email"
-                label="Email"
+                label={t('email')}
                 className="pt-4"
                 required
-                tooltip="This is a required field"
-                help={errors.email && "Please enter a valid email"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.email && t('please_enter_a_valid_email')}
                 validateStatus={errors.email ? "error" : ""}
               >
                 <Controller
                   control={control}
                   name="email"
                   render={({ field }) => (
-                    <Input {...field} placeholder="Email" size="large" />
+                    <Input {...field} placeholder={t('email')} size="large" />
                   )}
                 />
               </Form.Item>
 
               <Form.Item
                 name="name"
-                label="Name"
+                label={t('name')}
                 required
-                tooltip="This is a required field"
-                help={errors.name && "Please enter your name"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.name && t('please_enter_a_name')}
                 validateStatus={errors.name ? "error" : ""}
               >
                 <Controller
                   control={control}
                   name="name"
                   render={({ field }) => (
-                    <Input {...field} placeholder="Name" size="large" />
+                    <Input {...field} placeholder={t('name')} size="large" />
                   )}
                 />
               </Form.Item>
 
               <Form.Item
                 name="role"
-                label="Role"
+                label={t('role')}
                 required
-                tooltip="This is a required field"
-                help={errors.role && "Please select your role"}
+                tooltip={t('this_is_a_required_field')}
+                help={errors.role && t('please_enter_a_role')}
                 validateStatus={errors.role ? "error" : ""}
               >
                 <Controller
                   control={control} // control from useForm()
                   name="role"
                   render={({ field }) => (
-                    <Select {...field} placeholder="Select a role" size="large">
-                      <Option value="ADMIN">Admin</Option>
-                      <Option value="CLAIM">Claim</Option>
-                      <Option value="SALE">Sale</Option>
+                    <Select {...field} placeholder={t('select_a_role')} size="large">
+                      <Option value="ADMIN">{t('admin')}</Option>
+                      <Option value="CLAIM">{t('claim')}</Option>
+                      <Option value="SALE">{t('sale')}</Option>
                     </Select>
                   )}
                 />
@@ -190,13 +211,13 @@ export default function Admin({ params }: { params: { id: number } }) {
               {role == "SALE" && (
                 <Form.Item
                   name="custNo"
-                  label="Sale ID"
+                  label={t('sale_admin')}
                 >
                   <Controller
                     control={control}
                     name="custNo"
                     render={({ field }) => (
-                      <Input {...field} value={field.value || ''} placeholder="Sale ID" size="large" />
+                      <Input {...field} value={field.value || ''} placeholder={t('sale_admin')} size="large" />
                     )}
                   />
                 </Form.Item>
@@ -207,7 +228,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   htmlType="submit"
                   className="bg-comp-red button-backend"
                 >
-                  Submit
+                  {t('submit')}
                 </Button>
               </Form.Item>
             </Form>
@@ -219,15 +240,15 @@ export default function Admin({ params }: { params: { id: number } }) {
               className="grow pr-12"
             >
               <span className="login100-form-title font-bold text-black">
-                เปลี่ยนรหัสผ่าน
+                {t('change_password')}
               </span>
               <div className="wrap-input100 pt-4">
                 <Form.Item<FieldType>
-                  label="password"
+                  label={t('password')}
                   name="newPassword"
                   help={
                     errorsPassword.newPassword &&
-                    "Password must be at least 6 characters long"
+                    t('password_must_be_at_least_6_characters_long')
                   }
                   validateStatus={errorsPassword.newPassword ? "error" : ""}
                 >
@@ -241,7 +262,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           <LockOutlined className="site-form-item-icon" />
                         }
                         type="password"
-                        placeholder="New Password"
+                        placeholder={t('new_password')}
                         size="large"
                       />
                     )}
@@ -250,10 +271,10 @@ export default function Admin({ params }: { params: { id: number } }) {
               </div>
               <div className="wrap-input100">
                 <Form.Item<FieldType>
-                  label="confirm password"
+                  label={t('confirm_password')}
                   name="confirmPassword"
                   help={
-                    errorsPassword.confirmPassword && "Passwords do not match"
+                    errorsPassword.confirmPassword && t('passwords_do_not_match')
                   }
                   validateStatus={errorsPassword.confirmPassword ? "error" : ""}
                 >
@@ -267,7 +288,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           <LockOutlined className="site-form-item-icon" />
                         }
                         type="password"
-                        placeholder="confirm Password"
+                        placeholder={t('confirm_password')}
                         size="large"
                       />
                     )}
@@ -280,7 +301,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   htmlType="submit"
                   className="bg-comp-red button-backend"
                 >
-                  Submit
+                  {t('submit')}
                 </Button>
               </Form.Item>
             </Form>

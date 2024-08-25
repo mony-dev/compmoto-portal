@@ -32,6 +32,7 @@ model User {
   rewardPoint        Int                 @default(0)
   phoneNumber        String?
   birthDate          DateTime?
+  image              String? 
   gender             String?
   vatNo              String?
   custAddress        String?
