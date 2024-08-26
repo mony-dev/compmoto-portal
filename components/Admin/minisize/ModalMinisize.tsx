@@ -1,26 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  formatDate,
-  formatDateRange,
   toastError,
   toastSuccess,
 } from "@lib-utils/helper";
 import {
   Button,
-  Card,
   Form,
   Input,
   Modal,
-  Space,
   Switch,
-  Tooltip,
-  Image,
   Select,
   Checkbox,
 } from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -93,6 +86,7 @@ const ModalMinisize = ({
       lv3: [{ name: "", isActive: false, data: "" }],
     },
   });
+  const { t } = useTranslation();
   const [triggerMini, setTriggerMini] = useState(false);
   const { fields: lv1Fields } = useFieldArray({ control, name: "lv1" });
   const { fields: lv2Fields } = useFieldArray({ control, name: "lv2" });
@@ -106,7 +100,6 @@ const ModalMinisize = ({
   const [image, setImage] = useState<string | { url: string }[]>([]);
 
   const [productCount, setProductCount] = useState<number | null>(null);
-  const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
 
   const dataOptions = [
@@ -212,7 +205,7 @@ const ModalMinisize = ({
         resetForm();
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
-        toastSuccess("Minisize updated successfully");
+        toastSuccess(t("minisize_updated_successfully"));
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);
@@ -227,7 +220,7 @@ const ModalMinisize = ({
         resetForm();
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
-        toastSuccess("minisize created successfully");
+        toastSuccess(t("minisize_created_successfully"));
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);
@@ -242,15 +235,15 @@ const ModalMinisize = ({
       onCancel={() => resetForm()}
       footer={false}
     >
-      <h2 className="font-semibold">ตั้งค่า</h2>
+      <h2 className="font-semibold">{t("setting")}</h2>
       <hr className="my-2" />
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
       <Form.Item
           name="imageProfile"
-          label="Upload image"
+          label={t("upload_image")}
           required
-          tooltip="This is a required field"
-          help={errors.imageProfile && "Please upload minisize image"}
+          tooltip={t('this_is_a_required_field')}
+          help={errors.imageProfile && t('please_upload_minisize_image')}
           validateStatus={errors.imageProfile ? "error" : ""}
         >
           <Controller
@@ -271,10 +264,10 @@ const ModalMinisize = ({
     
           <Form.Item
             name="name"
-            label="ชื่อ"
+            label={t("name")}
             className="switch-backend basis-1/2"
             required
-            tooltip="This is a required field"
+            tooltip={t('this_is_a_required_field')}
             help={errors.name?.message}
             validateStatus={errors.name ? "error" : ""}
           >
@@ -282,13 +275,13 @@ const ModalMinisize = ({
               control={control}
               name="name"
               render={({ field }) => (
-                <Input {...field} placeholder="Name" size="large" />
+                <Input {...field} placeholder={t("name")} size="large" />
               )}
             />
           </Form.Item>
           <Form.Item
             name="isActive"
-            label="แสดง"
+            label={t("show")}
             className="switch-backend basis-1/2 pl-2"
           >
             <Controller
@@ -297,8 +290,8 @@ const ModalMinisize = ({
               render={({ field }) => (
                 <Switch
                   {...field}
-                  checkedChildren="Active"
-                  unCheckedChildren="Inactive"
+                  checkedChildren={t("active")}
+                  unCheckedChildren={t("inactive")}
                   defaultChecked
                 />
               )}
@@ -308,10 +301,10 @@ const ModalMinisize = ({
         <div className="flex w-full pb-2">
           <Form.Item
             name="brandId"
-            label="Brand"
+            label={t("brand")}
             className="switch-backend basis-1/2"
             required
-            tooltip="This is a required field"
+            tooltip={t('this_is_a_required_field')}
             help={errors.brandId?.message}
             validateStatus={errors.brandId ? "error" : ""}
           >
@@ -322,7 +315,7 @@ const ModalMinisize = ({
                 <Select
                   {...field}
                   showSearch
-                  placeholder="Select a brand"
+                  placeholder={t('select_a_brand')}
                   filterOption={(input, option) =>
                     (option?.label ?? "")
                       .toLowerCase()
@@ -338,7 +331,7 @@ const ModalMinisize = ({
             />
           </Form.Item>
           <div className="basis-1/2 pl-2">
-            <label>จำนวนสินค้า</label>
+            <label>{t('total')}</label>
             <Input
               name="total"
               value={productCount ?? ""}
@@ -347,7 +340,7 @@ const ModalMinisize = ({
             />
           </div>
         </div>
-        <h2 className="font-semibold">หมวดหมู่ที่ใช้แสดง</h2>
+        <h2 className="font-semibold">{t('category')}</h2>
         <hr className="my-2" />
         {lv1Fields.map((field, index) => (
           <div key={field.id} className="flex items-center">
@@ -357,7 +350,7 @@ const ModalMinisize = ({
                 control={control}
                 render={({ field }) => (
                   <Checkbox {...field} checked={field.value}>
-                    หมวดหมู่สินค้า
+                    {t('product_category')}
                   </Checkbox>
                 )}
               />
@@ -370,7 +363,7 @@ const ModalMinisize = ({
               <Controller
                 name={`lv1.${index}.name`}
                 control={control}
-                render={({ field }) => <Input {...field} placeholder="Name" />}
+                render={({ field }) => <Input {...field} placeholder={t('name')} />}
               />
             </Form.Item>
             <Form.Item
@@ -384,7 +377,7 @@ const ModalMinisize = ({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    placeholder="Select data"
+                    placeholder={t('select_data')}
                     options={dataOptions}
                   />
                 )}
@@ -405,7 +398,7 @@ const ModalMinisize = ({
                 control={control}
                 render={({ field }) => (
                   <Checkbox {...field} checked={field.value}>
-                    ซับหมวดหมู่ 1
+                    {t('sub_category_1')}
                   </Checkbox>
                 )}
               />
@@ -432,7 +425,7 @@ const ModalMinisize = ({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    placeholder="Select data"
+                    placeholder={t('select_data')}
                     options={dataOptions}
                   />
                 )}
@@ -448,7 +441,7 @@ const ModalMinisize = ({
                 control={control}
                 render={({ field }) => (
                   <Checkbox {...field} checked={field.value}>
-                    ซับหมวดหมู่ 2
+                    {t('sub_category_2')}
                   </Checkbox>
                 )}
               />
@@ -475,7 +468,7 @@ const ModalMinisize = ({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    placeholder="Select data"
+                    placeholder={t('select_data')}
                     options={dataOptions}
                   />
                 )}
@@ -489,7 +482,7 @@ const ModalMinisize = ({
             htmlType="submit"
             className="bg-comp-red button-backend"
           >
-            Submit
+            {t('submit')}
           </Button>
         </Form.Item>
       </Form>

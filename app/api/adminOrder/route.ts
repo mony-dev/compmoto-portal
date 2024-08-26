@@ -8,7 +8,8 @@ export async function GET(request: Request) {
   const type = searchParams.get('type') || '';
   const userId = searchParams.get('userId') || '';
   const userRole = searchParams.get('role') || '';
-
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "1000");
   if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
   }
@@ -21,40 +22,68 @@ export async function GET(request: Request) {
   endOfMonth.setMonth(startOfMonth.getMonth() + 1);
 
   try {
-    const orders = await prisma.order.findMany({
-      where: {
-        type: type ? (type as OrderType) : undefined,
-        OR: q ? [
-          {
-            documentNo: {
-              contains: q, 
-              mode: 'insensitive', 
-            },
-          }
-        ] : undefined,
-        createdAt: {
-          gte: startOfMonth,
-          lt: endOfMonth,
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where: {
+          type: type ? (type as OrderType) : undefined,
+          OR: q ? [
+            {
+              documentNo: {
+                contains: q, 
+                mode: 'insensitive', 
+              },
+            }
+          ] : undefined,
+          createdAt: {
+            gte: startOfMonth,
+            lt: endOfMonth,
+          },
+          ...(userRole === 'SALE' && {
+            user: {
+              saleUserId: parseInt(userId),
+            }
+          }),
         },
-        ...(userRole === 'SALE' && {
+        include: {
           user: {
-            saleUserId: parseInt(userId),
-          }
-        }),
-      },
-      include: {
-        user: {
+              include: {
+                saleUser: true,
+              },
+          },
+          items: {
             include: {
-              saleUser: true,
+              product: true,
             },
-        },
-        items: {
-          include: {
-            product: true,
           },
         },
-      },
-    });
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.order.count({
+        where: {
+          type: type ? (type as OrderType) : undefined,
+          OR: q ? [
+            {
+              documentNo: {
+                contains: q, 
+                mode: 'insensitive', 
+              },
+            }
+          ] : undefined,
+          createdAt: {
+            gte: startOfMonth,
+            lt: endOfMonth,
+          },
+          ...(userRole === 'SALE' && {
+            user: {
+              saleUserId: parseInt(userId),
+            }
+          }),
+        },
+      }),
+    ]);
+    return NextResponse.json({ orders: orders, total });
+
     return NextResponse.json(orders);
   } catch (error) {
     return NextResponse.json(error);

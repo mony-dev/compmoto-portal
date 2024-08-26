@@ -8,6 +8,8 @@ type CartContextType = {
   updateNamespaces: (namespaces: string[]) => void;
   profileImage: string;
   setProfileImage: (name: string) => void;
+  loadPage: boolean;
+  setLoadPage: (boolean: boolean) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -17,9 +19,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [i18nName, setI18nName] = useState<string>("");
   const [updateNamespaces, setUpdateNamespaces] = useState<(namespaces: string[]) => void>(() => () => {});
   const [profileImage, setProfileImage] = useState<string>("");
+  const [loadPage, setLoadPage] = useState<boolean>(false);
 
   return (
-    <CartContext.Provider value={{ cartItemCount, setCartItemCount, i18nName, setI18nName, updateNamespaces, profileImage, setProfileImage }}>
+    <CartContext.Provider value={{ cartItemCount, setCartItemCount, i18nName, setI18nName, updateNamespaces, profileImage, setProfileImage, loadPage, setLoadPage }}>
       {children}
     </CartContext.Provider>
   );

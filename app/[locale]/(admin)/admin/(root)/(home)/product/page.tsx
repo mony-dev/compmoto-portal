@@ -1,18 +1,10 @@
 "use client";
 
 import {
-  Button,
   Card,
   Divider,
-  Empty,
-  Form,
   Input,
-  InputNumber,
-  Segmented,
   Select,
-  Space,
-  Tabs,
-  TabsProps,
   Tag,
   Tooltip,
 } from "antd";
@@ -22,11 +14,9 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { formatDate, formatDateRange, toastError, toastSuccess } from "@lib-utils/helper";
+import { toastError, toastSuccess } from "@lib-utils/helper";
 import Image from "next/image";
-import { Controller, useForm } from "react-hook-form";
-import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
@@ -117,19 +107,18 @@ const Product = () => {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { data: session, status } = useSession();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [total, setTotal] = useState(0);
   const [promotiondData, setPromotionData] = useState<PromotionDataType[]>([]);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(
     null
   );
-  const [trigger, setTrigger] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [sortBy, setSortBy] = useState("");
-
   const [productData, setProductData] = useState<DataType[]>([]);
   const [brandName, setBrandName] = useState("");
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedProductYear, setSelectedProductYear] = useState<{
     [key: number]: string | null;
   }>({});
@@ -171,7 +160,7 @@ const Product = () => {
     try {
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
       if (response.data) {
-        const minisize = response.data.map((data: MinisizeDataType) => ({
+        const minisize = response.data.minisizes.map((data: MinisizeDataType) => ({
           id: data.id,
           imageProfile: data.imageProfile,
         }));
@@ -191,13 +180,15 @@ const Product = () => {
       lv1: filters.lv1?.id,
       lv2: filters.lv2?.id,
       lv3: filters.lv3?.id,
+      page: currentPage,
+      pageSize: pageSize,
     };
     axios
       .get(`/api/getProduct?q=${searchText}&brandName=${name}&sortBy=${sortBy}`, {
         params: simplifiedFilters,
       })
       .then((response) => {
-        const useProduct = response.data.map((product: DataType) => ({
+        const useProduct = response.data.products.map((product: DataType) => ({
           key: product.id,
           id: product.id,
           code: product.code,
@@ -234,6 +225,7 @@ const Product = () => {
           lv3Name: product.lv3Name,
         }));
         setProductData(useProduct);
+        setTotal(response.data.total);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
@@ -273,7 +265,7 @@ const Product = () => {
     if (name) {
       fetchProduct(name, selectedFilters);
     }
-  }, [searchText, selectedFilters, sortBy]);
+  }, [searchText, selectedFilters, sortBy, currentPage]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -619,6 +611,14 @@ const Product = () => {
       },
     },
   ];
+
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
   return (
     <div className="px-12">
       <div className="px-4 pb rounded-lg">
@@ -636,8 +636,8 @@ const Product = () => {
                   <Image
                     className="w-full rounded-lg py-1"
                     alt={promotion.name}
-                    width={50}
-                    height={50}
+                    width={250}
+                    height={250}
                     src={promotion.image}
                   />
                 </div>
@@ -713,7 +713,15 @@ const Product = () => {
             onChange={handleSortChange}
           />
         </div>
-        <DataTable columns={columns} data={productData}></DataTable>
+
+        <DataTable
+          columns={columns}
+          data={productData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

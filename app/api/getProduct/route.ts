@@ -20,49 +20,75 @@ export async function GET(request: Request) {
   const lv1 = searchParams.get('lv1') || null;
   const lv2 = searchParams.get('lv2') || null;
   const lv3 = searchParams.get('lv3') || null;
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "1000");
 
   try {
-    const products = await prisma.product.findMany({
-      where: {
-        AND: [
-          {
-            OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { code: { contains: q, mode: "insensitive" } },
-            ],
-          },
-          brandName ? {
-            brand: {
-              name: { contains: brandName, mode: "insensitive" }
-            }
-          } : {},
-          lv1 ? { lv1Id: parseInt(lv1) } : {},
-          lv2 ? { lv2Id: parseInt(lv2) } : {},
-          lv3 ? { lv3Id: parseInt(lv3) } : {},
-        ],
-      },
-      include: {
-        brand: {
-          select: {
-            name: true,
-          },
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { code: { contains: q, mode: "insensitive" } },
+              ],
+            },
+            brandName ? {
+              brand: {
+                name: { contains: brandName, mode: "insensitive" }
+              }
+            } : {},
+            lv1 ? { lv1Id: parseInt(lv1) } : {},
+            lv2 ? { lv2Id: parseInt(lv2) } : {},
+            lv3 ? { lv3Id: parseInt(lv3) } : {},
+          ],
         },
-        minisize: {
-          select: {
-            name: true,
-            lv1: true,
-            lv2: true,
-            lv3: true,
+        include: {
+          brand: {
+            select: {
+              name: true,
+            },
           },
-        },
-        promotion: {
-          select: {
-            name: true,
+          minisize: {
+            select: {
+              name: true,
+              lv1: true,
+              lv2: true,
+              lv3: true,
+            },
           },
+          promotion: {
+            select: {
+              name: true,
+            },
+          },
+          imageProducts: true,
         },
-        imageProducts: true,
-      },
-    });
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.product.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { code: { contains: q, mode: "insensitive" } },
+              ],
+            },
+            brandName ? {
+              brand: {
+                name: { contains: brandName, mode: "insensitive" }
+              }
+            } : {},
+            lv1 ? { lv1Id: parseInt(lv1) } : {},
+            lv2 ? { lv2Id: parseInt(lv2) } : {},
+            lv3 ? { lv3Id: parseInt(lv3) } : {},
+          ],
+        },
+      }),
+    ]);
 
     const orderCounts = await prisma.orderItem.groupBy({
       by: ['productId'],
@@ -111,8 +137,7 @@ export async function GET(request: Request) {
         };
       })
     );
-
-    return NextResponse.json(detailedProducts);
+    return NextResponse.json({ products: detailedProducts, total });
   } catch (error) {
     console.error("Error fetching data: ", error);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });

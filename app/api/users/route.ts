@@ -7,27 +7,44 @@ import { encrypt } from "@lib-shared/utils/encryption";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rolesString = searchParams.get('role');
-  const roles = rolesString ? (rolesString.split(',') as Role[]) : [];
+  const roles = rolesString ? (rolesString.split(',').map(role => role.trim()) as Role[]) : [];
   const q = searchParams.get('q') || '';
-
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "15");
   const statusQuery = Object.values(UserStatus).find(status => status === q);
   const roleQuery = Object.values(Role).find(role => role === q);
-
   try {
-    const users = await prisma.user.findMany({
-      where: {
-        role: {
-          in: roles,
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          role: {
+            in: roles,
+          },
+          OR: [
+            { name: { contains: q } },
+            { email: { contains: q } },
+            ...(roleQuery ? [{ role: { equals: roleQuery as Role } }] : []),
+            ...(statusQuery ? [{ status: { equals: statusQuery as UserStatus } }] : []),
+          ],
         },
-        OR: [
-          { name: { contains: q } },
-          { email: { contains: q } },
-          ...(roleQuery ? [{ role: { equals: roleQuery as Role } }] : []),
-          ...(statusQuery ? [{ status: { equals: statusQuery as UserStatus } }] : []),
-        ],
-      },
-    });
-    return NextResponse.json(users);
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.user.count({
+        where: {
+          role: {
+            in: roles,
+          },
+          OR: [
+            { name: { contains: q } },
+            { email: { contains: q } },
+            ...(roleQuery ? [{ role: { equals: roleQuery as Role } }] : []),
+            ...(statusQuery ? [{ status: { equals: statusQuery as UserStatus } }] : []),
+          ],
+        },
+      }),
+    ]);
+    return NextResponse.json({ users: users, total });
   } catch (error) {
     return NextResponse.json(error);
   } finally {

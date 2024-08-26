@@ -22,11 +22,13 @@ export default function admins() {
   const { t } = useTranslation();
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [total, setTotal] = useState(0);
   const [userData, setUserData] = useState<DataType[]>([]);
   const [triggerUser, setTriggerUser] = useState(false);
   const locale = useCurrentLocale(i18nConfig);
-  const [loading, setLoading ] = useState(true);
-  const {setI18nName} = useCart();
+  const {setI18nName, setLoadPage, loadPage} = useCart();
   const pathname = usePathname();
 
   interface DataType {
@@ -39,11 +41,11 @@ export default function admins() {
   }
   const deleteAdmin = (id: number) => {
     Modal.confirm({
-      title: "Are you sure you want to delete this admin?",
-      content: "This action cannot be undone.",
-      okText: "Yes",
+      title: t('are_you_sure_you_want_to_delete_this_admin'),
+      content: t('this_action_cannot_be_undone'),
+      okText: t('yes'),
       okType: "danger",
-      cancelText: "No",
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           const response = await axios.delete(`/api/users/${id}`, {
@@ -53,7 +55,7 @@ export default function admins() {
           });
           setTriggerUser(!triggerUser);
           router.replace(`/${locale}/admin/admins`);
-          toastSuccess("User deleted successfully");
+          toastSuccess(t("admin_deleted_successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
         }
@@ -133,38 +135,48 @@ export default function admins() {
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    setI18nName(lastPart)
-    async function fetchData() {
-      const roles = ["ADMIN", "CLAIM", "SALE"];
-      try {
-        // Use Promise.all to make both API requests in parallel
-        const [userResponse] = await Promise.all([
-          axios
-            .get(`/api/users?role=${roles}&q=${searchText}`)
-            .then((response) => {
-              const userData = response.data.map((user: DataType, index: number) => ({
-                key: index + 1,
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                status: user.status,
-              }));
-
-              setUserData(userData);
-            }),
-        ]);
-      } catch (error: any) {
-        toastError(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
+    setI18nName(lastPart);
     fetchData();
-  }, [searchText, triggerUser]);
+  }, [searchText, currentPage]);
 
-  if (loading || !t) {
+  async function fetchData() {
+    setLoadPage(true);
+    try {
+      const roles = "ADMIN, CLAIM, SALE";
+      const { data } = await axios.get(`/api/users`, {
+        params: {
+          role: roles,
+          q: searchText,
+          page: currentPage,
+          pageSize: pageSize,
+        },
+      });
+
+      const userDataWithKeys = data.users.map(
+        (user: DataType, index: number) => ({
+          ...user,
+          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+        })
+      );
+
+      setUserData(userDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
+
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  
+  if (loadPage || !t) {
     return (
       <Loading/>
     );
@@ -184,6 +196,7 @@ export default function admins() {
               size="middle"
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
+              value={searchText}
             />
             <Button
               className="bg-comp-red button-backend ml-4"
@@ -196,7 +209,15 @@ export default function admins() {
           </div>
         </div>
 
-        <DataTable columns={columns} data={userData}></DataTable>
+
+        <DataTable
+          columns={columns}
+          data={userData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

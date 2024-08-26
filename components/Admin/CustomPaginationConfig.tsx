@@ -3,23 +3,29 @@ import type { TablePaginationConfig } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 
 const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
-  const { t } = useTranslation();
   if (type === 'prev') {
-    return <a>{t('previous')}</a>;
+    return <a>previous</a>;
   }
   if (type === 'next') {
-    return <a>{t('next')}</a>;
+    return <a>next</a>;
   }
   return originalElement;
 };
 
-const getCustomPagination = (total: number): TablePaginationConfig => ({
+const getCustomPagination = (
+  total: number,
+  currentPage: number,
+  pageSize: number,
+  onPageChange: (page: number, pageSize?: number) => void
+): TablePaginationConfig => ({
   total,
-  pageSize: 15,
+  current: currentPage,
+  pageSize,
   showSizeChanger: false,
   showQuickJumper: false,
   itemRender,
-  position: ["bottomCenter"] // Use the specific type for TablePaginationPosition
+  position: ["bottomCenter"],
+  onChange: onPageChange,  // Pass the onChange handler here
 });
 
 export default getCustomPagination;

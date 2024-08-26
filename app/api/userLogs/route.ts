@@ -24,24 +24,36 @@ export async function POST( request: Request,
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q') || '';
-
+    const page = parseInt(searchParams.get("page") || "1");
+    const pageSize = parseInt(searchParams.get("pageSize") || "15");
     try {
-      const userLogs = await prisma.userLog.findMany({
-        where: {
-          OR: [
-            { ipAddress: { contains: q } },
-          ],
-        },
-        include: {
-            user: {
-              select: {
-                email: true,
-                name: true
+      const [userLogs, total] = await Promise.all([
+        prisma.userLog.findMany({
+          where: {
+            OR: [
+              { ipAddress: { contains: q } },
+            ],
+          },
+          include: {
+              user: {
+                select: {
+                  email: true,
+                  name: true
+                }
               }
-            }
-          }
-      });
-      return NextResponse.json(userLogs);
+            },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+        prisma.userLog.count({
+          where: {
+            OR: [
+              { ipAddress: { contains: q } },
+            ],
+          },
+        }),
+      ]);
+      return NextResponse.json({ userLogs: userLogs, total });
     } catch (error) {
       return NextResponse.json(error);
     } finally {

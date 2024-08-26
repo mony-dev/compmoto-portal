@@ -1,28 +1,13 @@
 "use client";
-import ModalAlbum from "@components/Admin/category/ModalAlbum";
-import DataTable from "@components/Admin/Datatable";
-import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
-import {
-  CheckBadgeIcon,
-  PencilIcon,
-  PencilSquareIcon,
-  PlusIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
+import dynamic from "next/dynamic";
 import {
   formatDate,
-  formatDateRange,
   toastError,
-  toastSuccess,
+
 } from "@lib-utils/helper";
 import {
   Badge,
-  Button,
-  Form,
   Input,
-  Modal,
-  Space,
-  Switch,
   Tabs,
   TabsProps,
   Tag,
@@ -30,27 +15,26 @@ import {
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Image } from "antd";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
-import { DateTime } from "luxon";
-import ModalVerify from "@components/Admin/RewardUser/ModalVerify";
 import { useSession } from "next-auth/react";
-
+import { useTranslation } from "react-i18next";
+import { useCart } from "@components/Admin/Cartcontext";
+const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 export default function backOrder({ params }: { params: { id: number } }) {
-  const router = useRouter();
+  const { t } = useTranslation();
+  const pathname = usePathname();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [total, setTotal] = useState(0);
   const [orderData, setOrderData] = useState<OrderDataType[]>([]);
   const [triggerOrder, setTriggerOrder] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [id, setId] = useState(0);
-  const [mode, setMode] = useState("ADD");
-  const [title, setTitle] = useState("กำลังตรวจสอบ");
   const [orderTotal, setOrderTotal] = useState(0);
-  const [incompleteCount, setIncompleteCount] = useState(0);
-
   const locale = useCurrentLocale(i18nConfig);
   const { data: session } = useSession();
 
@@ -64,7 +48,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
     groupDiscount: number;
     subTotal: number;
     totalPrice: number;
-    created_at: string;
+    createdAt: string;
     user: {
       custNo: string;
       id: number;
@@ -75,14 +59,14 @@ export default function backOrder({ params }: { params: { id: number } }) {
 
   const columns: ColumnsType<OrderDataType> = [
     {
-      title: "ลำดับ",
+      title: t("no"),
       dataIndex: "key",
       key: "key",
       defaultSortOrder: "descend",
       sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Document",
+      title: t("Document"),
       dataIndex: "documentNo",
       key: "documentNo",
       defaultSortOrder: "descend",
@@ -92,7 +76,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
       ),
     },
     {
-      title: "Customer no.",
+      title: t("Customer no"),
       dataIndex: "custNo",
       key: "custNo",
       defaultSortOrder: "descend",
@@ -100,15 +84,23 @@ export default function backOrder({ params }: { params: { id: number } }) {
       render: (_, record) => <p>{record.user.custNo}</p>,
     },
     {
-      title: "วันที่",
-      dataIndex: "date",
-      key: "date",
-      render: (_, record) => <p>{formatDate(record.created_at)}</p>,
-      sorter: (a, b) =>
-        formatDate(a.created_at).localeCompare(formatDate(b.created_at)),
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.user.contactName.localeCompare(b.user.contactName),
+      render: (_, record) => <p>{record.user.contactName}</p>,
     },
     {
-      title: "Total",
+      title: t("date"),
+      dataIndex: "date",
+      key: "date",
+      render: (_, record) => <p>{formatDate(record.createdAt)}</p>,
+      sorter: (a, b) =>
+        formatDate(a.createdAt).localeCompare(formatDate(b.createdAt)),
+    },
+    {
+      title: t("Total"),
       dataIndex: "totalPrice",
       key: "totalPrice",
       sorter: (a, b) => a.totalPrice - b.totalPrice,
@@ -122,7 +114,12 @@ export default function backOrder({ params }: { params: { id: number } }) {
       ),
     },
   ];
-
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -132,47 +129,60 @@ export default function backOrder({ params }: { params: { id: number } }) {
           count={orderTotal}
           offset={[15, 1]}
         >
-          <p>Back orders</p>
+          <p>{t('Back orders')}</p>
         </Badge>
       ),
-      children: <DataTable columns={columns} data={orderData} />,
+      children: <DataTable
+      columns={columns}
+      data={orderData}
+      total={total}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      onPageChange={handlePageChange}
+    />,
     }
   ];
 
   useEffect(() => {
-    if (session?.user?.id) {
-      axios
-        .get(`/api/order?q=${searchText}&type=Back&userId=${session.user.id}`)
-        .then((response) => {
-          const useOrder = response.data.map((order: any, index: number) => ({
-            key: index + 1,
-            id: order.id,
-            documentNo: order.documentNo,
-            externalDocument: order.externalDocument,
-            totalAmount: order.totalAmount,
-            type: order.type,
-            groupDiscount: order.groupDiscount,
-            subTotal: order.subTotal,
-            totalPrice: order.totalPrice,
-            created_at: order.createdAt,
-            user: {
-              custNo: order.user.custNo,
-              id: order.user.id,
-              contactName: order.user.contactName,
-            },
-            product: order.items,
-          }));
-          setOrderData(useOrder);
-          setOrderTotal(useOrder.length);
-        })
-        .catch((error) => {
-          console.error("Error fetching data: ", error);
-        });
-    } else {
-      console.warn("User ID is undefined. Cannot fetch orders.");
-    }
-  }, [searchText, triggerOrder, session]);
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
+    fetchData();
+  }, [searchText, triggerOrder, session, currentPage]);
 
+  async function fetchData() {
+    setLoadPage(true);
+    if (session?.user?.id) {
+      try {
+        const { data } = await axios.get(`/api/adminOrder`, {
+          params: {
+            q: searchText,
+            type: 'Back',
+            userId: session.user.id,
+            role: session.user.role,
+            page: currentPage,
+            pageSize: pageSize,
+          },
+        });
+  
+        const orderDataWithKeys = data.orders.map(
+          (order: any, index: number) => ({
+            ...order,
+            key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+          })
+        );
+        setOrderData(orderDataWithKeys);
+        setOrderTotal(orderDataWithKeys.length);
+        setTotal(data.total);
+      } catch (error: any) {
+        toastError(error);
+      } finally {
+        setLoadPage(false);
+      }
+    } else {
+      console.warn(t("User ID is undefined. Cannot fetch orders"));
+    }
+   
+  }
   const onChange = (key: string) => {
     if (key === "1") {
       setTriggerOrder(false);
@@ -180,6 +190,10 @@ export default function backOrder({ params }: { params: { id: number } }) {
       setTriggerOrder(true);
     }
   };
+
+  if (loadPage || !t) {
+    return <Loading />;
+  }
   return (
     <div className="px-12">
       <div
@@ -187,7 +201,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-end items-center">
-          <p className="text-lg font-semibold pb-4 grow">Back orders</p>
+          <p className="text-lg font-semibold pb-4 grow">{t('Back orders')}</p>
           <div className="flex">
             <Input.Search
               placeholder="Search"

@@ -1,38 +1,30 @@
 "use client";
-import ModalReward from "@components/Admin/category/ModalReward";
-import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
+import dynamic from "next/dynamic";
 import {
   ChevronRightIcon,
-  PencilIcon,
-  PencilSquareIcon,
-  PlusIcon,
-  TrashIcon,
 } from "@heroicons/react/24/outline";
-import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Card, Divider, Form, Input, Modal, Space, Switch, Tag } from "antd";
+import { Card, Input, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { DateTime } from "luxon";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import i18nConfig from "../../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
-import DataTable from "@components/Admin/Datatable";
-import { Decimal } from "@prisma/client/runtime/library";
+import { useTranslation } from "react-i18next";
+import { useCart } from "@components/Admin/Cartcontext";
+const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
 export default function adminBackOrder({ params }: { params: { id: number } }) {
-  const router = useRouter();
+  const { t } = useTranslation();
   const [reData, setReData] = useState<DataType>();
   const locale = useCurrentLocale(i18nConfig);
+  const pathname = usePathname();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState("");
-
-  interface YearDataType {
-    year: string;
-    isActive: boolean;
-    discount: number;
-  }
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   interface Product {
     key: number;
     id: number;
@@ -73,6 +65,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
     id: number;
     documentNo: string;
     subTotal: number;
+    grandTotal: number;
     totalPrice: number;
     groupDiscount: number;
     groupDiscountPrice: number;
@@ -91,6 +84,10 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
   }
 
   useEffect(() => {
+    const parts = pathname.split("/");
+    const lastPart = parts[parts.length - 2];
+    setI18nName(lastPart);
+    setLoadPage(true);
     axios
       .get(`/api/order/${params.id}?type=Back`)
       .then((response) => {
@@ -103,6 +100,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
           totalPrice: order.totalPrice,
           groupDiscount: order.groupDiscount,
           groupDiscountPrice: order.subTotal * (order.groupDiscount/100) || 0,
+          grandTotal: (order.subTotal - (order.subTotal * (order.groupDiscount / 100) || 0)),
           totalAmount: order.totalAmount,
           type: order.type,
           externalDocument: order.externalDocument, // Corrected from "extertalDocument"
@@ -147,22 +145,29 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
           })),
         };
         setReData(normalOrder);
+        setLoadPage(false);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
   }, []);
 
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
   const columns: ColumnsType<ItemType> = [
     {
-      title: "ลำดับ",
+      title: t("no"),
       dataIndex: "key",
       key: "key",
       defaultSortOrder: "descend",
       sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Item code",
+      title: t("Item Code"),
       dataIndex: "Itemcode",
       key: "Itemcode",
       defaultSortOrder: "descend",
@@ -170,7 +175,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       render: (_, record) => <p>{record.product.code}</p>,
     },
     {
-      title: "Product",
+      title: t("Product"),
       dataIndex: "Product",
       key: "Product",
       defaultSortOrder: "descend",
@@ -178,7 +183,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       render: (_, record) => <p>{record.product.name}</p>,
     },
     {
-      title: "QTY",
+      title:  t("qty"),
       dataIndex: "qty",
       key: "qty",
       defaultSortOrder: "descend",
@@ -186,7 +191,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       render: (_, record) => <p>{record.amount}</p>,
     },
     {
-      title: "Unit price",
+      title: t("Unit price"),
       dataIndex: "price",
       key: "price",
       sorter: (a, b) => a.product.price - b.product.price,
@@ -201,7 +206,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       ),
     },
     {
-      title: "Initial Price",
+      title: t("Initial Price"),
       dataIndex: "initialPrice",
       key: "initialPrice",
       sorter: (a, b) => a.price - b.price,
@@ -216,7 +221,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       ),
     },
     {
-      title: "Discount",
+      title: t("Lot Discount"),
       dataIndex: "discount",
       key: "discount",
       defaultSortOrder: "descend",
@@ -228,7 +233,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       
     },
     {
-      title: "Discount Price",
+      title: t("Discount Price"),
       dataIndex: "discountPrice",
       key: "discountPrice",
       sorter: (a, b) => a.discountPrice - b.discountPrice,
@@ -246,16 +251,19 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
 
   const actions: React.ReactNode[] = [
     <div className="flex justify-between promotion-text p-6">
-    <p className="text-sm gotham-font text-base text-black">Grand Total</p>
+    <p className="text-sm gotham-font text-base text-black">{t("Grand Total")}</p>
     <p className="text-xl font-semibold	text-black default-font">
       ฿
-      {reData?.subTotal.toLocaleString("en-US", {
+      {reData?.grandTotal.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}
     </p>
   </div>
   ];
+  if (loadPage || !t) {
+    return <Loading />;
+  }
   return (
     <div className="px-12">
       <div className="flex justify-between items-center">
@@ -264,7 +272,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
             className="text-comp-sub-header"
             href={`/${locale}/admin/adminBackOrder`}
           >
-            Order lists
+            {t("Order lists")}
           </Link>{" "}
           <ChevronRightIcon className="w-4 mx-4" />{" "}
           <p className="font-semibold">{reData?.documentNo}</p>
@@ -289,7 +297,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
                 fillOpacity="0.5"
               />
             </svg>
-            <p className="text-sm gotham-font text-[#919FAF]">Back</p>
+            <p className="text-sm gotham-font text-[#919FAF]">{t("Back")}</p>
           </Link>
         </div>
       </div>
@@ -302,7 +310,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
             <div className="flex justify-between items-center pb-4">
               <div className="flex flex-col">
                 <p className="gotham-book text-xl font-thin grow pb-1">
-                  Sale Quote
+                  {t("Back Order")}
                 </p>
                 <p className="mb-0 default-font text-[#919FAF] text-xs">
                   #{reData?.documentNo}
@@ -310,7 +318,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
               </div>
               <div className="flex">
                 <Input.Search
-                  placeholder="Search"
+                  placeholder={t("Search")}
                   size="middle"
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ width: "200px", marginBottom: "20px" }}
@@ -318,13 +326,20 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
               </div>
             </div>
             {reData && reData.items && (
-              <DataTable columns={columns} data={reData.items} />
+               <DataTable
+               columns={columns}
+               data={reData.items}
+               total={reData.items.length}
+               currentPage={currentPage}
+               pageSize={pageSize}
+               onPageChange={handlePageChange}
+             />
             )}
           </div>
           <div className="col-span-1 col-start-4">
             <Card
               title={ <p className="gotham-book text-xl font-thin grow pb-1">
-                SaleAdmin : {reData?.user.saleUser.custNo}
+                 {t("SaleAdmin")} : {reData?.user.saleUser.custNo}
               </p>}
               bordered={false}
               className="gotham-thin"
@@ -337,7 +352,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
                 <>
                   <div className="flex justify-between promotion-text pb-4">
                     <p className="text-sm gotham-font text-[#919FAF]">
-                      Promotion
+                    {t("Promotion")}
                     </p>
                     <p className="text-sm default-font">
                       {reData.externalDocument}
@@ -347,7 +362,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
               )}
 
               <div className="flex justify-between promotion-text pb-4">
-                <p className="text-sm gotham-font text-[#919FAF]">Sub total</p>
+                <p className="text-sm gotham-font text-[#919FAF]">{t("Sub Total")}</p>
                 <p className="text-sm default-font">
                   ฿
                   {reData?.subTotal.toLocaleString("en-US", {
@@ -356,9 +371,19 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
                   })}
                 </p>
               </div>
+              {reData?.groupDiscount && (
+                <div className="flex justify-between promotion-text pb-4">
+                  <p className="text-sm gotham-font text-[#919FAF]">{t("Discount")}</p>
+                  <p className="text-sm default-font">
+                  <Tag bordered={false} color="error" style={{ borderRadius: "1rem" }}>
+                    {reData.groupDiscount}%
+                  </Tag>
+                  </p>
+                </div>
+              )}
               {reData?.groupDiscountPrice &&
                  <div className="flex justify-between promotion-text pb-4">
-                 <p className="text-sm gotham-font text-[#919FAF]">Discount</p>
+                 <p className="text-sm gotham-font text-[#919FAF]">{t("Discount Price")}</p>
                  <p className="text-sm default-font">
                    ฿
                    {(reData?.groupDiscountPrice).toLocaleString("en-US", {

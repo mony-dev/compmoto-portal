@@ -30,6 +30,7 @@ import BookRed from "../../public/images/logo/book-red.png";
 import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../i18nConfig";
+import { useCart } from "./Cartcontext";
 
 type SideBarItemProps = {
   title: string;
@@ -76,11 +77,6 @@ export default function SideBar({
   const [iconColor, setIconColor] = useState(false);
   const [menuId, setMenuId] = useState("");
   const [openMenuId, setOpenMenuId] = useState("");
-  // const toggleIconColor = (menu: string) => {
-  //   setIconColor(!iconColor);
-  //   setMenuId(menu);
-  //   onToggle();
-  // };
   const [locale, setLocale] = useState('');
   const toggleIconColor = (menu: string) => {
     setIconColor(!iconColor);
@@ -390,6 +386,7 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
   const pathname = usePathname();
   const searchParam = useSearchParams();
   const name = searchParam.get("name");
+  const {setLoadPage} = useCart();
 
   const isSelect = pathname.startsWith(href) || (href.includes(`name=${name}`));
   const btnClassWithLine = (isSelect: boolean) =>
@@ -399,7 +396,7 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
 
   const verticalLine = `absolute left-0 top-0 bottom-0 w-1 bg-gray-300`;
   return (
-    <Link href={href}>
+    <Link href={href} onClick={() => !isSelect && setLoadPage(true)}>
       <div className="ml-2 pl-8">
         <button className={`${btnClassWithLine(isSelect)} `} onClick={onToggle}>
           <div className={verticalLine}></div>

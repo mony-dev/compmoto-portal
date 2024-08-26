@@ -37,6 +37,7 @@ type NavBarProps = {
     rewardPoint: number;
     creditPoint: number;
     image: string;
+    role: string;
     data: {
       CreditPoint: string[];
       RewardPoint: string[];
@@ -98,7 +99,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   };
 
   async function fetchUser() {
-    console.log("user", userId)
     try {
       const [userResponse] = await Promise.all([
         axios.get(`/api/updateProfile/${userId}`),
@@ -107,8 +107,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
 
       setProfileImage(userResponse.data.image);
     } catch (error) {
-    console.log("error", error)
-
       console.error("Error fetching data: ", error);
     }
   }
@@ -138,7 +136,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   useEffect(() => {
     if (userId) {
       fetchCartCount();
-      fetchUser();
+      userData.role === 'USER' && fetchUser();
     }
   }, [userId]);
 

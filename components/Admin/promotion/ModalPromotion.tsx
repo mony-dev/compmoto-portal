@@ -1,45 +1,32 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  formatDate,
-  formatDateRange,
   toastError,
   toastSuccess,
 } from "@lib-utils/helper";
 import {
   Button,
-  Card,
   Form,
   Input,
   Modal,
-  Space,
   Switch,
-  Tooltip,
-  Image,
   Select,
-  Checkbox,
   InputNumber,
   Row,
   Col,
 } from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Controller,
   SubmitHandler,
-  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import tw from "twin.macro";
 import i18nConfig from "../../../i18nConfig";
-import {
-  MinisizeSchema,
-  minisizeSchema,
-} from "@lib-schemas/user/minisize-schema";
 import {
   promotionSchema,
   PromotionSchema,
@@ -119,7 +106,7 @@ const ModalPromotion = ({
     const fetchMinisizes = async () => {
       try {
         const response = await axios.get("/api/adminMinisize");
-        const minisizes = response.data.map((minisize: any) => ({
+        const minisizes = response.data.minisizes.map((minisize: any) => ({
           value: minisize.id,
           label: minisize.name,
         }));
@@ -238,8 +225,8 @@ const ModalPromotion = ({
           name="image"
           label="Upload Image"
           required
-          tooltip="This is a required field"
-          help={errors.image && "Please upload promotion image"}
+          tooltip={t('this_is_a_required_field')}
+          help={errors.image &&  t('please_upload_promotion_image')}
           validateStatus={errors.image ? "error" : ""}
         >
           <Controller
@@ -258,7 +245,7 @@ const ModalPromotion = ({
         </Form.Item>
         <Form.Item
           name="isActive"
-          label="แสดง"
+          label={t('active')}
           className="switch-backend basis-1/2 pl-2"
         >
           <Controller
@@ -267,8 +254,8 @@ const ModalPromotion = ({
             render={({ field }) => (
               <Switch
                 {...field}
-                checkedChildren="Active"
-                unCheckedChildren="Inactive"
+                checkedChildren={t('active')}
+                unCheckedChildren={t('inactive')}
                 defaultChecked
               />
             )}
@@ -278,17 +265,17 @@ const ModalPromotion = ({
           <Col span={12}>
             <Form.Item
               name="name"
-              label="ชื่อ"
+              label={t('Name')}
               className="switch-backend basis-1/2"
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
               help={errors.name?.message}
               validateStatus={errors.name ? "error" : ""}
             >
               <Controller
                 control={control}
                 name="name"
-                render={({ field }) => <Input {...field} placeholder="Name" />}
+                render={({ field }) => <Input {...field} placeholder={t('Name')} />}
               />
             </Form.Item>
           </Col>
@@ -298,7 +285,7 @@ const ModalPromotion = ({
               label="Minisize"
               className="switch-backend basis-1/2"
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
               help={errors.minisizeId?.message}
               validateStatus={errors.minisizeId ? "error" : ""}
             >
@@ -309,7 +296,7 @@ const ModalPromotion = ({
                   <Select
                     {...field}
                     showSearch
-                    placeholder="Select a minisize"
+                    placeholder={t("Select a minisize")}
                     filterOption={(input, option) =>
                       (option?.label ?? "")
                         .toLowerCase()
@@ -330,10 +317,10 @@ const ModalPromotion = ({
           <Col span={12}>
             <Form.Item
               name="amount"
-              label="จำนวนที่ซื้อ"
+              label={t("amount")}
               className="switch-backend"
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
               help={errors.name?.message}
               validateStatus={errors.name ? "error" : ""}
             >
@@ -343,7 +330,7 @@ const ModalPromotion = ({
                 render={({ field }) => (
                   <InputNumber
                     {...field}
-                    placeholder="amount"
+                    placeholder={t("amount")}
                     className="w-full"
                   />
                 )}
@@ -353,10 +340,10 @@ const ModalPromotion = ({
           <Col span={12}>
             <Form.Item
               name="userGroup"
-              label="กลุ่มลูกค้า"
+              label={t('User Group')}
               className="switch-backend basis-1/2"
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
               help={errors.userGroup?.message}
               validateStatus={errors.userGroup ? "error" : ""}
             >
@@ -367,7 +354,7 @@ const ModalPromotion = ({
                   <Select
                     {...field}
                     showSearch
-                    placeholder="Select a user group"
+                    placeholder={t("Select a user group")}
                     filterOption={(input, option) =>
                       (option?.key ?? "")
                         .toLowerCase()
@@ -382,10 +369,10 @@ const ModalPromotion = ({
         </Row>
         <Form.Item
           name="productRedeem"
-          label="สินค้าที่ได้รับ"
+          label={t('Product Redeem')}
           className="switch-backend basis-1/2"
           required
-          tooltip="This is a required field"
+          tooltip={t('this_is_a_required_field')}
           help={errors.productRedeem?.message}
           validateStatus={errors.productRedeem ? "error" : ""}
         >
@@ -393,7 +380,7 @@ const ModalPromotion = ({
             control={control}
             name="productRedeem"
             render={({ field }) => (
-              <Input {...field} placeholder="product redeem" />
+              <Input {...field} placeholder={t('Product Redeem')} />
             )}
           />
         </Form.Item>
@@ -401,12 +388,12 @@ const ModalPromotion = ({
           <Col span={12}>
             <Form.Item
               name="startDate"
-              label="Start Date"
+              label={t("Start Date")}
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
             >
               <DatePickers
-                placeholder="Start Date"
+                placeholder={t("Start Date")}
                 name="startDate"
                 control={control}
                 size={size}
@@ -416,12 +403,12 @@ const ModalPromotion = ({
           <Col span={12}>
             <Form.Item
               name="endDate"
-              label="End Date"
+              label={t("End Date")}
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
             >
               <DatePickers
-                placeholder="End Date"
+                placeholder={t("End Date")}
                 name="endDate"
                 control={control}
               />
@@ -434,7 +421,7 @@ const ModalPromotion = ({
             htmlType="submit"
             className="bg-comp-red button-backend"
           >
-            Submit
+            {t("Submit")}
           </Button>
         </Form.Item>
       </Form>

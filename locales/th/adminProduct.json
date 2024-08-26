@@ -1,1 +1,34 @@
-{"product":"สินค้า"}
+{
+  "action": "การกระทำ",
+  "code": "รหัสสินค้า",
+  "no": "ลำดับ",
+  "product": "สินค้า",
+  "promotion": "โปรโมชัน",
+  "stock": "คลังสินค้า",
+  "category": "หมวดหมู่",
+  "name": "ชื่อสินค้า",
+  "setting": "ตั้งค่า",
+  "search": "ค้าหา",
+  "Sync product successfully": "ซิงค์สินค้าเรียบร้อยแล้ว",
+  "Sync": "ซิงค์",
+  "next": "ต่อไป",
+  "previous": "ก่อนหน้า",
+  "Product updated successfully": "อัปเดตสินค้าสำเร็จแล้ว",
+  "price": "ราคา",
+  "Brand": "ยี่ห้อ",
+  "Nav Stock": "คลังสินค้า NAV",
+  "portal stock": "คลังสินค้า portal",
+  "this_is_a_required_field": "ช่องที่จำเป็นต้องกรอก",
+  "property": "คุณสมบัติ",
+  "minisize": "มินิไซต์",
+  "Select a promotion": "เลือกโปรโมชัน",
+  "Select a category": "เลือกหมวดหมู่",
+  "Year lot": "ปียาง",
+  "discount": "ส่วนลด",
+  "Product Image": "รูปสินค้า",
+  "Upload Image": "อัพโหลดรูปภาพ",
+  "Click to upload": "คลิกเพื่ออัพโหลดรูป"
+
+
+
+}

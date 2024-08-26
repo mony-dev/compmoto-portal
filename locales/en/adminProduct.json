@@ -1,1 +1,32 @@
-{"product":"Product"}
+{
+  "action": "Action",
+  "code": "Code",
+  "no": "No",
+  "product": "Product",
+  "promotion": "Promotion",
+  "stock": "Stock",
+  "category": "Category",
+  "name": "Name",
+  "setting": "Setting",
+  "search": "Search",
+  "Sync product successfully": "Sync product successfully",
+  "Sync": "Sync",
+  "next": "Next",
+  "previous": "Previous",
+  "Product updated successfully": "Product updated successfully",
+  "price": "Price",
+  "Brand": "Brand",
+  "Nav Stock": "Nav Stock",
+  "portal stock": "Portal Stock",
+  "this_is_a_required_field": "This is a required field",
+  "property": "Property",
+  "minisize": "Minisize",
+  "Select a promotion": "Select a promotion",
+  "Select a category": "Select a category",
+  "Year lot": "Year lot",
+  "discount": "Discount",
+  "Product Image": "Product Image",
+  "Upload Image": "Upload Image",
+  "Click to upload": "Click to upload"
+
+}

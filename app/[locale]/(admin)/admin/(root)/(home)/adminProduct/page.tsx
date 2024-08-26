@@ -1,90 +1,129 @@
 "use client";
-import DataTable from "@components/Admin/Datatable";
-import {
-  ArrowPathIcon,
-  Cog6ToothIcon,
-  PencilSquareIcon,
-  PlusIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
+import dynamic from "next/dynamic";
+import { ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Form, Input, Modal, Space, Switch, Tag } from "antd";
+import { Button, Input, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
-import { useTranslation } from "react-i18next";
-import ModalProduct from "@components/Admin/product/ModalProduct";
+import { useCart } from "@components/Admin/Cartcontext";
+
+const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
+const ModalProduct = dynamic(
+  () => import("@components/Admin/product/ModalProduct")
+);
+interface DataType {
+  key: number;
+  id: number;
+  code: string;
+  name: string;
+  brandId: number;
+  price: number;
+  navStock: number;
+  portalStock: number;
+  minisizeId?: number;
+  promotionId?: number;
+  years: JSON;
+  lv1Id?: number;
+  lv2Id?: number;
+  lv3Id?: number;
+  brand?: {
+    name: string;
+  };
+  minisize?: {
+    name: string;
+    lv1?: any;
+    lv2?: any;
+    lv3?: any;
+  };
+  promotion?: {
+    name: string;
+  };
+  imageProducts?: { url: string }[];
+  lv1Name: string;
+  lv2Name: string;
+  lv3Name: string;
+}
 
 export default function adminProduct({ params }: { params: { id: number } }) {
-  const router = useRouter();
+  const locale = useCurrentLocale(i18nConfig);
+  const { t } = useTranslation();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState("");
   const [productData, setProductData] = useState<DataType[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [total, setTotal] = useState(0);
+  const pathname = usePathname();
   const [triggerProduct, setTriggerProduct] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [mode, setMode] = useState("ADD");
   const [id, setId] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
-  const locale = useCurrentLocale(i18nConfig);
 
-  interface DataType {
-    id: number;
-    code: string;
-    name: string;
-    brandId: number;
-    price: number;
-    navStock: number;
-    portalStock: number;
-    minisizeId?: number;
-    promotionId?: number;
-    years: JSON;
-    lv1Id?: number;
-    lv2Id?: number;
-    lv3Id?: number;
-    brand?: {
-      name: string;
-    };
-    minisize?: {
-      name: string;
-      lv1?: any;
-      lv2?: any;
-      lv3?: any;
-    };
-    promotion?: {
-      name: string;
-    };
-    imageProducts?: { url: string }[];
-    lv1Name: string ;
-    lv2Name: string ;
-    lv3Name: string ;
+  useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
+    fetchData();
+  }, [searchText, currentPage]);
+
+  async function fetchData() {
+    setLoadPage(true);
+    try {
+      const { data } = await axios.get(`/api/adminProduct`, {
+        params: {
+          q: searchText,
+          page: currentPage,
+          pageSize: pageSize,
+        },
+      });
+
+      // Add 'key' to each product
+      const productDataWithKeys = data.products.map(
+        (product: DataType, index: number) => ({
+          ...product,
+          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+        })
+      );
+      setProductData(productDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      console.log(error)
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
   }
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: t("no"),
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Code",
+      title: t("code"),
       dataIndex: "code",
       key: "code",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.code.localeCompare(b.code),
     },
     {
-      title: "Name",
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "หมวดหมู่",
+      title: t("category"),
       dataIndex: "productCount",
       key: "productCount",
       render: (_, { lv1Name, lv2Name, lv3Name }) => (
@@ -108,7 +147,7 @@ export default function adminProduct({ params }: { params: { id: number } }) {
       ),
     },
     {
-      title: "โปรโมชั่น",
+      title: t("promotion"),
       dataIndex: "promotionName",
       key: "promotionName",
       defaultSortOrder: "descend",
@@ -120,13 +159,13 @@ export default function adminProduct({ params }: { params: { id: number } }) {
       render: (_, record) => <p>{record?.promotion?.name}</p>,
     },
     {
-      title: "คลังสินค้า",
+      title: t("stock"),
       dataIndex: "portalStock",
       key: "portalStock",
       sorter: (a, b) => a.portalStock - b.portalStock,
     },
     {
-      title: "Action",
+      title: t("action"),
       key: "action",
       render: (_, record) => (
         <div className="flex">
@@ -135,55 +174,12 @@ export default function adminProduct({ params }: { params: { id: number } }) {
             onClick={showModal(true, record.id)}
           >
             <Cog6ToothIcon className="w-4 mr-0.5" />
-            <span>Setting</span>
+            <span>{t("setting")}</span>
           </p>
         </div>
       ),
     },
   ];
-
-  useEffect(() => {
-    axios
-      .get(`/api/adminProduct?q=${searchText}`)
-      .then((response) => {
-        const useProduct = response.data.map((product: DataType) => ({
-          key: product.id,
-          id: product.id,
-          code: product.code,
-          name: product.name,
-          brandId: product.brandId,
-          price: product.price,
-          navStock: product.navStock,
-          portalStock: product.portalStock,
-          minisizeId: product.minisizeId,
-          promotionId: product.promotionId,
-          years: product.years,
-          lv1Id: product.lv1Id,
-          lv2Id: product.lv2Id,
-          lv3Id: product.lv3Id,
-          brand: {
-            name: product?.brand?.name,
-          },
-          minisize: {
-            name: product?.minisize?.name,
-            lv1: product?.minisize?.lv1,
-            lv2: product?.minisize?.lv2,
-            lv3: product?.minisize?.lv3,
-          },
-          promotion: {
-            name: product?.promotion?.name,
-          },
-          imageProducts: product?.imageProducts,
-          lv1Name: product.lv1Name,
-          lv2Name: product.lv2Name,
-          lv3Name: product.lv3Name,
-        }));
-        setProductData(useProduct);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  }, [searchText, triggerProduct]);
 
   function showModal(isShow: boolean, idProduct: number) {
     return () => {
@@ -196,7 +192,15 @@ export default function adminProduct({ params }: { params: { id: number } }) {
       }
     };
   }
-  const { t } = useTranslation();
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  if (loadPage || !t) {
+    return <Loading />;
+  }
 
   return (
     <div className="px-12">
@@ -210,10 +214,11 @@ export default function adminProduct({ params }: { params: { id: number } }) {
           </div>
           <div className="flex">
             <Input.Search
-              placeholder="Search"
+              placeholder={t("search")}
               size="middle"
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
+              value={searchText}
             />
             <Button
               className="bg-comp-red button-backend ml-4"
@@ -224,7 +229,7 @@ export default function adminProduct({ params }: { params: { id: number } }) {
                 setIsSyncing(true); // Set loading to true when the button is clicked
                 try {
                   const response = await axios.get("/api/fetchProducts");
-                  toastSuccess("Sync product successfully");
+                  toastSuccess(t("Sync product successfully"));
                   setTriggerProduct(!triggerProduct);
                 } catch (error: any) {
                   toastError(error);
@@ -233,11 +238,18 @@ export default function adminProduct({ params }: { params: { id: number } }) {
                 }
               }}
             >
-              Sync
+              {t("Sync")}
             </Button>
           </div>
         </div>
-        <DataTable columns={columns} data={productData}></DataTable>
+        <DataTable
+          columns={columns}
+          data={productData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
 
         <ModalProduct
           isModalVisible={isModalVisible}

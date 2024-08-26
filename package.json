@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "i18nexus pull && next dev",
-    "build": "i18nexus pull && next build",
-    "start": "i18nexus pull && next start",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "next lint",
     "seed-dev": "ts-node seeds/seed-dev.ts",
     "seed-prod": "ts-node seeds/seed-prod.ts",
@@ -19,7 +19,8 @@
     "fetch-family": "node lib/web/utils/fetchFamily.mjs",
     "fetch-group-type": "node lib/web/utils/fetchGroupType.mjs",
     "fetch-products": "node lib/web/utils/fetchProducts.mjs",
-    "update-products": "node lib/web/utils/updateProductImg.mjs"
+    "update-products": "node lib/web/utils/updateProductImg.mjs",
+    "update-lot": "node lib/web/utils/updateLot.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",

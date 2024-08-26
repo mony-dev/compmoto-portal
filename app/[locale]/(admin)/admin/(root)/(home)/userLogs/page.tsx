@@ -20,11 +20,13 @@ import { useTranslation } from "react-i18next";
 
 export default function userLogs() {
   const { t } = useTranslation();
-  const [loading, setLoading ] = useState(true);
-  const {setI18nName} = useCart();
+  const {setI18nName, setLoadPage, loadPage} = useCart();
   const pathname = usePathname();
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [total, setTotal] = useState(0);
   const [userLogData, setUserLogData] = useState<DataLogType[]>([]);
 
   interface DataLogType {
@@ -39,33 +41,33 @@ export default function userLogs() {
 
   const columns: ColumnsType<DataLogType> = [
     {
-      title: "ID",
+      title: t('no'),
       dataIndex: "key",
       key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => b.key - a.key
+      sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "IP Address",
+      title: t("IP Address"),
       dataIndex: "ipAddress",
       key: "ipAddress",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.ipAddress.localeCompare(b.ipAddress),
     },
     {
-      title: "User Email",
+      title: t("User Email"),
       dataIndex: "userEmail",
       key: "userEmail",
       sorter: (a, b) => a.userEmail.length - b.userEmail.length, 
     },
     {
-      title: "User name",
+      title: t("User name"),
       dataIndex: "userName",
       key: "userName",
       sorter: (a, b) => a.userName.length - b.userName.length,
     },
     {
-      title: "Created At",
+      title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
       sorter: (a, b) => a.createdAt.valueOf() - b.createdAt.valueOf(),
@@ -74,36 +76,45 @@ export default function userLogs() {
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    setI18nName(lastPart)
-    async function fetchData() {
-      try {
-        const [userLogResponse] = await Promise.all([
-          axios
-            .get(`/api/userLogs?q=${searchText}`)
-            .then((response) => {
-              const userLogData = response.data.map((userLog: DataLogType, index: number) => ({
-                key: index + 1,
-                id: userLog.id,
-                ipAddress: userLog.ipAddress,
-                userEmail: userLog.user.email,
-                userName: userLog.user.name,
-                createdAt: userLog.createdAt
-              }));
-
-              setUserLogData(userLogData);
-            }),
-        ]);
-      } catch (error: any) {
-        toastError(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
+    setI18nName(lastPart);
     fetchData();
-  }, [searchText]);
+  }, [searchText, currentPage]);
 
-  if (loading || !t) {
+  async function fetchData() {
+    setLoadPage(true);
+    try {
+      const { data } = await axios.get(`/api/userLogs`, {
+        params: {
+          q: searchText,
+          page: currentPage,
+          pageSize: pageSize,
+        },
+      });
+
+      const userDataWithKeys = data.userLogs.map(
+        (user: DataLogType, index: number) => ({
+          ...user,
+          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+        })
+      );
+
+      setUserLogData(userDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
+
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  if (loadPage || !t) {
     return (
       <Loading/>
     );
@@ -116,10 +127,10 @@ export default function userLogs() {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">ตั้งค่าผู้ใช้งาน</p>
+          <p className="text-lg font-semibold pb-4 grow">{t("User Logs")}</p>
           <div className="flex">
             <Input.Search
-              placeholder="Search"
+              placeholder={t("Search")}
               size="middle"
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
@@ -127,7 +138,14 @@ export default function userLogs() {
           </div>
         </div>
 
-        <DataTable columns={columns} data={userLogData}></DataTable>
+        <DataTable
+          columns={columns}
+          data={userLogData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

@@ -146,7 +146,7 @@ const ModalProduct = ({
     const fetchPromotions = async () => {
       try {
         const response = await axios.get("/api/promotion/");
-        const promotions = response.data.map((promotion: any) => ({
+        const promotions = response.data.promotions.map((promotion: any) => ({
           value: promotion.id,
           label: promotion.name,
         }));
@@ -159,7 +159,7 @@ const ModalProduct = ({
     const fetchMinisizes = async () => {
       try {
         const response = await axios.get("/api/minisize/");
-        setMinisizeOptions(response.data);
+        setMinisizeOptions(response.data.minisizes);
       } catch (error: any) {
         toastError(error.message);
       }
@@ -175,6 +175,7 @@ const ModalProduct = ({
         (item: { id: number }) => item.id === id
       );
       if (product) {
+        console.log("product", product)
         setEditProductData(product);
         // Set form values
         setValue("portalStock", product.portalStock);
@@ -257,7 +258,7 @@ const ModalProduct = ({
         );
         setTriggerProduct(!triggerProduct);
         setTrigger(!trigger);
-        toastSuccess("Product updated successfully");
+        toastSuccess(t("Product updated successfully"));
         setIsModalVisible(false)
         router.replace(`/${locale}/admin/adminProduct`);
       } catch (error: any) {
@@ -265,7 +266,11 @@ const ModalProduct = ({
       }
     }
   };
-
+  const stringToBoolean = (index: number): boolean => {
+    const foundObject = fields[index];
+    return foundObject.isDisable;
+  };
+  
   return (
     <Modal
       title={editProductData?.name}
@@ -278,13 +283,13 @@ const ModalProduct = ({
       footer={false}
       className="product-modal"
     >
-      <h2 className="font-semibold">สินค้า</h2>
+      <h2 className="font-semibold">{t("Product")}</h2>
       <hr className="my-2" />
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
         <div className="flex flex-col"></div>
         <div className="flex w-full pb-2">
           <div className="pl-2 basis-full">
-            <label>ชื่อสินค้า</label>
+            <label>{t("name")}</label>
             <Input
               name="name"
               value={editProductData?.name}
@@ -295,7 +300,7 @@ const ModalProduct = ({
         </div>
         <div className="flex w-full pb-2">
           <div className="basis-1/2 pl-2">
-            <label>รหัสสินค้า</label>
+            <label>{t("code")}</label>
             <Input
               name="code"
               value={editProductData?.code}
@@ -304,7 +309,7 @@ const ModalProduct = ({
             />
           </div>
           <div className="basis-1/2 pl-2">
-            <label>ราคา</label>
+            <label>{t("price")}</label>
             <Input
               name="price"
               value={editProductData?.price}
@@ -315,7 +320,7 @@ const ModalProduct = ({
         </div>
         <div className="flex w-full pb-2">
           <div className="basis-1/2 pl-2">
-            <label>Brand</label>
+            <label>{t("Brand")}</label>
             <Input
               name="brand"
               value={editProductData?.brand?.name}
@@ -324,7 +329,7 @@ const ModalProduct = ({
             />
           </div>
           <div className="basis-1/2 pl-2">
-            <label>Nav Stock</label>
+            <label>{t('Nav Stock')}</label>
             <Input
               name="navStock"
               value={editProductData?.navStock}
@@ -335,10 +340,10 @@ const ModalProduct = ({
           <div className="basis-1/2 pl-2">
             <Form.Item
               name="portalStock"
-              label="portal stock"
+              label={t("portal stock")}
               className="switch-backend basis-1/2"
               required
-              tooltip="This is a required field"
+              tooltip={t('this_is_a_required_field')}
               help={errors.portalStock?.message}
               validateStatus={errors.portalStock ? "error" : ""}
             >
@@ -348,7 +353,7 @@ const ModalProduct = ({
                 render={({ field }) => (
                   <InputNumber
                     {...field}
-                    placeholder="portal stock"
+                    placeholder={t("portal stock")}
                     className="w-full"
                   />
                 )}
@@ -356,11 +361,11 @@ const ModalProduct = ({
             </Form.Item>
           </div>
         </div>
-        <h2 className="font-semibold">คุณสมบัติ</h2>
+        <h2 className="font-semibold">{t("property")}</h2>
         <hr className="my-2" />
         <div className="flex w-full pb-2">
           <div className="basis-1/2 pl-2">
-            <label>Minisize</label>
+            <label>{t("minisize")}</label>
             <Input
               name="minisize"
               value={editProductData?.minisize?.name}
@@ -371,7 +376,7 @@ const ModalProduct = ({
           <div className="basis-1/2 pl-2">
             <Form.Item
               name="promotionId"
-              label="promotion"
+              label={t("promotion")}
               className="switch-backend basis-1/2"
             >
               <Controller
@@ -381,7 +386,7 @@ const ModalProduct = ({
                   <Select
                     {...field}
                     showSearch
-                    placeholder="Select a promotion"
+                    placeholder={t("Select a promotion")}
                     filterOption={(input, option) =>
                       (option?.label ?? "")
                         .toLowerCase()
@@ -394,7 +399,7 @@ const ModalProduct = ({
             </Form.Item>
           </div>
         </div>
-        <h2 className="font-semibold">หมวดหมู่</h2>
+        <h2 className="font-semibold">{t("category")}</h2>
         <hr className="my-2" />
         <div className="flex w-full pb-2">
           <div className="basis-1/2 pl-2">
@@ -410,7 +415,7 @@ const ModalProduct = ({
                   <Select
                     {...field}
                     showSearch
-                    placeholder="Select a category"
+                    placeholder={t("Select a category")}
                     filterOption={(input, option) =>
                       (option?.label ?? "")
                         .toLowerCase()
@@ -435,7 +440,7 @@ const ModalProduct = ({
                   <Select
                     {...field}
                     showSearch
-                    placeholder="Select a category"
+                    placeholder={t("Select a category")}
                     filterOption={(input, option) =>
                       (option?.label ?? "")
                         .toLowerCase()
@@ -460,7 +465,7 @@ const ModalProduct = ({
                   <Select
                     {...field}
                     showSearch
-                    placeholder="Select a category"
+                    placeholder={t("Select a category")}
                     filterOption={(input, option) =>
                       (option?.label ?? "")
                         .toLowerCase()
@@ -475,7 +480,7 @@ const ModalProduct = ({
         </div>
         <div className="flex flex-row">
           <div className="sec1 basis-6/12">
-            <h2 className="font-semibold">ปียาง</h2>
+            <h2 className="font-semibold">{t("Year lot")}</h2>
             <hr className="my-2" />
             <div className="year">
               {fields.map((field, index) => (
@@ -488,7 +493,7 @@ const ModalProduct = ({
                       control={control}
                       name={`years.${index}.isActive`}
                       render={({ field }) => (
-                        <Checkbox {...field} checked={field.value} />
+                        <Checkbox {...field} checked={field.value} disabled={stringToBoolean(index)}/>
                       )}
                     />
                   </Form.Item>
@@ -507,7 +512,7 @@ const ModalProduct = ({
                     />
                   </Form.Item>
                   <Form.Item
-                    label="ส่วนลด"
+                    label={t("discount")}
                     layout="horizontal"
                     className="mr-2"
                   >
@@ -523,6 +528,7 @@ const ModalProduct = ({
                             value ? parseFloat(value.replace("%", "")) : 0
                           }
                           className="w-full"
+                          disabled={stringToBoolean(index)}
                         />
                       )}
                     />
@@ -532,9 +538,9 @@ const ModalProduct = ({
             </div>
           </div>
           <div className="sec2 basis-6/12">
-            <h2 className="font-semibold">รูปสินค้า</h2>
+            <h2 className="font-semibold">{t("Product Image")}</h2>
             <hr className="my-2" />
-            <Form.Item name="image" label="Upload Image">
+            <Form.Item name="image" label={t("Upload Image")}>
               <Controller
                 control={control}
                 name="imageProducts"
@@ -593,7 +599,7 @@ const ModalProduct = ({
             htmlType="submit"
             className="bg-comp-red button-backend"
           >
-            Submit
+            {t('Submit')}
           </Button>
         </Form.Item>
       </Form>

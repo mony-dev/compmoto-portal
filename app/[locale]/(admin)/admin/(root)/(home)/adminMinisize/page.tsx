@@ -1,5 +1,5 @@
 "use client";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
 import {
   PencilSquareIcon,
@@ -16,25 +16,28 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
-const Loading = dynamic(() => import('@components/Loading'));
-const DataTable = dynamic(() => import('@components/Admin/Datatable'));
-const ModalMinisize = dynamic(() => import('@components/Admin/minisize/ModalMinisize'));
+const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
+const ModalMinisize = dynamic(
+  () => import("@components/Admin/minisize/ModalMinisize")
+);
 
 export default function adminMinisize({ params }: { params: { id: number } }) {
   const locale = useCurrentLocale(i18nConfig);
-  const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
-  const {setI18nName} = useCart();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [total, setTotal] = useState(0);
   const [minisizeData, setMinisizeData] = useState<DataType[]>([]);
   const [triggerMinisize, setTriggerMinisize] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [mode, setMode] = useState("ADD");
   const [id, setId] = useState(0);
-  const [title, setTitle] = useState("ตั้งค่ามินิไซต์");
-
+  const [title, setTitle] = useState(t("setting_minisize"));
 
   interface DataType {
     id: number;
@@ -49,14 +52,13 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
     imageProfile: string;
   }
 
-
   const deleteMinisize = (id: number) => {
     Modal.confirm({
-      title: "Are you sure you want to delete this minisize?",
-      content: "This action cannot be undone.",
-      okText: "Yes",
+      title: t("are_you_sure_you_want_to_delete_this_minisize"),
+      content: t("this_action_cannot_be_undone"),
+      okText: t("yes"),
       okType: "danger",
-      cancelText: "No",
+      cancelText: t("cancel"),
       onOk: async () => {
         try {
           const response = await axios.delete(`/api/adminMinisize/${id}`, {
@@ -66,7 +68,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
           });
           setTriggerMinisize(!triggerMinisize);
           router.replace(`/${locale}/admin/adminMinisize`);
-          toastSuccess("Minisize deleted successfully");
+          toastSuccess(t("minisize_deleted_successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
         }
@@ -76,27 +78,27 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: t('no'),
+      title: t("no"),
       dataIndex: "key",
       key: "key",
       defaultSortOrder: "descend",
       sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Name",
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "สินค้า",
+      title: t("product"),
       dataIndex: "productCount",
       key: "productCount",
       sorter: (a, b) => a.productCount - b.productCount,
     },
     {
-      title: "แสดง",
+      title: t("show"),
       key: "isActive",
       dataIndex: "isActive",
       sorter: (a: DataType, b: DataType) =>
@@ -105,15 +107,15 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
         <div className="switch-backend">
           <Switch
             checked={isActive}
-            checkedChildren="Active"
-            unCheckedChildren="Inactive"
+            checkedChildren={t("active")}
+            unCheckedChildren={t("inactive")}
             disabled
           />
         </div>
       ),
     },
     {
-      title: "Action",
+      title: t("action"),
       key: "action",
       render: (_, record) => (
         <div className="flex">
@@ -122,7 +124,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
             onClick={showModal(true, record.id)}
           >
             <PencilSquareIcon className="w-4 mr-0.5" />
-            <span>Edit</span>
+            <span>{t("edit")}</span>
           </p>
           |
           <p
@@ -130,44 +132,47 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
             onClick={() => deleteMinisize(record.id)}
           >
             <TrashIcon className="w-4 mr-0.5" />
-            <span>Delete</span>
+            <span>{t("delete")}</span>
           </p>
         </div>
       ),
     },
   ];
 
-
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    setI18nName(lastPart)
-    async function fetchData() {
-      try {
-        const [minisizeResponse] = await Promise.all([
-          axios
-            .get(`/api/adminMinisize?q=${searchText}`)
-            .then((response) => {
-              const minisizeDate = response.data.map((mini: DataType, index: number) => ({
-                ...mini,
-                key: index + 1,
-              }));
-
-              setMinisizeData(minisizeDate);
-            }),
-        ]);
-      } catch (error: any) {
-        toastError(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
+    setI18nName(lastPart);
     fetchData();
-  }, [searchText, triggerMinisize]);
+  }, [searchText, currentPage]);
+  async function fetchData() {
+    setLoadPage(true);
+    try {
+      const { data } = await axios.get(`/api/adminMinisize`, {
+        params: {
+          q: searchText,
+          page: currentPage,
+          pageSize: pageSize,
+        },
+      });
 
+      const minisizeDataWithKeys = data.minisizes.map(
+        (mini: DataType, index: number) => ({
+          ...mini,
+          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+        })
+      );
+
+      setMinisizeData(minisizeDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
 
   useEffect(() => {
-    isModalVisible ? setMode('EDIT') : setMode('ADD');
+    isModalVisible ? setMode("EDIT") : setMode("ADD");
   }, [isModalVisible]);
 
   function showModal(isShow: boolean, idReward: number) {
@@ -176,18 +181,23 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
       setId(idReward);
       if (idReward === 0) {
         setMode("ADD");
-        setTitle("ตั้งค่ามินิไซต์");
+        setTitle(t("setting_minisize"));
       } else {
         setMode("EDIT");
-        setTitle("แก้ไขมินิไซต์");
+        setTitle(t("edit_minisize"));
       }
     };
   }
-  
-  if (loading || !t) {
-    return (
-      <Loading/>
-    );
+
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  if (loadPage || !t) {
+    return <Loading />;
   }
 
   return (
@@ -204,10 +214,11 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
           </div>
           <div className="flex">
             <Input.Search
-              placeholder="Search"
+              placeholder={t("search")}
               size="middle"
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
+              value={searchText}
             />
             <Button
               className="bg-comp-red button-backend ml-4"
@@ -215,12 +226,18 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
               icon={<PlusIcon className="w-4" />}
               onClick={showModal(true, 0)}
             >
-              Add
+              {t("add")}
             </Button>
           </div>
         </div>
-        <DataTable columns={columns} data={minisizeData}></DataTable>
-
+        <DataTable
+          columns={columns}
+          data={minisizeData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
         <ModalMinisize
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

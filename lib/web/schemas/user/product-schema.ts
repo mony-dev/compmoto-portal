@@ -8,6 +8,8 @@ export const yearSchema = z.object({
   year: z.string().nullable().optional(),
   discount: z.number().nullable().optional(),
   isActive: z.boolean(),
+  isDisable: z.boolean()
+
 });
 
 export const productSchema = z.object({

@@ -4,6 +4,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Image } from "antd";
 import { PaperClipIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { string } from "zod";
+import { useTranslation } from "react-i18next";
 
 export type ImageData = string | { url: string }[];
 
@@ -27,6 +28,7 @@ const UploadRewardImage = ({
   multiple,
   id,
 }: imageProps) => {
+  const { t } = useTranslation();
   const [imageUrl, setImageUrl] = useState<string | { url: string }[] | null>();
   const [uploadedImageInfo, setUploadedImageInfo] = useState<CloudinaryUploadWidgetInfo | null>(null);
   useEffect(() => {
@@ -90,7 +92,7 @@ const UploadRewardImage = ({
         <>
           <div>
             {(!imageUrl || Array.isArray(imageUrl)) && (
-              <Button onClick={() => open()}>Click to upload</Button>
+              <Button onClick={() => open()}>{t('Click to upload')}</Button>
             )}
           </div>
           {imageUrl && !Array.isArray(imageUrl) && (
