@@ -1,26 +1,15 @@
 "use client";
-import {
-  CheckIcon,
-  PaperClipIcon,
-  PhotoIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { rewardSchema, RewardSchema } from "@lib-schemas/user/reward-schema";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import {
   Button,
   Col,
-  DatePicker,
-  DatePickerProps,
   Form,
   Input,
   InputNumber,
   Modal,
   Row,
-  Space,
-  Switch,
-  Upload,
 } from "antd";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -30,6 +19,7 @@ import styled from "styled-components";
 import tw from "twin.macro";
 import UploadRewardImage from "../UploadRewardImage";
 import DatePickers from "../DatePickers";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   isModalVisible: boolean;
@@ -75,7 +65,7 @@ const ModalReward = ({
   } = useForm<RewardSchema>({
     resolver: zodResolver(rewardSchema),
   });
-
+  const { t } = useTranslation();
   const [triggera, setTriggera] = useState(false);
   const [image, setImage] = useState<string | { url: string }[]>([]);
   const [file, setFile] = useState<string>();
@@ -138,8 +128,7 @@ const ModalReward = ({
           }
         );
         setIsModalVisible(false);
-        toastSuccess("Category updated successfully");
-        // router.replace("/admin/adminRewardCategory");
+        toastSuccess(t("Reward updated successfully"));
       } catch (error: any) {
         toastError(error.message);
       }
@@ -164,8 +153,7 @@ const ModalReward = ({
         );
 
         setIsModalVisible(false);
-        toastSuccess("Category reward successfully");
-        // router.replace("/admin/adminRewardCategory");
+        toastSuccess(t("Reward created successfully"));
       } catch (error: any) {
         toastError(error.message);
       }
@@ -195,10 +183,10 @@ const ModalReward = ({
         >
           <Form.Item
             name="image"
-            label="Upload Image"
+            label={t("Upload Image")}
             required
-            tooltip="This is a required field"
-            help={errors.image && "Please upload reward image"}
+            tooltip={t("This is a required field")}
+            help={errors.image && t("Please upload reward image")}
             validateStatus={errors.image ? "error" : ""}
           >
             <Controller
@@ -217,10 +205,10 @@ const ModalReward = ({
           </Form.Item>
           <Form.Item
             name="name"
-            label="Name"
+            label={t("Name")}
             required
-            tooltip="This is a required field"
-            help={errors.name && "Please enter reward name"}
+            tooltip={t("This is a required field")}
+            help={errors.name && t("Please enter reward name")}
             validateStatus={errors.name ? "error" : ""}
           >
             <Controller
@@ -233,10 +221,10 @@ const ModalReward = ({
           </Form.Item>
           <Form.Item
             name="point"
-            label="Point"
+            label={t("Point")}
             required
-            tooltip="This is a required field"
-            help={errors.point && "Please enter reward point"}
+            tooltip={t("This is a required field")}
+            help={errors.point && t("Please enter reward point")}
             validateStatus={errors.point ? "error" : ""}
           >
             <Controller
@@ -256,12 +244,12 @@ const ModalReward = ({
             <Col span={12}>
               <Form.Item
                 name="startDate"
-                label="Start Date"
+                label={t("Start Date")}
                 required
-                tooltip="This is a required field"
+                tooltip={t("This is a required field")}
               >
                 <DatePickers
-                  placeholder="Start Date"
+                  placeholder={t("Start Date")}
                   name="startDate"
                   control={control}
                 />
@@ -270,12 +258,12 @@ const ModalReward = ({
             <Col span={12}>
               <Form.Item
                 name="endDate"
-                label="End Date"
+                label={t("End Date")}
                 required
-                tooltip="This is a required field"
+                tooltip={t("This is a required field")}
               >
                 <DatePickers
-                  placeholder="End Date"
+                  placeholder={t("End Date")}
                   name="endDate"
                   control={control}
                 />
@@ -284,10 +272,10 @@ const ModalReward = ({
           </Row>
           <Form.Item
             name="file"
-            label="Upload File"
+            label={t("Upload Image")}
             required
-            tooltip="This is a required field"
-            help={errors.file && "Please upload reward file"}
+            tooltip={t("This is a required field")}
+            help={errors.file && t("Please upload reward file")}
             validateStatus={errors.file ? "error" : ""}
           >
             <Controller
@@ -310,7 +298,7 @@ const ModalReward = ({
               htmlType="submit"
               className="bg-comp-red button-backend"
             >
-              Submit
+              {t("Submit")}
             </Button>
           </Form.Item>
         </Form>

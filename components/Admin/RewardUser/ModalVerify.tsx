@@ -106,7 +106,7 @@ const ModalVerify = ({
         },
       });
       setIsModalVisible(false);
-      toastSuccess("Category updated successfully");
+      toastSuccess(t("Redeem updated successfully"));
       router.replace(`/${locale}/admin/adminRewardOrder`);
     } catch (error: any) {
       toastError(error.message);
@@ -128,7 +128,7 @@ const ModalVerify = ({
         footer={false}
       >
         <div className="flex w-full py-2">
-          <label className="basis-3/12">รหัสลูกค้า</label>
+          <label className="basis-3/12">{t("Customer No")}</label>
           <Input
             value={verifyData?.user?.custNo || ""}
             name="custNo"
@@ -136,7 +136,7 @@ const ModalVerify = ({
           />
         </div>
         <div className="flex w-full pb-2">
-          <label className="basis-3/12">ชื่อ</label>
+          <label className="basis-3/12">{t("Name")}</label>
           <Input
             name="name"
             value={verifyData?.user?.contactName || ""}
@@ -144,7 +144,7 @@ const ModalVerify = ({
           />
         </div>
         <div className="flex w-full pb-2">
-          <label className="basis-3/12">รางวัลที่แลก</label>
+          <label className="basis-3/12">{t("Redeem")}</label>
           <Input
             name="reward"
             disabled
@@ -152,7 +152,7 @@ const ModalVerify = ({
           />
         </div>
         <div className="flex w-full pb-2">
-          <label className="basis-3/12">คะแนนที่ใช้</label>
+          <label className="basis-3/12">{t("Usage Point")}</label>
           <Input
             name="point"
             disabled
@@ -161,7 +161,7 @@ const ModalVerify = ({
           />
         </div>
         <div className="flex w-full">
-          <label className="basis-3/12">วันที่แลก</label>
+          <label className="basis-3/12">{t("Redeem Date")}</label>
           <Input
             name="createdDate"
             disabled
@@ -181,7 +181,7 @@ const ModalVerify = ({
           >
             <Form.Item
               name="isComplete"
-              label="สถานะ"
+              label={t("Status")}
               className="switch-backend"
             >
               <Controller
@@ -190,8 +190,8 @@ const ModalVerify = ({
                 render={({ field }) => (
                   <Switch
                     {...field}
-                    checkedChildren="ตรวจสอบแล้ว"
-                    unCheckedChildren="กำลังตรวจสอบ"
+                    checkedChildren={t("Verified")}
+                    unCheckedChildren={t("Reviewing")}
                     defaultChecked={false}
                     disabled={verifyData?.isComplete}
                   />
@@ -205,7 +205,7 @@ const ModalVerify = ({
                   htmlType="submit"
                   className="bg-comp-red button-backend"
                 >
-                  Submit
+                  {t("Submit")}
                 </Button>
               </Form.Item>
             )}
@@ -229,7 +229,7 @@ const ModalVerify = ({
                 >
                   <div className="flex justify-center text-sm dedault-font">
                     <p className="pr-2 text-comp-red default-font">
-                      รายละเอียด
+                       {t("Details")}
                     </p>{" "}
                     <svg
                       className="self-center"
@@ -299,7 +299,7 @@ const ModalVerify = ({
                 {t("travel_trip")}
               </p>
               <p className="text-xl default-font text-comp-red">
-                {verifyData?.reward.point} คะแนน
+                {verifyData?.reward.point} {t("Point")}
               </p>
             </div>
             <p className="text-sm default-font">{verifyData?.reward.name}</p>

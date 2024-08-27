@@ -58,7 +58,7 @@ export default function Admin({ params }: { params: { id: number } }) {
 
   return (
     <>
-      <div className="px-12">
+      <div className="px-4">
         <div
           className="py-8 pl-8 rounded-lg flex flex-col bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}

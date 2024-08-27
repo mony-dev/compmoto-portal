@@ -343,12 +343,12 @@ export default function SideBar({
     <>
       <aside
         id="default-sidebar"
-        className={`bg-comp-gray-bg fixed overflow-x-auto sm:mt-0 top-0 left-0 h-screen w-full sm:w-wc-17 transition-transform z-10 pt-12 ${
+        className={`bg-comp-gray-bg overflow-x-auto h-screen w-full transition-transform z-10 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } sm:translate-x-0 flex flex-col justify-between`}
         aria-label="Sidebar"
       >
-        <div className="mt-16 overflow-y-auto font-bold hidden-scroll">
+        <div className="overflow-y-auto font-bold hidden-scroll">
           {sidebarItems.map(
             (item, index) =>
               item.forRole.includes(role) && (

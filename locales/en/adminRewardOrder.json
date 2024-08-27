@@ -1,1 +1,24 @@
-{"my_travel_trip":"My travel trip"}
+{
+    "my_travel_trip":"My travel trip",
+    "Reviewing": "Reviewing",
+    "Customer No": "Customer No",
+    "Name": "Name",
+    "Reward": "Reward",
+    "Point": "Point",
+    "Quantity": "Quantity",
+    "Date": "Date",
+    "Action": "Action",
+    "Verify": "Verify",
+    "Verified": "Verified",
+    "Reward List": "Reward List",
+    "Redeem updated successfully": "Redeem updated successfully",
+    "Redeem": "Redeem",
+    "Usage Point": "Usage Point",
+    "Redeem Date": "Redeem Date",
+    "Status": "Status",
+    "Submit": "Submit",
+    "Details": "Details",
+    "Search": "Search",
+    "Redeem Verify": "Redeem Verify",
+    "Album deleted successfully": "Album deleted successfully"
+}

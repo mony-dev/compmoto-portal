@@ -108,7 +108,7 @@ const Product = () => {
   const { t } = useTranslation();
   const { data: session, status } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(15);
+  const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [promotiondData, setPromotionData] = useState<PromotionDataType[]>([]);
   const searchParams = useSearchParams();
@@ -620,7 +620,7 @@ const Product = () => {
   };
 
   return (
-    <div className="px-12">
+    <div className="px-4">
       <div className="px-4 pb rounded-lg">
         <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 promotion-card pb-4">
           {promotiondData &&

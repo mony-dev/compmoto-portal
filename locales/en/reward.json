@@ -1,1 +1,19 @@
-{"my_travel_trip":"My travel trip","travel_trip":"Travel trip"}
+{
+    "my_travel_trip":"My travel trip",
+    "travel_trip":"Travel trip",
+    "your_point": "ํYour Point",
+    "Point": "Point",
+    "Download itinerary file": "Download itinerary file",
+    "Detail": "Detail",
+    "Amount": "Amount",
+    "This is a required field": "This is a required field",
+    "Please enter reward point": "Please enter reward point",
+    "Redeem": "Redeem",
+    "Reward Redemption": "Reward Redemption",
+    "Expired": "Expired",
+    "Ticket": "Ticket",
+    "Amount cannot be zero": "Amount cannot be zero",
+    "Your point not enough": "Your point not enough",
+    "Redeem successfully": "Redeem successfully",
+    "Please login before redeem": "Please login before redeem"
+}

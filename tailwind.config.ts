@@ -46,7 +46,8 @@ module.exports = withMT({
         "comp-red-reward": "#E34F58",
         "comp-disable-input": "#f5f5f5",
         "comp-red-price": "#A62129",
-        "comp-text-filter": "rgba(144, 154, 170, 1)"
+        "comp-text-filter": "rgba(144, 154, 170, 1)",
+        "travel": "#181E4B"
       },
       flex: {
         "1-auto": "1 0 auto",
@@ -71,6 +72,9 @@ module.exports = withMT({
       },
       width: {
         'wc-17': '17rem'
+      },
+      zIndex: {
+        'm2': '-2',
       }
     },
   },

@@ -123,9 +123,8 @@ export function formatDate(date: string) {
   const start = new Date(date);
 
   const startDay = start.getUTCDate();
-  const month = start.getUTCMonth();
+  const month = start.getUTCMonth() + 1;
   const year = start.getUTCFullYear();
-
   return `${startDay}-${month}-${year}`;
 }
 

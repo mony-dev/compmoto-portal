@@ -46,6 +46,8 @@ model User {
   userRewards        UserReward[]     
   cart               Cart?
   orders             Order[]     
+  invoices           Invoice[]     
+
   @@index([id])
   @@map("users")
 }
@@ -87,7 +89,7 @@ model Image {
   id          Int           @id @default(autoincrement())
   url        String
   rewardAlbumId Int
-  rewardAlbum  RewardAlbum @relation(fields: [rewardAlbumId], references: [id])
+  rewardAlbum  RewardAlbum? @relation(fields: [rewardAlbumId], references: [id], onDelete: Cascade) 
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
 }
@@ -258,6 +260,7 @@ model Product {
   imageProducts    ImageProduct[]
   cartItems     CartItem[] 
   orderItems     OrderItem[] 
+  invoiceItems     InvoiceItem[] 
 }
 
 model Promotion {
@@ -380,4 +383,36 @@ model News {
   minisize      Minisize @relation(fields: [minisizeId], references: [id])
   coverImg      String
   content       String
+}
+
+model Invoice {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  document    String
+  date        DateTime     
+  total       Float
+  items       InvoiceItem[]
+  totalPrice  Float
+  subTotal    Float
+  groupDiscount  Int
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+
+model InvoiceItem {
+  id         Int     @id @default(autoincrement())
+  invoiceId    Int
+  invoice      Invoice   @relation(fields: [invoiceId], references: [id])
+  productId  Int
+  product   Product  @relation(fields: [productId], references: [id])
+  amount     Int
+  price      Float
+  discount   Int
+  discountPrice Float
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@unique([invoiceId, productId])
 }

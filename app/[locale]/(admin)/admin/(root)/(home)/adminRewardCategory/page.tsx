@@ -1,47 +1,66 @@
 "use client";
-import ModalAlbum from "@components/Admin/category/ModalAlbum";
-import DataTable from "@components/Admin/Datatable";
-import ModalCategory from "@components/Admin/rewardCategory/ModalCategory";
+import dynamic from "next/dynamic";
 import {
-  PencilIcon,
   PencilSquareIcon,
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import debounce from "lodash.debounce";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Form, Input, Modal, Space, Switch, Tag } from "antd";
+import { Button, Input, Modal, Switch } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
 import { Image } from "antd";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import NoImage from "@public/images/no_image.png";
+import { useTranslation } from "react-i18next";
+import { useCart } from "@components/Admin/Cartcontext";
+import { CloseCircleOutlined } from "@ant-design/icons";
+
+const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
+const ModalAlbum = dynamic(() => import("@components/Admin/category/ModalAlbum"));
+const ModalCategory = dynamic(() => import("@components/Admin/rewardCategory/ModalCategory"));
 
 export default function adminsRewardCategory({
   params,
 }: {
   params: { id: number };
 }) {
+  const { t } = useTranslation();
+  const {setI18nName, setLoadPage, loadPage} = useCart();
   const router = useRouter();
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(() => {
+    // Initialize searchText from query parameter 'q' or default to an empty string
+    const params = new URLSearchParams(window.location.search);
+    return params.get('q') || '';
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [categoryData, setCategoryData] = useState<DataType[]>([]);
   const [triggerCategory, setTriggerCategory] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [id, setId] = useState(0);
   const [cateDate, setCateData] = useState<DataType | null>(null);
   const [mode, setMode] = useState("ADD");
-  const [title, setTitle] = useState("เพิ่มหมวดหมู่");
+  const [title, setTitle] = useState(t("Add Category"));
   const [isAlbumVisible, setIsAlbumVisible] = useState(false);
   const [triggerAlbum, setTriggerAlbum] = useState(false);
   const [idAlbum, setIdAlbum] = useState(0);
-  const [titleAlbum, setTitleAlbum] = useState("เพิ่มอัลบั้นรูป");
+  const [titleAlbum, setTitleAlbum] = useState(t("Add Album"));
   const [alData, setAlData] = useState<AlbumDataType | null>(null);
   const [albumData, setAlbumData] = useState<AlbumDataType[]>([]);
   const locale = useCurrentLocale(i18nConfig);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   interface DataType {
+    key: number;
     rewardCount: any;
     rewards: any;
     id: number;
@@ -57,11 +76,11 @@ export default function adminsRewardCategory({
 
   const deleteCategory = (id: number) => {
     Modal.confirm({
-      title: "Are you sure you want to delete this category?",
-      content: "This action cannot be undone.",
-      okText: "Yes",
+      title: t("Are you sure you want to delete this category"),
+      content: t("This action cannot be undone"),
+      okText: t("Yes"),
       okType: "danger",
-      cancelText: "No",
+      cancelText: t("Cancel"),
       onOk: async () => {
         try {
           const response = await axios.delete(`/api/rewardCategories/${id}`, {
@@ -71,7 +90,30 @@ export default function adminsRewardCategory({
           });
           setTriggerCategory(!triggerCategory);
           router.replace(`/${locale}/admin/adminRewardCategory`);
-          toastSuccess("Category deleted successfully");
+          toastSuccess(t("Category deleted successfully"));
+        } catch (error: any) {
+          toastError(error.response.data.message);
+        }
+      },
+    });
+  };
+  const deleteAlbum = (id: number) => {
+    Modal.confirm({
+      title: t("Are you sure you want to delete this album"),
+      content: t("This action cannot be undone"),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("Cancel"),
+      onOk: async () => {
+        try {
+          const response = await axios.delete(`/api/adminRewardAlbum/${id}`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          setTriggerAlbum(!triggerAlbum);
+          router.replace(`/${locale}/admin/adminRewardCategory`);
+          toastSuccess(t("Album deleted successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
         }
@@ -81,14 +123,14 @@ export default function adminsRewardCategory({
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: t('no'),
+      dataIndex: "key",
+      key: "key",
       defaultSortOrder: "descend",
-      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
+      sorter: (a, b) => b.key - a.key,
     },
     {
-      title: "Name",
+      title: t('Name'),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
@@ -98,7 +140,7 @@ export default function adminsRewardCategory({
       ),
     },
     {
-      title: "แสดง",
+      title: t('Show'),
       key: "isActive",
       dataIndex: "isActive",
       sorter: (a: DataType, b: DataType) =>
@@ -107,21 +149,21 @@ export default function adminsRewardCategory({
         <div className="switch-backend">
           <Switch
             checked={isActive}
-            checkedChildren="Active"
-            unCheckedChildren="Inactive"
+            checkedChildren={t("Active")}
+            unCheckedChildren={t("Inactive")}
             disabled
           />
         </div>
       ),
     },
     {
-      title: "สินค้า",
+      title: t('Product'),
       dataIndex: "rewardCount",
       key: "rewardCount",
       sorter: (a, b) => a.rewardCount - b.rewardCount,
     },
     {
-      title: "Action",
+      title: t("Action"),
       key: "action",
       render: (_, record) => (
         <div className="flex">
@@ -130,7 +172,7 @@ export default function adminsRewardCategory({
             onClick={showModal(true, record.id)}
           >
             <PencilSquareIcon className="w-4 mr-0.5" />
-            <span>Edit</span>
+            <span>{t("Edit")}</span>
           </p>
           |
           <p
@@ -138,31 +180,72 @@ export default function adminsRewardCategory({
             onClick={() => deleteCategory(record.id)}
           >
             <TrashIcon className="w-4 mr-0.5" />
-            <span>Delete</span>
+            <span>{t("Delete")}</span>
           </p>
         </div>
       ),
     },
   ];
 
-  useEffect(() => {
-    axios
-      .get(`/api/rewardCategories?q=${searchText}`)
-      .then((response) => {
-        const useCate = response.data.map((cate: DataType) => ({
-          key: cate.id,
-          id: cate.id,
-          name: cate.name,
-          isActive: cate.isActive,
-          rewardCount: cate?.rewards.length,
-        }));
+    // Debounce function for search input
+    const debouncedFetchData = useCallback(
+      debounce(() => {
+        fetchData(searchText);
+      }, 500), // 500 ms debounce delay
+      [currentPage, pageSize]
+    );
+      
+    useEffect(() => {
+      const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+      setI18nName(lastPart);
+  
+      // Call the debounced fetch function
+      debouncedFetchData();
+  
+      // Cleanup debounce on unmount
+      return () => {
+        debouncedFetchData.cancel();
+      };
+    }, [currentPage, debouncedFetchData, triggerCategory]);
 
-        setCategoryData(useCate);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
+    useEffect(() => {
+      // Update the URL with the search query
+      const queryParams = new URLSearchParams(searchParams.toString());
+      if (searchText) {
+        queryParams.set('q', searchText);
+      } else {
+        queryParams.delete('q');
+      }
+      const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+      router.push(newUrl, undefined, { shallow: true });
+  
+    }, [searchText]);
+
+  async function fetchData(query: string = "") {
+    setLoadPage(true);
+    try {
+      const { data } = await axios.get(`/api/rewardCategories`, {
+        params: {
+          q: query,
+          page: currentPage,
+          pageSize: pageSize,
+        },
       });
-  }, [searchText, triggerCategory]);
+
+      const cateDataWithKeys = data.rewardCategories.map(
+        (cate: DataType, index: number) => ({
+          ...cate,
+          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+        })
+      );
+      setCategoryData(cateDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
 
   useEffect(() => {
     if (id > 0) {
@@ -215,10 +298,10 @@ export default function adminsRewardCategory({
       setId(idCate);
       if (idCate === 0) {
         setMode("ADD");
-        setTitle("เพิ่มหมวดหมู่");
+        setTitle(t("Add Category"));
       } else {
         setMode("EDIT");
-        setTitle("แก้ไขหมวดหมู่");
+        setTitle(t("Edit Category"));
       }
     };
   }
@@ -229,27 +312,60 @@ export default function adminsRewardCategory({
       setIdAlbum(idAlbumModal);
       if (idAlbumModal === 0) {
         setMode("ADD");
-        setTitleAlbum("เพิ่มอัลบั้นรูป");
+        setTitleAlbum(t("Add Album"));
       } else {
         setMode("EDIT");
-        setTitleAlbum("แก้ไขอัลบั้นรูป");
+        setTitleAlbum(t("Edit Album"));
       }
     };
   }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    fetchData(value); // Trigger data fetch only on search
+  };
+  const handleClear = () => {
+    setSearchText(""); // Clear the input
+    fetchData(""); // Reset the list to show all data
+  };
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  if (loadPage || !t) {
+    return (
+      <Loading/>
+    );
+  }
   return (
-    <div className="px-12">
+    <div className="px-4">
       <div
         className="py-8 px-8 rounded-lg flex flex-col bg-white"
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">หมวดหมู่แลกรางวัล</p>
+          <p className="text-lg font-semibold pb-4 grow">{t("Reward Category")}</p>
           <div className="flex">
-            <Input.Search
-              placeholder="Search"
+          <Input.Search
+              placeholder={t('search')}
               size="middle"
-              onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
+              value={searchText}
+              onSearch={handleSearch}
+              onChange={handleInputChange}
+              suffix={
+                searchText ? (
+                  <CloseCircleOutlined
+                    onClick={handleClear}
+                    style={{ cursor: "pointer" }}
+                  />
+                ) : null
+              }
             />
             <Button
               className="bg-comp-red button-backend ml-4"
@@ -257,15 +373,21 @@ export default function adminsRewardCategory({
               icon={<PlusIcon className="w-4" />}
               onClick={showModal(true, 0)}
             >
-              Add
+              {t("Add")}
             </Button>
           </div>
         </div>
 
-        <DataTable columns={columns} data={categoryData}></DataTable>
-
-        <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">อัลบั้นรูป</p>
+        <DataTable
+          columns={columns}
+          data={categoryData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
+        <div className="flex justify-between items-center pt-4">
+          <p className="text-lg font-semibold pb-4 grow">{t("Album")}</p>
         </div>
         <div className="flex">
           {albumData.map((albumItem) => (
@@ -278,10 +400,11 @@ export default function adminsRewardCategory({
                 src={albumItem.images[0]?.url ? albumItem.images[0]?.url : NoImage.src}
               />
               <p
-                className="cursor-pointer hover:text-comp-blue-primary"
-                onClick={showModalAlbum(true, albumItem.id)}
+                className=" flex justify-between"
               >
-                {albumItem.name}
+                <a className="cursor-pointer hover:text-comp-blue-primary" onClick={showModalAlbum(true, albumItem.id)}>{albumItem.name}</a>
+                <TrashIcon className="w-4 text-back cursor-pointer hover:text-comp-red"  onClick={() => deleteAlbum(albumItem.id)} />
+
               </p>
             </div>
           ))}
@@ -303,7 +426,7 @@ export default function adminsRewardCategory({
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            <span>Upload</span>
+            <span>{t("Upload")}</span>
           </div>
         </div>
         <ModalCategory

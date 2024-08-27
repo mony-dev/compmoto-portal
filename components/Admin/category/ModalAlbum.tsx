@@ -1,20 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { rewardSchema, RewardSchema } from "@lib-schemas/user/reward-schema";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import {
   Button,
-  Col,
   Form,
   Input,
-  InputNumber,
   Modal,
-  Popconfirm,
-  Row,
 } from "antd";
 import axios from "axios";
-import { Key, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import tw from "twin.macro";
@@ -59,6 +54,7 @@ const ModalAlbum = ({
     setValue,
     trigger,
     formState: { errors },
+    reset,
   } = useForm<AlbumSchema>({
     resolver: zodResolver(albumSchema),
   });
@@ -77,10 +73,7 @@ const ModalAlbum = ({
     }
   }, [trigger, alData, mode]);
 
-  // useEffect(() => {
-    
-  //   setValue("image", image);
-  // }, [image]);
+
   const handleDelete = (index: number) => {
     setImage((prevImage) => {
       const arrayImage = Array.isArray(prevImage) ? prevImage : [];
@@ -117,7 +110,6 @@ const ModalAlbum = ({
         setIsModalVisible(false);
         setTriggerAlbum(!triggerAlbum);
         toastSuccess("Album updated successfully");
-        // router.replace("/admin/adminRewardCategory");
       } catch (error: any) {
         toastError(error.message);
       }
@@ -143,6 +135,11 @@ const ModalAlbum = ({
         toastError(error.message);
       }
     }
+
+    reset({
+      name: "",
+    });
+    setImage("");
     setTriggerAlbum(!triggerAlbum);
     setTriggerAction(!triggerAction);
   };
@@ -187,10 +184,6 @@ const ModalAlbum = ({
           <Form.Item
             name="image"
             label="Upload Image"
-            // required
-            // tooltip="This is a required field"
-            // help={errors.image && "Please upload reward image"}
-            // validateStatus={errors.image ? "error" : ""}
           >
             <Controller
               control={control}

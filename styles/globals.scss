@@ -523,3 +523,12 @@ body {
 .ant-image-error{
   height: 140px!important;
 }
+
+.show-album {
+  .ant-modal-content {
+    padding: 0;
+  }
+  .ant-modal-body {
+    height: 300px;
+  }
+}

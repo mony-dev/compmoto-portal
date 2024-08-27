@@ -159,7 +159,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   return (
     <>
       <nav
-        className="fixed top-0 z-20 w-full border border-slate-500"
+        className=""
         style={{
           background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`,
           boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.25)`,
@@ -275,7 +275,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
             {isDropdownVisible && (
               <div
                 ref={dropdownRef}
-                className="absolute bg-white top-16 right-8 rounded-lg"
+                className="absolute bg-white top-16 right-8 rounded-lg z-10"
               >
                 <div className="pt-8 px-8 pb-2">
                   <div className="flex items-center">

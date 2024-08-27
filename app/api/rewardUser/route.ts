@@ -41,26 +41,78 @@ export async function POST(request: Request, { body }: { body: any }) {
   }
 }
 
+// export async function GET(request: Request) {
+//   const { searchParams } = new URL(request.url);
+//   const userId = searchParams.get("userId") || "";
+//   const q = searchParams.get("q") || "";
+//   const page = parseInt(searchParams.get("page") || "1");
+//   const pageSize = parseInt(searchParams.get("pageSize") || "15");
+//   try {
+//     if (userId) {
+//       const [rewardUsers, total] = await Promise.all([
+//         prisma.userReward.findMany({
+//           where: { userId: Number(userId) },
+//           include: { reward: true },
+//           skip: (page - 1) * pageSize,
+//           take: pageSize,
+//         }),
+//         prisma.userReward.count({
+//           where: { userId: Number(userId) }
+//         }),
+//       ]);
+//       return NextResponse.json({ rewardUsers: rewardUsers, total });
+//     } else {
+//       const [rewardUsers, total] = await Promise.all([
+//         prisma.userReward.findMany({
+//           include: { reward: true, user: true },
+//           skip: (page - 1) * pageSize,
+//           take: pageSize,
+//         }),
+//         prisma.userReward.count(),
+//       ]);
+//       return NextResponse.json({ rewardUsers: rewardUsers, total });
+//     }
+//   } catch (error) {
+//     return NextResponse.json(error);
+//   } finally {
+//     await prisma.$disconnect();
+//   }
+// }
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") || "";
   const q = searchParams.get("q") || "";
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "15");
+  const isComplete = searchParams.get("isComplete"); // Get isComplete parameter from query string
 
   try {
+    const whereConditions: any = {};
+
     if (userId) {
-      const rewards = await prisma.userReward.findMany({
-        where: { userId: Number(userId) },
-        include: { reward: true },
-      });
-      return NextResponse.json(rewards);
-    } else {
-      const rewards = await prisma.userReward.findMany({
-        include: { reward: true, user: true },
-      });
-      return NextResponse.json(rewards);
+      whereConditions.userId = Number(userId);
     }
-  } catch (error) {
-    return NextResponse.json(error);
+
+    if (isComplete !== null) {
+      // Filter based on the isComplete value, converting it to boolean
+      whereConditions.isComplete = isComplete === "true";
+    }
+
+    const [rewardUsers, total] = await Promise.all([
+      prisma.userReward.findMany({
+        where: whereConditions,
+        include: { reward: true, user: true },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.userReward.count({
+        where: whereConditions,
+      }),
+    ]);
+
+    return NextResponse.json({ rewardUsers, total });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message });
   } finally {
     await prisma.$disconnect();
   }

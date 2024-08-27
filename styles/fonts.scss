@@ -71,3 +71,15 @@
 .inter-bold-font{
   font-family: 'InterBold', sans-serif;
 }
+
+//Volkhov font
+@font-face {
+  font-family: 'VolkhovRegular';
+  src: url('../public/fonts/Volkhov-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.volkhov-font{
+  font-family: 'VolkhovRegular', sans-serif;
+}

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Form, Input, Button, Select, InputNumber } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
@@ -22,6 +22,7 @@ import i18nConfig from "../../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
 import Loading from "@components/Loading";
 import { useTranslation } from "react-i18next";
+import debounce from "lodash.debounce";
 
 export default function Admin({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
@@ -58,32 +59,57 @@ export default function Admin({ params }: { params: { id: number } }) {
     resolver: zodResolver(editPasswordSchema),
   });
 
-  const { data: session, status } = useSession();
-  useEffect(() => {
-    const parts = pathname.split("/");
-    const lastPart = parts[parts.length - 2];
-    setI18nName(lastPart);
+    // Debounce function for search input
+    const debouncedFetchData = useCallback(
+      debounce(() => {
+        fetchData();
+      }, 500), // 500 ms debounce delay
+      []
+    );
+
+    useEffect(() => {
+      const parts = pathname.split("/");
+      const lastPart = parts[parts.length - 2];
+      setI18nName(lastPart);
+
+  
+      // Call the debounced fetch function
+      debouncedFetchData();
+  
+      // Cleanup debounce on unmount
+      return () => {
+        debouncedFetchData.cancel();
+      };
+    }, [debouncedFetchData]);
 
     async function fetchData() {
       setLoading(true);
       try {
         const [userResponse, saleUsersResponse] = await Promise.all([
           axios.get(`/api/users/${params.id}`),
-          axios.get(`/api/users?role=SALE`)
+          axios.get(`/api/users`, {
+            params: {
+              role: "SALE",
+              page: 1,
+              pageSize: 20,
+            },
+          })
         ]);
   
         setUserData(userResponse.data);
-        setSaleUsers(saleUsersResponse.data);
+        setSaleUsers(saleUsersResponse.data.users);
+        setValue("email", userResponse.data.email);
+        setValue("name", userResponse.data.name);
+        setValue("phoneNumber", userResponse.data.phoneNumber);
+        setValue("rewardPoint", userResponse.data.rewardPoint);
+        setValue("saleUserId", userResponse.data.saleUserId);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data: ", error);
         setLoading(false);
       }
     }
-  
-    fetchData();
-  }, [params.id]);
-  
+
   if (loading || !t) {
     return (
       <Loading/>
@@ -131,13 +157,13 @@ export default function Admin({ params }: { params: { id: number } }) {
   };
   return (
     <>
-      <div className="px-12">
+      <div className="px-4">
         <div
           className="py-8 pl-8 rounded-lg flex flex-col bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
           <div className="text-lg pb-4 default-font flex">
-            <Link className="text-comp-sub-header" href={`/${locale}/admin/admins`}>
+            <Link className="text-comp-sub-header" href={`/${locale}/admin/users`}>
               {t('user_setting')}
             </Link>{" "}
             <ChevronRightIcon className="w-4 mx-4" />{" "}

@@ -1,12 +1,10 @@
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   categorySchema,
   CategorySchema,
 } from "@lib-schemas/user/category-schema";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Form, Input, Modal, Space, Switch } from "antd";
-import { triggerFocus } from "antd/es/input/Input";
+import { Button, Form, Input, Modal, Switch } from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useRouter } from "next/navigation";
@@ -15,6 +13,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import tw from "twin.macro";
 import i18nConfig from "../../../i18nConfig";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   isModalVisible: boolean;
@@ -49,6 +48,7 @@ const ModalCategory = ({
   } = useForm<CategorySchema>({
     resolver: zodResolver(categorySchema),
   });
+  const { t } = useTranslation();
   const [trigger, setTrigger] = useState(false);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const ModalCategory = ({
           },
         });
         setIsModalVisible(false);
-        toastSuccess("Category updated successfully");
+        toastSuccess(t("Category updated successfully"));
         router.replace(`/${locale}/admin/adminRewardCategory`);
       } catch (error: any) {
         toastError(error.message);
@@ -80,7 +80,7 @@ const ModalCategory = ({
           },
         });
         setIsModalVisible(false);
-        toastSuccess("Category created successfully");
+        toastSuccess(t("Category created successfully"));
         router.replace(`/${locale}/admin/adminRewardCategory`);
       } catch (error: any) {
         toastError(error.message);
@@ -116,29 +116,29 @@ const ModalCategory = ({
           >
             <Form.Item
               name="name"
-              label="Name"
+              label={t("Name")}
               required
-              tooltip="This is a required field"
-              help={errors.name && "Please enter category name"}
+              tooltip={t("This is a required field")}
+              help={errors.name && t("Please enter category name")}
               validateStatus={errors.name ? "error" : ""}
             >
               <Controller
                 control={control}
                 name="name"
                 render={({ field }) => (
-                  <Input {...field} placeholder="Name" size="large" />
+                  <Input {...field} placeholder={t("Name")} size="large" />
                 )}
               />
             </Form.Item>
-            <Form.Item name="isActive" label="Active" className="switch-backend">
+            <Form.Item name="isActive" label={t("Active")} className="switch-backend">
               <Controller
                 control={control}
                 name="isActive"
                 render={({ field }) => (
                   <Switch
                     {...field}
-                    checkedChildren="Active"
-                    unCheckedChildren="Inactive"
+                    checkedChildren={t("Active")}
+                    unCheckedChildren={t("Inactive")}
                     defaultChecked
                   />
                 )}
@@ -150,7 +150,7 @@ const ModalCategory = ({
                 htmlType="submit"
                 className="bg-comp-red button-backend"
               >
-                Submit
+                {t("Submit")}
               </Button>
             </Form.Item>
           </Form>

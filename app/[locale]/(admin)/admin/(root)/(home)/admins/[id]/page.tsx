@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Form, Input, Button, Select } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
@@ -14,7 +14,6 @@ import {
 } from "@lib-schemas/user/edit-admin-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { useSession } from "next-auth/react";
 import { User } from "@shared/translations/models/user";
 import {
   editPasswordSchema,
@@ -25,6 +24,7 @@ import i18nConfig from "../../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import Loading from "@components/Loading";
+import debounce from "lodash.debounce";
 
 export default function Admin({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
@@ -61,12 +61,30 @@ export default function Admin({ params }: { params: { id: number } }) {
   });
   const role = watchRole('role');
 
-  useEffect(() => {
-    const parts = pathname.split("/");
-    const lastPart = parts[parts.length - 2];
-    setI18nName(lastPart);
+    // Debounce function for search input
+    const debouncedFetchData = useCallback(
+      debounce(() => {
+        fetchData();
+      }, 500), // 500 ms debounce delay
+      []
+    );
 
-    const fetchUserData = async () => {
+  useEffect(() => {
+      const parts = pathname.split("/");
+      const lastPart = parts[parts.length - 2];
+      setI18nName(lastPart);
+
+  
+      // Call the debounced fetch function
+      debouncedFetchData();
+  
+      // Cleanup debounce on unmount
+      return () => {
+        debouncedFetchData.cancel();
+      };
+    }, [debouncedFetchData]);
+
+  const fetchData = async () => {
       try {
         const response = await axios.get(`/api/users/${params.id}`);
         setUserData(response.data);
@@ -80,9 +98,6 @@ export default function Admin({ params }: { params: { id: number } }) {
         setLoading(false); // Data fetching is complete
       }
     };
-
-    fetchUserData();
-  }, [params.id, pathname, setI18nName, setValue]);
 
   if (loading || !t) {
     return (
@@ -130,7 +145,7 @@ export default function Admin({ params }: { params: { id: number } }) {
   };
   return (
     <>
-      <div className="px-12">
+      <div className="px-4">
         <div
           className="py-8 pl-8 rounded-lg flex flex-col bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}

@@ -1,1 +1,25 @@
-{"my_travel_trip":"ทริปท่องเที่ยวของฉัน"}
+{
+    "my_travel_trip":"ทริปท่องเที่ยวของฉัน",
+    "Reviewing": "กำลังตรวจสอบ",
+    "Customer No": "รหัสลูกค้า",
+    "Name": "ชื่อ",
+    "Reward": "ราลวัล",
+    "Point": "คะแนน",
+    "Quantity": "จำนวน",
+    "Date": "วันที่",
+    "Action": "การกระทำ",
+    "Verify": "ตรวจสอบ",
+    "Verified": "ตรวจสอบแล้ว",
+    "Reward List": "รายการแลกรางวัล",
+    "Redeem updated successfully": "ตรวจสอบการแลกรางวัลเรียบร้อยแล้ว",
+    "Redeem": "รางวัลที่แลก",
+    "Usage Point": "คะแนนที่ใช้",
+    "Redeem Date": "วันที่แลก",
+    "Status": "สถานะ",
+    "Submit": "บันทึก",
+    "Details": "รายละเอียด",
+    "Search": "ค้นหา",
+    "Redeem Verify": "ตรวจสอบการแลกรางวัล",
+    "Album deleted successfully": "อัลบั้มรูปลบเรีบยร้อยแล้ว"
+
+}

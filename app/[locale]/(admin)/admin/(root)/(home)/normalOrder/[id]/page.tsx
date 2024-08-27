@@ -267,7 +267,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     </div>,
   ];
   return (
-    <div className="px-12">
+    <div className="px-4">
       <div className="flex justify-between items-center">
         <div className="text-lg pb-4 default-font flex">
           <Link

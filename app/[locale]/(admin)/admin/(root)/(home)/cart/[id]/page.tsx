@@ -721,7 +721,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     }
   };
   return (
-    <div className="px-12">
+    <div className="px-4">
       <div className="flex">
         <svg
           width="28"

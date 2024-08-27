@@ -1,1 +1,19 @@
-{"my_travel_trip":"ทริปท่องเที่ยวของฉัน","travel_trip":"ทริปท่องเที่ยว"}
+{ 
+    "my_travel_trip": "ทริปท่องเที่ยวของฉัน", 
+    "travel_trip": "ทริปท่องเที่ยว",
+    "your_point": "คะแนนของคุณ",
+    "Point": "คะแนน",
+    "Download itinerary file": "ดาวน์โหลดแผนการท่องเที่ยว",
+    "Detail": "รายละเอียด",
+    "Amount": "จำนวน",
+    "This is a required field": "ช่องที่จำเป็นต้องกรอก",
+    "Please enter reward point": "กรุณากรอกคะแนน",
+    "Redeem": "แลกรางวัล",
+    "Reward Redemption": "ประวัติการแลกรางวัล",
+    "Expired": "หมดอายุ",
+    "Ticket": "ใบ",
+    "Amount cannot be zero": "กรุณาระบุจำนวนตั๋วแลกรางวัล",
+    "Your point not enough": "คะแนนของคุณไม่เพียงพอ",
+    "Redeem successfully": "แลกรางวัลสำเร็จ",
+    "Please login before redeem": "กรุณาเข้าสู่ระบบก่อนแลกรางวัล"
+}

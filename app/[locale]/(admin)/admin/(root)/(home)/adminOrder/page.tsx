@@ -21,7 +21,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(15);
+  const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [orderData, setOrderData] = useState<OrderDataType[]>([]);
   const [triggerOrder, setTriggerOrder] = useState(false);
@@ -221,7 +221,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     return <Loading />;
   }
   return (
-    <div className="px-12">
+    <div className="px-4">
       <div
         className="py-8 px-8 rounded-lg flex flex-col bg-white"
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}

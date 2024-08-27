@@ -93,21 +93,24 @@ export async function PUT(
   }
 }
 
-// export async function DELETE(
-//   request: Request,
-//   { params }: { params: { id: number } }
-// ) {
-//   const id = params.id;
-//   try {
-//     const deletedReward = await prisma.reward.delete({
-//       where: {
-//         id: Number(id),
-//       },
-//     });
-//     return NextResponse.json(deletedReward);
-//   } catch (error) {
-//     return NextResponse.json(error);
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// }
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: number } }
+) {
+  const id = params.id;
+  try {
+    const deletedReward = await prisma.rewardAlbum.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+    console.log(deletedReward)
+    return NextResponse.json(deletedReward);
+  } catch (error) {
+    console.log(error)
+
+    return NextResponse.json(error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}

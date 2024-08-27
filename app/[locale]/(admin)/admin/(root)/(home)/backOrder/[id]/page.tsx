@@ -200,7 +200,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
       render: (_, record) => (
         <p>
           ฿
-          {record.price.toLocaleString("en-US", {
+          {record.product.price.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -267,7 +267,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
     return <Loading />;
   }
   return (
-    <div className="px-12">
+    <div className="px-4">
       <div className="flex justify-between items-center">
         <div className="text-lg pb-4 default-font flex">
           <Link
