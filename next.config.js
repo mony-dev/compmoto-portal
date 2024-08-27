@@ -9,7 +9,7 @@ const nextConfig = {
   typedRoutes: true,
  },
  output: "standalone",
- swcMinify: false,
+ swcMinify: true,
  images: {
     domains: ['res.cloudinary.com'],
   },
