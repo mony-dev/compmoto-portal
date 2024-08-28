@@ -5,14 +5,12 @@ import { useEffect, useState } from "react";
 import SideBar from "@components/Admin/SideBar";
 import Footer from "@components/Admin/Footer";
 import { useSession } from "next-auth/react";
-import axios from "axios";
 import { useCart } from "@components/Admin/Cartcontext";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { data: session, status } = useSession();
   const [isMobileOpened, setIsMobileOpened] = useState(false);
   const [minisizeItems, setMinisizeItems] = useState<{ name: string }[]>([]);
-
-  const { data: session, status } = useSession();
   const { setProfileImage } = useCart();
 
   const toggleMobileMenu = () => {
@@ -24,23 +22,29 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       try {
         const response = await fetch("/api/minisize");
         const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setMinisizeItems(data);
-        } else {
-          console.error("Expected data to be an array, but received:", data);
-          setMinisizeItems([]); // Fallback to empty array
-        }
+        setMinisizeItems(Array.isArray(data) ? data : []); // Ensure it's an array
       } catch (error) {
         console.error("Failed to fetch minisize items", error);
-        setMinisizeItems([]); // Fallback to empty array in case of error
+        setMinisizeItems([]); // Fallback to an empty array in case of error
       }
     };
 
     fetchMinisizeItems();
-    setProfileImage(session?.user.image);
-  }, [session, setProfileImage]);
+    console.log(session)
+  }, []); // Fetch minisize items on initial mount
 
+  useEffect(() => {
+    if (session) {
+      // Only set profile image if the session is available
+      setProfileImage(session.user.image);
+    }
+  }, [session, setProfileImage]); 
+
+  useEffect(() => {
+    console.log("Session data:", session);
+    console.log("Session status:", status);
+  }, [session, status]);
+  
   if (status === "loading") {
     return <div>Loading...</div>; // or a loading spinner
   }

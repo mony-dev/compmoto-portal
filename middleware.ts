@@ -15,9 +15,15 @@ export function middleware(request: any) {
   const i18nResult = i18nRouter(request, i18nConfig);
   if (i18nResult) return i18nResult;
 
+  // Then, handle authentication for admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    return authMiddleware(request);
+    // Ensure proper handling of authMiddleware here
+    const authResult = authMiddleware(request);
+    if (authResult instanceof NextResponse) {
+      return authResult; // If authMiddleware returns a response, use it
+    }
   }
+
  
   return NextResponse.next();
 }

@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import {
   ChevronDownIcon,
   DocumentTextIcon,
@@ -45,7 +46,6 @@ type SideBarItemProps = {
 const Hr = styled.hr`
   ${tw`m-2 bg-comp-gray-bg`}
 `;
-const locale = useCurrentLocale(i18nConfig);
 
 const btnClass = (isSelect: boolean) =>
   `flex w-full rounded-lg	${
@@ -61,7 +61,7 @@ type SideBarProps = {
   onToggle: () => void;
   href?: any;
   onToggleIconColor?: (menu: string) => void;
-  role: string;
+  role?: string;
   minisizeItems: { name: string }[];
 };
 
@@ -71,9 +71,10 @@ export default function SideBar({
   isOpen,
   href,
   onToggle,
-  role,
+  // role,
   minisizeItems,
 }: SideBarProps) {
+  const { data: session } = useSession();
   const [iconColor, setIconColor] = useState(false);
   const [menuId, setMenuId] = useState("");
   const [openMenuId, setOpenMenuId] = useState("");
@@ -339,6 +340,7 @@ export default function SideBar({
       setLocale(match[1]);
     }
   }, [pathname]);
+
   return (
     <>
       <aside
@@ -351,10 +353,10 @@ export default function SideBar({
         <div className="overflow-y-auto font-bold hidden-scroll">
           {sidebarItems.map(
             (item, index) =>
-              item.forRole.includes(role) && (
+              item.forRole.includes(session?.user.role) && (
                 <div key={index + item.title}>
                   <SidebarItem
-                    role={role}
+                    role={session?.user.role}
                     {...item}
                     onToggle={onToggle}
                     onToggleIconColor={toggleIconColor}
