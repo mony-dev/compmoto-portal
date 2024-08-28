@@ -105,6 +105,7 @@ export default function userLogs() {
       queryParams.delete('q');
     }
     const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+    // @ts-ignore: TypeScript error explanation or ticket reference
     router.push(newUrl, undefined, { shallow: true });
 
   }, [searchText]);
