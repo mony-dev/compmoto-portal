@@ -38,10 +38,3 @@ USER nextjs
 
 # Start the Next.js application
 CMD ["npm", "start"]
-
-# Dev stage
-FROM base as dev
-ENV NODE_ENV=development
-RUN npm install 
-COPY . .
-CMD ["npm", "run", "dev"]
