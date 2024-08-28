@@ -220,8 +220,8 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `/${locale}/admin/orderSetting` },
-        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `/${locale}/admin/bonusSetting` },
+        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `` },
+        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `` },
       ],
       id: "adminDashboard",
       openMenuId: openMenuId,
@@ -252,8 +252,8 @@ export default function SideBar({
         { title: "ตั้งค่ามินิไซส์", href: `/${locale}/admin/adminMinisize` },
         { title: "สินค้า", href: `/${locale}/admin/adminProduct` },
         { title: "โปรโมชั่น", href: `/${locale}/admin/adminPromotion` },
-        { title: "สื่อการตลาด", href: `/${locale}/admin/adminMedia` },
-        { title: "ข่าว และกิจกรรม", href: `/${locale}/admin/adminNewsAndEvent` },
+        { title: "สื่อการตลาด", href: `` },
+        { title: "ข่าว และกิจกรรม", href: `` },
       ],
       id: "adminMinisize",
       openMenuId: openMenuId,
@@ -309,11 +309,11 @@ export default function SideBar({
       title: "จัดการคู่มือการใช้งาน",
       icon: (
         <Image
-          src={pathname == `/${locale}/admin/adminUserManual` ? BookRed : BookGrey}
+          src={pathname == `` ? BookRed : BookGrey}
           alt="Grid Red"
         />
       ),
-      href: `/${locale}/adminUserManual`,
+      href: ``,
       id: "adminUserManual",
       openMenuId: openMenuId,
       forRole: ["ADMIN"],
@@ -322,11 +322,11 @@ export default function SideBar({
       title: "จัดการเคลมสินค้า",
       icon: (
         <Image
-          src={pathname == `/${locale}/admin/adminClaim` ? BookRed : BookGrey}
+          src={pathname == `` ? BookRed : BookGrey}
           alt="Grid Red"
         />
       ),
-      href: `/${locale}/admin/adminClaim`,
+      href: ``,
       id: "adminClaim",
       openMenuId: openMenuId,
       forRole: ["CLAIM"],
