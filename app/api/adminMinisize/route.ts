@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       // }),
     ]);
 
-    const minisizesWithProductCount = minisizes.map((minisize) => ({
+    const minisizesWithProductCount = minisizes.map((minisize: any) => ({
       ...minisize,
       productCount: minisize.brand.products.length,
     }));
