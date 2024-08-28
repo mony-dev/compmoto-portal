@@ -175,7 +175,6 @@ const ModalProduct = ({
         (item: { id: number }) => item.id === id
       );
       if (product) {
-        console.log("product", product)
         setEditProductData(product);
         // Set form values
         setValue("portalStock", product.portalStock);

@@ -30,7 +30,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     };
 
     fetchMinisizeItems();
-    console.log(session)
   }, []); // Fetch minisize items on initial mount
 
   useEffect(() => {
@@ -40,11 +39,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [session, setProfileImage]); 
 
-  useEffect(() => {
-    console.log("Session data:", session);
-    console.log("Session status:", status);
-  }, [session, status]);
-  
   if (status === "loading") {
     return <div>Loading...</div>; // or a loading spinner
   }
