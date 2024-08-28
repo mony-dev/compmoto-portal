@@ -5,6 +5,10 @@ WORKDIR /app
 COPY package*.json yarn.lock ./
 EXPOSE 3000
 
+# Builder stage
+FROM base as builder
+WORKDIR /app
+
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
