@@ -24,9 +24,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       try {
         const response = await fetch("/api/minisize");
         const data = await response.json();
-        setMinisizeItems(data);
+
+        // Defensive check to ensure data is an array
+        if (Array.isArray(data)) {
+          setMinisizeItems(data);
+        } else {
+          console.error("Expected data to be an array, but received:", data);
+          setMinisizeItems([]); // Fallback to empty array
+        }
       } catch (error) {
         console.error("Failed to fetch minisize items", error);
+        setMinisizeItems([]); // Fallback to empty array in case of error
       }
     };
 
@@ -40,40 +48,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {/* <div
-        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-      >
-        <NavBar
-          onToggle={toggleMobileMenu}
-          isOpen={isMobileOpened}
-          userData={session?.user}
-          userId={session?.user.id}
-        />
-        <div style={{ display: "flex", flexGrow: 1 }}>
+      <div className="grid grid-cols-6 grid-rows-auto bg-comp-gray-bg">
+        <div className="row-start-2 row-end-auto col-start-1 col-end-2">
           <SideBar
             isOpen={isMobileOpened}
             onToggle={toggleMobileMenu}
             role={session?.user.role}
-            minisizeItems={minisizeItems}
+            minisizeItems={minisizeItems} // minisizeItems will always be an array
           />
-          <div
-            className={`relative w-full h-full pt-28 border-none sm:ml-60 bg-comp-gray-bg`}
-          >
-            {children}
-            <Footer isOpen={isMobileOpened} />
-          </div>
-        </div>
-      </div> */}
-   
-
-      <div className="grid grid-cols-6 grid-rows-auto bg-comp-gray-bg">
-        <div className="row-start-2 row-end-auto col-start-1 col-end-2">
-          <SideBar
-              isOpen={isMobileOpened}
-              onToggle={toggleMobileMenu}
-              role={session?.user.role}
-              minisizeItems={minisizeItems}
-            />
         </div>
         <div className="col-span-6 auto-rows-auto pb-6 bg-comp-gray-bg">
           <NavBar
