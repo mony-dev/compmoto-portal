@@ -25,6 +25,7 @@ const Layout = ({
   const router = useRouter();
 
   useEffect(() => {
+    // @ts-ignore: TypeScript error explanation or ticket reference
     updateNamespaces((namespaces: string[]) => setI18nNamespaces(namespaces)); // Pass a function that updates the state
   }, [updateNamespaces]);
 

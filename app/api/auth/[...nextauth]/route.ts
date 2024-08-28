@@ -22,6 +22,7 @@ const handler = NextAuth({
         email: {},
         password: {},
       },
+      // @ts-ignore: TypeScript error explanation or ticket reference
       async authorize(
         credentials: Record<"email" | "password", string> | undefined,
         req

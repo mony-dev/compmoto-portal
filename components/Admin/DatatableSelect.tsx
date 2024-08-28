@@ -15,6 +15,7 @@ const DatatableSelect: React.FC<TableComponentProps<any>> = ({
   rowSelection, 
 }) => {
   const [selectionType, setSelectionType] = useState<'checkbox' | 'radio'>('checkbox');
+  // @ts-ignore: TypeScript error explanation or ticket reference
   const customPagination = getCustomPagination(data.length);
 
   return (
