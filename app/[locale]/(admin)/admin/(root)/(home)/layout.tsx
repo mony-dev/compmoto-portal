@@ -6,7 +6,6 @@ import SideBar from "@components/Admin/SideBar";
 import Footer from "@components/Admin/Footer";
 import { useSession } from "next-auth/react";
 import { useCart } from "@components/Admin/Cartcontext";
-import { ToastContainer, toast } from 'react-toastify';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
@@ -90,7 +89,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           />
         </div>
         <div className="border-none bg-comp-gray-bg col-span-5 row-span-6">
-        <ToastContainer/>
           {children}
         </div>
         <div className="col-span-6">

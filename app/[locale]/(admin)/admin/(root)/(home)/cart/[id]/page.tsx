@@ -159,11 +159,17 @@ const Cart = ({ params }: { params: { id: number } }) => {
 
       //check minisize
       const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
-
-      if (yearData && yearData.isActive && minisizeExists) {
-        const discount = yearData.discount || 0;
-        totalPrice -= (totalPrice * discount) / 100;
+      let yearDiscountOrGroup = 0
+      if (minisizeExists) {
+        if (yearData && yearData.isActive) {
+          yearDiscountOrGroup = yearData.discount || 0;
+          totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
+        } else {
+          yearDiscountOrGroup = discountRate;
+          totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
+        }
       }
+  
     }
 
     return totalPrice;
@@ -426,7 +432,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 { minimumFractionDigits: 2, maximumFractionDigits: 2 }
               )}
             </p>
-            {selectedProductYear[record.id] && selectedYearData?.isActive && (
+            {selectedProductYear[record.id] && selectedYearData?.isActive && userMinisize.some((item) => item.id === record.product.minisizeId) && (
               <div
                 className={
                   "line-through text-xs text-comp-gray-text original-price"
@@ -455,7 +461,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
             {record.product.years.map((yearData: any, index: number) => (
               <Tooltip
                 placement="top"
-                title={`${yearData.discount}%`}
+                title={userMinisize.some((item) => item.id === record.product.minisizeId) ? `${yearData.discount}%` : '0%'}
                 key={index}
               >
                 <Tag
