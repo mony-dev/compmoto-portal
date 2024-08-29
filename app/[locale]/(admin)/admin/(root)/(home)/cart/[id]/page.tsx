@@ -177,10 +177,17 @@ const Cart = ({ params }: { params: { id: number } }) => {
       }
       console.log(`yearDiscountOrGroup: ${record.product.name}`, yearDiscountOrGroup)
       record.product.discount = yearDiscountOrGroup;
-    } else {
+    } 
+    else {
+        //unselect year case
        //check minisize
        const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
+
+       if (minisizeExists) {
+        // If no year is selected but minisize exists, apply the default discount rate
+        record.product.discount = discountRate;
     }
+  }
 
     return totalPrice;
   };
