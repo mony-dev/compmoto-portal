@@ -7,6 +7,7 @@ export async function GET() {
     const brands = await prisma.brand.findMany();
     return NextResponse.json(brands);
   } catch (error) {
+    console.log("error", error)
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();
