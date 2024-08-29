@@ -63,6 +63,7 @@ interface CartDataType {
     image: string;
     minisizeId: number;
     code: string;
+    discount: number;
     brand: {
       id: Number;
       name: string;
@@ -152,6 +153,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     let totalPrice = record.product.price * amount;
     // Use the passed `selectedYear` if available, otherwise fallback to state
     const yearToUse = selectedYear || selectedProductYear[record.id];
+    console.log("yearToUse", yearToUse)
     if (yearToUse) {
       const yearData = record.product.years.find(
         (year) => year.year === yearToUse
@@ -160,7 +162,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       //check minisize
       const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
       let yearDiscountOrGroup = 0
-      if (minisizeExists) {
+      if (yearToUse && minisizeExists) {
         if (yearData && yearData.isActive) {
           yearDiscountOrGroup = yearData.discount || 0;
           totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
@@ -168,8 +170,13 @@ const Cart = ({ params }: { params: { id: number } }) => {
           yearDiscountOrGroup = discountRate;
           totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
         }
+      } else if (minisizeExists) {
+        // If no year is selected but minisize exists, apply the default discount rate
+        yearDiscountOrGroup = discountRate;
+        totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
       }
-  
+      console.log(`yearDiscountOrGroup: ${record.product.name}`, yearDiscountOrGroup)
+      record.product.discount = yearDiscountOrGroup;
     }
 
     return totalPrice;
@@ -330,6 +337,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     yearData: { isActive: any; year: any },
     record: CartDataType
   ) => {
+    console.log("yearData.isActive", yearData.isActive)
     if (yearData.isActive) {
       setSelectedProductYear((prevSelectedProductYear) => {
         const currentSelectedYear = prevSelectedProductYear[record.id];
@@ -623,6 +631,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
             price: item.product.price,
             minisizeId: item.product.minisizeId,
             code: item.product.code,
+            discount: 0,
             years: JSON.parse(
               item.product.years as unknown as string
             ) as YearDataType[],
@@ -826,6 +835,14 @@ const Checkout: React.FC<CheckoutProps> = ({
   const locale = useCurrentLocale(i18nConfig);
   const { cartItemCount, setCartItemCount } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+
+  console.log("totalAmount", totalAmount)
+  console.log("totalPrice", totalPrice)
+  console.log("discountRate", discountRate)
+  console.log("cartData", cartData)
+  console.log("selectedItems", selectedItems)
+
+
 
   const onSubmit = async () => {
     if (!session?.user?.id) {
