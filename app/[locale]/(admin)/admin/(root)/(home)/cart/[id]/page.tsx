@@ -177,6 +177,9 @@ const Cart = ({ params }: { params: { id: number } }) => {
       }
       console.log(`yearDiscountOrGroup: ${record.product.name}`, yearDiscountOrGroup)
       record.product.discount = yearDiscountOrGroup;
+    } else {
+       //check minisize
+       const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
     }
 
     return totalPrice;
@@ -337,7 +340,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
     yearData: { isActive: any; year: any },
     record: CartDataType
   ) => {
-    console.log("yearData.isActive", yearData.isActive)
     if (yearData.isActive) {
       setSelectedProductYear((prevSelectedProductYear) => {
         const currentSelectedYear = prevSelectedProductYear[record.id];
@@ -347,6 +349,12 @@ const Cart = ({ params }: { params: { id: number } }) => {
           // If yes, remove the selection (unset)
           const updatedYearSelection = { ...prevSelectedProductYear };
           delete updatedYearSelection[record.id]; // Remove the selected year for this product
+          // Update the total and original price for this specific product using the new year
+          const amount = getValues(`amount_${record.id}`) || 0;
+          const totalPrice = calculateTotalPrice(record, amount, null);
+          const originalPrice = calculateOriginalPrice(record, amount);
+          updatePriceDisplay(record.id, totalPrice, originalPrice);
+  
           return updatedYearSelection;
         } else {
           // If not, set the new selection
