@@ -120,6 +120,7 @@ const ModalMinisize = ({
           value: brand.id,
           label: brand.name,
         }));
+        console.log(brands)
         setBrandOptions(brands);
       } catch (error: any) {
         toastError(error.message);
