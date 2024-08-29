@@ -115,11 +115,16 @@ const ModalMinisize = ({
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await axios.get("/api/brand/");
-        const brands = response.data.map((brand: any) => ({
+        const [brandResponse] =
+        await Promise.all([
+          axios.get(`/api/adminBrand`),
+        ]);
+
+        const brands = brandResponse.data.brands.map((brand: any) => ({
           value: brand.id,
           label: brand.name,
         }));
+
         console.log(brands)
         setBrandOptions(brands);
       } catch (error: any) {
