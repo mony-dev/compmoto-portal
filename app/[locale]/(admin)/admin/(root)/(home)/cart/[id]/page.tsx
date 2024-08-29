@@ -156,7 +156,11 @@ const Cart = ({ params }: { params: { id: number } }) => {
       const yearData = record.product.years.find(
         (year) => year.year === yearToUse
       );
-      if (yearData && yearData.isActive) {
+
+      //check minisize
+      const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
+
+      if (yearData && yearData.isActive && minisizeExists) {
         const discount = yearData.discount || 0;
         totalPrice -= (totalPrice * discount) / 100;
       }
@@ -627,12 +631,13 @@ const Cart = ({ params }: { params: { id: number } }) => {
         }));
 
         const userMinisize = response.data.user.minisizes.map((mini: any) => ({
-          key: mini.key,
+          key: mini.id,
           id: mini.id,
           name: mini.name
         }));
-        
+
         setUserMinisize(userMinisize)
+        console.log(userMinisize)
         console.log(useCart)
         setCartData(useCart);
         // Calculate counts

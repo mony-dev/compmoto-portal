@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import { Flex, Spin } from "antd";
 import Loading from "@components/Loading";
 import { useCart } from "@components/Admin/Cartcontext";
+import { ToastContainer, toast } from 'react-toastify';
+
 const Layout = ({
   children,
   params: { locale },
@@ -71,6 +73,7 @@ const Layout = ({
 
   return (
     <TranslationsProvider namespaces={i18nNamespaces} locale={locale} resources={resources}>
+      <ToastContainer/>
       <div>{children}</div>
     </TranslationsProvider>
   );

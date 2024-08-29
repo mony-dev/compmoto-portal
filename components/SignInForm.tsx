@@ -46,7 +46,8 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
       });
 
       if (signInResult?.error) {
-        handleAPIError(signInResult.error);
+        console.log(signInResult?.error)
+        toastError(signInResult?.error);
       } else {
         const session = await getSession();
 
@@ -71,7 +72,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
         }
       }
     } catch (error: any) {
-      toastError(error);
+      toastError(error.message);
     } finally {
       setIsLoading(false);
     }

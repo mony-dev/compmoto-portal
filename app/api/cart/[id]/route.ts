@@ -34,7 +34,6 @@ export async function GET(
         }
       },
     });
-    console.log(cart)
     if (!cart) {
       return NextResponse.json({ error: "Cart not found" }, { status: 404 });
     }
