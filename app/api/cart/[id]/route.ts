@@ -27,8 +27,14 @@ export async function GET(
             },
           },
         },
+        user: {
+          include: {
+            minisizes: true
+          }
+        }
       },
     });
+    console.log(cart)
     if (!cart) {
       return NextResponse.json({ error: "Cart not found" }, { status: 404 });
     }

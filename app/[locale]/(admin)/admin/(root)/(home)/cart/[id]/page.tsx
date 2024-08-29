@@ -6,11 +6,9 @@ import {
   Button,
   Divider,
   Form,
-  Input,
   InputNumber,
   Modal,
   Space,
-  Switch,
   Tabs,
   TabsProps,
   Tag,
@@ -18,7 +16,7 @@ import {
 } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useTranslation } from "react-i18next";
@@ -71,6 +69,12 @@ interface CartDataType {
     };
     imageProduct: any;
     promotion: any;
+    user: {
+      minisize: {
+        id: number;
+        name: string;
+      }
+    }
   };
 }
 
@@ -89,7 +93,6 @@ interface OrderItem {
 
 const Cart = ({ params }: { params: { id: number } }) => {
   const {
-    handleSubmit,
     control,
     setValue,
     getValues,
@@ -98,6 +101,8 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const router = useRouter();
   const locale = useCurrentLocale(i18nConfig);
   const [cartData, setCartData] = useState<CartDataType[]>([]);
+  const [userMinisize, setUserMinisize] = useState<CartDataType[]>([]);
+
   const [triggerCart, setTriggerCart] = useState(false);
   const [reloadItem, setReloadItem] = useState(false);
   const [normalCount, setNormalCount] = useState(0);
@@ -112,7 +117,17 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const { t } = useTranslation();
   const [promotionText, setPromotionText] = useState<string[]>([]);
+  const {setI18nName} = useCart();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(true); 
 
+  
+  useEffect(() => {
+    const parts = pathname.split("/");
+    const lastPart = parts[parts.length - 2];
+    setI18nName(lastPart);
+  }, []);
+  
   const recalculateTotals = (selectedRows: CartDataType[] = []) => {
     let newTotalAmount = 0;
     let newTotalPrice = 0;
@@ -246,11 +261,11 @@ const Cart = ({ params }: { params: { id: number } }) => {
 
   const removeItem = (record: CartDataType) => {
     Modal.confirm({
-      title: "Are you sure you want to delete this product?",
-      content: "This action cannot be undone.",
-      okText: "Yes",
+      title: t("Are you sure you want to delete this product"),
+      content: t("This action cannot be undone"),
+      okText: t("Yes"),
       okType: "danger",
-      cancelText: "No",
+      cancelText: t("Cancel"),
       onOk: async () => {
         try {
           const response = await axios.delete(`/api/cart/${record.id}`, {
@@ -260,7 +275,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           });
           setReloadItem(!reloadItem);
           router.replace(`/${locale}/admin/cart/${session?.user.id}`);
-          toastSuccess("Product deleted successfully");
+          toastSuccess(t("Product deleted successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
         }
@@ -275,6 +290,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     );
   }, [selectedProductYear, selectedItems]);
 
+  
   const updatePriceDisplay = (
     productId: number,
     totalPrice: number,
@@ -305,23 +321,31 @@ const Cart = ({ params }: { params: { id: number } }) => {
     record: CartDataType
   ) => {
     if (yearData.isActive) {
-      const newSelectedYear = yearData.year;
-
       setSelectedProductYear((prevSelectedProductYear) => {
-        const updatedYearSelection = {
-          ...prevSelectedProductYear,
-          [record.id]: newSelectedYear,
-        };
-
-        // Update the total and original price for this specific product using the new year
-        const amount = getValues(`amount_${record.id}`) || 0;
-        const totalPrice = calculateTotalPrice(record, amount, newSelectedYear);
-        const originalPrice = calculateOriginalPrice(record, amount);
-
-        updatePriceDisplay(record.id, totalPrice, originalPrice);
-
-        // Return the updated year selection
-        return updatedYearSelection;
+        const currentSelectedYear = prevSelectedProductYear[record.id];
+  
+        // Check if the currently clicked year is the same as the selected year
+        if (currentSelectedYear === yearData.year) {
+          // If yes, remove the selection (unset)
+          const updatedYearSelection = { ...prevSelectedProductYear };
+          delete updatedYearSelection[record.id]; // Remove the selected year for this product
+          return updatedYearSelection;
+        } else {
+          // If not, set the new selection
+          const updatedYearSelection = {
+            ...prevSelectedProductYear,
+            [record.id]: yearData.year,
+          };
+  
+          // Update the total and original price for this specific product using the new year
+          const amount = getValues(`amount_${record.id}`) || 0;
+          const totalPrice = calculateTotalPrice(record, amount, yearData.year);
+          const originalPrice = calculateOriginalPrice(record, amount);
+  
+          updatePriceDisplay(record.id, totalPrice, originalPrice);
+  
+          return updatedYearSelection;
+        }
       });
     }
   };
@@ -341,9 +365,9 @@ const Cart = ({ params }: { params: { id: number } }) => {
     {
       title: (
         <p>
-          All{" "}
+          {t('All')}
           <span className="count-items">
-            ({triggerCart ? backCount : normalCount} items )
+            ({triggerCart ? backCount : normalCount} {t('items')} )
           </span>
         </p>
       ),
@@ -422,7 +446,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       key: "years",
       render: (_, record) => (
         <div className="flex items-center force-bottom">
-          <p className="gotham-font text-sm text-text-gray-hover pr-2 ">Year</p>
+          <p className="gotham-font text-sm text-text-gray-hover pr-2 ">{t('Year')}</p>
           <div>
             {record.product.years.map((yearData: any, index: number) => (
               <Tooltip
@@ -516,7 +540,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 fillOpacity="0.3"
               />
             </svg>
-            <p className="text-[#a2a2a2] text-xs pl-1">Delete</p>
+            <p className="text-[#a2a2a2] text-xs pl-1">{('Delete')}</p>
           </div>
           <Form
             key={record.id}
@@ -529,10 +553,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 name={`amount_${record.id}`}
                 label={false}
                 required
-                tooltip="This is a required field"
-                help={
-                  errors[`amount_${record.id}`] && "Please enter reward point"
-                }
                 validateStatus={errors[`amount_${record.id}`] ? "error" : ""}
               >
                 <Controller
@@ -578,6 +598,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     axios
       .get(`/api/cart/${params.id}`)
       .then((response) => {
+        console.log(response)
         const useCart = response.data.items.map((item: any) => ({
           key: item.id,
           id: item.id,
@@ -602,8 +623,17 @@ const Cart = ({ params }: { params: { id: number } }) => {
             },
             imageProduct: item.product.imageProducts,
             promotion: item.product.promotion,
-          },
+          }
         }));
+
+        const userMinisize = response.data.user.minisizes.map((mini: any) => ({
+          key: mini.key,
+          id: mini.id,
+          name: mini.name
+        }));
+        
+        setUserMinisize(userMinisize)
+        console.log(useCart)
         setCartData(useCart);
         // Calculate counts
         const normal = useCart.filter(
@@ -644,7 +674,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           count={normalCount}
           offset={[10, 1]}
         >
-          <p>Normal Order</p>
+          <p>{t('Normal Order')}</p>
         </Badge>
       ),
       children: (
@@ -679,7 +709,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           count={backCount}
           offset={[10, 1]}
         >
-          <p>Back Order</p>
+          <p>{t('Back Order')}</p>
         </Badge>
       ),
       children: (
@@ -748,7 +778,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           />
         </svg>
         <p className="gotham-font text-2xl text-black gotham-black pl-2">
-          Shopping <span className="gotham-thin font-bold	">Cart</span>
+          {t('Shopping')} <span className="gotham-thin font-bold	">{t('Cart')}</span>
         </p>
       </div>
       <div>
@@ -776,6 +806,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   calculateTotalPrice,
   promotionText,
 }) => {
+  const { t } = useTranslation();
   const subDiscount = discountRate;
   const calDiscount = totalPrice * (subDiscount / 100);
   const afterDiscount = totalPrice - calDiscount;
@@ -787,7 +818,7 @@ const Checkout: React.FC<CheckoutProps> = ({
 
   const onSubmit = async () => {
     if (!session?.user?.id) {
-      toastError("Please login before checkout");
+      toastError(t("Please login before checkout"));
       return;
     }
   
@@ -795,7 +826,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       selectedItems.includes(item.id)
     );
     if (selectedCartItems.length === 0) {
-      toastError("No items selected for checkout");
+      toastError(t("No items selected for checkout"));
       return;
     }
     setIsProcessing(true);
@@ -900,7 +931,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             documentNo: returnValue,
           });
   
-          toastSuccess("Order placed successfully");
+          toastSuccess(t("Order placed successfully"));
           setCartItemCount(cartItemCount - res.data.count);
           if (selectedCartItems[0].type === "Normal") {
             router.replace(`/${locale}/admin/normalOrder`);
@@ -908,10 +939,10 @@ const Checkout: React.FC<CheckoutProps> = ({
             router.replace(`/${locale}/admin/backOrder`);
           }
         } else {
-          toastError("Failed to create order, return_value missing");
+          toastError(t("Failed to create order"));
         }
       } else {
-        toastError("Failed to create order");
+        toastError(t("Failed to create order"));
       }
     } catch (error: any) {
       toastError(error.message);
@@ -947,7 +978,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create sales quote');
+      throw new Error(errorData.message || t('Failed to create sales quote'));
     }
   
     const data = await response.json();
@@ -980,7 +1011,7 @@ const Checkout: React.FC<CheckoutProps> = ({
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create bo');
+      throw new Error(errorData.message || t('Failed to create sales blanket order'));
     }
   
     const data = await response.json();
@@ -989,13 +1020,13 @@ const Checkout: React.FC<CheckoutProps> = ({
   return (
     <div className="bg-white row-end-2 row-span-1 p-4 rounded-lg checkout-box">
       <p className="gotham-font text-black text-base pt-4 font-medium">
-        Order summary
+        {t("Order summary")}
       </p>
       <Divider />
       {promotionText && promotionText.length > 0 && (
         <>
           <div className="flex justify-between promotion-text">
-            <p className="text-sm">Promotion</p>
+            <p className="text-sm">{t('Promotion')}</p>
             <p className="text-sm">{promotionText.join(", ")}</p>
           </div>
           <Divider />
@@ -1003,9 +1034,9 @@ const Checkout: React.FC<CheckoutProps> = ({
       )}
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm">Sub Total</p>
+          <p className="text-sm">{t('Sub Total')}</p>
           <p className="text-xs text-text-gray-hover sub-amount">
-            ({totalAmount} items)
+            ({totalAmount} {t('items')})
           </p>
         </div>
         <div className="text-base font-base sub-total">
@@ -1019,7 +1050,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <Divider />
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm">Discount</p>
+          <p className="text-sm"> {t('Discount')}</p>
           <p className="text-xs text-comp-red sub-discount">({subDiscount}%)</p>
         </div>
         <div className="text-base font-base text-comp-red cal-discount">
@@ -1033,7 +1064,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <Divider />
       <div className="flex justify-between">
         <div>
-          <p>Total</p>
+          <p>{t('Total')}</p>
         </div>
         <div className="text-base font-medium after-discount">
           ฿
@@ -1052,7 +1083,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             loading={isProcessing}
             className="gotham-font bg-comp-red-price button-backend w-full mt-4 p-6 flex justify-between text-base font-medium"
           >
-            <p>Checkout</p>
+            <p>{t('Checkout')}</p>
             <p className="after-discount">
               ฿
               {afterDiscount.toLocaleString("en-US", {

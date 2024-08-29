@@ -1,0 +1,42 @@
+{
+  "Are you sure you want to delete this promotion": "คุณแน่ใจว่าต้องการลบสินค้านี้หรือไม่?",
+  "This action cannot be undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  "Yes": "ใช่",
+  "Cancel": "ยกเลิก",
+  "Product deleted successfully": "ลบสินค้าออกจากตะกร้าแล้ว",
+  "All": "ทั้งหมด",
+  "items": "จำนวน",
+  "Year": "ปี",
+  "Delete": "ลบ",
+  "Normal Order": "รายการสั่งซื้อทั่วไป",
+  "Back Order": "Back Order",
+  "Shopping": "ตะกร้า",
+  "Cart": "สินค้า",
+  "Please login before checkout": "กรุณาเข้าสู่ระบบก่อนสั่งซื้อ",
+  "No items selected for checkout": "คุณยังไม่ได้เลือกสินค้า",
+  "Order placed successfully": "สั่งซื้อเรียบร้อยแล้ว",
+  "Failed to create order": "สั่งซื้อล้มเหลว กรุณาติดต่อแอดมิน",
+  "Failed to create sales quote": "สร้างใบเสนอราคาไม่สำเร็จ กรุณาติดต่อแอดมิน",
+  "Failed to create sales blanket order": "สร้างใบเสนอ blanket order กรุณาติดต่อแอดมิน",
+  "Order summary": "สรุปรายการสั่งซื้อ",
+  "Promotion": "โปรโมชัน",
+  "Sub Total": "ยอดรวม",
+  "Discount": "ส่วนลดท้ายบิล",
+  "Total": "สรุปยอดรวม",
+  "Checkout": "ยืนยันรายการสั่งซื้อ"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

@@ -12,6 +12,9 @@ export async function GET(
       where: {
         id: Number(id),
       },
+      include: {
+        minisizes: true
+      },
     });
     return NextResponse.json(user);
   } catch (error) {
@@ -31,43 +34,58 @@ interface dataBodyInterface {
   saleUserId?: number;
   custNo?: string;
   rewardPoint?: number;
+  minisizes?: [];
 }
 
-export async function PUT( request: Request,
-  { params, body }: { params: { id: number }; body: any }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: number } }
+) {
   const data = await request.json();
   const id = params.id;
 
-  let dataBody: dataBodyInterface = {
+  let dataBody: Omit<dataBodyInterface, 'minisizeIds'> = {
     name: data.name,
     email: data.email,
-  }
+  };
+  
   if (data.role) {
-    dataBody.role = data.role
+    dataBody.role = data.role;
   }
   if (data.phoneNumber) {
-    dataBody.phoneNumber = data.phoneNumber
+    dataBody.phoneNumber = data.phoneNumber;
+  }
+  if (data.saleUserId) {
+    dataBody.saleUserId = data.saleUserId;
+  }
+  if (data.custNo) {
+    dataBody.custNo = data.custNo;
+  }
+  if (data.rewardPoint) {
+    dataBody.rewardPoint = data.rewardPoint;
   }
 
-  if(data.saleUserId) {
-    dataBody.saleUserId = data.saleUserId
-  }
-  if(data.custNo) {
-    dataBody.custNo = data.custNo
-  }
-  if(data.rewardPoint) {
-    dataBody.rewardPoint = data.rewardPoint
-  }
-  
   try {
     const updatedUser = await prisma.user.update({
       where: {
         id: Number(id),
       },
-      data: dataBody,
+      data: {
+        ...dataBody,
+        minisizes: {
+          set: data.minisizeIds?.map((minisizeId: number) => ({
+            id: minisizeId,
+          })),
+        },
+      },
+      include: {
+        minisizes: true, // Include minisizes in the response if needed
+      },
     });
+
     return NextResponse.json(updatedUser);
   } catch (error) {
+    console.error("Error updating user:", error);
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();

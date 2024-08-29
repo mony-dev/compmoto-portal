@@ -1,23 +1,16 @@
 "use client";
 
-import {
-  Card,
-  Divider,
-  Input,
-  Select,
-  Tag,
-  Tooltip,
-} from "antd";
+import { Card, Divider, Input, Select, Tag, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
 import { ColumnsType, TableProps } from "antd/es/table";
@@ -25,7 +18,9 @@ import Submenu from "@components/Admin/Submenu";
 import DataTable from "@components/Admin/Datatable";
 import { useCart } from "@components/Admin/Cartcontext";
 import FilterTag from "@components/Admin/FilterTag";
-
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
 interface MinisizeDataType {
   id: number;
   imageProfile: string;
@@ -71,6 +66,7 @@ interface DataType {
   };
   promotion?: {
     name: string;
+    id: number;
   };
   imageProducts?: { url: string }[];
   lv1Name: string;
@@ -93,19 +89,15 @@ interface SelectedFilters {
   lv1?: FilterType;
   lv2?: FilterType;
   lv3?: FilterType;
+  promotion?: FilterType;
 }
 
 const Product = () => {
   const {
-    handleSubmit,
-    control,
-    setValue,
-    getValues,
     formState: { errors },
   } = useForm();
-  const { cartItemCount, setCartItemCount } = useCart();
-  const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
+  const { cartItemCount, setCartItemCount } = useCart();
   const { data: session, status } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -124,35 +116,64 @@ const Product = () => {
   }>({});
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
 
-  const [selectedFilters, setSelectedFilters] = useState<{
-    lv1?: { id: string; label: string };
-    lv2?: { id: string; label: string };
-    lv3?: { id: string; label: string };
-  }>({});
+  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
+  const {setI18nName, setLoadPage, loadPage} = useCart();
+  const pathname = usePathname();
 
-  type OnChange = NonNullable<TableProps<DataType>['onChange']>;
+  type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
   type GetSingle<T> = T extends (infer U)[] ? U : never;
   type Sorts = GetSingle<Parameters<OnChange>[2]>;
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
+  const [hoveredPromotionId, setHoveredPromotionId] = useState<number | null>(
+    null
+  );
+  const dataTableRef = useRef<HTMLDivElement>(null);
+  // Settings for the slider
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+          infinite: true,
+          dots: true,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
   const handleSortChange = (value: string) => {
+    // Handle sorting logic
     if (value === "descend" || value === "ascend") {
       setSortedInfo({
         order: value,
-        columnKey: 'price',
+        columnKey: "price",
       });
     } else if (value === "new") {
       const sortedData = [...productData].sort((a, b) => {
         const dateA = new Date(a.updatedAt);
         const dateB = new Date(b.updatedAt);
-        return dateB.getTime() - dateA.getTime(); 
+        return dateB.getTime() - dateA.getTime();
       });
-      setProductData(sortedData); 
+      setProductData(sortedData);
       setSortedInfo({});
     } else if (value === "popular") {
       const sortedData = [...productData].sort((a, b) => {
-        return a.totalOrder - b.totalOrder
+        return a.totalOrder - b.totalOrder;
       });
-      setProductData(sortedData); 
+      setProductData(sortedData);
       setSortedInfo({});
     }
   };
@@ -160,10 +181,12 @@ const Product = () => {
     try {
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
       if (response.data) {
-        const minisize = response.data.minisizes.map((data: MinisizeDataType) => ({
-          id: data.id,
-          imageProfile: data.imageProfile,
-        }));
+        const minisize = response.data.minisizes.map(
+          (data: MinisizeDataType) => ({
+            id: data.id,
+            imageProfile: data.imageProfile,
+          })
+        );
         minisize[0] && setMinisizeData(minisize[0]);
       }
     } catch (error) {
@@ -173,20 +196,25 @@ const Product = () => {
 
   const fetchProduct = async (
     name: string,
-    filters = {} as SelectedFilters
+    filters = {} as SelectedFilters,
+    promotionId?: number
   ) => {
     setBrandName(name);
     const simplifiedFilters = {
       lv1: filters.lv1?.id,
       lv2: filters.lv2?.id,
       lv3: filters.lv3?.id,
+      promotionId,
       page: currentPage,
       pageSize: pageSize,
     };
     axios
-      .get(`/api/getProduct?q=${searchText}&brandName=${name}&sortBy=${sortBy}`, {
-        params: simplifiedFilters,
-      })
+      .get(
+        `/api/getProduct?q=${searchText}&brandName=${name}&sortBy=${sortBy}`,
+        {
+          params: simplifiedFilters,
+        }
+      )
       .then((response) => {
         const useProduct = response.data.products.map((product: DataType) => ({
           key: product.id,
@@ -218,12 +246,14 @@ const Product = () => {
           },
           promotion: {
             name: product?.promotion?.name,
+            id: product?.promotion?.id,
           },
           imageProducts: product?.imageProducts,
           lv1Name: product.lv1Name,
           lv2Name: product.lv2Name,
           lv3Name: product.lv3Name,
         }));
+        console.log("useProduct", useProduct);
         setProductData(useProduct);
         setTotal(response.data.total);
       })
@@ -263,11 +293,15 @@ const Product = () => {
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct(name, selectedFilters);
+      hoveredPromotionId
+        ? fetchProduct(name, selectedFilters, hoveredPromotionId)
+        : fetchProduct(name, selectedFilters);
     }
   }, [searchText, selectedFilters, sortBy, currentPage]);
 
   useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
@@ -279,30 +313,39 @@ const Product = () => {
   useEffect(() => {
     const name = searchParams.get("name");
     if (name) {
-      fetchProduct(name, selectedFilters);
+      hoveredPromotionId
+        ? fetchProduct(name, selectedFilters, hoveredPromotionId)
+        : fetchProduct(name, selectedFilters);
     }
   }, [searchParams, selectedFilters]);
 
-  const handleFilterChange = (filters: {
-    lv1?: { id: string; label: string };
-    lv2?: { id: string; label: string };
-    lv3?: { id: string; label: string };
-  }) => {
+  const handleFilterChange = (
+    filters: SelectedFilters, // Use the updated type
+    promotionId?: number
+  ) => {
+    promotionId && setHoveredPromotionId(promotionId);
     setSelectedFilters(filters); // Store the full filter object (with labels)
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct(name, filters); // Pass only the IDs to fetchProduct
+      fetchProduct(name, filters, promotionId); // Pass promotionId to fetchProduct
+    }
+
+    // Scroll to the DataTable smoothly
+    if (dataTableRef.current) {
+      dataTableRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   };
-
   const addToCart = async (
     product: DataType,
     type: "Normal" | "Back",
     discount: number = 0
   ) => {
     if (!session?.user) {
-      toastError("Please login before adding to cart");
+      toastError(t("Please login before adding to cart"));
       return;
     }
 
@@ -324,7 +367,7 @@ const Product = () => {
         }
       );
       setCartItemCount(cartItemCount + 1);
-      toastSuccess("Added to cart successfully");
+      toastSuccess(t("Added to cart successfully"));
     } catch (error: any) {
       toastError(error.message);
     }
@@ -398,7 +441,7 @@ const Product = () => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "รายการสินค้า",
+      title: t("Product Lists"),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
@@ -415,7 +458,7 @@ const Product = () => {
       },
     },
     {
-      title: "ปียาง",
+      title: t("Year Lot"),
       dataIndex: "years",
       key: "years",
       render: (years: YearDataType[], record) => (
@@ -450,9 +493,20 @@ const Product = () => {
                 }}
                 onClick={() => {
                   if (yearData.isActive) {
-                    setSelectedProductYear({
-                      ...selectedProductYear,
-                      [record.id]: yearData.year,
+                    setSelectedProductYear((prevSelected) => {
+                      // Check if the currently clicked year is the same as the selected year
+                      if (prevSelected[record.id] === yearData.year) {
+                        // If yes, remove the selection (unset)
+                        const updatedSelected = { ...prevSelected };
+                        delete updatedSelected[record.id]; // Remove the selected year for this product
+                        return updatedSelected;
+                      } else {
+                        // If not, set the new selection
+                        return {
+                          ...prevSelected,
+                          [record.id]: yearData.year,
+                        };
+                      }
                     });
                   }
                 }}
@@ -475,26 +529,26 @@ const Product = () => {
       ),
     },
     {
-      title: "ขนาด",
+      title: t("Size"),
       dataIndex: "lv2Name",
       key: "lv2Name",
       defaultSortOrder: "descend",
       sorter: (a, b) => (a.lv2Name || "").localeCompare(b.lv2Name || ""),
     },
     {
-      title: "ขอบยาง",
+      title: t("Rim"),
       dataIndex: "lv3Name",
       key: "lv3Name",
       defaultSortOrder: "descend",
       sorter: (a, b) => (a.lv3Name || "").localeCompare(b.lv3Name || ""),
     },
     {
-      title: "ราคา",
+      title: t("Price"),
       dataIndex: "price",
       key: "price",
       defaultSortOrder: sortBy === "asc" ? "ascend" : "descend",
       sorter: (a, b) => a.price - b.price,
-      sortOrder: sortedInfo.columnKey === 'price' ? sortedInfo.order : null,
+      sortOrder: sortedInfo.columnKey === "price" ? sortedInfo.order : null,
       render: (price, record) => {
         const selectedYearData = record.years.find(
           (yearData) => yearData.year === selectedProductYear[record.id]
@@ -524,7 +578,7 @@ const Product = () => {
       },
     },
     {
-      title: "สถานะ",
+      title: t("Status"),
       key: "action",
       sorter: (a, b) => {
         const getStatusValue = (record: DataType) => {
@@ -601,10 +655,10 @@ const Product = () => {
             )}
             <p className="text-sm default-font">
               {record.portalStock === 0
-                ? "ไม่มีสินค้า"
+                ? t("Out of Stock")
                 : record.portalStock > 100
-                ? "มีสินค้า"
-                : "จำนวนจำกัด"}
+                ? t("Available")
+                : t("Limited")}
             </p>
           </Tag>
         );
@@ -622,30 +676,231 @@ const Product = () => {
   return (
     <div className="px-4">
       <div className="px-4 pb rounded-lg">
-        <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 promotion-card pb-4">
-          {promotiondData &&
-            promotiondData.map((promotion, index) => (
-              <Card
-                title={false}
-                bordered={false}
-                style={{ width: 300 }}
-                key={index}
-                className="rounded-lg"
-              >
-                <div className="flex-shrink-0">
-                  <Image
-                    className="w-full rounded-lg py-1"
-                    alt={promotion.name}
-                    width={250}
-                    height={250}
-                    src={promotion.image}
-                  />
-                </div>
-              </Card>
-            ))}
+        <div className="promotion-card pb-4">
+          {promotiondData.length > 3 ? (
+            <Slider {...sliderSettings}>
+              {promotiondData.map((promotion, index) => (
+                <Card
+                  title={false}
+                  bordered={false}
+                  style={{ width: 300 }}
+                  key={index}
+                  className="rounded-lg"
+                  onMouseEnter={() => setHoveredPromotionId(promotion.id)}
+                  onMouseLeave={() => setHoveredPromotionId(null)}
+                >
+                  <div
+                    className="flex-shrink-0"
+                    style={{
+                      flex: "1 0 auto",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "600px", // Set a fixed height for the image container
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Image
+                      className="w-full rounded-lg"
+                      alt={promotion.name}
+                      width={1000}
+                      height={1000}
+                      src={promotion.image}
+                      style={{
+                        objectFit: "cover", // Cover the container
+                        width: "100%", // Ensure it takes full width
+                        height: "100%", // Ensure it takes full height
+                      }}
+                    />
+                    {hoveredPromotionId === promotion.id && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <button
+                          style={{
+                            backgroundColor: "#DD2C37",
+                            padding: "8px 16px 8px 16px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            color: "white",
+                          }}
+                          // onClick={() => handleFilterChange(selectedFilters, promotion.id)}
+                          onClick={() => {
+                            handleFilterChange(
+                              {
+                                ...selectedFilters,
+                                promotion: {
+                                  id: promotion.id.toString(),
+                                  label: promotion.name,
+                                }, // Ensure promotion is added
+                              },
+                              promotion.id
+                            );
+                          }}
+                        >
+                          <div className="flex justify-between gap-2">
+                            <span>{t("see more")}</span>
+                            <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M8.5 12H14.5"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M12.5 15L15.5 12L12.5 9"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </Slider>
+          ) : (
+            <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ">
+              {promotiondData.map((promotion, index) => (
+                <Card
+                  title={false}
+                  bordered={false}
+                  style={{ width: 300 }}
+                  key={index}
+                  className="rounded-lg"
+                  onMouseEnter={() => setHoveredPromotionId(promotion.id)}
+                  onMouseLeave={() => setHoveredPromotionId(null)}
+                >
+                  <div
+                    className="flex-shrink-0"
+                    style={{
+                      flex: "1 0 auto",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "600px", // Set a fixed height for the image container
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Image
+                      className="w-full rounded-lg"
+                      alt={promotion.name}
+                      width={1000}
+                      height={1000}
+                      src={promotion.image}
+                      style={{
+                        objectFit: "cover", // Cover the container
+                        width: "100%", // Ensure it takes full width
+                        height: "100%", // Ensure it takes full height
+                      }}
+                    />
+                    {hoveredPromotionId === promotion.id && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <button
+                          style={{
+                            backgroundColor: "#DD2C37",
+                            padding: "8px 16px 8px 16px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            color: "white",
+                          }}
+                          // onClick={() => handleFilterChange(selectedFilters, promotion.id)}
+                          onClick={() => {
+                            handleFilterChange(
+                              {
+                                ...selectedFilters,
+                                promotion: {
+                                  id: promotion.id.toString(),
+                                  label: promotion.name,
+                                }, // Ensure promotion is added
+                              },
+                              promotion.id
+                            );
+                          }}
+                        >
+                          <div className="flex justify-between gap-2">
+                            <span>{t("see more")}</span>
+                            <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M8.5 12H14.5"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M12.5 15L15.5 12L12.5 9"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
         <nav
-          className="flex justify-between flex default-font text-white text-sm"
+          className="flex justify-between flex default-font text-white text-sm mt-4"
           style={{
             background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`,
             boxShadow: "0px 4px 4px 0px #00000040",
@@ -658,8 +913,8 @@ const Product = () => {
                 onFilterChange={handleFilterChange}
               />
             )}
-            <div className="cursor-pointer">ข่าวและกิจกรรม</div>
-            <div className="cursor-pointer">การตลาด</div>
+            <div className="cursor-pointer">{t('News and events')}</div>
+            <div className="cursor-pointer">{t('Marketing')}</div>
           </div>
           <div>
             <Image
@@ -679,11 +934,12 @@ const Product = () => {
         </nav>
         {(selectedFilters.lv1 ||
           selectedFilters.lv2 ||
-          selectedFilters.lv3) && (
+          selectedFilters.lv3 ||
+          selectedFilters.promotion) && (
           <>
             <div className="flex pt-4 items-center gap-4">
               <p className="text-comp-text-filter default-font text-sm">
-                ตัวกรองที่ใช้ :
+               {t('Filter')} :
               </p>
               <FilterTag
                 selectedFilters={selectedFilters}
@@ -695,33 +951,34 @@ const Product = () => {
         )}
         <div className="flex justify-end items-center gap-4 sort-filter">
           <Input.Search
-            placeholder="Search"
+            placeholder={t("Search")}
             size="middle"
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: "200px", margin: "1rem 0 1rem 0" }}
           />
-          <p className="text-comp-text-filter default-font text-sm">เรียงตาม</p>
+          <p className="text-comp-text-filter default-font text-sm">{t("Sort")}</p>
           <Select
             style={{ width: 120 }}
             allowClear
             options={[
-              { value: "descend", label: "ราคา มาก-น้อย" },
-              { value: "ascend", label: "ราคา น้อย-มาก" },
-              { value: "popular", label: "สินค้ายอดนิยม" },
-              { value: "new", label: "สินค้าใหม่" },
+              { value: "descend", label: t("High to Low") },
+              { value: "ascend", label: t("Low to High") },
+              { value: "popular", label: t("Popular") },
+              { value: "new", label: t("New") },
             ]}
             onChange={handleSortChange}
           />
         </div>
-
-        <DataTable
-          columns={columns}
-          data={productData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <div ref={dataTableRef}>
+          <DataTable
+            columns={columns}
+            data={productData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </div>
       </div>
     </div>
   );

@@ -245,9 +245,17 @@ body {
   margin-right: 0 !important;
 }
 
-.promotion-card .ant-card {
-  width: 100% !important;
+.promotion-card {
+  :where(.css-dev-only-do-not-override-98ntnt).ant-card .ant-card-body{
+    margin: 24px!important;
+    padding: 0px!important;
+  }
+
+  .ant-card {
+    width: 100% !important;
+  }
 }
+
 
 .ant-table-thead tr {
   font-family: "AnuphanRegular", sans-serif;
@@ -531,4 +539,60 @@ body {
   .ant-modal-body {
     height: 300px;
   }
+
+ 
+}
+.anticon-right{
+  display: none!important;
+}
+.anticon-left{
+  display: none!important;
+}
+
+:where(.css-dev-only-do-not-override-98ntnt).ant-carousel .slick-next::after {
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+:where(.css-dev-only-do-not-override-98ntnt).ant-carousel .slick-prev::after{
+  margin-top: 7px;
+  margin-left: 10px;
+}
+
+.slick-list{
+  height:  auto!important;
+}
+
+.slick-slide {
+  width: 375px;
+}
+
+.slick-prev:before, .slick-next:before {
+  color: #3e3e3f!important;
+}
+
+.hoverley-img {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.hover-container:hover .image {
+  opacity: 0.3;
+}
+
+.hover-container:hover .middle {
+  opacity: 1;
+}
+
+.hover-text {
+  background-color: #04AA6D;
+  color: white;
+  font-size: 16px;
+  padding: 16px 32px;
 }

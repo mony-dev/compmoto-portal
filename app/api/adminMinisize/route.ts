@@ -28,20 +28,6 @@ export async function GET(request: Request) {
           OR: [{ name: { contains: q, mode: "insensitive" } }],
         },
       }),
-      // const minisizes = await prisma.minisize.findMany({
-      //   where: {
-      //     OR: [
-      //       { name: { contains: q, mode: "insensitive" } },
-      //     ],
-      //   },
-      //   include: {
-      //     brand: {
-      //       include: {
-      //         products: true,
-      //       },
-      //     },
-      //   },
-      // }),
     ]);
 
     const minisizesWithProductCount = minisizes.map((minisize: any) => ({

@@ -39,7 +39,7 @@ const Footer = ({ isOpen }: FooterProps) => {
   return (
     <>
       {/* <div style={{ marginTop: "20rem" }}> */}
-        <footer className="z-20" style={{ background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040` }}>
+        <footer className="z-20" style={{marginTop: '8rem',  background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`, boxShadow: `0px 4px 4px 0px #00000040` }}>
            <div className="flex justify-between px-24 py-8">
           <div className="flex justify-start flex-col">
             <Link href={`/${locale}/admin`} className="relative flex items-start">

@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const lv3 = searchParams.get('lv3') || null;
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "1000");
-
+  const promotionId = searchParams.get('promotionId') || null;
   try {
     const [products, total] = await Promise.all([
       prisma.product.findMany({
@@ -42,6 +42,7 @@ export async function GET(request: Request) {
             lv1 ? { lv1Id: parseInt(lv1) } : {},
             lv2 ? { lv2Id: parseInt(lv2) } : {},
             lv3 ? { lv3Id: parseInt(lv3) } : {},
+            promotionId ? { promotionId: parseInt(promotionId) } : {}, // Add promotionId filter
           ],
         },
         include: {
@@ -60,6 +61,7 @@ export async function GET(request: Request) {
           },
           promotion: {
             select: {
+              id: true,
               name: true,
             },
           },
@@ -85,6 +87,7 @@ export async function GET(request: Request) {
             lv1 ? { lv1Id: parseInt(lv1) } : {},
             lv2 ? { lv2Id: parseInt(lv2) } : {},
             lv3 ? { lv3Id: parseInt(lv3) } : {},
+            promotionId ? { promotionId: Number(promotionId) } : {},
           ],
         },
       }),

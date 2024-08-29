@@ -1,15 +1,23 @@
 import React from 'react';
 import { Tag, theme  } from 'antd';
-import { TweenOneGroup } from 'rc-tween-one';
+
+interface FilterType {
+  id: string;
+  label: string;
+}
 
 interface FilterTagProps {
-  onFilterChange: (filters: {lv1?: { id: string; label: string };
-    lv2?: { id: string; label: string };
-    lv3?: { id: string; label: string }; }) => void;
+  onFilterChange: (filters: {
+    lv1?: FilterType;
+    lv2?: FilterType;
+    lv3?: FilterType;
+    promotion?: FilterType; // Add promotion filter
+  }) => void;
   selectedFilters: {
-    lv1?: { id: string; label: string };
-    lv2?: { id: string; label: string };
-    lv3?: { id: string; label: string };
+    lv1?: FilterType;
+    lv2?: FilterType;
+    lv3?: FilterType;
+    promotion?: FilterType; // Add promotion filter
   };
 }
 
@@ -18,10 +26,15 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
     selectedFilters.lv1 ? `${selectedFilters.lv1.label}` : null,
     selectedFilters.lv2 ? `${selectedFilters.lv2.label}` : null,
     selectedFilters.lv3 ? `${selectedFilters.lv3.label}` : null,
+    selectedFilters.promotion ? `Promotion: ${selectedFilters.promotion.label}` : null,
   ].filter(Boolean); // Filter out any null values
   const handleClose = (removedTag: string) => {
     const newFilters = { ...selectedFilters };
-    if (newFilters.lv3 && newFilters.lv3.label === removedTag) {
+
+    if (newFilters.promotion && `Promotion: ${newFilters.promotion.label}` === removedTag) {
+      // If the removed tag is for promotion, remove promotion
+      delete newFilters.promotion;
+    } else if (newFilters.lv3 && newFilters.lv3.label === removedTag) {
       // If the removed tag is in lv3, remove lv3
       delete newFilters.lv3;
     } else if (newFilters.lv2 && newFilters.lv2.label === removedTag) {
@@ -34,10 +47,9 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
       delete newFilters.lv2;
       delete newFilters.lv3;
     }
-  
+
     onFilterChange(newFilters);
   };
-  const { token } = theme.useToken();
   const tagPlusStyle: React.CSSProperties = {
     background: '#E4E7EB',
     borderStyle: 'solid',
@@ -46,7 +58,6 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
   };
 
   const tagChild = tags.map(tag => (
-
     <span key={tag} style={{ display: 'inline-block' }}>
       <Tag
         closable
@@ -64,18 +75,7 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
 
   return (
     <div>
-      {/* <TweenOneGroup
-        appear={true}
-        enter={{ scale: 0.8, opacity: 0, type: 'from', duration: 100 }}
-        leave={{ opacity: 0, width: 0, scale: 0, duration: 200 }}
-        onEnd={e => {
-          if (e.type === 'appear' || e.type === 'enter') {
-            (e.target as any).style = 'display: inline-block';
-          }
-        }}
-      > */}
         {tagChild}
-      {/* </TweenOneGroup> */}
     </div>
   );
 };

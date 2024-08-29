@@ -46,7 +46,9 @@ model User {
   userRewards        UserReward[]     
   cart               Cart?
   orders             Order[]     
-  invoices           Invoice[]     
+  invoices           Invoice[]  
+  minisizes             Minisize[]  @relation("UserMinisizes")
+
 
   @@index([id])
   @@map("users")
@@ -230,11 +232,13 @@ model Minisize {
   imageProfile      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  users         User[]    @relation("UserMinisizes")
   brand     Brand    @relation(fields: [brandId], references: [id])
   products  Product[]
   promotions Promotion[]
   media Media[]
   news News[]
+  
 }
 
 model Product {
