@@ -221,50 +221,63 @@ model Brand {
   products  Product[]
 }
 
-model Minisize {
+model BrandProduct {
   id        Int      @id @default(autoincrement())
-  isActive  Boolean
-  name      String
-  brandId   Int
-  lv1       Json
-  lv2       Json
-  lv3       Json
-  imageProfile      String?
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  users         User[]    @relation("UserMinisizes")
-  brand     Brand    @relation(fields: [brandId], references: [id])
+  minisizes Minisize[]
   products  Product[]
-  promotions Promotion[]
-  media Media[]
-  news News[]
-  
+}
+
+
+model Minisize {
+  id                Int      @id @default(autoincrement())
+  isActive          Boolean
+  name              String
+  brandId           Int
+  brandProductId    Int
+  lv1               Json
+  lv2               Json
+  lv3               Json
+  imageProfile      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  users             User[]    @relation("UserMinisizes")
+  brand             Brand    @relation(fields: [brandId], references: [id])
+  brandProduct      BrandProduct    @relation(fields: [brandProductId], references: [id])
+  products          Product[]
+  promotions        Promotion[]
+  media             Media[]
+  news              News[]
 }
 
 model Product {
-  id           Int      @id @default(autoincrement())
-  code         String   @unique
-  name         String
-  brandId      Int
-  price        Float
-  navStock     Int
-  portalStock  Int
-  minisizeId   Int?
-  promotionId  Int?
-  years        Json
-  lv1Id        Int?
-  lv2Id        Int?
-  lv3Id        Int?
-  image        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  brand        Brand    @relation(fields: [brandId], references: [id])
-  minisize     Minisize? @relation(fields: [minisizeId], references: [id])
-  promotion    Promotion? @relation(fields: [promotionId], references: [id])
-  imageProducts    ImageProduct[]
-  cartItems     CartItem[] 
-  orderItems     OrderItem[] 
-  invoiceItems     InvoiceItem[] 
+  id                  Int      @id @default(autoincrement())
+  code                String   @unique
+  name                String
+  brandId             Int
+  brandProductId      Int
+  price               Float
+  navStock            Int
+  portalStock         Int
+  minisizeId          Int?
+  promotionId         Int?
+  years               Json
+  lv1Id               Int?
+  lv2Id               Int?
+  lv3Id               Int?
+  image               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  brand               Brand    @relation(fields: [brandId], references: [id])
+  brandProduct        BrandProduct    @relation(fields: [brandProductId], references: [id])
+  minisize            Minisize? @relation(fields: [minisizeId], references: [id])
+  promotion           Promotion? @relation(fields: [promotionId], references: [id])
+  imageProducts       ImageProduct[]
+  cartItems           CartItem[] 
+  orderItems          OrderItem[] 
+  invoiceItems        InvoiceItem[] 
 }
 
 model Promotion {

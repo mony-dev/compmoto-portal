@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export async function GET(request: Request) {
   try {
     const [brands] = await Promise.all([
-      prisma.brand.findMany(),
+      prisma.brandProduct.findMany(),
     ]);
     console.log("Brands:", brands);
     return NextResponse.json({ brands: brands });
