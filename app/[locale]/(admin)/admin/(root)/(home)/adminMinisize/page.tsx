@@ -213,19 +213,38 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
     }
   }
 
+  // const fetchBrands = async () => {
+  //   try {
+  //     const { data } = await axios.get(`/api/adminBrand`);
+  //     console.log("data", data)
+
+  //     const brands = data.brands.map((brand: any) => ({
+  //       value: brand.id,
+  //       label: brand.name,
+  //     }));
+
+  //     console.log(brands)
+      
+  //     setBrandOptions(brands);
+  //   } catch (error: any) {
+  //     console.log("fetch brand :", error.message)
+  //     toastError(error.message);
+  //   }
+  // };
+
   const fetchBrands = async () => {
     try {
       const { data } = await axios.get(`/api/adminBrand`);
       console.log("data", data)
 
-      const brands = data.brands.map((brand: any) => ({
+      const brands = data.map((brand: any) => ({
         value: brand.id,
         label: brand.name,
       }));
 
+      setBrandOptions(brands);
       console.log(brands)
       
-      setBrandOptions(brands);
     } catch (error: any) {
       console.log("fetch brand :", error.message)
       toastError(error.message);

@@ -180,7 +180,8 @@ export default function admins() {
     
     const fetchBrands = async () => {
       try {
-        const { data } = await axios.get(`/api/adminBrand`);
+        console.log("data test fetch")
+        const { data } = await axios.get(`/api/size`);
         console.log("data", data)
   
         // const brands = data.brands.map((brand: any) => ({

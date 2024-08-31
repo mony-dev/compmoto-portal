@@ -55,7 +55,7 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001 -G nodejs
 
 # Ensure the node_modules directory is accessible
-RUN chown -R nextjs:nodejs /app/node_modules
+# RUN chown -R nextjs:nodejs /app/node_modules
 
 # Change to the non-root user
 USER nextjs
