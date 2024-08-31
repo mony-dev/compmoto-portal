@@ -23,7 +23,11 @@
   "Sub Total": "ยอดรวม",
   "Discount": "ส่วนลดท้ายบิล",
   "Total": "สรุปยอดรวม",
-  "Checkout": "ยืนยันรายการสั่งซื้อ"
+  "Checkout": "ยืนยันรายการสั่งซื้อ",
+  "You cannot place an order that exceeds our available stock": "ํคุณไม่สามารถสั่งซื้อสินค้าเกินจำนวนสต็อคที่เรามีได้",
+  "Please check the quantity and place your order again": "กรุณาตรวจสอบจำนวนสินค้าและทำรายการสั่งซื้อใหม่อีกครั้ง"
+
+
 
 
 

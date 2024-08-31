@@ -82,9 +82,10 @@ export async function GET(request: Request) {
         },
       }),
     ]);
+    console.log("userRole", userRole)
+    console.log("userId", userId)
+    console.log("orders", orders)
     return NextResponse.json({ orders: orders, total });
-
-    return NextResponse.json(orders);
   } catch (error) {
     return NextResponse.json(error);
   } finally {

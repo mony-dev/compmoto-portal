@@ -23,5 +23,7 @@
     "Sub Total": "Sub Total",
     "Discount": "Discount",
     "Total": "Total",
-    "Checkout": "Checkout"
+    "Checkout": "Checkout",
+    "You cannot place an order that exceeds our available stock": "ํYou cannot place an order that exceeds our available stock",
+    "Please check the quantity and place your order again": "Please check the quantity and place your order again"
 }

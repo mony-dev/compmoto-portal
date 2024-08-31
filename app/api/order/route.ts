@@ -30,36 +30,54 @@ export async function GET(request: Request) {
   const q = searchParams.get('q') || '';
   const type = searchParams.get('type') || '';
   const userId = searchParams.get('userId') || '';
-
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "30");
   if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
   }
 
   try {
-    const orders = await prisma.order.findMany({
-      where: {
-        userId: Number(userId),
-        type: type ? (type as OrderType) : undefined,
-        OR: q ? [
-          {
-            documentNo: {
-              contains: q, 
-              mode: 'insensitive', 
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where: {
+          userId: Number(userId),
+          type: type ? (type as OrderType) : undefined,
+          OR: q ? [
+            {
+              documentNo: {
+                contains: q, 
+                mode: 'insensitive', 
+              },
+            }
+          ] : undefined,
+        },
+        include: {
+          user: true,
+          items: {
+            include: {
+              product: true,
             },
-          }
-        ] : undefined,
-      },
-      include: {
-        user: true,
-        items: {
-          include: {
-            product: true,
           },
         },
-      },
-    });
-
-    return NextResponse.json(orders);
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.order.count({
+        where: {
+          userId: Number(userId),
+          type: type ? (type as OrderType) : undefined,
+          OR: q ? [
+            {
+              documentNo: {
+                contains: q, 
+                mode: 'insensitive', 
+              },
+            }
+          ] : undefined,
+        },
+      }),
+    ]);
+    return NextResponse.json({ orders: orders, total });
   } catch (error) {
     return NextResponse.json(error);
   } finally {

@@ -37,6 +37,7 @@ export async function POST(request: Request) {
             type: data.type,
             price: data.price,
             discount: data.discount,
+            year: data.year
           },
         });
       } else {
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
             type: data.type,
             price: data.price,
             discount: data.discount,
+            year: data.year
           },
         });
       }

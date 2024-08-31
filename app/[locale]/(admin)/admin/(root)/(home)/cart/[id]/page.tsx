@@ -55,9 +55,11 @@ interface CartDataType {
   price: number;
   discount: number;
   amount: number;
+  year: string;
   product: {
     id: number;
     name: string;
+    navStock: number;
     price: number;
     years: YearDataType[];
     image: string;
@@ -135,12 +137,13 @@ const Cart = ({ params }: { params: { id: number } }) => {
 
     selectedRows.forEach((record) => {
       const amount = getValues(`amount_${record.id}`) || 0;
+      record.amount = amount
       const yearToUse = selectedProductYear[record.id]; // Use the latest state here
       newTotalAmount += amount;
       newTotalPrice += calculateTotalPrice(record, amount, yearToUse);
       checkPromotion();
     });
-
+    
     setTotalAmount(newTotalAmount);
     setTotalPrice(newTotalPrice);
   };
@@ -153,7 +156,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
     let totalPrice = record.product.price * amount;
     // Use the passed `selectedYear` if available, otherwise fallback to state
     const yearToUse = selectedYear || selectedProductYear[record.id];
-    console.log("yearToUse", yearToUse)
     if (yearToUse) {
       const yearData = record.product.years.find(
         (year) => year.year === yearToUse
@@ -175,7 +177,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
         yearDiscountOrGroup = discountRate;
         totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
       }
-      console.log(`yearDiscountOrGroup: ${record.product.name}`, yearDiscountOrGroup)
       record.product.discount = yearDiscountOrGroup;
     } 
     else {
@@ -251,13 +252,25 @@ const Cart = ({ params }: { params: { id: number } }) => {
   };
   const handleIncrement = (name: string, record: CartDataType) => {
     const currentValue = getValues(`amount_${record.id}`) || 0;
-
+   
     const newValue = currentValue + 1;
     setValue(name, newValue);
+    if (newValue >=  record.product.navStock) {
+      Modal.warning({
+        title: t("You cannot place an order that exceeds our available stock"),
+        content: t("Please check the quantity and place your order again"),
+        okText: false,
+        okType: "danger",
+        cancelText: t("Cancel"),
+      });
+      setValue(name,  record.product.navStock);
+    }
+
     // Update the total price
     const totalPrice = calculateTotalPrice(record, newValue);
     let originalPrice = calculateOriginalPrice(record, newValue);
 
+    updateItem(record, newValue, totalPrice);
     updatePriceDisplay(record.id, totalPrice, originalPrice);
     recalculateTotals(
       cartData.filter((item) => selectedItems.includes(item.id))
@@ -273,10 +286,12 @@ const Cart = ({ params }: { params: { id: number } }) => {
 
       if (newValue === 0) {
         removeItem(record); // Call removeItem if the new value is 0
+        setValue(name, 1);
       } else {
         // Update the total price only if the value is not zero
         const totalPrice = calculateTotalPrice(record, newValue);
         let originalPrice = calculateOriginalPrice(record, newValue);
+        updateItem(record, newValue, totalPrice);
         updatePriceDisplay(record.id, totalPrice, originalPrice);
         recalculateTotals(
           cartData.filter((item) => selectedItems.includes(item.id))
@@ -310,6 +325,25 @@ const Cart = ({ params }: { params: { id: number } }) => {
     });
   };
 
+  const updateItem = async (record: CartDataType, newValue: number, totalPrice: number, year?: string | null) => {
+    try {
+      const response = await axios.put(
+        `/api/cart/${record.id}`, 
+        {
+          amount: newValue, // Sending `amount` in the request body
+          price: totalPrice, // If `price` is also needed, otherwise remove
+          year: year
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }
+      );
+    } catch (error: any) {
+      toastError(error.response.data.message);
+    }
+  };
   useEffect(() => {
     // Recalculate totals whenever selectedProductYear or selectedItems change
     recalculateTotals(
@@ -361,7 +395,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           const totalPrice = calculateTotalPrice(record, amount, null);
           const originalPrice = calculateOriginalPrice(record, amount);
           updatePriceDisplay(record.id, totalPrice, originalPrice);
-  
+          updateItem(record, amount, totalPrice, null);
           return updatedYearSelection;
         } else {
           // If not, set the new selection
@@ -376,6 +410,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           const originalPrice = calculateOriginalPrice(record, amount);
   
           updatePriceDisplay(record.id, totalPrice, originalPrice);
+          updateItem(record, amount, totalPrice, yearData.year);
   
           return updatedYearSelection;
         }
@@ -603,6 +638,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                       <InputNumber
                         {...field}
                         min={0}
+                        max={record.product.navStock}
                         step={1}
                         disabled={true}
                         className="w-full text-lg"
@@ -631,7 +667,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
     axios
       .get(`/api/cart/${params.id}`)
       .then((response) => {
-        console.log(response)
         const useCart = response.data.items.map((item: any) => ({
           key: item.id,
           id: item.id,
@@ -639,9 +674,11 @@ const Cart = ({ params }: { params: { id: number } }) => {
           price: item.price,
           discount: item.discount,
           amount: item.amount,
+          year: item.year,
           product: {
             id: item.product.id,
             name: item.product.name,
+            navStock: item.product.navStock,
             brandName: item.product.brandName,
             price: item.product.price,
             minisizeId: item.product.minisizeId,
@@ -659,17 +696,16 @@ const Cart = ({ params }: { params: { id: number } }) => {
             promotion: item.product.promotion,
           }
         }));
-
+  
         const userMinisize = response.data.user.minisizes.map((mini: any) => ({
           key: mini.id,
           id: mini.id,
           name: mini.name
         }));
-
-        setUserMinisize(userMinisize)
-        console.log(userMinisize)
-        console.log(useCart)
+  
+        setUserMinisize(userMinisize);
         setCartData(useCart);
+  
         // Calculate counts
         const normal = useCart.filter(
           (cart: { type: string; item: any }) => cart.type === "Normal"
@@ -677,29 +713,43 @@ const Cart = ({ params }: { params: { id: number } }) => {
         const back = useCart.filter(
           (cart: { type: string; item: any }) => cart.type === "Back"
         ).length;
-
+  
         setNormalCount(normal);
         setBackCount(back);
-
-        // Automatically select the active year
+  
+        // Initialize defaultSelectedYears with correct logic
         const defaultSelectedYears: { [key: number]: string | null } = {};
-        useCart.forEach((cartItem: any) => {
-          const activeYear = cartItem.product.years.find(
-            (year: { isActive: boolean; discount: number }) =>
-              year.discount === cartItem.discount
-          );
-          if (activeYear) {
-            defaultSelectedYears[cartItem.id] = activeYear.year;
+        useCart.forEach((cartItem: CartDataType) => {
+          if (cartItem.year) {
+            // Check if cartItem.year is a valid active year
+            const isYearValid = cartItem.product.years.some(
+              (year: YearDataType) => year.year === cartItem.year && year.isActive
+            );
+  
+            if (isYearValid) {
+              // Use cartItem.year if it's valid and active
+              defaultSelectedYears[cartItem.id] = cartItem.year;
+            } else {
+              // If cartItem.year is invalid or inactive, set to null
+              defaultSelectedYears[cartItem.id] = null;
+            }
+          } else {
+            // cartItem.year is null, so we set it to null (no selection)
+            defaultSelectedYears[cartItem.id] = null;
           }
+  
           setValue(`amount_${cartItem.id}`, cartItem.amount);
         });
+  
+        // Set the initial selected years state
         setSelectedProductYear(defaultSelectedYears);
+  
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
   }, [reloadItem]);
-
+  
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -843,25 +893,22 @@ const Checkout: React.FC<CheckoutProps> = ({
 }) => {
   const { t } = useTranslation();
   const subDiscount = discountRate;
-  const calDiscount = totalPrice * (subDiscount / 100);
+  const selectedCartItems = cartData.filter((item: any) =>
+    selectedItems.includes(item.id)
+  );
+   // Calculate the total discount for all selected items
+   const calDiscount = selectedCartItems.reduce((acc: any, item: any) => {
+    const productDiscount = item.product.discount || 0;
+    const itemDiscount =
+      (item.product.price * item.amount) * (productDiscount / 100);
+    return acc + itemDiscount;
+  }, 0);
   const afterDiscount = totalPrice - calDiscount;
   const { data: session } = useSession();
   const router = useRouter();
   const locale = useCurrentLocale(i18nConfig);
   const { cartItemCount, setCartItemCount } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const selectedCartItems = cartData.filter((item: any) =>
-    selectedItems.includes(item.id)
-  );
-
-  console.log("totalAmount", totalAmount)
-  console.log("totalPrice", totalPrice)
-  console.log("discountRate", discountRate)
-  console.log("cartData", cartData)
-  console.log("selectedCartItems", selectedCartItems)
-
-
 
   const onSubmit = async () => {
     if (!session?.user?.id) {
@@ -891,7 +938,6 @@ const Checkout: React.FC<CheckoutProps> = ({
         type: selectedCartItems[0].type,
         externalDocument: joinedString,
       };
-  
       const { data: createdOrder } = await axios.post("/api/order", orderData, {
         headers: {
           "Content-Type": "application/json",
@@ -900,7 +946,8 @@ const Checkout: React.FC<CheckoutProps> = ({
   
       const orderItemsData = selectedCartItems.map(
         (item: {
-          product: { years: any[]; id: any; code: string };
+          amount: number;
+          product: { years: any[]; id: any; code: string; discount: number };
           id: string | number;
           type: any;
         }) => {
@@ -912,20 +959,19 @@ const Checkout: React.FC<CheckoutProps> = ({
             orderId: createdOrder.id,
             productId: item.product.id,
             code: item.product.code,
-            amount: getValues(`amount_${item.id}`),
+            amount: item.amount,
             type: item.type,
-            price: calculateOriginalPrice(item, getValues(`amount_${item.id}`)),
+            price: calculateOriginalPrice(item, item.amount),
             year: selectedYearData?.year
               ? parseInt(selectedYearData.year)
               : null,
-            discount: selectedYearData?.discount || 0,
-            discountPrice: selectedYearData?.discount
-              ? calculateTotalPrice(item, getValues(`amount_${item.id}`)) 
-              : calculateOriginalPrice(item, getValues(`amount_${item.id}`)),
+            discount: item.product.discount,
+            discountPrice: item.product.discount
+              ? calculateTotalPrice(item, item.amount) 
+              : calculateOriginalPrice(item, item.amount),
           };
         }
       );
-  
       const res = await axios.post(
         "/api/orderItem",
         { items: orderItemsData },
@@ -945,8 +991,10 @@ const Checkout: React.FC<CheckoutProps> = ({
            session.user.saleUserCustNo || "",
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
-             qty: getValues(`amount_${item.cartId}`),
-             unitPrice: item.discountPrice,
+             qty: item.amount,
+             unitPrice: selectedCartItems.find(
+              (itemse: any) => itemse.product.id ===item.productId
+            ).price,
            }))
          )
        : await createSalesBlanket(
@@ -956,8 +1004,10 @@ const Checkout: React.FC<CheckoutProps> = ({
            session.user.saleUserCustNo || "",
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
-             qty: getValues(`amount_${item.cartId}`),
-             unitPrice: item.discountPrice,
+             qty: item.amount,
+             unitPrice: selectedCartItems.find(
+              (itemse: any) => itemse.product.id ===item.productId
+            ).price,
              BlanketRemainQty: getValues(`amount_${item.cartId}`),
            }))
          );
@@ -1098,7 +1148,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <div className="flex justify-between items-center">
         <div>
           <p className="text-sm"> {t('Discount')}</p>
-          <p className="text-xs text-comp-red sub-discount">({subDiscount}%)</p>
+          {/* <p className="text-xs text-comp-red sub-discount">({subDiscount}%)</p> */}
         </div>
         <div className="text-base font-base text-comp-red cal-discount">
           ฿

@@ -189,7 +189,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
             pageSize: pageSize,
           },
         });
-  
+        
         const orderDataWithKeys = data.orders.map(
           (order: any, index: number) => ({
             ...order,

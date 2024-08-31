@@ -382,7 +382,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
                 </p>
               </div>
              
-              {reData?.groupDiscount && (
+              {/* {reData?.groupDiscount && (
                 <div className="flex justify-between promotion-text pb-4">
                   <p className="text-sm gotham-font text-[#919FAF]">{t("Discount")}</p>
                   <p className="text-sm default-font">
@@ -391,7 +391,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
                   </Tag>
                   </p>
                 </div>
-              )}
+              )} */}
               {reData?.groupDiscountPrice && (
                 <div className="flex justify-between promotion-text pb-4">
                   <p className="text-sm gotham-font text-[#919FAF]">{t("Discount Price")}</p>

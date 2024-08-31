@@ -52,6 +52,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     createdAt: string;
     user: {
       custNo: string;
+      name: string;
       id: number;
       contactName: string;
     };
@@ -91,6 +92,14 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     },
     {
       title: t("Name"),
+      dataIndex: "custNo",
+      key: "custNo",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.user.name.localeCompare(b.user.name),
+      render: (_, record) => <p>{record.user.name}</p>,
+    },
+    {
+      title: t("date"),
       dataIndex: "date",
       key: "date",
       render: (_, record) => <p>{formatDate(record.createdAt)}</p>,
@@ -162,7 +171,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     setLoadPage(true);
     if (session?.user?.id) {
       try {
-        const { data } = await axios.get(`/api/adminOrder`, {
+        const { data } = await axios.get(`/api/order`, {
           params: {
             q: searchText,
             type: 'Normal',

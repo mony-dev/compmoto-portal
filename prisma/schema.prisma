@@ -329,6 +329,7 @@ model CartItem {
   amount    Int
   type      OrderType
   price     Float
+  year      String?
   discount  Int
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)

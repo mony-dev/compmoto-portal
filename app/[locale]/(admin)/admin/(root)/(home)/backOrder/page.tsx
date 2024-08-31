@@ -153,7 +153,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
     setLoadPage(true);
     if (session?.user?.id) {
       try {
-        const { data } = await axios.get(`/api/adminOrder`, {
+        const { data } = await axios.get(`/api/order`, {
           params: {
             q: searchText,
             type: 'Back',

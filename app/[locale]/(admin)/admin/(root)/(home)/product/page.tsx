@@ -348,6 +348,7 @@ const Product = () => {
       toastError(t("Please login before adding to cart"));
       return;
     }
+    const selectedYear = selectedProductYear[product.id];
 
     try {
       const cartItem = await axios.post(
@@ -359,6 +360,7 @@ const Product = () => {
           price: product.price,
           discount,
           userId: session.user.id,
+          year: selectedYear
         },
         {
           headers: {
