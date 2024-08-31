@@ -216,6 +216,8 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
   const fetchBrands = async () => {
     try {
       const { data } = await axios.get(`/api/adminBrand`);
+      console.log("data", data)
+
       const brands = data.brands.map((brand: any) => ({
         value: brand.id,
         label: brand.name,
@@ -225,7 +227,7 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
       
       setBrandOptions(brands);
     } catch (error: any) {
-      console.log("fetch brand :", error)
+      console.log("fetch brand :", error.message)
       toastError(error.message);
     }
   };
