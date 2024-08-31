@@ -5,12 +5,9 @@ services:
     image: compmoto-app
     build:
       context: ./
-      # target: dev
       dockerfile: Dockerfile
     volumes:
-      - .:/app # This line might be redundant (see note below) 
-      - /app/node_modules
-      - /app/.next
+      - .:/app
     ports:
       - "3000:3000" 
     networks:
@@ -43,8 +40,10 @@ services:
       - app
     networks:
       - compmoto-net
+
 networks:
   compmoto-net:
     driver: bridge
+
 volumes:
   postgres_data:
