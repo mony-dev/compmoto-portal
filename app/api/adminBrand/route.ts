@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       }),
       prisma.brandProduct.count(),
     ]);
-    return NextResponse.json({ brands: brands, total });
+    return NextResponse.json({ data: brands, total });
   } catch (error) {
     return NextResponse.json(error);
   } finally {
