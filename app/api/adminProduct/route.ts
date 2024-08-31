@@ -106,6 +106,7 @@ export async function POST(request: Request) {
     const newMinisize = await prisma.minisize.create({
       data: {
         brandId: data.brandId,
+        brandProductId: data.brandId,
         name: data.name,
         isActive: data.isActive,
         lv1: JSON.stringify(data.lv1),
