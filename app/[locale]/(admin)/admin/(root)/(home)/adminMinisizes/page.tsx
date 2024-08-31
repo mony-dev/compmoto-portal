@@ -24,7 +24,7 @@ const ModalMinisize = dynamic(
   () => import("@components/Admin/minisize/ModalMinisize")
 );
 
-export default function adminMinisize({ params }: { params: { id: number } }) {
+export default function adminMinisizes({ params }: { params: { id: number } }) {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { setI18nName, setLoadPage, loadPage } = useCart();
@@ -45,6 +45,9 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
   const [id, setId] = useState(0);
   const [title, setTitle] = useState(t("setting_minisize"));
   const searchParams = useSearchParams();
+  const [brandOptions, setBrandOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
 
   interface DataType {
     id: number;
@@ -74,7 +77,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
             },
           });
           setTriggerMinisize(!triggerMinisize);
-          router.replace(`/${locale}/admin/adminMinisize`);
+          router.replace(`/${locale}/admin/adminMinisizes`);
           toastSuccess(t("minisize_deleted_successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
@@ -208,6 +211,29 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
     }
   }
 
+  const fetchBrands = async () => {
+    try {
+      const [brandResponse] =
+      await Promise.all([
+        axios.get(`/api/adminBrand`),
+      ]);
+
+      const brands = brandResponse.data.brands.map((brand: any) => ({
+        value: brand.id,
+        label: brand.name,
+      }));
+
+      console.log(brands)
+      setBrandOptions(brands);
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
   useEffect(() => {
     isModalVisible ? setMode("EDIT") : setMode("ADD");
   }, [isModalVisible]);
@@ -307,6 +333,7 @@ export default function adminMinisize({ params }: { params: { id: number } }) {
           title={title}
           id={id}
           setId={setId}
+          brandOptions={brandOptions}
         />
       </div>
     </div>

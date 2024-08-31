@@ -851,11 +851,15 @@ const Checkout: React.FC<CheckoutProps> = ({
   const { cartItemCount, setCartItemCount } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const selectedCartItems = cartData.filter((item: any) =>
+    selectedItems.includes(item.id)
+  );
+
   console.log("totalAmount", totalAmount)
   console.log("totalPrice", totalPrice)
   console.log("discountRate", discountRate)
   console.log("cartData", cartData)
-  console.log("selectedItems", selectedItems)
+  console.log("selectedCartItems", selectedCartItems)
 
 
 

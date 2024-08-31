@@ -37,7 +37,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       // Only set profile image if the session is available
       setProfileImage(session.user.image);
     }
-  }, [session, setProfileImage]); 
+  }, [session, setProfileImage]);
 
   if (status === "loading") {
     return <div>Loading...</div>; // or a loading spinner
@@ -69,16 +69,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </div> */}
-   
 
       <div className="grid grid-cols-6 grid-rows-auto bg-comp-gray-bg">
         <div className="row-start-2 row-end-auto col-start-1 col-end-2">
           <SideBar
-              isOpen={isMobileOpened}
-              onToggle={toggleMobileMenu}
-              role={session?.user.role}
-              minisizeItems={minisizeItems}
-            />
+            isOpen={isMobileOpened}
+            onToggle={toggleMobileMenu}
+            role={session?.user.role}
+            minisizeItems={minisizeItems}
+          />
         </div>
         <div className="col-span-6 auto-rows-auto pb-6 bg-comp-gray-bg">
           <NavBar

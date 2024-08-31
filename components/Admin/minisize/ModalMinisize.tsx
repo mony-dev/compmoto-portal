@@ -42,6 +42,7 @@ type Props = {
   title: string;
   id: number;
   setId: (value: number) => void;
+  brandOptions: { value: string; label: string }[];
 };
 
 interface MinisizeDataType {
@@ -70,6 +71,7 @@ const ModalMinisize = ({
   id,
   mode,
   setId,
+  brandOptions,
 }: Props) => {
   const {
     handleSubmit,
@@ -93,9 +95,7 @@ const ModalMinisize = ({
   const { fields: lv3Fields } = useFieldArray({ control, name: "lv3" });
 
   const router = useRouter();
-  const [brandOptions, setBrandOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
+
   const [editMinisizeData, setEditMinisizeData] = useState<MinisizeDataType | null>(null);
   const [image, setImage] = useState<string | { url: string }[]>([]);
 
@@ -111,29 +111,6 @@ const ModalMinisize = ({
     { key: "Brand", value: "Brand" },
     { key: "Product Group", value: "ProductGroup" },
   ];
-
-  useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const [brandResponse] =
-        await Promise.all([
-          axios.get(`/api/adminBrand`),
-        ]);
-
-        const brands = brandResponse.data.brands.map((brand: any) => ({
-          value: brand.id,
-          label: brand.name,
-        }));
-
-        console.log(brands)
-        setBrandOptions(brands);
-      } catch (error: any) {
-        toastError(error.message);
-      }
-    };
-
-    fetchBrands();
-  }, []);
 
   useEffect(() => {
     const minisize = minisizeData.find((item: { id: number }) => item.id === id);
@@ -212,7 +189,7 @@ const ModalMinisize = ({
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
         toastSuccess(t("minisize_updated_successfully"));
-        router.replace(`/${locale}/admin/adminMinisize`);
+        router.replace(`/${locale}/admin/adminMinisizes`);
       } catch (error: any) {
         toastError(error.message);
       }
@@ -227,7 +204,7 @@ const ModalMinisize = ({
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
         toastSuccess(t("minisize_created_successfully"));
-        router.replace(`/${locale}/admin/adminMinisize`);
+        router.replace(`/${locale}/admin/adminMinisizes`);
       } catch (error: any) {
         toastError(error.message);
       }
