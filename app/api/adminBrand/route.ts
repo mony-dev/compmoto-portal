@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
-    const brand = await prisma.brandProduct.findMany({});
+    const brand = await prisma.brandProduct.findMany();
     return NextResponse.json(brand);
   } catch (error) {
     console.log("error:", error);
