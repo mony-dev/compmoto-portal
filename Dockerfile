@@ -7,7 +7,7 @@ RUN apk add --no-cache g++ make py3-pip libc6-compat
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json, yarn.lock to the container
+# Copy package.json and yarn.lock to the container
 COPY package*.json yarn.lock ./
 
 # Expose the application port
@@ -22,7 +22,7 @@ WORKDIR /app
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
-# Copy all files for the build process
+# Copy all necessary files for the build process
 COPY . .
 
 # Generate Prisma client
@@ -46,13 +46,16 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-# Ensure the .next cache directory exists and has the right permissions
+# Create the .next/cache/images directory and set correct permissions
 RUN mkdir -p /app/.next/cache/images && \
     chown -R 1001:1001 /app/.next
 
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001 -G nodejs
+
+# Ensure the node_modules directory is accessible
+RUN chown -R nextjs:nodejs /app/node_modules
 
 # Change to the non-root user
 USER nextjs
