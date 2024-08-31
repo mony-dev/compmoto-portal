@@ -234,22 +234,24 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
 
   const fetchBrands = async () => {
     try {
+      console.log("data find many fetch")
       const { data } = await axios.get(`/api/adminBrand`);
       console.log("data", data)
 
-      const brands = data.map((brand: any) => ({
+      const brands = data.brands.map((brand: any) => ({
         value: brand.id,
         label: brand.name,
       }));
-
-      setBrandOptions(brands);
+      
       console.log(brands)
+      setBrandOptions(brands);
       
     } catch (error: any) {
       console.log("fetch brand :", error.message)
       toastError(error.message);
     }
   };
+
 
   useEffect(() => {
     fetchBrands();
