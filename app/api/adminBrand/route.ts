@@ -4,11 +4,8 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
-    const [brands] = await Promise.all([
-      prisma.brandProduct.findMany(),
-    ]);
-    console.log("Brands:", brands);
-    return NextResponse.json({ brands: brands });
+    const brand = await prisma.brandProduct.findMany({});
+    return NextResponse.json(brand);
   } catch (error) {
     console.log("error:", error);
     return NextResponse.json(error);
