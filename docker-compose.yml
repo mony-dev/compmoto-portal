@@ -2,21 +2,20 @@ version: '3'
 
 services:
   app:
-    image: compmoto-app
     build:
       context: ./
-      # target: dev
       dockerfile: Dockerfile
+    image: compmoto-app
     volumes:
-      - .:/app # This line might be redundant (see note below) 
-      - /app/node_modules
-      - /app/.next
+      - .:/app:delegated  # Use 'delegated' for better performance on Mac/Windows
     ports:
       - "3000:3000" 
     networks:
       - compmoto-net
     env_file:
       - .env
+    environment:
+      PRISMA_LOG_LEVEL: query,error,info,warn  # Pass log level as environment variable
   postgres: 
     image: postgres:15-alpine
     environment:
