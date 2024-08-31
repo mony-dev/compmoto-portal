@@ -16,6 +16,9 @@ EXPOSE 3000
 # Builder stage
 FROM base as builder
 
+# Set the working directory
+WORKDIR /app
+
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
