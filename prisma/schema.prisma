@@ -404,18 +404,19 @@ model News {
 }
 
 model Invoice {
-  id          Int          @id @default(autoincrement())
-  userId      Int
-  user        User         @relation(fields: [userId], references: [id])
-  document    String
-  date        DateTime     
-  total       Float
-  items       InvoiceItem[]
-  totalPrice  Float
-  subTotal    Float
-  groupDiscount  Int
-  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  id                  Int          @id @default(autoincrement())
+  userId              Int
+  user                User         @relation(fields: [userId], references: [id])
+  documentNo            String
+  date                DateTime     
+  totalAmount         Float
+  items               InvoiceItem[]
+  totalPrice          Float
+  subTotal            Float
+  groupDiscount       Int
+  externalDocument   String?
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
 
 

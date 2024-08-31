@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
    
     // Decrypt the password stored in the `encryptedPlaintext` column
     const decryptedPassword = decrypt(user.saleUser?.encryptedPasswordtext);
+    console.log("decryptedPassword", decryptedPassword)
+    console.log("user.saleUser.email", user.saleUser.email)
 
     // Use the decrypted password for your API call
     const authString = Buffer.from(`${user.saleUser.email}:${decryptedPassword}`).toString('base64');
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
                 .map(
                   (item: { itemNo: string; qty: number; unitPrice: number }) => `
               <PT_SalesLine>
-                <ItemNo>${item.itemNo}</ItemNo>
+                <ItemNo>31309</ItemNo>
                 <Qty>${item.qty}</Qty>
                 <UnitPrice>${item.unitPrice}</UnitPrice>
                 <BlanketRemainQty>${item.qty}</BlanketRemainQty>    

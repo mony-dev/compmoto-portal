@@ -1,8 +1,8 @@
 "use client";
 import dynamic from "next/dynamic";
 
-import { formatDate, toastError } from "@lib-utils/helper";
-import { Badge, Input, Tabs, TabsProps } from "antd";
+import { formatDate, toastError, toastSuccess } from "@lib-utils/helper";
+import { Badge, Button, Input, Tabs, TabsProps } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useSession } from "next-auth/react";
 import { useCart } from "@components/Admin/Cartcontext";
 import { useTranslation } from "react-i18next";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 export default function adminOrder({ params }: { params: { id: number } }) {
@@ -26,6 +27,9 @@ export default function adminOrder({ params }: { params: { id: number } }) {
   const [orderData, setOrderData] = useState<OrderDataType[]>([]);
   const [triggerOrder, setTriggerOrder] = useState(false);
   const [orderTotal, setOrderTotal] = useState(0);
+  const [invoiceTotal, setInvoiceTotal] = useState(0);
+  const [activeTabKey, setActiveTabKey] = useState("1");
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const locale = useCurrentLocale(i18nConfig);
   const { data: session } = useSession();
@@ -125,7 +129,74 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       ),
     },
   ];
-
+  const columnsInvoice: ColumnsType<OrderDataType> = [
+    {
+      title: t("no"),
+      dataIndex: "key",
+      key: "key",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => b.key - a.key,
+    },
+    {
+      title: t("Document"),
+      dataIndex: "documentNo",
+      key: "documentNo",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.documentNo.localeCompare(b.documentNo),
+      render: (_, record) => (
+        <Link href={`/${locale}/admin/adminInvoice/${record.id}`}>
+          {record.documentNo}
+        </Link>
+      ),
+    },
+    {
+      title: t("Customer no"),
+      dataIndex: "custNo",
+      key: "custNo",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.user.custNo.localeCompare(b.user.custNo),
+      render: (_, record) => <p>{record.user.custNo}</p>,
+    },
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.user.contactName.localeCompare(b.user.contactName),
+      render: (_, record) => <p>{record.user.contactName}</p>,
+    },
+    {
+      title: t("SaleAdmin"),
+      dataIndex: "saleAdmin",
+      key: "saleAdmin",
+      defaultSortOrder: "descend",
+      sorter: (a, b) =>
+        a.user.saleUser.custNo.localeCompare(b.user.saleUser.custNo),
+      render: (_, record) => <p>{record.user.saleUser.custNo}</p>,
+    },
+    {
+      title: t("date"),
+      dataIndex: "date",
+      key: "date",
+      render: (_, record) => <p>{formatDate(record.createdAt)}</p>,
+      sorter: (a, b) =>
+        formatDate(a.createdAt).localeCompare(formatDate(b.createdAt)),
+    },
+    {
+      title: t("Total"),
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      render: (_, record) => (
+        <p>
+          {record.totalPrice.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </p>
+      ),
+    },
+  ];
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -152,13 +223,13 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     {
       key: "2",
       label: (
-        <Badge className="redeem-badge default-font" count={0} offset={[10, 1]}>
+        <Badge className="redeem-badge default-font" count={invoiceTotal} offset={[10, 1]}>
           <p>{t("Invoice")}</p>
         </Badge>
       ),
       children: (
         <DataTable
-          columns={columns}
+          columns={columnsInvoice}
           data={orderData}
           total={total}
           currentPage={currentPage}
@@ -172,49 +243,87 @@ export default function adminOrder({ params }: { params: { id: number } }) {
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
-    fetchData();
-  }, [searchText, triggerOrder, session, currentPage]);
+    
+    // Fetch both orders and invoices data on initial load
+    fetchData(false); // Fetch normal orders data
+    fetchData(true);  // Fetch invoices data
+  }, [searchText, currentPage, pageSize]); // Removed `activeTabKey` from dependencies
+  
+  useEffect(() => {
+    // Fetch data based on the active tab whenever activeTabKey changes
+    if (activeTabKey === "1") {
+      fetchData(false); // Fetch incomplete data (Normal Orders)
+    } else if (activeTabKey === "2") {
+      fetchData(true); // Fetch complete data (Invoices)
+    }
+  }, [activeTabKey]); // Separate useEffect for activeTabKey changes
+  
 
-  async function fetchData() {
+  async function fetchData(isInvoice: boolean) {
     setLoadPage(true);
     if (session?.user?.id) {
-      try {
-        const { data } = await axios.get(`/api/adminOrder`, {
-          params: {
-            q: searchText,
-            type: 'Normal',
-            userId: session.user.id,
-            role: session.user.role,
-            page: currentPage,
-            pageSize: pageSize,
-          },
-        });
-        
-        const orderDataWithKeys = data.orders.map(
-          (order: any, index: number) => ({
-            ...order,
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
-          })
-        );
-        setOrderData(orderDataWithKeys);
-        setOrderTotal(orderDataWithKeys.length);
-        setTotal(data.total);
-      } catch (error: any) {
-        toastError(error);
-      } finally {
-        setLoadPage(false);
+      if (isInvoice) {
+        try {
+          const { data } = await axios.get(`/api/adminInvoice`, {
+            params: {
+              q: searchText,
+              userId: session.user.id,
+              role: session.user.role,
+              page: currentPage,
+              pageSize: pageSize,
+            },
+          });
+          
+          const orderDataWithKeys = data.orders.map(
+            (order: any, index: number) => ({
+              ...order,
+              key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+            })
+          );
+          setOrderData(orderDataWithKeys);
+          setInvoiceTotal(orderDataWithKeys.length);
+          setTotal(data.total);
+        } catch (error: any) {
+          toastError(error);
+        } finally {
+          setLoadPage(false);
+        }
+      } else {
+        try {
+          const { data } = await axios.get(`/api/adminOrder`, {
+            params: {
+              q: searchText,
+              type: 'Normal',
+              userId: session.user.id,
+              role: session.user.role,
+              page: currentPage,
+              pageSize: pageSize,
+            },
+          });
+          
+          const orderDataWithKeys = data.orders.map(
+            (order: any, index: number) => ({
+              ...order,
+              key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+            })
+          );
+          setOrderData(orderDataWithKeys);
+          setOrderTotal(orderDataWithKeys.length);
+          setTotal(data.total);
+        } catch (error: any) {
+          toastError(error);
+        } finally {
+          setLoadPage(false);
+        }
       }
+     
     } else {
       console.warn(t("User ID is undefined. Cannot fetch orders"));
     }
    
   }
   const onChange = (key: string) => {
-    if (key === "1") {
-      setTriggerOrder(false);
-    } else if (key === "2") {
-      setTriggerOrder(true);
-    }
+    setActiveTabKey(key); // Update active tab state
   };
 
   if (loadPage || !t) {
@@ -236,10 +345,31 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
             />
+               <Button
+              className="bg-comp-red button-backend ml-4"
+              type="primary"
+              icon={<ArrowPathIcon className="w-4" />}
+              loading={isSyncing} // Add loading prop
+              onClick={async () => {
+                setIsSyncing(true); // Set loading to true when the button is clicked
+                try {
+                  const response = await axios.get("/api/fetchInvoices");
+                  toastSuccess(t("Sync invoice successfully"));
+                  setActiveTabKey('2');
+                } catch (error: any) {
+                  toastError(error);
+                } finally {
+                  setIsSyncing(false); // Set loading to false after the request completes
+                }
+              }}
+            >
+              {t("Sync")}
+            </Button>
           </div>
+       
         </div>
         <Tabs
-          defaultActiveKey="1"
+          activeKey={activeTabKey}
           items={items}
           onChange={onChange}
           className="redeem-tab"
