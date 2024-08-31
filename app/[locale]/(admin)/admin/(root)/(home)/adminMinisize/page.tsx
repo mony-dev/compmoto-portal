@@ -77,7 +77,7 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
             },
           });
           setTriggerMinisize(!triggerMinisize);
-          router.replace(`/${locale}/admin/adminMinisizes`);
+          router.replace(`/${locale}/admin/adminMinisize`);
           toastSuccess(t("minisize_deleted_successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
@@ -159,6 +159,7 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
     
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    console.log("lastPart", lastPart)
     setI18nName(lastPart);
 
     // Call the debounced fetch function
@@ -205,6 +206,7 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
       setMinisizeData(minisizeDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
+      console.log("fetch minisize :", error)
       toastError(error);
     } finally {
       setLoadPage(false);
@@ -213,19 +215,17 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
 
   const fetchBrands = async () => {
     try {
-      const [brandResponse] =
-      await Promise.all([
-        axios.get(`/api/adminBrand`),
-      ]);
-
-      const brands = brandResponse.data.brands.map((brand: any) => ({
+      const { data } = await axios.get(`/api/adminBrand`);
+      const brands = data.brands.map((brand: any) => ({
         value: brand.id,
         label: brand.name,
       }));
 
       console.log(brands)
+      
       setBrandOptions(brands);
     } catch (error: any) {
+      console.log("fetch brand :", error)
       toastError(error.message);
     }
   };

@@ -189,7 +189,7 @@ const ModalMinisize = ({
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
         toastSuccess(t("minisize_updated_successfully"));
-        router.replace(`/${locale}/admin/adminMinisizes`);
+        router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);
       }
@@ -204,7 +204,7 @@ const ModalMinisize = ({
         setTriggerMinisize(!triggerMinisize);
         setTriggerMini(!triggerMini)
         toastSuccess(t("minisize_created_successfully"));
-        router.replace(`/${locale}/admin/adminMinisizes`);
+        router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);
       }

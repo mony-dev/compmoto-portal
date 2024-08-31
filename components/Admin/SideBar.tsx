@@ -250,7 +250,7 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่ามินิไซส์", href: `/${locale}/admin/adminMinisizes` },
+        { title: "ตั้งค่ามินิไซส์", href: `/${locale}/admin/adminMinisize` },
         { title: "สินค้า", href: `/${locale}/admin/adminProduct` },
         { title: "โปรโมชั่น", href: `/${locale}/admin/adminPromotion` },
         { title: "สื่อการตลาด", href: `` },
