@@ -21,8 +21,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchMinisizeItems = async () => {
       try {
-        const response = await axios.get("/api/minisize/");
-        const data = response.data;
+        const response = await axios.get("/api/minisizeMenu/");
+        const data = response.data.data;
         const minisize = data.map((mini: any, index: number) => ({
           key: index + 1,
           name: mini.name
