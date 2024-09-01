@@ -6,6 +6,7 @@ import SideBar from "@components/Admin/SideBar";
 import Footer from "@components/Admin/Footer";
 import { useSession } from "next-auth/react";
 import { useCart } from "@components/Admin/Cartcontext";
+import axios from "axios";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
@@ -20,9 +21,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchMinisizeItems = async () => {
       try {
-        const response = await fetch("/api/minisize");
-        const data = await response.json();
-        setMinisizeItems(Array.isArray(data) ? data : []); // Ensure it's an array
+        const response = await axios.get("/api/minisize/");
+        const data = response.data;
+        const minisize = data.map((mini: any, index: number) => ({
+          key: index + 1,
+          name: mini.name
+        }));
+        setMinisizeItems(Array.isArray(minisize) ? minisize : []); // Ensure it's an array
       } catch (error) {
         console.error("Failed to fetch minisize items", error);
         setMinisizeItems([]); // Fallback to an empty array in case of error
