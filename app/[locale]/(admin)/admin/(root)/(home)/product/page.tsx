@@ -117,7 +117,7 @@ const Product = () => {
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
 
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
-  const {setI18nName, setLoadPage, loadPage} = useCart();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
 
   type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
@@ -350,6 +350,12 @@ const Product = () => {
     const selectedYear = selectedProductYear[product.id];
 
     try {
+      const findItem = await axios.get(`/api/cartItem`, {
+        params: {
+          productId: product.id,
+          userId: session.user.id,
+        },
+      });
       const cartItem = await axios.post(
         `/api/cart`,
         {
@@ -359,7 +365,7 @@ const Product = () => {
           price: product.price,
           discount,
           userId: session.user.id,
-          year: selectedYear
+          year: selectedYear,
         },
         {
           headers: {
@@ -367,7 +373,7 @@ const Product = () => {
           },
         }
       );
-      setCartItemCount(cartItemCount + 1);
+      findItem.data.count && setCartItemCount(cartItemCount + 1);
       toastSuccess(t("Added to cart successfully"));
     } catch (error: any) {
       toastError(error.message);
@@ -914,8 +920,8 @@ const Product = () => {
                 onFilterChange={handleFilterChange}
               />
             )}
-            <div className="cursor-pointer">{t('News and events')}</div>
-            <div className="cursor-pointer">{t('Marketing')}</div>
+            <div className="cursor-pointer">{t("News and events")}</div>
+            <div className="cursor-pointer">{t("Marketing")}</div>
           </div>
           <div>
             <Image
@@ -940,7 +946,7 @@ const Product = () => {
           <>
             <div className="flex pt-4 items-center gap-4">
               <p className="text-comp-text-filter default-font text-sm">
-               {t('Filter')} :
+                {t("Filter")} :
               </p>
               <FilterTag
                 selectedFilters={selectedFilters}
@@ -957,7 +963,9 @@ const Product = () => {
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: "200px", margin: "1rem 0 1rem 0" }}
           />
-          <p className="text-comp-text-filter default-font text-sm">{t("Sort")}</p>
+          <p className="text-comp-text-filter default-font text-sm">
+            {t("Sort")}
+          </p>
           <Select
             style={{ width: 120 }}
             allowClear
