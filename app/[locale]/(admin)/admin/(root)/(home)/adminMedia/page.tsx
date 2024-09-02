@@ -307,6 +307,7 @@ export default function adminMedia({ params }: { params: { id: number } }) {
             currentPage={currentPage}
             setPageSize={setPageSize}
             pageSize={pageSize}
+            // dataInterface={DataType}
           />
         </div>
 

@@ -229,10 +229,24 @@ export default function backOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) =>
         a.discount.toString().localeCompare(b.discount.toString()),
-      render: (_, record) => <Tag bordered={false} color="error" style={{borderRadius: '1rem'}}>
-      {record.discount}%
-    </Tag>,
-      
+      render: (_, record) => (
+        <Tag bordered={false} color="error" style={{ borderRadius: "1rem" }}>
+          {record.year ?  record.discount : '0'}%
+        </Tag>
+      ),
+    },
+    {
+      title: t("Discount"),
+      dataIndex: "discount",
+      key: "discount",
+      defaultSortOrder: "descend",
+      sorter: (a, b) =>
+        a.discount.toString().localeCompare(b.discount.toString()),
+      render: (_, record) => (
+        <Tag bordered={false} color="error" style={{ borderRadius: "1rem" }}>
+          {record.year ?  '0' : record.discount}%
+        </Tag>
+      ),
     },
     {
       title: t("Discount Price"),
