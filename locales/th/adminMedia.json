@@ -1,0 +1,29 @@
+{
+    "media": "สื่อการตลาด",
+    "video": "วิดีโอ",
+    "image": "รูปภาพ",
+    "pdf file": "ไฟล์ PDF",
+    "no": "ลำดับ",
+    "name": "ชื่อ",
+    "minisize": "มินิไซต์",
+    "show": "แสดง",
+    "active": "แสดง",
+    "inactive": "ไม่แสดง",
+    "action": "การกระทำ",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "are_you_sure_you_want_to_delete_this_media": "คุณแน่ใจว่าต้องการลบมีเดียนี้หรือไม่",
+    "this_action_cannot_be_undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+    "yes": "ใช่",
+    "cancel": "ยกเลิก",
+    "media_deleted_successfully": "ลบมีเดียเรียบร้อยแล้ว",
+    "add_media": "เพิ่มมีเดีย",
+    "edit_media": "แก้ไขมีเดีย",
+    "Media_updated_successfully": "มีเดียอัพโหลดเรียบร้อยแล้ว",
+    "this_is_a_required_field": "ช่องที่จำเป็นต้องกรอก",
+    "please_upload_file": "กรุณาอัพโหลดไฟล์",
+    "select_a_minisize": "กรุณาเลือกมินิไซต์"
+
+
+
+}

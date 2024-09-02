@@ -204,7 +204,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
         <Badge
           className="redeem-badge default-font"
           count={orderTotal}
-          offset={[10, 1]}
+          offset={[15, 1]}
         >
           <p>{t("Sale Quotes")}</p>
         </Badge>
@@ -223,7 +223,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     {
       key: "2",
       label: (
-        <Badge className="redeem-badge default-font" count={invoiceTotal} offset={[10, 1]}>
+        <Badge className="redeem-badge default-font" count={invoiceTotal} offset={[15, 1]}>
           <p>{t("Invoice")}</p>
         </Badge>
       ),

@@ -19,9 +19,9 @@ import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
 const Loading = dynamic(() => import("@components/Loading"));
-const DataTable = dynamic(() => import("@components/Admin/Datatable"));
-const ModalMinisize = dynamic(
-  () => import("@components/Admin/minisize/ModalMinisize")
+const TabContent = dynamic(() => import("@components/TabContent"));
+const ModalMedia = dynamic(
+  () => import("@components/Admin/media/ModalMedia")
 );
 
 export default function adminMedia({ params }: { params: { id: number } }) {
@@ -33,19 +33,19 @@ export default function adminMedia({ params }: { params: { id: number } }) {
   const [searchText, setSearchText] = useState(() => {
     // Initialize searchText from query parameter 'q' or default to an empty string
     const params = new URLSearchParams(window.location.search);
-    return params.get('q') || '';
+    return params.get("q") || "";
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
-  const [minisizeData, setMinisizeData] = useState<DataType[]>([]);
-  const [triggerMinisize, setTriggerMinisize] = useState(false);
+  const [mediaData, setMediaData] = useState<DataType[]>([]);
+  const [triggerMedia, setTriggerMedia] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [mode, setMode] = useState("ADD");
   const [id, setId] = useState(0);
-  const [title, setTitle] = useState(t("setting_minisize"));
+  const [title, setTitle] = useState(t("add_media"));
   const searchParams = useSearchParams();
-  const [brandOptions, setBrandOptions] = useState<
+  const [minisizeOptions, setMinisizeOptions] = useState<
     { value: string; label: string }[]
   >([]);
 
@@ -62,23 +62,23 @@ export default function adminMedia({ params }: { params: { id: number } }) {
     imageProfile: string;
   }
 
-  const deleteMinisize = (id: number) => {
+  const deleteMedia = (id: number) => {
     Modal.confirm({
-      title: t("are_you_sure_you_want_to_delete_this_minisize"),
+      title: t("are_you_sure_you_want_to_delete_this_media"),
       content: t("this_action_cannot_be_undone"),
       okText: t("yes"),
       okType: "danger",
       cancelText: t("cancel"),
       onOk: async () => {
         try {
-          const response = await axios.delete(`/api/adminMinisize/${id}`, {
+          const response = await axios.delete(`/api/adminMedia/${id}`, {
             headers: {
               "Content-Type": "application/json",
             },
           });
-          setTriggerMinisize(!triggerMinisize);
-          router.replace(`/${locale}/admin/adminMinisize`);
-          toastSuccess(t("minisize_deleted_successfully"));
+          setTriggerMedia(!triggerMedia);
+          router.replace(`/${locale}/admin/adminMedia`);
+          toastSuccess(t("media_deleted_successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
         }
@@ -102,7 +102,7 @@ export default function adminMedia({ params }: { params: { id: number } }) {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t("product"),
+      title: t("minisize"),
       dataIndex: "productCount",
       key: "productCount",
       sorter: (a, b) => a.productCount - b.productCount,
@@ -139,7 +139,7 @@ export default function adminMedia({ params }: { params: { id: number } }) {
           |
           <p
             className="flex cursor-pointer hover:text-comp-blue-link pl-2"
-            onClick={() => deleteMinisize(record.id)}
+            onClick={() => deleteMedia(record.id)}
           >
             <TrashIcon className="w-4 mr-0.5" />
             <span>{t("delete")}</span>
@@ -156,10 +156,9 @@ export default function adminMedia({ params }: { params: { id: number } }) {
     }, 500), // 500 ms debounce delay
     [currentPage, pageSize]
   );
-    
+
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    console.log("lastPart", lastPart)
     setI18nName(lastPart);
 
     // Call the debounced fetch function
@@ -169,26 +168,25 @@ export default function adminMedia({ params }: { params: { id: number } }) {
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [currentPage, debouncedFetchData, triggerMinisize]);
+  }, [currentPage, debouncedFetchData, triggerMedia]);
 
   useEffect(() => {
     // Update the URL with the search query
     const queryParams = new URLSearchParams(searchParams.toString());
     if (searchText) {
-      queryParams.set('q', searchText);
+      queryParams.set("q", searchText);
     } else {
-      queryParams.delete('q');
+      queryParams.delete("q");
     }
     const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
     // @ts-ignore: TypeScript error explanation or ticket reference
     router.push(newUrl, undefined, { shallow: true });
-
   }, [searchText]);
 
   async function fetchData(query: string = "") {
     setLoadPage(true);
     try {
-      const { data } = await axios.get(`/api/adminMinisize`, {
+      const { data } = await axios.get(`/api/adminMedia`, {
         params: {
           q: query,
           page: currentPage,
@@ -196,34 +194,32 @@ export default function adminMedia({ params }: { params: { id: number } }) {
         },
       });
 
-      const minisizeDataWithKeys = data.minisizes.map(
+      const mediaDataWithKeys = data.medias.map(
         (mini: DataType, index: number) => ({
           ...mini,
           key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
         })
       );
 
-      setMinisizeData(minisizeDataWithKeys);
+      setMediaData(mediaDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
-      console.log("fetch minisize :", error)
       toastError(error);
     } finally {
       setLoadPage(false);
     }
   }
 
-  const fetchBrands = async () => {
+  const fetchMinisizes = async () => {
     try {
-      const { data } = await axios.get(`/api/adminBrand`);
-
-      const brands = data.data.map((brand: any) => ({
-        value: brand.id,
-        label: brand.name,
+      const { data } = await axios.get(`/api/adminMinisize`);
+      const minisizes = data.minisizes.map((mini: any) => ({
+        value: mini.id,
+        label: mini.name,
       }));
 
-      console.log(brands)
-      setBrandOptions(brands);
+      console.log(minisizes)
+      setMinisizeOptions(minisizes);
       
     } catch (error: any) {
       toastError(error.message);
@@ -232,7 +228,7 @@ export default function adminMedia({ params }: { params: { id: number } }) {
 
 
   useEffect(() => {
-    fetchBrands();
+    fetchMinisizes();
   }, []);
 
   useEffect(() => {
@@ -245,10 +241,10 @@ export default function adminMedia({ params }: { params: { id: number } }) {
       setId(idReward);
       if (idReward === 0) {
         setMode("ADD");
-        setTitle(t("setting_minisize"));
+        setTitle(t("add_media"));
       } else {
         setMode("EDIT");
-        setTitle(t("edit_minisize"));
+        setTitle(t("edit_media"));
       }
     };
   }
@@ -266,13 +262,6 @@ export default function adminMedia({ params }: { params: { id: number } }) {
     fetchData(""); // Reset the list to show all data
   };
 
-  const handlePageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
-
   if (loadPage || !t) {
     return <Loading />;
   }
@@ -283,15 +272,11 @@ export default function adminMedia({ params }: { params: { id: number } }) {
         className="py-8 px-8 rounded-lg flex flex-col bg-white"
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
-        <div className="flex justify-between items-center">
-          <div className="text-lg pb-4 default-font flex">
-            <p className="text-lg font-semibold pb-4 grow">
-              {t("setting_minisize")}
-            </p>
-          </div>
+        <div className="text-lg pb-4 default-font">
           <div className="flex">
+            <p className="text-lg font-semibold pb-4 grow">{t("media")}</p>
             <Input.Search
-              placeholder={t('search')}
+              placeholder={t("search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
@@ -315,26 +300,27 @@ export default function adminMedia({ params }: { params: { id: number } }) {
               {t("add")}
             </Button>
           </div>
+          <TabContent
+            columns={columns}
+            data={mediaData}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            setPageSize={setPageSize}
+            pageSize={pageSize}
+          />
         </div>
-        <DataTable
-          columns={columns}
-          data={minisizeData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
-        <ModalMinisize
+
+        <ModalMedia
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}
-          setTriggerMinisize={setTriggerMinisize}
-          triggerMinisize={triggerMinisize}
-          {...(minisizeData && { minisizeData })}
+          setTriggerMedia={setTriggerMedia}
+          triggerMedia={triggerMedia}
+          {...(mediaData && { mediaData })}
           mode={mode}
           title={title}
           id={id}
           setId={setId}
-          brandOptions={brandOptions}
+          minisizeOptions={minisizeOptions}
         />
       </div>
     </div>

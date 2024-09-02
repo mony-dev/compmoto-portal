@@ -1,0 +1,27 @@
+{
+    "media": "Media",
+    "video": "video",
+    "image": "image",
+    "pdf file": "pdf file",
+    "no": "No",
+    "name": "Name",
+    "minisize": "Minisize",
+    "show": "Show",
+    "active": "Active",
+    "inactive": "Inactive",
+    "action": "Action",
+    "edit": "Edit",
+    "delete": "Delete",
+    "are_you_sure_you_want_to_delete_this_media": "Are you sure you want to delete this media?",
+    "this_action_cannot_be_undone": "This action cannot be undone.",
+    "yes": "Yes",
+    "cancel": "Cancel",
+    "media_deleted_successfully": "Media deleted successfully",
+    "add_media": "Add Media",
+    "edit_media": "Edit Media",
+    "Media_updated_successfully": "Media updated successfully",
+    "this_is_a_required_field": "This is a required field",
+    "please_upload_file": "Please upload file",
+    "select_a_minisize": "Select a minisize"
+
+}

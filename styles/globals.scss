@@ -596,3 +596,9 @@ body {
   font-size: 16px;
   padding: 16px 32px;
 }
+
+.order-table {
+  .ant-table-column-title {
+    text-align: center;
+  }
+}

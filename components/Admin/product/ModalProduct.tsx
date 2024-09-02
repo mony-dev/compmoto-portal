@@ -150,7 +150,9 @@ const ModalProduct = ({
           value: promotion.id,
           label: promotion.name,
         }));
-        setPromotionOptions(promotions);
+
+        const updatedPromotion = [{value: null, label: t("No promotion")}, ...promotions]
+        setPromotionOptions(updatedPromotion);
       } catch (error: any) {
         toastError(error.message);
       }

@@ -18,13 +18,14 @@
     "Initial Price": "ราคารวม",
     "Discount": "ส่วนลดท้ายบิล",
     "Lot Discount": "ส่วนลดปียาง",
-    "Discount Price": "ราคาส่วนลด",
+    "Discount Price": "ราคาหลังหักส่วนลด",
     "Grand Total": "ยอดรวมทั้งหมด",
     "Order lists": "รายการสินค้า",
     "Back": "กลับ",
     "Sale Quote": "ใบเสนอราคา",
     "Promotion": "โปรโมชัน",
     "Sub Total": "ยอดรวม",
-    "You’re paying": "คุณจ่ายเงิน"
+    "You’re paying": "คุณจ่ายเงิน",
+    "Total Discount Price": "ยอดรวมส่วนลด"
 
 }

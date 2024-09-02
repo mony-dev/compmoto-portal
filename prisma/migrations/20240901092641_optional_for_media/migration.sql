@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Media" ALTER COLUMN "image" DROP NOT NULL,
+ALTER COLUMN "coverImg" DROP NOT NULL;

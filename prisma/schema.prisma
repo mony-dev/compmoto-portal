@@ -385,10 +385,10 @@ model Media {
   name          String
   minisizeId    Int
   minisize      Minisize @relation(fields: [minisizeId], references: [id])
-  image         String
+  image         String?
   type          MediaType   
   url           String
-  coverImg      String
+  coverImg      String?
 }
 
 model News {

@@ -103,8 +103,8 @@ export default function adminOrder({ params }: { params: { id: number } }) {
           subTotal: order.subTotal,
           totalPrice: order.totalPrice,
           groupDiscount: order.groupDiscount,
-          groupDiscountPrice: order.subTotal * (order.groupDiscount / 100) || 0,
-          grandTotal: (order.subTotal - (order.subTotal * (order.groupDiscount / 100) || 0)),
+          groupDiscountPrice: order.subTotal - order.totalPrice,
+          grandTotal: order.totalPrice,
           totalAmount: order.totalAmount,
           type: order.type,
           externalDocument: order.externalDocument, // Corrected from "extertalDocument"
@@ -234,7 +234,20 @@ export default function adminOrder({ params }: { params: { id: number } }) {
         a.discount.toString().localeCompare(b.discount.toString()),
       render: (_, record) => (
         <Tag bordered={false} color="error" style={{ borderRadius: "1rem" }}>
-          {record.discount}%
+          {record.year ?  record.discount : '0'}%
+        </Tag>
+      ),
+    },
+    {
+      title: t("Discount"),
+      dataIndex: "discount",
+      key: "discount",
+      defaultSortOrder: "descend",
+      sorter: (a, b) =>
+        a.discount.toString().localeCompare(b.discount.toString()),
+      render: (_, record) => (
+        <Tag bordered={false} color="error" style={{ borderRadius: "1rem" }}>
+          {record.year ?  '0' : record.discount}%
         </Tag>
       ),
     },

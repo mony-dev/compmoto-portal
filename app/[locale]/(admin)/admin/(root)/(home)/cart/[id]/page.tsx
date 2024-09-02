@@ -105,7 +105,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const locale = useCurrentLocale(i18nConfig);
   const [cartData, setCartData] = useState<CartDataType[]>([]);
   const [userMinisize, setUserMinisize] = useState<CartDataType[]>([]);
-
   const [triggerCart, setTriggerCart] = useState(false);
   const [reloadItem, setReloadItem] = useState(false);
   const [normalCount, setNormalCount] = useState(0);
@@ -120,7 +119,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const { t } = useTranslation();
   const [promotionText, setPromotionText] = useState<string[]>([]);
-  const {setI18nName} = useCart();
+  const {setI18nName, cartItemCount, setCartItemCount} = useCart();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true); 
 
@@ -160,7 +159,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
       const yearData = record.product.years.find(
         (year) => year.year === yearToUse
       );
-
       //check minisize
       const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
       let yearDiscountOrGroup = 0
@@ -183,10 +181,10 @@ const Cart = ({ params }: { params: { id: number } }) => {
         //unselect year case
        //check minisize
        const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
-
        if (minisizeExists) {
         // If no year is selected but minisize exists, apply the default discount rate
         record.product.discount = discountRate;
+        totalPrice -= (totalPrice * discountRate) / 100;
     }
   }
 
@@ -255,7 +253,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
    
     const newValue = currentValue + 1;
     setValue(name, newValue);
-    if (newValue >=  record.product.navStock) {
+    if (newValue >=  record.product.navStock && record.type !== "Back") {
       Modal.warning({
         title: t("You cannot place an order that exceeds our available stock"),
         content: t("Please check the quantity and place your order again"),
@@ -317,6 +315,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           });
           setReloadItem(!reloadItem);
           router.replace(`/${locale}/admin/cart/${session?.user.id}`);
+          setCartItemCount(cartItemCount - 1);
           toastSuccess(t("Product deleted successfully"));
         } catch (error: any) {
           toastError(error.response.data.message);
@@ -490,7 +489,21 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 { minimumFractionDigits: 2, maximumFractionDigits: 2 }
               )}
             </p>
-            {selectedProductYear[record.id] && selectedYearData?.isActive && userMinisize.some((item) => item.id === record.product.minisizeId) && (
+            {(selectedProductYear[record.id] && selectedYearData?.isActive && userMinisize.some((item) => item.id === record.product.minisizeId))  && (
+              <div
+                className={
+                  "line-through text-xs text-comp-gray-text original-price"
+                }
+                data-id={record.id}
+              >
+                ฿
+                {calculateOriginalPrice(record, record.amount).toLocaleString(
+                  "en-US",
+                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                )}
+              </div>
+            )}
+             {(!selectedProductYear[record.id] && userMinisize.some((item) => item.id === record.product.minisizeId))  && (
               <div
                 className={
                   "line-through text-xs text-comp-gray-text original-price"
@@ -892,10 +905,19 @@ const Checkout: React.FC<CheckoutProps> = ({
   promotionText,
 }) => {
   const { t } = useTranslation();
-  const subDiscount = discountRate;
+ 
   const selectedCartItems = cartData.filter((item: any) =>
     selectedItems.includes(item.id)
   );
+  // const subTotal = selectedCartItems.reduce((acc: any, item: any) => {
+  //   // Multiply the product price by the amount and add to the accumulator
+  //   return acc + item.product.price * item.amount;
+  // }, 0);
+  const sumTotal = selectedCartItems.reduce((acc: any, item: any) => {
+    const itemTotal =
+      (item.product.price * item.amount);
+    return acc += itemTotal;
+  }, 0);
    // Calculate the total discount for all selected items
    const calDiscount = selectedCartItems.reduce((acc: any, item: any) => {
     const productDiscount = item.product.discount || 0;
@@ -903,7 +925,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       (item.product.price * item.amount) * (productDiscount / 100);
     return acc + itemDiscount;
   }, 0);
-  const afterDiscount = totalPrice - calDiscount;
+  const afterDiscount = sumTotal - calDiscount;
   const { data: session } = useSession();
   const router = useRouter();
   const locale = useCurrentLocale(i18nConfig);
@@ -915,10 +937,10 @@ const Checkout: React.FC<CheckoutProps> = ({
       toastError(t("Please login before checkout"));
       return;
     }
-  
     const selectedCartItems = cartData.filter((item: any) =>
       selectedItems.includes(item.id)
     );
+
     if (selectedCartItems.length === 0) {
       toastError(t("No items selected for checkout"));
       return;
@@ -932,8 +954,8 @@ const Checkout: React.FC<CheckoutProps> = ({
       const orderData = {
         userId: session?.user.id,
         totalAmount: totalAmount,
-        totalPrice: totalPrice - totalPrice * (discountRate / 100),
-        subTotal: totalPrice,
+        totalPrice: totalPrice,
+        subTotal: sumTotal,
         groupDiscount: discountRate,
         type: selectedCartItems[0].type,
         externalDocument: joinedString,
@@ -992,9 +1014,9 @@ const Checkout: React.FC<CheckoutProps> = ({
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
              qty: item.amount,
-             unitPrice: selectedCartItems.find(
+             unitPrice: item.year ? item.discountPrice :  selectedCartItems.find(
               (itemse: any) => itemse.product.id ===item.productId
-            ).price,
+            ).price
            }))
          )
        : await createSalesBlanket(
@@ -1005,9 +1027,7 @@ const Checkout: React.FC<CheckoutProps> = ({
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
              qty: item.amount,
-             unitPrice: selectedCartItems.find(
-              (itemse: any) => itemse.product.id ===item.productId
-            ).price,
+             unitPrice: item.discountPrice,
              BlanketRemainQty: getValues(`amount_${item.cartId}`),
            }))
          );
@@ -1138,7 +1158,7 @@ const Checkout: React.FC<CheckoutProps> = ({
         </div>
         <div className="text-base font-base sub-total">
           ฿
-          {totalPrice.toLocaleString("en-US", {
+          {sumTotal.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
