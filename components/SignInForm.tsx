@@ -46,7 +46,6 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
       });
 
       if (signInResult?.error) {
-        console.log(signInResult?.error)
         toastError(signInResult?.error);
       } else {
         const session = await getSession();

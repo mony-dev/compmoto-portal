@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 interface CartItem {
     cartId: number;
     orderId: number;
+    unitPrice: number;
     productId: number;
     code: string;
     amount: number;
@@ -16,7 +17,7 @@ interface CartItem {
 export async function POST(request: Request, { body }: { body: any }) {
   const data = await request.json();
   try {
-    const itemsWithoutCartId = data.items.map(({ cartId, code, ...rest }: CartItem) => rest);
+    const itemsWithoutCartId = data.items.map(({ cartId, code, unitPrice, ...rest }: CartItem) => rest);
     const orderItems = await prisma.orderItem.createMany({
         data: itemsWithoutCartId,
       });

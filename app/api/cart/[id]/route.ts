@@ -81,9 +81,6 @@ export async function PUT(
   // Destructure `amount`, `price`, and `year` from the parsed body
   const { amount, price, year } = body;
 
-  console.log(id);
-  console.log(amount);
-
   if (amount === undefined) {
     return NextResponse.json({ error: 'Amount is required' }, { status: 400 });
   }

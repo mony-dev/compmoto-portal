@@ -36,7 +36,6 @@ export async function GET(
   { params }: { params: { id: number } }
 ) {
   const id = params.id; 
-  console.log("update", id)
   try {
     const user = await prisma.user.findUnique({
       where: {

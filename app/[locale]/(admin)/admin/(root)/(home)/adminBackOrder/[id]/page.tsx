@@ -198,7 +198,11 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       render: (_, record) => (
         <p>
           ฿
-          {record.price.toLocaleString("en-US", {
+          {record.year ? 
+          (record.product.price - (record.product.price * (record.discount/100))).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) : record.product.price.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}

@@ -202,12 +202,16 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       sorter: (a, b) => a.product.price - b.product.price,
       render: (_, record) => (
         <p>
-          ฿
-          {record.product.price.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
-        </p>
+        ฿
+        {record.year ? 
+        (record.product.price - (record.product.price * (record.discount/100))).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) : record.product.price.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </p>
       ),
     },
     {

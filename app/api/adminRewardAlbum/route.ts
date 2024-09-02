@@ -30,19 +30,15 @@ export async function POST(
       },
     });
 
-    console.log("newAlbum", newAlbum)
-    console.log("data.image", data.image)
     const imagesToCreate = data.image.map((img: { url: string; }) => ({
       url: img.url,
       rewardAlbumId: newAlbum.id,
     }));
-    console.log("imagesToCreate", imagesToCreate)
 
     const createdImages = await prisma.image.createMany({
       data: imagesToCreate,
       skipDuplicates: true, 
     });
-    console.log("createdImages", createdImages)
 
     return NextResponse.json({ newAlbum, createdImages });
   } catch (error) {

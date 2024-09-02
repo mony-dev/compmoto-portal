@@ -675,7 +675,24 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
-
+  async function fetchInvoices(query: string = "") {
+    setLoadPage(true);
+    try {
+      // Make both API requests concurrently
+      const [invoiceResponse] = await Promise.all([
+        axios.get("/api/fetchInvoices")
+      ]);
+      if (invoiceResponse.data === "200") {
+        setActiveTabKey('2');
+        toastSuccess(t("Sync invoice successfully"));
+      }
+      
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
   if (loadPage || !t) {
     return <Loading />;
   }
@@ -713,9 +730,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               onClick={async () => {
                 setIsSyncing(true); // Set loading to true when the button is clicked
                 try {
-                  const response = await axios.get("/api/fetchInvoices");
-                  toastSuccess(t("Sync invoice successfully"));
-                  setActiveTabKey('2');
+                  fetchInvoices();
                 } catch (error: any) {
                   toastError(error);
                 } finally {

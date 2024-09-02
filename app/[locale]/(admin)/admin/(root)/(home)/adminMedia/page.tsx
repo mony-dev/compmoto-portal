@@ -218,7 +218,6 @@ export default function adminMedia({ params }: { params: { id: number } }) {
         label: mini.name,
       }));
 
-      console.log(minisizes)
       setMinisizeOptions(minisizes);
       
     } catch (error: any) {

@@ -113,7 +113,6 @@ const Reward = () => {
         axios.get(`/api/users/${session?.user.id}`)
       ]);
 
-      console.log("userResponse", userResponse)
       setUserPoint(userResponse.data.rewardPoint)
       
       if (data) {

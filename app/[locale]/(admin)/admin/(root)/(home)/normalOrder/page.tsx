@@ -509,7 +509,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     debounce(() => {
       fetchData(searchText);
     }, 500), // 500 ms debounce delay
-    [currentPage, pageSize]
+    [currentPage, pageSize, activeTabKey]
   );
 
   
@@ -597,7 +597,24 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     }
   }
 
-
+  async function fetchInvoices(query: string = "") {
+    setLoadPage(true);
+    try {
+      // Make both API requests concurrently
+      const [invoiceResponse] = await Promise.all([
+        axios.get("/api/fetchInvoices")
+      ]);
+      if (invoiceResponse.data === "200") {
+        setActiveTabKey('2');
+        toastSuccess(t("Sync invoice successfully"));
+      }
+      
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
   };
@@ -648,9 +665,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
               onClick={async () => {
                 setIsSyncing(true); // Set loading to true when the button is clicked
                 try {
-                  const response = await axios.get("/api/fetchInvoices");
-                  toastSuccess(t("Sync invoice successfully"));
-                  setActiveTabKey('2');
+                  fetchInvoices();
                 } catch (error: any) {
                   toastError(error);
                 } finally {

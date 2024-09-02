@@ -103,8 +103,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
       const [userResponse] = await Promise.all([
         axios.get(`/api/updateProfile/${userId}`),
       ]);
-      console.log("userResponse.data.image", userResponse.data.image)
-
       setProfileImage(userResponse.data.image);
     } catch (error) {
       console.error("Error fetching data: ", error);

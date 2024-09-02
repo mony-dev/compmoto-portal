@@ -159,7 +159,6 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
     
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    console.log("lastPart", lastPart)
     setI18nName(lastPart);
 
     // Call the debounced fetch function
@@ -222,7 +221,6 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
         label: brand.name,
       }));
 
-      console.log(brands)
       setBrandOptions(brands);
       
     } catch (error: any) {

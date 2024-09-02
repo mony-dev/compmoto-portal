@@ -88,6 +88,7 @@ interface OrderItem {
   amount: number;
   type: string;
   price: number;
+  unitPrice: number;
   year: number | null;
   discount: number;
   discountPrice: number;
@@ -184,7 +185,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
        if (minisizeExists) {
         // If no year is selected but minisize exists, apply the default discount rate
         record.product.discount = discountRate;
-        totalPrice -= (totalPrice * discountRate) / 100;
+        totalPrice = record.product.price * amount;
     }
   }
 
@@ -391,7 +392,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           delete updatedYearSelection[record.id]; // Remove the selected year for this product
           // Update the total and original price for this specific product using the new year
           const amount = getValues(`amount_${record.id}`) || 0;
-          const totalPrice = calculateTotalPrice(record, amount, null);
+          const totalPrice = record.product.price * amount
           const originalPrice = calculateOriginalPrice(record, amount);
           updatePriceDisplay(record.id, totalPrice, originalPrice);
           updateItem(record, amount, totalPrice, null);
@@ -497,21 +498,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 data-id={record.id}
               >
                 ฿
-                {calculateOriginalPrice(record, record.amount).toLocaleString(
-                  "en-US",
-                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                )}
-              </div>
-            )}
-             {(!selectedProductYear[record.id] && userMinisize.some((item) => item.id === record.product.minisizeId))  && (
-              <div
-                className={
-                  "line-through text-xs text-comp-gray-text original-price"
-                }
-                data-id={record.id}
-              >
-                ฿
-                {calculateOriginalPrice(record, record.amount).toLocaleString(
+                {calculateOriginalPrice(record, getValues(`amount_${record.id}`) || 0).toLocaleString(
                   "en-US",
                   { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                 )}
@@ -945,6 +932,36 @@ const Checkout: React.FC<CheckoutProps> = ({
       toastError(t("No items selected for checkout"));
       return;
     }
+      //     const orderItemsData = selectedCartItems.map(
+      //   (item: {
+      //     amount: number;
+      //     product: { years: any[]; id: any; code: string; discount: number; price: number; };
+      //     id: string | number;
+      //     type: any;
+      //   }) => {
+      //     const selectedYearData = item.product.years.find(
+      //       (yearData) => yearData.year === selectedProductYear[item.id]
+      //     );
+      //     return {
+      //       cartId: item.id,
+      //       // orderId: createdOrder.id,
+      //       productId: item.product.id,
+      //       code: item.product.code,
+      //       amount: item.amount,
+      //       type: item.type,
+      //       unitPrice: selectedYearData?.year ? item.product.price - (item.product.price * (item.product.discount/100)) : item.product.price,
+      //       price: calculateOriginalPrice(item, item.amount),
+      //       year: selectedYearData?.year
+      //         ? parseInt(selectedYearData.year)
+      //         : null,
+      //       discount: item.product.discount,
+      //       discountPrice: item.product.discount
+      //         ? calculateTotalPrice(item, item.amount) 
+      //         : calculateOriginalPrice(item, item.amount),
+      //     };
+      //   }
+      // );
+      // console.log("orderItemsData", orderItemsData)
     setIsProcessing(true);
     try {
       let joinedString = "";
@@ -969,7 +986,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       const orderItemsData = selectedCartItems.map(
         (item: {
           amount: number;
-          product: { years: any[]; id: any; code: string; discount: number };
+          product: { years: any[]; id: any; code: string; discount: number; price: number };
           id: string | number;
           type: any;
         }) => {
@@ -984,6 +1001,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             amount: item.amount,
             type: item.type,
             price: calculateOriginalPrice(item, item.amount),
+            unitPrice: selectedYearData?.year ? item.product.price - (item.product.price * (item.product.discount/100)) : item.product.price,
             year: selectedYearData?.year
               ? parseInt(selectedYearData.year)
               : null,
@@ -1014,9 +1032,7 @@ const Checkout: React.FC<CheckoutProps> = ({
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
              qty: item.amount,
-             unitPrice: item.year ? item.discountPrice :  selectedCartItems.find(
-              (itemse: any) => itemse.product.id ===item.productId
-            ).price
+             unitPrice: item.unitPrice
            }))
          )
        : await createSalesBlanket(
@@ -1027,7 +1043,7 @@ const Checkout: React.FC<CheckoutProps> = ({
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
              qty: item.amount,
-             unitPrice: item.discountPrice,
+             unitPrice: item.unitPrice,
              BlanketRemainQty: getValues(`amount_${item.cartId}`),
            }))
          );

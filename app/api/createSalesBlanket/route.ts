@@ -24,12 +24,8 @@ export async function POST(req: NextRequest) {
    
     // Decrypt the password stored in the `encryptedPlaintext` column
     const decryptedPassword = decrypt(user.saleUser?.encryptedPasswordtext);
-    console.log("decryptedPassword", decryptedPassword)
-    console.log("user.saleUser.email", user.saleUser.email)
-
     // Use the decrypted password for your API call
     const authString = Buffer.from(`${user.saleUser.email}:${decryptedPassword}`).toString('base64');
-    console.log("authString", authString)
     const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
       <soapenv:Header/>

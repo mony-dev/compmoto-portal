@@ -133,7 +133,6 @@ export default function Admin({ params }: { params: { id: number } }) {
     return <Loading />;
   }
   const onFinish: SubmitHandler<UserSchema> = async (values) => {
-    console.log("values", values)
     try {
       const response = await axios.put(`/api/users/${params.id}`, values, {
         headers: {

@@ -253,7 +253,6 @@ const Product = () => {
           lv2Name: product.lv2Name,
           lv3Name: product.lv3Name,
         }));
-        console.log("useProduct", useProduct);
         setProductData(useProduct);
         setTotal(response.data.total);
       })

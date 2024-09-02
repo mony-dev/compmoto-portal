@@ -104,7 +104,6 @@ export async function DELETE(
         id: Number(id),
       },
     });
-    console.log(deletedReward)
     return NextResponse.json(deletedReward);
   } catch (error) {
     console.log(error)

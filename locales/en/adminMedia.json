@@ -22,6 +22,6 @@
     "Media_updated_successfully": "Media updated successfully",
     "this_is_a_required_field": "This is a required field",
     "please_upload_file": "Please upload file",
-    "select_a_minisize": "Select a minisize"
-
+    "select_a_minisize": "Select a minisize",
+    "add": "Add"
 }

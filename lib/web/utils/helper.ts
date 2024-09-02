@@ -13,7 +13,6 @@ export function handleAPIError(error: unknown) {
   } else if (typeof error == "string") {
     message = error;
   }
-  console.log("vvv", message)
   toastError(message);
 }
 
