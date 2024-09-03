@@ -45,6 +45,8 @@ export const minisizeSchema = z.object({
   lv2: z.array(levelSchema),
   lv3: z.array(levelSchema),
   imageProfile: z.string().nonempty("Please upload file"),
+  mediaBanner: z.string().optional(),
+  newsBanner: z.string().optional(),
 });
 
 export type MinisizeSchema = z.infer<typeof minisizeSchema>;

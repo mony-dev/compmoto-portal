@@ -21,6 +21,7 @@ import FilterTag from "@components/Admin/FilterTag";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import Link from "next/link";
 interface MinisizeDataType {
   id: number;
   imageProfile: string;
@@ -97,6 +98,7 @@ const Product = () => {
     formState: { errors },
   } = useForm();
   const { t } = useTranslation();
+  const locale = useCurrentLocale(i18nConfig);
   const { cartItemCount, setCartItemCount } = useCart();
   const { data: session, status } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
@@ -186,8 +188,13 @@ const Product = () => {
             id: data.id,
             imageProfile: data.imageProfile,
           })
-        );
-        minisize[0] && setMinisizeData(minisize[0]);
+        )
+
+        if (minisize[0]) {
+          minisize[0] && setMinisizeData(minisize[0]);
+          fetchPromotion(minisize[0].id);
+        }
+     
       }
     } catch (error) {
       console.error("Error fetching data: ", error);
@@ -261,11 +268,11 @@ const Product = () => {
       });
   };
 
-  const fetchPromotion = async (name: string, filters = {}) => {
+  const fetchPromotion = async (id: number, filters = {}) => {
     const group = session?.user.custPriceGroup;
-    minisizeData &&
+    id &&
       axios
-        .get(`/api/getPromotion?group=${group}&minisizeId=${minisizeData.id}`)
+        .get(`/api/getPromotion?group=${group}&minisizeId=${id}`)
         .then((response) => {
           const promotions = response.data.map(
             (promotion: PromotionDataType) => ({
@@ -305,9 +312,8 @@ const Product = () => {
     const name = query.get("name");
     if (name) {
       fetchMinisizeData(name);
-      fetchPromotion(name);
     }
-  }, [session]);
+  }, []);
 
   useEffect(() => {
     const name = searchParams.get("name");
@@ -920,8 +926,12 @@ const Product = () => {
                 onFilterChange={handleFilterChange}
               />
             )}
-            <div className="cursor-pointer">{t("News and events")}</div>
-            <div className="cursor-pointer">{t("Marketing")}</div>
+            <div  className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
+              <Link href={`/${locale}/admin/media?name=${brandName}`}>{t("News and events")}</Link>
+            </div>
+            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4" >
+              <Link href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
+            </div>
           </div>
           <div>
             <Image

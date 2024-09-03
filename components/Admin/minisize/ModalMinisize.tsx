@@ -98,7 +98,8 @@ const ModalMinisize = ({
 
   const [editMinisizeData, setEditMinisizeData] = useState<MinisizeDataType | null>(null);
   const [image, setImage] = useState<string | { url: string }[]>([]);
-
+  const [mediaImage, setMediaImage] = useState<string | { url: string }[]>([]);
+  
   const [productCount, setProductCount] = useState<number | null>(null);
   const locale = useCurrentLocale(i18nConfig);
 
@@ -131,8 +132,10 @@ const ModalMinisize = ({
       setValue("lv3", parsedLv3);
       setValue("imageProfile", minisize.imageProfile);
       setImage(minisize?.imageProfile);
+      setMediaImage(minisize?.mediaBanner)
     } else {
       setImage("");
+      setMediaImage("")
       reset({
         name: "",
         isActive: true,
@@ -141,19 +144,28 @@ const ModalMinisize = ({
         lv2: [{ name: "", isActive: false, data: "" }],
         lv3: [{ name: "", isActive: false, data: "" }],
         imageProfile: "",
+        mediaBanner: ""
       });
     }
   }, [minisizeData, id]);
 
   useEffect(() => {
     let effImage: any = "";
+    let effMediaImage: any = "";
+
 
     if (image) {
       effImage = image;
     }
+    if (mediaImage) {
+      effMediaImage = mediaImage;
+    }
     setValue("imageProfile", effImage);
+    setValue("mediaBanner", effMediaImage);
+
     mode == "EDIT" && trigger(["imageProfile"]);
-  }, [image]);
+    mode == "EDIT" && trigger(["mediaBanner"]);
+  }, [image, mediaImage]);
 
   const fetchProductCount = async (brandId: number) => {
     try {
@@ -459,6 +471,29 @@ const ModalMinisize = ({
             </Form.Item>
           </div>
         ))}
+        <h2 className="font-semibold">{t('banner')}</h2>
+        <hr className="my-2" />
+        <div className="flex w-full pb-2">
+          <Form.Item
+            name="mediaBanner"
+            label={t("upload_media_banner")}
+          >
+            <Controller
+              control={control}
+              name="mediaBanner"
+              render={({ field }) => (
+                <UploadRewardImage
+                  setImage={setMediaImage}
+                  fileType="image"
+                  allowType={["jpg", "png", "jpeg"]}
+                  initialImage={image}
+                  multiple={false}
+                />
+              )}
+            />
+          </Form.Item>
+     
+        </div>
         <Form.Item className="flex justify-end">
           <Button
             type="primary"

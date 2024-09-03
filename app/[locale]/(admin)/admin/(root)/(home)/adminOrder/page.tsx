@@ -572,7 +572,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     debounce(() => {
       fetchData(searchText);
     }, 500), // 500 ms debounce delay
-    [currentPage, pageSize]
+    [currentPage, pageSize, activeTabKey]
   );
 
   

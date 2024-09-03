@@ -241,6 +241,8 @@ model Minisize {
   lv2               Json
   lv3               Json
   imageProfile      String?
+  mediaBanner       String?
+  newsBanner        String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   users             User[]    @relation("UserMinisizes")

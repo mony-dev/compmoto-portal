@@ -540,6 +540,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   }, [searchText]);
 
   async function fetchData(query: string = "") {
+    console.log("again")
     setLoadPage(true);
     if (session?.user?.id) {
       try {
@@ -564,6 +565,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
           }),
         ]);
       
+        console.log("invoiceResponse", invoiceResponse)
         // Process the response from `/api/adminInvoice`
         const invoiceOrderDataWithKeys = invoiceResponse.data.orders.map(
           (order: any, index: number) => ({
@@ -628,9 +630,9 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     fetchData(""); // Reset the list to show all data
   };
 
-  if (loadPage || !t) {
-    return <Loading />;
-  }
+  // if (loadPage || !t) {
+  //   return <Loading />;
+  // }
 
   return (
     <div className="px-4">
