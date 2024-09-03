@@ -68,10 +68,10 @@ const ModalMedia = ({
   const [editMediaData, setEditMediaData] = useState<MediaDataType | null>(
     null
   );
-  const [image, setImage] = useState<string | { url: string }[]>([]);
   const [coverImg, setCoverImg] = useState<string | { url: string }[]>([]);
   const locale = useCurrentLocale(i18nConfig);
-  const [type, setType] = useState('');
+  const [type, setType] = useState<"File" | "Video" | "Image">("Video");
+
   const options = [
     { label: t("video"), value: 'Video' },
     { label: t("image"), value: 'Image' },
@@ -90,15 +90,13 @@ const ModalMedia = ({
       setValue("minisizeId", media.minisizeId);
       setValue("url", media.url);
       setValue("coverImg", media.coverImg);
-      setImage(media?.url);
       setCoverImg(media?.coverImg);
     } else {
-      setImage("");
       setCoverImg("");
       setType('Video');
       reset({
         name: "",
-        type: "",
+        type: "Video",
         isActive: true,
         minisizeId: undefined,
         url: "",
@@ -110,17 +108,17 @@ const ModalMedia = ({
   useEffect(() => {
     let effImage: any = "";
 
-    if (image) {
-      effImage = image;
+    if (coverImg) {
+      effImage = coverImg;
     }
-    setValue("url", effImage);
-    mode == "EDIT" && trigger(["url"]);
-  }, [image]);
+    setValue("coverImg", effImage);
+    mode == "EDIT" && trigger(["coverImg"]);
+  }, [coverImg]);
 
   const resetForm = () => {
     reset({
       name: "",
-      type: "",
+      type: "Video",
       isActive: true,
       minisizeId: undefined,
       url: "",
@@ -146,7 +144,7 @@ const ModalMedia = ({
         setTriggerMedia(!triggerMedia);
         setTriggerMe(!triggerMe);
         toastSuccess(t("Media_updated_successfully"));
-        router.replace(`/${locale}/admin/adminMinisize`);
+        router.replace(`/${locale}/admin/adminMedia`);
       } catch (error: any) {
         toastError(error.message);
       }
@@ -167,9 +165,18 @@ const ModalMedia = ({
       }
     }
   };
-  const onChange = ({ target: { value } }: RadioChangeEvent) => {
-    setValue("type",value);
-    setType(value);
+
+  const onChangeType = (e: RadioChangeEvent) => {
+    const selectedType = e.target.value;
+    setType(selectedType);
+    setValue("type", selectedType);
+    setCoverImg("")
+    // Reset specific fields based on the selected type
+    if (selectedType === "Video") {
+      setValue("coverImg", "");
+    } else {
+      setValue("coverImg", "");
+    }
   };
   return (
     <Modal
@@ -180,11 +187,32 @@ const ModalMedia = ({
     >
       <hr className="my-2" />
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
-        {/* <Radio.Group options={options} onChange={onChange3} value={value3} optionType="button" /> */}
+        {/* Type Radio */}
         <Form.Item
           name="type"
-          label={false}
-          className="basis-1/2"
+          required
+          tooltip={t("this_is_a_required_field")}
+          help={errors.type?.message}
+          validateStatus={errors.type ? "error" : ""}
+        >
+          <Controller
+            control={control}
+            name="type"
+            render={({ field }) => (
+              <Radio.Group
+                options={options}
+                onChange={onChangeType}
+                value={type}
+                optionType="button"
+              />
+            )}
+          />
+        </Form.Item>
+
+        {/* Common Fields */}
+        <Form.Item
+          name="name"
+          label={t("name")}
           required
           tooltip={t("this_is_a_required_field")}
           help={errors.name?.message}
@@ -192,120 +220,112 @@ const ModalMedia = ({
         >
           <Controller
             control={control}
-            name="type"
+            name="name"
             render={({ field }) => (
-              <Radio.Group options={options} onChange={onChange} value={type} optionType="button" />
+              <Input {...field} placeholder={t("name")} />
             )}
           />
         </Form.Item>
+
         <Form.Item
-            name="name"
-            label={t("name")}
-            className="switch-backend basis-1/2"
-            required
-            tooltip={t("this_is_a_required_field")}
-            help={errors.name?.message}
-            validateStatus={errors.name ? "error" : ""}
-          >
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <Input {...field} placeholder={t("name")}/>
-              )}
-            />
-        </Form.Item>
-        <Form.Item
+          name="minisizeId"
+          label={t("minisize")}
+          required
+          tooltip={t("this_is_a_required_field")}
+          help={errors.minisizeId?.message}
+          validateStatus={errors.minisizeId ? "error" : ""}
+        >
+          <Controller
+            control={control}
             name="minisizeId"
-            label={t("minisize")}
-            className="switch-backend basis-1/2"
-            required
-            tooltip={t("this_is_a_required_field")}
-            help={errors.minisizeId?.message}
-            validateStatus={errors.minisizeId ? "error" : ""}
-          >
-            <Controller
-              control={control}
-              name="minisizeId"
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  showSearch
-                  placeholder={t("select_a_minisize")}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={minisizeOptions}
-                  onChange={(value) => {
-                    field.onChange(value);
-                  }}
-                />
-              )}
-            />
+            render={({ field }) => (
+              <Select
+                {...field}
+                showSearch
+                placeholder={t("select_a_minisize")}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={minisizeOptions}
+              />
+            )}
+          />
         </Form.Item>
-        <Form.Item
+
+        {/* Conditional Fields */}
+        {type === "Video" && (
+          <Form.Item
             name="url"
             label={t("url")}
-            className="switch-backend basis-1/2"
             required
             tooltip={t("this_is_a_required_field")}
-            help={errors.name?.message}
-            validateStatus={errors.name ? "error" : ""}
+            help={errors.url?.message}
+            validateStatus={errors.url ? "error" : ""}
           >
             <Controller
               control={control}
               name="url"
               render={({ field }) => (
-                <Input {...field} placeholder={t("url")}/>
+                <Input {...field} placeholder={t("url")} />
               )}
             />
-        </Form.Item>
+          </Form.Item>
+        )}
+
         <Form.Item
-          name="url"
-          label={t("cover image")}
+          name="coverImg"
+          label={type === "Image" ? t("image") : type === "Video" ? t("cover image") : t("file")}
           required
           tooltip={t("this_is_a_required_field")}
-          help={errors.url && t("please_upload_file")}
-          validateStatus={errors.url ? "error" : ""}
+          help={errors.coverImg?.message}
+          validateStatus={errors.coverImg ? "error" : ""}
         >
           <Controller
             control={control}
-            name="url"
+            name="coverImg"
             render={({ field }) => (
+              type === "File" ?
               <UploadRewardImage
-                setImage={setImage}
-                fileType="image"
-                allowType={["jpg", "png", "jpeg"]}
-                initialImage={image}
+                setImage={setCoverImg}
+                fileType="auto"
+                allowType={["pdf"]}
+                initialImage={coverImg}
                 multiple={false}
+                id={editMediaData?.id}
+              /> :  <UploadRewardImage
+              setImage={setCoverImg}
+              fileType="image"
+              allowType={["jpg", "png", "jpeg"]}
+              initialImage={coverImg}
+              multiple={false}
+              id={editMediaData?.id}
+            />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="isActive"
+          label={t("show")}
+          className="switch-backend basis-1/2 pl-2"
+        >
+          <Controller
+            control={control}
+            name="isActive"
+            render={({ field }) => (
+              <Switch
+                {...field}
+                checkedChildren={t("active")}
+                unCheckedChildren={t("inactive")}
+                defaultChecked
               />
             )}
           />
         </Form.Item>
-        <div className="flex w-full pb-2">
-  
-          <Form.Item
-            name="isActive"
-            label={t("show")}
-            className="switch-backend basis-1/2 pl-2"
-          >
-            <Controller
-              control={control}
-              name="isActive"
-              render={({ field }) => (
-                <Switch
-                  {...field}
-                  checkedChildren={t("active")}
-                  unCheckedChildren={t("inactive")}
-                  defaultChecked
-                />
-              )}
-            />
-          </Form.Item>
-        </div>
 
+        {/* Submit Button */}
         <Form.Item className="flex justify-end">
           <Button
             type="primary"

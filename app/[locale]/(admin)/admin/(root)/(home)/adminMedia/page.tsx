@@ -1,6 +1,5 @@
 "use client";
 import dynamic from "next/dynamic";
-
 import {
   PencilSquareIcon,
   PlusIcon,
@@ -18,23 +17,36 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
+
 const Loading = dynamic(() => import("@components/Loading"));
 const TabContent = dynamic(() => import("@components/TabContent"));
-const ModalMedia = dynamic(
-  () => import("@components/Admin/media/ModalMedia")
-);
+const ModalMedia = dynamic(() => import("@components/Admin/media/ModalMedia"));
 
-export default function adminMedia({ params }: { params: { id: number } }) {
+interface DataType {
+  id: number;
+  key: number;
+  name: string;
+  minisize: {
+    id: number;
+    name: string;
+  };
+  isActive: boolean;
+  type: string;
+}
+enum MediaType {
+  Video,
+  Image,
+  File
+}
+export default function AdminMedia({ params }: { params: { id: number } }) {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const router = useRouter();
-  const [searchText, setSearchText] = useState(() => {
-    // Initialize searchText from query parameter 'q' or default to an empty string
-    const params = new URLSearchParams(window.location.search);
-    return params.get("q") || "";
-  });
+  const searchParams = useSearchParams();
+
+  const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
@@ -44,23 +56,10 @@ export default function adminMedia({ params }: { params: { id: number } }) {
   const [mode, setMode] = useState("ADD");
   const [id, setId] = useState(0);
   const [title, setTitle] = useState(t("add_media"));
-  const searchParams = useSearchParams();
+  const [mediaType, setMediaType] = useState("Video");
   const [minisizeOptions, setMinisizeOptions] = useState<
     { value: string; label: string }[]
   >([]);
-
-  interface DataType {
-    id: number;
-    key: number;
-    name: string;
-    isActive: boolean;
-    brandId: number;
-    lv1: JSON;
-    lv2: JSON;
-    lv3: JSON;
-    productCount: number;
-    imageProfile: string;
-  }
 
   const deleteMedia = (id: number) => {
     Modal.confirm({
@@ -71,7 +70,7 @@ export default function adminMedia({ params }: { params: { id: number } }) {
       cancelText: t("cancel"),
       onOk: async () => {
         try {
-          const response = await axios.delete(`/api/adminMedia/${id}`, {
+          await axios.delete(`/api/adminMedia/${id}`, {
             headers: {
               "Content-Type": "application/json",
             },
@@ -98,14 +97,13 @@ export default function adminMedia({ params }: { params: { id: number } }) {
       title: t("name"),
       dataIndex: "name",
       key: "name",
-      defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: t("minisize"),
-      dataIndex: "productCount",
-      key: "productCount",
-      sorter: (a, b) => a.productCount - b.productCount,
+      dataIndex: "minisize",
+      key: "minisize",
+      sorter: (a, b) => a.minisize.name.localeCompare(b.minisize.name),
     },
     {
       title: t("show"),
@@ -149,29 +147,23 @@ export default function adminMedia({ params }: { params: { id: number } }) {
     },
   ];
 
-  // Debounce function for search input
   const debouncedFetchData = useCallback(
-    debounce(() => {
-      fetchData(searchText);
-    }, 500), // 500 ms debounce delay
-    [currentPage, pageSize]
+    debounce((type: string) => {
+      fetchData(type);
+    }, 500),
+    [currentPage, pageSize, mediaType] // Make sure all dependencies are considered
   );
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
-
-    // Call the debounced fetch function
-    debouncedFetchData();
-
-    // Cleanup debounce on unmount
+    debouncedFetchData(mediaType);
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [currentPage, debouncedFetchData, triggerMedia]);
+  }, [currentPage, debouncedFetchData, triggerMedia, mediaType]);
 
   useEffect(() => {
-    // Update the URL with the search query
     const queryParams = new URLSearchParams(searchParams.toString());
     if (searchText) {
       queryParams.set("q", searchText);
@@ -183,12 +175,13 @@ export default function adminMedia({ params }: { params: { id: number } }) {
     router.push(newUrl, undefined, { shallow: true });
   }, [searchText]);
 
-  async function fetchData(query: string = "") {
+  async function fetchData(type: string = "") {
     setLoadPage(true);
     try {
       const { data } = await axios.get(`/api/adminMedia`, {
         params: {
-          q: query,
+          q: searchText,
+          type,
           page: currentPage,
           pageSize: pageSize,
         },
@@ -197,7 +190,7 @@ export default function adminMedia({ params }: { params: { id: number } }) {
       const mediaDataWithKeys = data.medias.map(
         (mini: DataType, index: number) => ({
           ...mini,
-          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+          key: index + 1 + (currentPage - 1) * pageSize,
         })
       );
 
@@ -219,12 +212,10 @@ export default function adminMedia({ params }: { params: { id: number } }) {
       }));
 
       setMinisizeOptions(minisizes);
-      
     } catch (error: any) {
       toastError(error.message);
     }
   };
-
 
   useEffect(() => {
     fetchMinisizes();
@@ -254,16 +245,18 @@ export default function adminMedia({ params }: { params: { id: number } }) {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
-  };
-  const handleClear = () => {
-    setSearchText(""); // Clear the input
-    fetchData(""); // Reset the list to show all data
+    fetchData(mediaType);
   };
 
-  if (loadPage || !t) {
-    return <Loading />;
-  }
+  const handleClear = () => {
+    setSearchText("");
+    fetchData(mediaType);
+  };
+
+  const handleTabChange = (type: string) => {
+    setMediaType(type);
+    setCurrentPage(1); // Reset to first page on type change
+  };
 
   return (
     <div className="px-4">
@@ -306,7 +299,9 @@ export default function adminMedia({ params }: { params: { id: number } }) {
             currentPage={currentPage}
             setPageSize={setPageSize}
             pageSize={pageSize}
-            // dataInterface={DataType}
+            onTabChange={handleTabChange}
+            activeKey={mediaType}
+            total={total}
           />
         </div>
 
