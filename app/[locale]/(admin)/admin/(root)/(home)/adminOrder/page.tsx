@@ -319,7 +319,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       const [invoiceResponse] = await Promise.all([
         axios.get("/api/fetchInvoices")
       ]);
-      if (invoiceResponse.data === "200") {
+      if (invoiceResponse.data) {
         setActiveTabKey('2');
         toastSuccess(t("Sync invoice successfully"));
       }
@@ -329,9 +329,6 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     } finally {
       setLoadPage(false);
     }
-  }
-  if (loadPage || !t) {
-    return <Loading />;
   }
 
   return (
@@ -390,6 +387,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
             invoiceTotal={invoiceTotal}
             orderTotal={orderTotal}
             activeTabKey={activeTabKey}
+            setActiveTabKey={setActiveTabKey}
           />
         </div>
 

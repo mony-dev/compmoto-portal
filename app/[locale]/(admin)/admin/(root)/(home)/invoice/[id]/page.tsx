@@ -52,6 +52,7 @@ export default function invoice({ params }: { params: { id: number } }) {
     amount: number;
     type: string;
     price: number;
+    initialPrice: number
     year: number;
     discount: number;
     discountPrice: number;
@@ -99,7 +100,7 @@ export default function invoice({ params }: { params: { id: number } }) {
           subTotal: order.subTotal,
           totalPrice: order.totalPrice,
           groupDiscount: order.groupDiscount,
-          groupDiscountPrice: order.subTotal * (order.groupDiscount / 100) || 0,
+          groupDiscountPrice: order.subTotal - order.totalPrice || 0,
           grandTotal:
             order.subTotal -
             (order.subTotal * (order.groupDiscount / 100) || 0),
@@ -122,6 +123,7 @@ export default function invoice({ params }: { params: { id: number } }) {
             amount: item.amount,
             type: item.type,
             price: item.price,
+            initialPrice: (item.price * item.amount),
             year: item.year,
             discount: item.discount,
             discountPrice: item.discountPrice,
@@ -193,24 +195,9 @@ export default function invoice({ params }: { params: { id: number } }) {
       render: (_, record) => <p>{record.amount}</p>,
     },
     {
-      title: t("Unit price"),
+      title:  t("Unit price"),
       dataIndex: "price",
       key: "price",
-      sorter: (a, b) => a.product.price - b.product.price,
-      render: (_, record) => (
-        <p>
-          ฿
-          {record.product.price.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
-        </p>
-      ),
-    },
-    {
-      title: t("Initial Price"),
-      dataIndex: "initialPrice",
-      key: "initialPrice",
       sorter: (a, b) => a.price - b.price,
       render: (_, record) => (
         <p>
@@ -223,7 +210,22 @@ export default function invoice({ params }: { params: { id: number } }) {
       ),
     },
     {
-      title: t("Lot Discount"),
+      title:  t("Initial Price"),
+      dataIndex: "initialPrice",
+      key: "initialPrice",
+      sorter: (a, b) => a.initialPrice - b.initialPrice,
+      render: (_, record) => (
+        <p>
+          ฿
+          {record.initialPrice.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </p>
+      ),
+    },
+    {
+      title: t("Discount"),
       dataIndex: "discount",
       key: "discount",
       defaultSortOrder: "descend",
@@ -259,7 +261,7 @@ export default function invoice({ params }: { params: { id: number } }) {
       </p>
       <p className="text-xl font-semibold	text-black default-font">
         ฿
-        {reData?.grandTotal.toLocaleString("en-US", {
+        {reData?.subTotal.toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}

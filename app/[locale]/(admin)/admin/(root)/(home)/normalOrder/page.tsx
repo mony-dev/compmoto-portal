@@ -252,7 +252,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
           }),
         ]);
       
-        console.log("invoiceResponse", invoiceResponse)
         // Process the response from `/api/adminInvoice`
         const invoiceOrderDataWithKeys = invoiceResponse.data.orders.map(
           (order: any, index: number) => ({
@@ -377,6 +376,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
             invoiceTotal={invoiceTotal}
             orderTotal={orderTotal}
             activeTabKey={activeTabKey}
+            setActiveTabKey={setActiveTabKey}
           />
         </div>
 

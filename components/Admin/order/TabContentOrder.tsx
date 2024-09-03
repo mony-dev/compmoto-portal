@@ -41,6 +41,7 @@ interface TableComponentProps<T> {
   orderTotal: number;
   invoiceTotal: number;
   activeTabKey: string;
+  setActiveTabKey: (value: string) => void;
 }
 
 const TabContentOrder: React.FC<TableComponentProps<any>> = ({
@@ -55,6 +56,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
   invoiceTotal,
   invoiceData,
   activeTabKey,
+  setActiveTabKey,
 }) => {
   const { t } = useTranslation();
 
@@ -113,7 +115,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
   ];
 
   const onChange = (key: string) => {
-    console.log(key);
+    setActiveTabKey(key)
   };
 
   return (

@@ -1,0 +1,20 @@
+{
+    "no": "ลำดับ",
+    "Item Code": "รหัสสินค้า",
+    "Product": "สินค้า",
+    "qty": "จำนวน",
+    "Unit price": "ราคาต่อชิ้น",
+    "Initial Price": "ราคารวม",
+    "Discount": "ส่วนลด",
+    "Discount Price": "ราคารวมหลังหักส่วนลด",
+    "Grand Total": "ยอดรวมทั้งหมด",
+    "Order lists": "รายการสินค้า",
+    "Back": "กลับ",
+    "Invoice": "Invoice",
+    "Search": "ค้นหา",
+    "Promotion": "โปรโมชัน",
+    "Sub Total": "ยอดรวม",
+    "DiscountPrice": "ราคาส่วนลด",
+    "SaleAdmin": "ผู้ดูแลฝ่ายขาย"
+
+}
