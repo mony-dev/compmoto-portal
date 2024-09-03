@@ -245,11 +245,6 @@ export default function adminRewardOrder({
     setActiveTabKey(key); // Update active tab state
   };
 
-  if (loadPage || !t) {
-    return (
-      <Loading/>
-    );
-  }
   return (
     <div className="px-4">
       <div
