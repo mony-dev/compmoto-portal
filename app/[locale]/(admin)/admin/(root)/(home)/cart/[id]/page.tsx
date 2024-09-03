@@ -1216,8 +1216,8 @@ const Checkout: React.FC<CheckoutProps> = ({
             loading={isProcessing}
             className="gotham-font bg-comp-red-price button-backend w-full mt-4 p-6 flex justify-between text-base font-medium"
           >
-            <p>{t('Checkout')}</p>
-            <p className="after-discount">
+            <p className="text-white font-medium">{t('Checkout')}</p>
+            <p className="after-discount text-white font-medium">
               ฿
               {afterDiscount.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
