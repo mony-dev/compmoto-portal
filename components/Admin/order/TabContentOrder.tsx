@@ -40,6 +40,7 @@ interface TableComponentProps<T> {
   pageSize: number;
   orderTotal: number;
   invoiceTotal: number;
+  activeTabKey: string;
 }
 
 const TabContentOrder: React.FC<TableComponentProps<any>> = ({
@@ -53,6 +54,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
   orderTotal,
   invoiceTotal,
   invoiceData,
+  activeTabKey,
 }) => {
   const { t } = useTranslation();
 
@@ -116,7 +118,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
 
   return (
     <Tabs
-      defaultActiveKey="1"
+      activeKey={activeTabKey}
       items={items}
       onChange={onChange}
       className="redeem-tab"
