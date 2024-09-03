@@ -15,6 +15,8 @@ export async function PUT( request: Request,
     lv2: string,
     lv3: string,
     imageProfile: string;
+    mediaBanner: string;
+    newsBanner: string;
   }
 
   let dataBody: dataBodyInterface = {
@@ -24,7 +26,9 @@ export async function PUT( request: Request,
     lv1: JSON.stringify(data.lv1),
     lv2: JSON.stringify(data.lv2),
     lv3: JSON.stringify(data.lv3),
-    imageProfile: data.imageProfile
+    imageProfile: data.imageProfile,
+    mediaBanner: data.mediaBanner,
+    newsBanner: data.newsBanner
   }
   
   try {
@@ -56,15 +60,32 @@ export async function DELETE(
   { params }: { params: { id: number } }
 ) {
   const id = params.id;
+  const body = await request.json();
+  const { cascade } = body;
+
   try {
+    if (cascade) {
+      // Update related records to set minisizeId to null instead of deleting them
+      await prisma.product.updateMany({
+        where: { minisizeId: Number(id) },
+        data: { minisizeId: null },
+      });
+    
+      await prisma.promotion.deleteMany({
+        where: { minisizeId: Number(id) },
+      });
+      await prisma.media.deleteMany({ where: { minisizeId: Number(id) } });
+      await prisma.news.deleteMany({ where: { minisizeId: Number(id) } });
+    }
+
+    // Delete the Minisize itself
     const deleted = await prisma.minisize.delete({
-      where: {
-        id: Number(id),
-      },
+      where: { id: Number(id) },
     });
+
     return NextResponse.json(deleted);
   } catch (error) {
-    return NextResponse.json(error);
+    return NextResponse.json({ message: "Error deleting minisize", error });
   } finally {
     await prisma.$disconnect();
   }

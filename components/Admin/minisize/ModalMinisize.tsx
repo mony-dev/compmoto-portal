@@ -55,6 +55,8 @@ interface MinisizeDataType {
   lv3: JSON;
   productCount: number;
   imageProfile: string;
+  newsBanner: string;
+  mediaBanner: string;
 }
 
 const Hr = styled.hr`
@@ -99,6 +101,7 @@ const ModalMinisize = ({
   const [editMinisizeData, setEditMinisizeData] = useState<MinisizeDataType | null>(null);
   const [image, setImage] = useState<string | { url: string }[]>([]);
   const [mediaImage, setMediaImage] = useState<string | { url: string }[]>([]);
+  const [newsImage, setNewsImage] = useState<string | { url: string }[]>([]);
   
   const [productCount, setProductCount] = useState<number | null>(null);
   const locale = useCurrentLocale(i18nConfig);
@@ -131,11 +134,15 @@ const ModalMinisize = ({
       setValue("lv2", parsedLv2);
       setValue("lv3", parsedLv3);
       setValue("imageProfile", minisize.imageProfile);
+      setValue("mediaBanner", minisize.mediaBanner);
+      setValue("newsBanner", minisize.newsBanner);
       setImage(minisize?.imageProfile);
       setMediaImage(minisize?.mediaBanner)
+      setNewsImage(minisize?.newsBanner)
     } else {
       setImage("");
       setMediaImage("")
+      setNewsImage("")
       reset({
         name: "",
         isActive: true,
@@ -144,7 +151,8 @@ const ModalMinisize = ({
         lv2: [{ name: "", isActive: false, data: "" }],
         lv3: [{ name: "", isActive: false, data: "" }],
         imageProfile: "",
-        mediaBanner: ""
+        mediaBanner: "",
+        newsBanner: ""
       });
     }
   }, [minisizeData, id]);
@@ -152,6 +160,7 @@ const ModalMinisize = ({
   useEffect(() => {
     let effImage: any = "";
     let effMediaImage: any = "";
+    let effNewsImage: any = "";
 
 
     if (image) {
@@ -160,12 +169,23 @@ const ModalMinisize = ({
     if (mediaImage) {
       effMediaImage = mediaImage;
     }
+    if (newsImage) {
+      effNewsImage = newsImage;
+    }
+    console.log("effMediaImage", effMediaImage)
+    console.log("effNewsImage", effNewsImage)
+
     setValue("imageProfile", effImage);
     setValue("mediaBanner", effMediaImage);
+    setValue("newsBanner", effNewsImage);
 
-    mode == "EDIT" && trigger(["imageProfile"]);
-    mode == "EDIT" && trigger(["mediaBanner"]);
-  }, [image, mediaImage]);
+    if (mode == "EDIT") {
+      trigger(["imageProfile"]);
+      trigger(["mediaBanner"]);
+      trigger(["newsBanner"]);
+    }
+   
+  }, [image, mediaImage, newsImage]);
 
   const fetchProductCount = async (brandId: number) => {
     try {
@@ -191,6 +211,7 @@ const ModalMinisize = ({
   };
   const onSubmit: SubmitHandler<MinisizeSchema> = async (values) => {
     if(mode === 'EDIT' && editMinisizeData) {
+      console.log("values",values)
       try {
         const response = await axios.put(`/api/adminMinisize/${editMinisizeData.id}`, values, {
           headers: {
@@ -473,27 +494,42 @@ const ModalMinisize = ({
         ))}
         <h2 className="font-semibold">{t('banner')}</h2>
         <hr className="my-2" />
-        <div className="flex w-full pb-2">
-          <Form.Item
+        <Form.Item
+          name="mediaBanner"
+          label={t("upload_media_banner")}
+        >
+          <Controller
+            control={control}
             name="mediaBanner"
-            label={t("upload_media_banner")}
-          >
-            <Controller
-              control={control}
-              name="mediaBanner"
-              render={({ field }) => (
-                <UploadRewardImage
-                  setImage={setMediaImage}
-                  fileType="image"
-                  allowType={["jpg", "png", "jpeg"]}
-                  initialImage={image}
-                  multiple={false}
-                />
-              )}
-            />
-          </Form.Item>
-     
-        </div>
+            render={({ field }) => (
+              <UploadRewardImage
+                setImage={setMediaImage}
+                fileType="image"
+                allowType={["jpg", "png", "jpeg"]}
+                initialImage={mediaImage}
+                multiple={false}
+              />
+            )}
+          />
+        </Form.Item>
+        <Form.Item
+          name="newsBanner"
+          label={t("upload_news_banner")}
+        >
+          <Controller
+            control={control}
+            name="newsBanner"
+            render={({ field }) => (
+              <UploadRewardImage
+                setImage={setNewsImage}
+                fileType="image"
+                allowType={["jpg", "png", "jpeg"]}
+                initialImage={newsImage}
+                multiple={false}
+              />
+            )}
+          />
+        </Form.Item>
         <Form.Item className="flex justify-end">
           <Button
             type="primary"

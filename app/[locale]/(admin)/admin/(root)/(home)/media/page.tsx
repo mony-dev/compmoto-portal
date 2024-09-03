@@ -179,13 +179,13 @@ const Media = () => {
         >
           <div className="flex gap-2 items-center">
             <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-                <Link href={`/${locale}/admin/product?name=${brandName}`}>{t("Product")}</Link>
+                <Link className="hover:text-white" href={`/${locale}/admin/product?name=${brandName}`}>{t("Product")}</Link>
             </div>
             <div  className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-                <Link href={`/${locale}/admin/media?name=${brandName}`}>{t("News and events")}</Link>
+                <Link className="hover:text-white" href={`/${locale}/admin/media?name=${brandName}`}>{t("News and events")}</Link>
             </div>
             <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4" >
-                <Link href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
+                <Link className="hover:text-white" href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
             </div>
           </div>
           <div>

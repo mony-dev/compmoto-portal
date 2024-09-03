@@ -36,6 +36,8 @@
   "yes": "Yes",
   "Click to upload": "Click to upload",
   "banner": "Banner",
-  "upload_media_banner": "Upload Media Banner"
+  "upload_media_banner": "Upload Media Banner",
+  "upload_news_banner": "Upload News Banner",
+  "this_minisize_has_related_records_do_you_want_to_delete_them_all": "This minisize has related records do you want to delete them all?"
 
 }

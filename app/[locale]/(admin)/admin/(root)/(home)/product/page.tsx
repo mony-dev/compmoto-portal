@@ -737,6 +737,7 @@ const Product = () => {
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
+                          borderRadius: "0.5rem"
                         }}
                       >
                         <button
@@ -762,7 +763,7 @@ const Product = () => {
                           }}
                         >
                           <div className="flex justify-between gap-2">
-                            <span>{t("see more")}</span>
+                            <span className="default-font">{t("see more")}</span>
                             <svg
                               width="24"
                               height="24"
@@ -847,6 +848,7 @@ const Product = () => {
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
+                          borderRadius: "0.5rem"
                         }}
                       >
                         <button
@@ -872,7 +874,7 @@ const Product = () => {
                           }}
                         >
                           <div className="flex justify-between gap-2">
-                            <span>{t("see more")}</span>
+                            <span className="default-font">{t("see more")}</span>
                             <svg
                               width="24"
                               height="24"
@@ -927,10 +929,10 @@ const Product = () => {
               />
             )}
             <div  className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-              <Link href={`/${locale}/admin/media?name=${brandName}`}>{t("News and events")}</Link>
+              <Link  className="hover:text-white" href={`/${locale}/admin/media?name=${brandName}`}>{t("News and events")}</Link>
             </div>
             <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4" >
-              <Link href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
+              <Link  className="hover:text-white" href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
             </div>
           </div>
           <div>

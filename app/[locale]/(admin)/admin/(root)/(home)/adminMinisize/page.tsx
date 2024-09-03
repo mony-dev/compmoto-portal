@@ -60,9 +60,66 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
     lv3: JSON;
     productCount: number;
     imageProfile: string;
+    newsBanner: string;
+    mediaBanner: string;
   }
 
+  // const deleteMinisize = (id: number) => {
+  //   Modal.confirm({
+  //     title: t("are_you_sure_you_want_to_delete_this_minisize"),
+  //     content: t("this_action_cannot_be_undone"),
+  //     okText: t("yes"),
+  //     okType: "danger",
+  //     cancelText: t("cancel"),
+  //     onOk: async () => {
+  //       try {
+  //         const response = await axios.delete(`/api/adminMinisize/${id}`, {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //         });
+  //         setTriggerMinisize(!triggerMinisize);
+  //         router.replace(`/${locale}/admin/adminMinisize`);
+  //         toastSuccess(t("minisize_deleted_successfully"));
+  //       } catch (error: any) {
+  //         toastError(error.response.data.message);
+  //       }
+  //     },
+  //   });
+  // };
+
   const deleteMinisize = (id: number) => {
+    // Check if Minisize has related data
+    axios
+      .get(`/api/check-relations/${id}`)
+      .then((response) => {
+        const hasRelations = response.data.hasRelations;
+        if (hasRelations) {
+          // Show warning modal if there are related records
+          Modal.confirm({
+            title: t("warning"),
+            content: t(
+              "this_minisize_has_related_records_do_you_want_to_delete_them_all"
+            ),
+            okText: t("yes"),
+            okType: "danger",
+            cancelText: t("cancel"),
+            onOk: async () => {
+              // Proceed with delete including cascading delete of related records
+              performDelete(id, true);
+            },
+          });
+        } else {
+          // Proceed with delete normally
+          performDelete(id, false);
+        }
+      })
+      .catch((error) => {
+        toastError(error.response.data.message);
+      });
+  };
+  
+  const performDelete = async (id: number, cascade: boolean) => {
     Modal.confirm({
       title: t("are_you_sure_you_want_to_delete_this_minisize"),
       content: t("this_action_cannot_be_undone"),
@@ -75,6 +132,7 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
             headers: {
               "Content-Type": "application/json",
             },
+            data: { cascade }, // Pass cascade option in the body
           });
           setTriggerMinisize(!triggerMinisize);
           router.replace(`/${locale}/admin/adminMinisize`);
@@ -194,14 +252,12 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
           pageSize: pageSize,
         },
       });
-
       const minisizeDataWithKeys = data.minisizes.map(
         (mini: DataType, index: number) => ({
           ...mini,
           key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
         })
       );
-
       setMinisizeData(minisizeDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {

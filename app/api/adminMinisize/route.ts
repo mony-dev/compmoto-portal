@@ -29,7 +29,6 @@ export async function GET(request: Request) {
         },
       }),
     ]);
-
     const minisizesWithProductCount = minisizes.map((minisize: any) => ({
       ...minisize,
       productCount: minisize.brand.products.length,
@@ -55,6 +54,8 @@ export async function POST(request: Request) {
         lv1: JSON.stringify(data.lv1),
         lv2: JSON.stringify(data.lv2),
         lv3: JSON.stringify(data.lv3),
+        mediaBanner: data.mediaBanner,
+        newsBanner: data.newsBanner
       },
     });
     const updatedProducts = await prisma.product.updateMany({

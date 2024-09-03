@@ -36,6 +36,8 @@
   "yes": "ใช่",
   "Click to upload": "คลิกเพื่ออัพโหลดรูป",
   "banner": "หน้าปก",
-  "upload_media_banner": "อัพโหลดปกสื่อการตลาด"
+  "upload_media_banner": "อัพโหลดปกสื่อการตลาด",
+  "upload_news_banner": "อัพโหลดปกข่าวและกิจกรรม",
+  "this_minisize_has_related_records_do_you_want_to_delete_them_all": "มินิไซต์นี้มีข้อมูลที่เกี่ยวข้อง คุณต้องการลบทั้งหมดหรือไม่?"
 
 }
