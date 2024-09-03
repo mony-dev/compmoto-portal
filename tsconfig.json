@@ -31,6 +31,8 @@
       "@components/*": ["./components/*"],
       "@public/*": ["./public/*"],
       "@lib-schemas/*": ["./lib/web/schemas/*"],
+      "@style/*": ["./styles/*"],
+
     }
   },
   "include": ["next-env.d.ts","next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-i18next.config.js", "lib/web/utils/fetchUsers.mjs", "lib/web/utils/fetchAdmin.mjs", "app/api/change-password/routests"],
