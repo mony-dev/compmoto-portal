@@ -1,36 +1,3 @@
-# Base stage
-FROM node:18-alpine as base
-
-# Install necessary packages
-RUN apk add --no-cache g++ make py3-pip libc6-compat
-
-# Set the working directory
-WORKDIR /app
-
-# Copy package.json and yarn.lock to the container
-COPY package*.json yarn.lock ./
-
-# Expose the application port
-EXPOSE 3000
-
-# Builder stage
-FROM base as builder
-
-# Set the working directory
-WORKDIR /app
-
-# Install dependencies
-RUN yarn install --frozen-lockfile
-
-# Copy all necessary files for the build process
-COPY . .
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Build the Next.js application
-RUN npm run build
-
 # Production stage
 FROM node:18-alpine as production
 
@@ -46,17 +13,23 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-RUN chmod +x /app/lib/web/utils/fetchInvoice.mjs
+# Ensure the entire `lib` directory is copied over
+COPY --from=builder /app/lib ./lib
+
 # Create the .next/cache/images directory and set correct permissions
 RUN mkdir -p /app/.next/cache/images && \
-    chown -R 1001:1001 /app/.next
+    chown -R 1001:1001 /app/.next && \
+    chown -R 1001:1001 /app/lib
+
+# Ensure the node_modules directory is accessible
+RUN chown -R 1001:1001 /app/node_modules
 
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001 -G nodejs
 
-# Ensure the node_modules directory is accessible
-# RUN chown -R nextjs:nodejs /app/node_modules
+# Ensure the script is executable
+RUN chmod +x /app/lib/web/utils/fetchInvoice.mjs
 
 # Change to the non-root user
 USER nextjs
