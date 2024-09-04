@@ -62,7 +62,7 @@ RUN mkdir -p /app/logs && \
 # RUN chown -R nextjs:nodejs /app/node_modules
 
 # Change to the non-root user
-USER nextjs
+USER root
 
 # Start the Next.js application
 CMD ["npm", "start"]
