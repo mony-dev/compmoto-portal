@@ -40,6 +40,10 @@ WORKDIR /app
 # Set NODE_ENV to production
 ENV NODE_ENV=production
 
+# Create a non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 -G nodejs
+
 # Copy only necessary files from the builder stage
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
@@ -52,11 +56,7 @@ RUN mkdir -p /app/.next/cache/images && \
 
 # Create logs directory and set permissions
 RUN mkdir -p /app/logs && \
-chown -R nextjs:nodejs /app/logs
-
-# Create a non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001 -G nodejs
+    chown -R nextjs:nodejs /app/logs
 
 # Ensure the node_modules directory is accessible
 # RUN chown -R nextjs:nodejs /app/node_modules
