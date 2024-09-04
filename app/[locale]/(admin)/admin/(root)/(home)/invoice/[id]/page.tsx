@@ -261,7 +261,7 @@ export default function invoice({ params }: { params: { id: number } }) {
       </p>
       <p className="text-xl font-semibold	text-black default-font">
         ฿
-        {reData?.subTotal.toLocaleString("en-US", {
+        {reData?.totalPrice.toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}

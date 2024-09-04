@@ -67,11 +67,12 @@ export async function GET(request: Request) {
       const custNo = invoice['CustNo'][0];
       let externalDocument = null;
       invoice['ExternalDoc'] ? externalDocument = invoice['ExternalDoc'][0] : null
-
+      console.error("invoiceNo:", invoiceNo);
       // Check if the invoice already exists
       const existingInvoice = await prisma.invoice.findFirst({
         where: { documentNo: invoiceNo }
       });
+      console.error("existingInvoice:", existingInvoice);
 
       // if (!existingInvoice) {
       //   // Step 3: Fetch Additional Invoice Details
