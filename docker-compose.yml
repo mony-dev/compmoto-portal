@@ -5,7 +5,6 @@ services:
       context: ./
       dockerfile: Dockerfile
     volumes:
-      - .:/app # This line might be redundant (see note below) 
       - /app/node_modules
       - /app/.next
       - logs_data:/app/logs # Use Docker volume for logs
