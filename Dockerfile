@@ -59,7 +59,7 @@ RUN mkdir -p /app/logs && \
     chown -R nextjs:nodejs /app/logs
 
 # Ensure the node_modules directory is accessible
-# RUN chown -R nextjs:nodejs /app/node_modules
+RUN chown -R nextjs:nodejs /app/node_modules
 
 # Change to the non-root user
 USER nextjs
