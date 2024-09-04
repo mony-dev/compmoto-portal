@@ -219,17 +219,6 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     }
   };
 
-
-  const fetchInvoices = async () => {
-    try {
-      const { data } = await axios.get(`/api/fetchInvoicesCopy`);
-      console.log("invoiceResponse", data)
-      toastSuccess(t("Sync invoice successfully"));
-    } catch (error: any) {
-      toastError(error.message);
-    }
-  };
-
   useEffect(() => {
     fetchMinisizes();
   }, []);
@@ -303,24 +292,6 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
               onClick={showModal(true, 0)}
             >
               {t("add")}
-            </Button>
-            <Button
-              className="bg-comp-red button-backend ml-4"
-              type="primary"
-              icon={<ArrowPathIcon className="w-4" />}
-              loading={isSyncing} // Add loading prop
-              onClick={async () => {
-                setIsSyncing(true); // Start loading
-                try {
-                  await fetchInvoices(); // Call the async function
-                } catch (error: any) {
-                  toastError(error); // Handle the error
-                } finally {
-                  setIsSyncing(false); // Stop loading after the request completes
-                }
-              }}
-            >
-              {t("Sync")}
             </Button>
           </div>
           <TabContent

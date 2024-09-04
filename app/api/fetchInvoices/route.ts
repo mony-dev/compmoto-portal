@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import logger from '../../../logger';
+import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 
 // Function to format the date to YYYY-MM-DD
 const formatDate = (date: any) => {
@@ -15,15 +16,13 @@ const formatDate = (date: any) => {
 };
 
 export async function GET(request: Request) {
-  logger.info('Fetch Invoice Data');
-  logger.info('Test log entry - checking logger setup');
-  logger.warn('Test warning log entry');
-  logger.error('Test error log entry');
+  const { searchParams } = new URL(request.url);
+  const page = 1;
+  const pageSize = 50;
+
   try {
-    // Get today's date and format it
     const today = new Date();
     const formattedToday = formatDate(today);
-    logger.info('Fetch Invoice Data');
     // Step 1: Fetch Invoice Data
     const response = await axios({
       method: 'get',
@@ -50,12 +49,11 @@ export async function GET(request: Request) {
       </soapenv:Body> 
       </soapenv:Envelope>`
     });
-    logger.info('response', response);
+    logger.error('response', response);
 
     // Parse the XML response
     const result = await parseStringPromise(response.data);
     const invoices = result['Soap:Envelope']['Soap:Body'][0]['ReportSalesInvoiceDetail_Result'][0]['p_oSales'][0]['PT_SalesInfo'];
-
     // Step 2: Process Each Invoice
     for (const invoice of invoices) {
       const invoiceNo = invoice['InvoiceNo'][0];
@@ -173,8 +171,20 @@ export async function GET(request: Request) {
         console.log(`Invoice ${invoiceNo} already exists. Skipping.`);
       }
     }
-    return NextResponse.json("200");
+    
+    const [invoicesData, total] = await Promise.all([
+      prisma.invoice.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.invoice.count(),
+    ]);
+
+    return NextResponse.json({ data: invoicesData, total });
   } catch (error) {
     return NextResponse.json(error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
+

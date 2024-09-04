@@ -284,21 +284,15 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     }
   }
 
-  async function fetchInvoices(query: string = "") {
+  const fetchInvoices = async () => {
     try {
-      // Make both API requests concurrently
-      const [invoiceResponse] = await Promise.all([
-        axios.get("/api/fetchInvoices")
-      ]);
-      if (invoiceResponse.data === "200") {
-        setActiveTabKey('2');
-        toastSuccess(t("Sync invoice successfully"));
-      }
-      
+      const { data } = await axios.get(`/api/fetchInvoices`);
+      toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
-      toastError(error);
-    } 
-  }
+      toastError(error.message);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
   };

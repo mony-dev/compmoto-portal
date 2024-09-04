@@ -312,22 +312,14 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
-  async function fetchInvoices(query: string = "") {
+  const fetchInvoices = async () => {
     try {
-      // Make both API requests concurrently
-      const [invoiceResponse] = await Promise.all([
-        axios.get("/api/fetchInvoices")
-      ]);
-      console.log("invoiceResponse", invoiceResponse)
-      if (invoiceResponse.data === "200") {
-        setActiveTabKey('2');
-        toastSuccess(t("Sync invoice successfully"));
-      }
-      
+      const { data } = await axios.get(`/api/fetchInvoices`);
+      toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
-      toastError(error);
-    } 
-  }
+      toastError(error.message);
+    }
+  };
 
   return (
     <div className="px-4">
