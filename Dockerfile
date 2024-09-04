@@ -50,6 +50,10 @@ COPY --from=builder /app/public ./public
 RUN mkdir -p /app/.next/cache/images && \
     chown -R 1001:1001 /app/.next
 
+# Create logs directory and set permissions
+RUN mkdir -p /app/logs && \
+chown -R nextjs:nodejs /app/logs
+
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001 -G nodejs

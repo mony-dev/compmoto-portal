@@ -9,6 +9,7 @@ services:
       - .:/app # This line might be redundant (see note below) 
       - /app/node_modules
       - /app/.next
+      - ./logs:/app/logs # Mount host logs directory to container
     ports:
       - "3000:3000" 
     networks:

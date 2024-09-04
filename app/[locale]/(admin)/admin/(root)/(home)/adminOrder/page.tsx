@@ -318,6 +318,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       const [invoiceResponse] = await Promise.all([
         axios.get("/api/fetchInvoices")
       ]);
+      console.log("invoiceResponse", invoiceResponse)
       if (invoiceResponse.data === "200") {
         setActiveTabKey('2');
         toastSuccess(t("Sync invoice successfully"));
