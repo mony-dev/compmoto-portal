@@ -227,7 +227,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   }, [searchText]);
 
   async function fetchData(query: string = "") {
-    console.log("again")
     setLoadPage(true);
     if (session?.user?.id) {
       try {
@@ -286,7 +285,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   }
 
   async function fetchInvoices(query: string = "") {
-    setLoadPage(true);
     try {
       // Make both API requests concurrently
       const [invoiceResponse] = await Promise.all([
@@ -299,9 +297,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       
     } catch (error: any) {
       toastError(error);
-    } finally {
-      setLoadPage(false);
-    }
+    } 
   }
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -315,10 +311,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
-
-  // if (loadPage || !t) {
-  //   return <Loading />;
-  // }
 
   return (
     <div className="px-4">
@@ -351,13 +343,13 @@ export default function normalOrder({ params }: { params: { id: number } }) {
               icon={<ArrowPathIcon className="w-4" />}
               loading={isSyncing} // Add loading prop
               onClick={async () => {
-                setIsSyncing(true); // Set loading to true when the button is clicked
+                setIsSyncing(true); // Start loading
                 try {
-                  fetchInvoices();
+                  await fetchInvoices(); // Call the async function
                 } catch (error: any) {
-                  toastError(error);
+                  toastError(error); // Handle the error
                 } finally {
-                  setIsSyncing(false); // Set loading to false after the request completes
+                  setIsSyncing(false); // Stop loading after the request completes
                 }
               }}
             >

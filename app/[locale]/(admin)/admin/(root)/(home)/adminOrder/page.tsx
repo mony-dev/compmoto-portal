@@ -313,22 +313,19 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     fetchData(""); // Reset the list to show all data
   };
   async function fetchInvoices(query: string = "") {
-    setLoadPage(true);
     try {
       // Make both API requests concurrently
       const [invoiceResponse] = await Promise.all([
         axios.get("/api/fetchInvoices")
       ]);
-      if (invoiceResponse.data) {
+      if (invoiceResponse.data === "200") {
         setActiveTabKey('2');
         toastSuccess(t("Sync invoice successfully"));
       }
       
     } catch (error: any) {
       toastError(error);
-    } finally {
-      setLoadPage(false);
-    }
+    } 
   }
 
   return (
@@ -362,13 +359,13 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               icon={<ArrowPathIcon className="w-4" />}
               loading={isSyncing} // Add loading prop
               onClick={async () => {
-                setIsSyncing(true); // Set loading to true when the button is clicked
+                setIsSyncing(true); // Start loading
                 try {
-                  fetchInvoices();
+                  await fetchInvoices(); // Call the async function
                 } catch (error: any) {
-                  toastError(error);
+                  toastError(error); // Handle the error
                 } finally {
-                  setIsSyncing(false); // Set loading to false after the request completes
+                  setIsSyncing(false); // Stop loading after the request completes
                 }
               }}
             >

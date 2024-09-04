@@ -161,7 +161,7 @@ export async function GET(request: Request) {
         console.log(`Invoice ${invoiceNo} already exists. Skipping.`);
       }
     }
-    return NextResponse.json(invoices);
+    return NextResponse.json("200");
   } catch (error) {
     return NextResponse.json(error);
   }
