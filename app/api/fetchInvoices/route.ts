@@ -15,6 +15,7 @@ const formatDate = (date: any) => {
 };
 
 export async function GET(request: Request) {
+  logger.info('Fetch Invoice Data');
   try {
     // Get today's date and format it
     const today = new Date();
