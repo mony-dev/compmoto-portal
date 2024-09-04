@@ -26,7 +26,16 @@ const LanguageChanger = () => {
     } else {
       newPathname = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
     }
-    router.push(newPathname as any); // Using 'any' to bypass the type error
+    // Add query parameters to newPathname if they exist
+    const currentUrl = new URL(window.location.href);
+    const queryParams = currentUrl.search;
+
+    if (queryParams) {
+      newPathname += queryParams;
+    }
+
+  console.log("newPathname", newPathname);
+  router.push(newPathname as any); // Using 'any' to bypass the type error
   };
 
   const toggleLanguage = () => {

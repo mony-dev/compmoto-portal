@@ -1,8 +1,10 @@
 {
     "Product": "สั่งซื้อสินค้า",
     "News and events": "ข่าวและกิจกรรม",
-    "Marketing": "สื่อการตลาด"
-
+    "Marketing": "สื่อการตลาด",
+    "Video": "วิดีโอ",
+    "Image": "รูปภาพ",
+    "Pdf File": "ไฟล์ PDF"
 
 
 }

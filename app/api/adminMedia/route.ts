@@ -11,6 +11,10 @@ export async function GET(request: Request) {
   const typeParam = searchParams.get("type") || "";
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "50");
+  const isActiveParam = searchParams.get("isActive");
+
+  // Convert the 'isActive' parameter to a boolean or undefined if not provided
+  const isActive = isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
 
   // Function to map string to MediaType enum
   function mapTypeToEnum(type: string): MediaType | undefined {
@@ -29,14 +33,21 @@ export async function GET(request: Request) {
   const type = mapTypeToEnum(typeParam); // Convert string to enum value
 
   try {
+    const whereClause: any = {
+      AND: [
+        { name: { contains: q, mode: "insensitive" } },
+        type ? { type } : {}, // Include type filter if defined
+      ],
+    };
+
+    // Add isActive condition to the where clause if it is defined
+    if (isActive !== undefined) {
+      whereClause.AND.push({ isActive });
+    }
+
     const [medias, total] = await Promise.all([
       prisma.media.findMany({
-        where: {
-          AND: [
-            { name: { contains: q, mode: "insensitive" } },
-            type ? { type } : {}, // Use enum type
-          ],
-        },
+        where: whereClause,
         include: {
           minisize: true,
         },
@@ -44,22 +55,19 @@ export async function GET(request: Request) {
         take: pageSize,
       }),
       prisma.media.count({
-        where: {
-          AND: [
-            { name: { contains: q, mode: "insensitive" } },
-            type ? { type } : {}, // Use enum type
-          ],
-        },
+        where: whereClause,
       }),
     ]);
 
     return NextResponse.json({ medias, total });
   } catch (error) {
+    console.error("Error fetching data:", error);
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();
   }
 }
+
 export async function POST(request: Request) {
   try {
     // Parse and validate the request body using zod
