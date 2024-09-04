@@ -7,7 +7,7 @@
 
 const i18nConfig = {
     locales: ['en', 'th'],
-    defaultLocale: 'en',
+    defaultLocale: 'th',
     prefixDefault: true,
   };
   
