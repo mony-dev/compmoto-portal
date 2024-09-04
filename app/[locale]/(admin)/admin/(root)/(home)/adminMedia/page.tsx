@@ -219,21 +219,16 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     }
   };
 
-  async function fetchInvoices(query: string = "") {
+
+  const fetchInvoices = async () => {
     try {
-      // Make both API requests concurrently
-      const [invoiceResponse] = await Promise.all([
-        axios.get("/api/fetchInvoicesCopy")
-      ]);
-      console.log("invoiceResponse", invoiceResponse)
-      // if (invoiceResponse.data === "200") {
-        toastSuccess(t("Sync invoice successfully"));
-      // }
-      
+      const { data } = await axios.get(`/api/fetchInvoicesCopy`);
+      console.log("invoiceResponse", data)
+      toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
-      toastError(error);
-    } 
-  }
+      toastError(error.message);
+    }
+  };
 
   useEffect(() => {
     fetchMinisizes();
