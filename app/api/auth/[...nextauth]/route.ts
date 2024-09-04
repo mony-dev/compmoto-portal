@@ -13,11 +13,11 @@ const handler = NextAuth({
     updateAge: 60 * 60,   // 1 hour
   },
   pages: {
-    signIn: "/en/admin/sign-in",
-    signOut: "/en/admin/sign-in",
-    error: "/en/admin/sign-in",
-    verifyRequest: "/en/admin/sign-in",
-    newUser: "/en/admin/sign-in",
+    signIn: "/th/admin/sign-in",
+    signOut: "/th/admin/sign-in",
+    error: "/th/admin/sign-in",
+    verifyRequest: "/th/admin/sign-in",
+    newUser: "/th/admin/sign-in",
   },
   providers: [
     CredentialsProvider({

@@ -386,7 +386,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                   <div className="flex items-center text-comp-red text-sm px-12 gotham-font">
                     <Link
                       className="ps-2 cursor-pointer text-comp-red hover:text-gray-hover"
-                      href={"/en"}
+                      href={"/th"}
                     >
                       Privacy policy
                     </Link>
@@ -405,7 +405,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                   <div className="flex items-center text-comp-red text-sm px-12 gotham-font">
                     <Link
                       className="ps-2 cursor-pointer text-comp-red  hover:text-gray-hover"
-                      href={"/en"}
+                      href={"/th"}
                     >
                       Term of service
                     </Link>
