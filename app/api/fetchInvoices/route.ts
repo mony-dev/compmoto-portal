@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
+import logger from 'next-auth/utils/logger';
 
 // Function to format the date to YYYY-MM-DD
 const formatDate = (date: any) => {
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     // Get today's date and format it
     const today = new Date();
     const formattedToday = formatDate(today);
-
+    logger.info('Fetch Invoice Data');
     // Step 1: Fetch Invoice Data
     const response = await axios({
       method: 'get',
@@ -45,6 +46,7 @@ export async function GET(request: Request) {
       </soapenv:Body> 
       </soapenv:Envelope>`
     });
+    logger.info('response', response);
 
     // Parse the XML response
     const result = await parseStringPromise(response.data);
@@ -96,11 +98,13 @@ export async function GET(request: Request) {
         });
 
         if (!user) {
+          logger.info(`User with customer number ${custNo} not found.`);
           console.error(`User with customer number ${custNo} not found.`);
           continue;
         }
 
         const userId = user.id;
+        logger.info(`userId ${userId} found.`);
 
         // Step 4: Calculate Total Qty
         const lineItems = salesInfo['LineInfo'];
@@ -141,12 +145,14 @@ export async function GET(request: Request) {
           });
 
           if (!product) {
+            logger.info(`Product with item number ${itemNo} not found.`);
             console.error(`Product with item number ${itemNo} not found.`);
             continue;
           }
+          logger.info(`Product with item number ${itemNo} found.`);
 
           // Save the invoice item
-          await prisma.invoiceItem.create({
+          const itemCreate = await prisma.invoiceItem.create({
             data: {
               invoiceId: newInvoice.id,
               productId: product.id,
@@ -156,8 +162,10 @@ export async function GET(request: Request) {
               discountPrice: discountPc
             }
           });
+          logger.info(`item created ${itemCreate}.`);
         }
       } else {
+        logger.info(`Invoice ${invoiceNo} already exists. Skipping.`);
         console.log(`Invoice ${invoiceNo} already exists. Skipping.`);
       }
     }

@@ -70,6 +70,7 @@
     "slick-carousel": "^1.8.1",
     "styled-components": "^6.1.8",
     "ts-node": "^10.9.2",
+    "winston": "^3.14.2",
     "xml2js": "^0.6.2",
     "zod": "^3.22.4"
   },
