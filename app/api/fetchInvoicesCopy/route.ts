@@ -22,41 +22,41 @@ export async function GET(request: Request) {
   console.log("Test error log entry");
   try {
     // Get today's date and format it
-    const today = new Date();
-    const formattedToday = formatDate(today);
-    logger.info('Fetch Invoice Data');
-    // Step 1: Fetch Invoice Data
-    const response = await axios({
-      method: 'get',
-      url: 'http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration',
-      headers: {
-        'SOAPACTION': 'ReportSalesInvoiceDetail',
-        'Content-Type': 'application/xml',
-        'Authorization': 'Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq'
-      },
-      data: `<?xml version="1.0" encoding="UTF-8"?> 
-      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-      xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration"> 
-      <soapenv:Header/> 
-      <soapenv:Body> 
-          <wsc:ReportSalesInvoiceDetail> 
-              <wsc:p_gFromDate>2024-05-01</wsc:p_gFromDate> 
-              <wsc:p_gToDate>${formattedToday}</wsc:p_gToDate> 
-              <wsc:p_gFromCustNo></wsc:p_gFromCustNo> 
-              <wsc:p_gToCustNo></wsc:p_gToCustNo> 
-              <wsc:p_gBrand></wsc:p_gBrand> 
-              <wsc:p_gInvoiceNo></wsc:p_gInvoiceNo>
-              <wsc:p_oSales></wsc:p_oSales> 
-          </wsc:ReportSalesInvoiceDetail>        
-      </soapenv:Body> 
-      </soapenv:Envelope>`
-    });
-    logger.info('response', response);
-    console.log("response", response);
+    // const today = new Date();
+    // const formattedToday = formatDate(today);
+    // logger.info('Fetch Invoice Data');
+    // // Step 1: Fetch Invoice Data
+    // const response = await axios({
+    //   method: 'get',
+    //   url: 'http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration',
+    //   headers: {
+    //     'SOAPACTION': 'ReportSalesInvoiceDetail',
+    //     'Content-Type': 'application/xml',
+    //     'Authorization': 'Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq'
+    //   },
+    //   data: `<?xml version="1.0" encoding="UTF-8"?> 
+    //   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+    //   xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration"> 
+    //   <soapenv:Header/> 
+    //   <soapenv:Body> 
+    //       <wsc:ReportSalesInvoiceDetail> 
+    //           <wsc:p_gFromDate>2024-05-01</wsc:p_gFromDate> 
+    //           <wsc:p_gToDate>${formattedToday}</wsc:p_gToDate> 
+    //           <wsc:p_gFromCustNo></wsc:p_gFromCustNo> 
+    //           <wsc:p_gToCustNo></wsc:p_gToCustNo> 
+    //           <wsc:p_gBrand></wsc:p_gBrand> 
+    //           <wsc:p_gInvoiceNo></wsc:p_gInvoiceNo>
+    //           <wsc:p_oSales></wsc:p_oSales> 
+    //       </wsc:ReportSalesInvoiceDetail>        
+    //   </soapenv:Body> 
+    //   </soapenv:Envelope>`
+    // });
+    // logger.info('response', response);
+    // console.log("response", response);
 
-    // Parse the XML response
-    const result = await parseStringPromise(response.data);
-    const invoices = result['Soap:Envelope']['Soap:Body'][0]['ReportSalesInvoiceDetail_Result'][0]['p_oSales'][0]['PT_SalesInfo'];
+    // // Parse the XML response
+    // const result = await parseStringPromise(response.data);
+    // const invoices = result['Soap:Envelope']['Soap:Body'][0]['ReportSalesInvoiceDetail_Result'][0]['p_oSales'][0]['PT_SalesInfo'];
     const existingInvoice = await prisma.invoice.findFirst({
       where: { documentNo: 'COM-IS2303-0012' }
     });
@@ -178,7 +178,7 @@ export async function GET(request: Request) {
     //   //   console.log(`Invoice ${invoiceNo} already exists. Skipping.`);
     //   // }
     // }
-    return NextResponse.json("200");
+    return NextResponse.json(existingInvoice);
   } catch (error) {
     console.error("existingInvoice:", error);
     return NextResponse.json(error);

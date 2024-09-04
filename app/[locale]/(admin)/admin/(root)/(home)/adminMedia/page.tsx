@@ -226,9 +226,9 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
         axios.get("/api/fetchInvoicesCopy")
       ]);
       console.log("invoiceResponse", invoiceResponse)
-      if (invoiceResponse.data === "200") {
+      // if (invoiceResponse.data === "200") {
         toastSuccess(t("Sync invoice successfully"));
-      }
+      // }
       
     } catch (error: any) {
       toastError(error);
