@@ -3,13 +3,9 @@ services:
     image: compmoto-app
     build:
       context: ./
-      # target: dev
       dockerfile: Dockerfile
     volumes:
-      - .:/app # This line might be redundant (see note below) 
-      - /app/node_modules
-      - /app/.next
-      - ./logs:/app/logs # Mount host logs directory to container
+      - logs_data:/app/logs # Use Docker volume for logs
     ports:
       - "3000:3000" 
     networks:
@@ -47,3 +43,4 @@ networks:
     driver: bridge
 volumes:
   postgres_data:
+  logs_data:
