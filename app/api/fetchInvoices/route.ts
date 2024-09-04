@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
-import logger from 'next-auth/utils/logger';
+import logger from '../../../logger';
 
 // Function to format the date to YYYY-MM-DD
 const formatDate = (date: any) => {
