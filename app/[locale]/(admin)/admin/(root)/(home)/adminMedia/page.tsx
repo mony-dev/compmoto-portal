@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import {
+  ArrowPathIcon,
   PencilSquareIcon,
   PlusIcon,
   TrashIcon,
@@ -60,6 +61,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
   const [minisizeOptions, setMinisizeOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const deleteMedia = (id: number) => {
     Modal.confirm({
@@ -217,6 +219,22 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     }
   };
 
+  async function fetchInvoices(query: string = "") {
+    try {
+      // Make both API requests concurrently
+      const [invoiceResponse] = await Promise.all([
+        axios.get("/api/fetchInvoicesCopy")
+      ]);
+      console.log("invoiceResponse", invoiceResponse)
+      if (invoiceResponse.data === "200") {
+        toastSuccess(t("Sync invoice successfully"));
+      }
+      
+    } catch (error: any) {
+      toastError(error);
+    } 
+  }
+
   useEffect(() => {
     fetchMinisizes();
   }, []);
@@ -290,6 +308,24 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
               onClick={showModal(true, 0)}
             >
               {t("add")}
+            </Button>
+            <Button
+              className="bg-comp-red button-backend ml-4"
+              type="primary"
+              icon={<ArrowPathIcon className="w-4" />}
+              loading={isSyncing} // Add loading prop
+              onClick={async () => {
+                setIsSyncing(true); // Start loading
+                try {
+                  await fetchInvoices(); // Call the async function
+                } catch (error: any) {
+                  toastError(error); // Handle the error
+                } finally {
+                  setIsSyncing(false); // Stop loading after the request completes
+                }
+              }}
+            >
+              {t("Sync")}
             </Button>
           </div>
           <TabContent
