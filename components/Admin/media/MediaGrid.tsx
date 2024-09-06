@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import "../../../styles/globals.scss";
+import "../../../styles/fonts.scss";
+
 import { Image, Modal } from "antd";
 import {
   formatDateDiff,
