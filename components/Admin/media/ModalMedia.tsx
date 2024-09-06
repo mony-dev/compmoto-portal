@@ -1,6 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Form, Input, Modal, Switch, Select, Checkbox, Radio, RadioChangeEvent } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Switch,
+  Select,
+  Checkbox,
+  Radio,
+  RadioChangeEvent,
+} from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useRouter } from "next/navigation";
@@ -34,6 +44,7 @@ interface MediaDataType {
   coverImg?: string;
   url: string;
   type: string;
+  duration?: string;
 }
 
 const Hr = styled.hr`
@@ -73,9 +84,9 @@ const ModalMedia = ({
   const [type, setType] = useState<"File" | "Video" | "Image">("Video");
 
   const options = [
-    { label: t("video"), value: 'Video' },
-    { label: t("image"), value: 'Image' },
-    { label: t("pdf file"), value: 'File' },
+    { label: t("video"), value: "Video" },
+    { label: t("image"), value: "Image" },
+    { label: t("pdf file"), value: "File" },
   ];
 
   useEffect(() => {
@@ -90,10 +101,11 @@ const ModalMedia = ({
       setValue("minisizeId", media.minisizeId);
       setValue("url", media.url);
       setValue("coverImg", media.coverImg);
+      setValue("duration", media.duration);
       setCoverImg(media?.coverImg);
     } else {
       setCoverImg("");
-      setType('Video');
+      setType("Video");
       reset({
         name: "",
         type: "Video",
@@ -101,6 +113,7 @@ const ModalMedia = ({
         minisizeId: undefined,
         url: "",
         coverImg: "",
+        duration: "",
       });
     }
   }, [mediaData, id]);
@@ -123,6 +136,7 @@ const ModalMedia = ({
       minisizeId: undefined,
       url: "",
       coverImg: "",
+      duration: "",
     });
     setIsModalVisible(false);
     setId(0);
@@ -170,7 +184,7 @@ const ModalMedia = ({
     const selectedType = e.target.value;
     setType(selectedType);
     setValue("type", selectedType);
-    setCoverImg("")
+    setCoverImg("");
     // Reset specific fields based on the selected type
     if (selectedType === "Video") {
       setValue("coverImg", "");
@@ -221,9 +235,7 @@ const ModalMedia = ({
           <Controller
             control={control}
             name="name"
-            render={({ field }) => (
-              <Input {...field} placeholder={t("name")} />
-            )}
+            render={({ field }) => <Input {...field} placeholder={t("name")} />}
           />
         </Form.Item>
 
@@ -256,27 +268,54 @@ const ModalMedia = ({
 
         {/* Conditional Fields */}
         {type === "Video" && (
-          <Form.Item
-            name="url"
-            label={t("url")}
-            required
-            tooltip={t("this_is_a_required_field")}
-            help={errors.url?.message}
-            validateStatus={errors.url ? "error" : ""}
-          >
-            <Controller
-              control={control}
+          <>
+            <Form.Item
               name="url"
-              render={({ field }) => (
-                <Input {...field} placeholder={t("url")} />
-              )}
-            />
-          </Form.Item>
+              label={t("url")}
+              required
+              tooltip={t("this_is_a_required_field")}
+              help={errors.url?.message}
+              validateStatus={errors.url ? "error" : ""}
+            >
+              <Controller
+                control={control}
+                name="url"
+                render={({ field }) => (
+                  <Input {...field} placeholder={t("url")} />
+                )}
+              />
+            </Form.Item>
+            <Form.Item
+              name="duration"
+              label={t("duration")}
+              required
+              tooltip={t("this_is_a_required_field")}
+              help={errors.duration?.message}
+              validateStatus={errors.duration ? "error" : ""}
+            >
+              <Controller
+                control={control}
+                name="duration"
+                render={({ field }) => (
+                  <>
+                    <p className="text-comp-red	pb-2 text-xs">{t("Please fill in the values following the example format shown")}</p>
+                    <Input {...field} placeholder={t("duration")} />
+                  </>
+                )}
+              />
+            </Form.Item>
+          </>
         )}
 
         <Form.Item
           name="coverImg"
-          label={type === "Image" ? t("image") : type === "Video" ? t("cover image") : t("file")}
+          label={
+            type === "Image"
+              ? t("image")
+              : type === "Video"
+              ? t("cover image")
+              : t("file")
+          }
           required
           tooltip={t("this_is_a_required_field")}
           help={errors.coverImg?.message}
@@ -285,24 +324,26 @@ const ModalMedia = ({
           <Controller
             control={control}
             name="coverImg"
-            render={({ field }) => (
-              type === "File" ?
-              <UploadRewardImage
-                setImage={setCoverImg}
-                fileType="auto"
-                allowType={["pdf"]}
-                initialImage={coverImg}
-                multiple={false}
-                id={editMediaData?.id}
-              /> :  <UploadRewardImage
-              setImage={setCoverImg}
-              fileType="image"
-              allowType={["jpg", "png", "jpeg"]}
-              initialImage={coverImg}
-              multiple={false}
-              id={editMediaData?.id}
-            />
-            )}
+            render={({ field }) =>
+              type === "File" ? (
+                <><UploadRewardImage
+                  setFile={setCoverImg}
+                  fileType="auto"
+                  allowType={["pdf"]}
+                  initialImage={coverImg}
+                  multiple={false}
+                  id={editMediaData?.id} /></>
+              ) : (
+                <UploadRewardImage
+                  setImage={setCoverImg}
+                  fileType="image"
+                  allowType={["jpg", "png", "jpeg"]}
+                  initialImage={coverImg}
+                  multiple={false}
+                  id={editMediaData?.id}
+                />
+              )
+            }
           />
         </Form.Item>
 

@@ -25,5 +25,12 @@
     "select_a_minisize": "กรุณาเลือกมินิไซต์",
     "add": "เพิ่ม",
     "cover image": "รูปปก",
-    "Click to upload": "คลิกเพื่ออัพโหลดรูป"
+    "Click to upload": "คลิกเพื่ออัพโหลดรูป",
+    "duration": "ระยะเวลา",
+    "Please fill in the values following the example format shown": "คำแนะนำ: โปรดกรอกข้อมูลตามรูปแบบตัวอย่างที่แสดงนี้ => 3:50",
+    "View": "แสดง",
+    "Download": "ดาวน์โหลด",
+    "file": "ไฟล์",
+    "date": "วันที่",
+    "size": "ขนาด"
 }

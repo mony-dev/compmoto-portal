@@ -1001,7 +1001,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             amount: item.amount,
             type: item.type,
             price: calculateOriginalPrice(item, item.amount),
-            unitPrice: selectedYearData?.year ? item.product.price - (item.product.price * (item.product.discount/100)) : item.product.price,
+            unitPrice:  item.product.price,
             year: selectedYearData?.year
               ? parseInt(selectedYearData.year)
               : null,
@@ -1032,7 +1032,9 @@ const Checkout: React.FC<CheckoutProps> = ({
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
              qty: item.amount,
-             unitPrice: item.unitPrice
+             unitPrice: item.unitPrice,
+             lineDiscount: !item.year ? item.discount : 0,
+             tyreDiscount: item.year ? item.discount : 0
            }))
          )
        : await createSalesBlanket(
@@ -1094,6 +1096,8 @@ const Checkout: React.FC<CheckoutProps> = ({
       itemNo: string;
       qty: number;
       unitPrice: number;
+      lineDiscount: number;
+      tyreDiscount: number;
     }[]
   ) => {
     const response = await fetch('/api/createSalesQuote', {

@@ -25,5 +25,12 @@
     "select_a_minisize": "Select a minisize",
     "add": "Add",
     "cover image": "Cover image",
-    "Click to upload": "Click to upload"
+    "Click to upload": "Click to upload",
+    "duration": "Duration",
+    "Please fill in the values following the example format shown": "Please fill in the values following the example format shown. => 3:50",
+    "View": "View",
+    "Download": "Download",
+    "file": "File",
+    "date": "DATE",
+    "size": "SIZE"
 }

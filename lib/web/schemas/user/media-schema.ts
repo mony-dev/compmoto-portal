@@ -7,6 +7,7 @@ export const mediaSchema = z.object({
   name: z.string().nonempty("Name is required!"),
   isActive: z.boolean().default(true),
   url: z.string().optional() ,
+  duration: z.string().optional() ,
   type: z.nativeEnum(MediaType),
   coverImg: z.string().nonempty("Please upload file"),
 });

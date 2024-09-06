@@ -128,6 +128,54 @@ export function formatDate(date: string) {
   return `${startDay}-${month}-${year}`;
 }
 
+export function formatDateDiff(date: string) {
+  const start = new Date(date);
+
+  const startDay = start.getUTCDate();
+  const month = start.getUTCMonth() + 1; // Month as a number (1-12)
+  const year = start.getUTCFullYear();
+
+  // Calculate "time ago"
+  const now = new Date();
+  const diffTime = now.getTime() - start.getTime();
+  const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days in a month
+  
+  let timeAgo = '';
+  if (diffMonths > 0) {
+    timeAgo = `${diffMonths} months ago`;
+  } else {
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    timeAgo = `${diffDays} days ago`;
+  }
+
+  return `${startDay}-${month < 10 ? '0' + month : month}-${year} ・ ${timeAgo}`;
+}
+export function formatDateDiffNumber(date: string) {
+  const start = new Date(date);
+  // Calculate "time ago"
+  const now = new Date();
+  const diffTime = now.getTime() - start.getTime();
+  const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days in a month
+  
+  let timeAgo = '';
+  if (diffMonths > 0) {
+    timeAgo = `${diffMonths} months ago`;
+  } else {
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    timeAgo = `${diffDays} days ago`;
+  }
+
+  return `${timeAgo}`;
+}
+export function formatDateNumber(date: string) {
+  const start = new Date(date);
+
+  const startDay = start.getUTCDate();
+  const month = start.getUTCMonth() + 1; // Month as a number (1-12)
+  const year = start.getUTCFullYear();
+
+  return `${startDay}-${month < 10 ? '0' + month : month}-${year}`;
+}
 // export const fetchItemPaginated = async <T>(
 //   path: string,
 //   pageIndex: number,

@@ -1,13 +1,17 @@
 "use client";
 
-import { Card, Divider, Input, Radio, RadioChangeEvent, Select, Tag, Tooltip } from "antd";
+import {
+  Radio,
+  RadioChangeEvent,
+} from "antd";
+
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { toastError, toastSuccess } from "@lib-utils/helper";
+import { formatDateDiff, toastError, toastSuccess } from "@lib-utils/helper";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -22,6 +26,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Link from "next/link";
+import MediaGrid from "@components/Admin/media/MediaGrid";
+import Loading from "@components/Loading";
 interface MinisizeDataType {
   id: number;
   imageProfile: string;
@@ -39,6 +45,9 @@ interface DataType {
   isActive: boolean;
   type: string;
   coverImg: string;
+  url?: string;
+  duration?: string;
+  createdAt: string;
 }
 const Media = () => {
   const {
@@ -61,6 +70,7 @@ const Media = () => {
   const [total, setTotal] = useState(0);
   const [mediaData, setMediaData] = useState<DataType[]>([]);
   const [type, setType] = useState<"File" | "Video" | "Image">("Video");
+  const [loading, setLoading] = useState(false);
 
   // Settings for the slider
 
@@ -97,10 +107,31 @@ const Media = () => {
   };
 
   useEffect(() => {
-    fetchData(type)
-  }, [type]);
+    fetchData(type, currentPage, pageSize);
+  }, [type, currentPage, pageSize]);
 
-  async function fetchData(type: string = "") {
+  // Function to fetch the image size from Cloudinary based on its public ID
+  const fetchImageSize = async (publicId: string) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/upload`, { params: { publicId } });
+      return response.data.result.bytes; // Returns file size in bytes
+    } catch (error) {
+      console.error("Error fetching Cloudinary metadata: ", error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Extract the public ID from the Cloudinary URL
+  const extractPublicIdFromUrl = (url: string) => {
+    const parts = url.split('/');
+    const fileNameWithExtension = parts[parts.length - 1];
+    return fileNameWithExtension.split('.')[0]; // Remove extension
+  };
+
+  async function fetchData(type: string = "", currentPage: number, pageSize: number) {
     setLoadPage(true);
     try {
       const { data } = await axios.get(`/api/adminMedia`, {
@@ -111,14 +142,20 @@ const Media = () => {
           isActive: true,
         },
       });
-      
-      const mediaDataWithKeys = data.medias.map(
-        (mini: DataType, index: number) => ({
-          ...mini,
-          key: index + 1 + (currentPage - 1) * pageSize,
+  
+      const mediaDataWithKeys = await Promise.all(
+        data.medias.map(async (media: DataType, index: number) => {
+          const publicId = extractPublicIdFromUrl(media.coverImg);
+          const fileSize = media.type == "File" ? await fetchImageSize(publicId) : "Unknown"
+  
+          return {
+            ...media,
+            key: index + 1 + (currentPage - 1) * pageSize,
+            size: fileSize ? `${(fileSize / 1024).toFixed(2)} KB` : "Unknown",
+          };
         })
       );
-
+  
       setMediaData(mediaDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
@@ -127,12 +164,12 @@ const Media = () => {
       setLoadPage(false);
     }
   }
-
   const changeTab = (e: RadioChangeEvent) => {
     const selectedType = e.target.value;
     setType(selectedType);
-   
   };
+
+
   return (
     <div className="px-4">
       <div className="mx-4 pb rounded-lg">
@@ -229,7 +266,7 @@ const Media = () => {
 
           {locale === "en" ? (
             <svg
-              className="my-2"
+              className=""
               width="190"
               height="18"
               viewBox="0 0 190 18"
@@ -250,13 +287,13 @@ const Media = () => {
                   gradientUnits="userSpaceOnUse"
                 >
                   <stop />
-                  <stop offset="0.515625" stop-color="#DD2C37" />
+                  <stop offset="0.515625" stopColor="#DD2C37" />
                 </linearGradient>
               </defs>
             </svg>
           ) : (
             <svg
-              className="my-2"
+              className="mb-2"
               width="116"
               height="27"
               viewBox="0 0 116 27"
@@ -283,28 +320,25 @@ const Media = () => {
             </svg>
           )}
         </div>
-        <div className="media-radio default-font">
-          <Radio.Group defaultValue="Video" buttonStyle="solid" onChange={changeTab}>
-            <Radio.Button value="Video">{t("Video")}</Radio.Button>
-            <Radio.Button value="Image">{t("Image")}</Radio.Button>
-            <Radio.Button value="File">{t("Pdf File")}</Radio.Button>
+        <div className="media-radio">
+          <Radio.Group
+            defaultValue="Video"
+            buttonStyle="solid"
+            onChange={changeTab}
+            className="default-font"
+          >
+            <Radio.Button value="Video">
+              <span className="default-font">{t("Video")}</span>
+            </Radio.Button>
+            <Radio.Button value="Image">
+              <span className="default-font">{t("Image")}</span>
+            </Radio.Button>
+            <Radio.Button value="File">
+              <span className="default-font">{t("Pdf File")}</span>
+            </Radio.Button>
           </Radio.Group>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-8">
-          {mediaData.map((media, index) => (
-            <div key={index} className="relative w-full">
-              <Image
-                width={1000}
-                height={1000}
-                className="w-full h-auto rounded-lg object-cover"
-                src={media.coverImg}
-                alt=""
-                style={{ maxWidth: '100%', height: 'auto' }} // Ensures the image fills the grid item width
-              />
-            </div>
-          ))}
-        </div>
-
+        {loading ? <Loading /> : <MediaGrid mediaData={mediaData} type={type} total={total} setCurrentPage={setCurrentPage} currentPage={currentPage} setPageSize={setPageSize} pageSize={pageSize} />}
       </div>
     </div>
   );

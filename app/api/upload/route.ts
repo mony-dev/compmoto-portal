@@ -15,11 +15,32 @@ cloudinary.config({
 export async function POST(request: Request) {
   const body = await request.json();
   const { paramsToSign } = body;
-
   const signature = cloudinary.utils.api_sign_request(
     paramsToSign,
     `${process.env.CLOUDINARY_API_SECRET}`
   );
 
   return Response.json({ signature });
+}
+
+export async function GET(request: Request) {
+  // Extract query parameters from the URL
+  const { searchParams } = new URL(request.url);
+  const publicId = searchParams.get('publicId');
+
+  // Check if publicId is provided
+  if (!publicId) {
+    return NextResponse.json({ error: 'Missing publicId' }, { status: 400 });
+  }
+
+  try {
+    // Fetch resource details from Cloudinary using the public ID
+    const result = await cloudinary.api.resource(publicId as string);
+
+    // Return the metadata in the response
+    return NextResponse.json({ result });
+  } catch (error) {
+    console.error("Error fetching Cloudinary metadata:", error);
+    return NextResponse.json({ error: 'Failed to fetch metadata from Cloudinary' }, { status: 500 });
+  }
 }

@@ -72,6 +72,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     totalAmount: number;
     type: string;
     externalDocument: string;
+    totalDiscountPrice: number;
     user: {
       custNo: string;
       id: number;
@@ -89,67 +90,83 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     setI18nName(lastPart);
     setLoadPage(true);
     axios
-      .get(`/api/order/${params.id}?type=Normal`)
-      .then((response) => {
-        const order = response.data;
-        const normalOrder: DataType = {
-          key: order.id,
-          id: order.id,
-          documentNo: order.documentNo,
-          subTotal: order.subTotal,
-          totalPrice: order.totalPrice,
-          groupDiscount: order.groupDiscount,
-          groupDiscountPrice: order.subTotal - order.totalPrice,
-          grandTotal: order.totalPrice,
-          totalAmount: order.totalAmount,
-          type: order.type,
-          externalDocument: order.externalDocument, // Corrected from "extertalDocument"
-          user: {
-            custNo: order.user.custNo,
-            id: order.user.id,
-            name: order.user.name,
-            saleUser: {
-              custNo: order.user.saleUser.custNo,
-            },
+    .get(`/api/order/${params.id}?type=Normal`)
+    .then((response) => {
+      const order = response.data;
+  
+      // Mapping items and calculating the discount price
+      const items = order.items.map((item: any, index: number) => ({
+        key: index + 1,
+        id: item.id,
+        orderId: item.orderId,
+        productId: item.productId,
+        amount: item.amount,
+        type: item.type,
+        price: item.price,
+        year: item.year,
+        discount: item.discount,
+        discountPrice: item.year
+          ? item.discountPrice
+          : item.price - (item.price * item.discount) / 100,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        product: {
+          id: item.product.id,
+          code: item.product.code,
+          name: item.product.name,
+          brandId: item.product.brandId,
+          price: item.product.price,
+          navStock: item.product.navStock,
+          portalStock: item.product.portalStock,
+          minisizeId: item.product.minisizeId,
+          promotionId: item.product.promotionId,
+          years: item.product.years,
+          lv1Id: item.product.lv1Id,
+          lv2Id: item.product.lv2Id,
+          lv3Id: item.product.lv3Id,
+          image: item.product.image,
+          imageProducts: item.product.imageProducts,
+        },
+      }));
+  
+      // Calculate the sum of discountPrice
+      const totalDiscountPrice = items.reduce(
+        (sum: number, item: any) => sum + item.discountPrice,
+        0
+      );
+  
+      // Create the normalOrder object with totalDiscountPrice
+      const normalOrder: DataType = {
+        key: order.id,
+        id: order.id,
+        documentNo: order.documentNo,
+        subTotal: order.subTotal,
+        totalPrice: order.totalPrice,
+        groupDiscount: order.groupDiscount,
+        grandTotal: order.totalPrice,
+        totalAmount: order.totalAmount,
+        type: order.type,
+        externalDocument: order.externalDocument, // Corrected from "extertalDocument"
+        user: {
+          custNo: order.user.custNo,
+          id: order.user.id,
+          name: order.user.name,
+          saleUser: {
+            custNo: order.user.saleUser.custNo,
           },
-          items: order.items.map((item: any, index: number) => ({
-            key: index + 1,
-            id: item.id,
-            orderId: item.orderId,
-            productId: item.productId,
-            amount: item.amount,
-            type: item.type,
-            price: item.price,
-            year: item.year,
-            discount: item.discount,
-            discountPrice: item.discountPrice,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt,
-            product: {
-              id: item.product.id,
-              code: item.product.code,
-              name: item.product.name,
-              brandId: item.product.brandId,
-              price: item.product.price,
-              navStock: item.product.navStock,
-              portalStock: item.product.portalStock,
-              minisizeId: item.product.minisizeId,
-              promotionId: item.product.promotionId,
-              years: item.product.years,
-              lv1Id: item.product.lv1Id,
-              lv2Id: item.product.lv2Id,
-              lv3Id: item.product.lv3Id,
-              image: item.product.image,
-              imageProducts: item.product.imageProducts,
-            },
-          })),
-        };
-        setReData(normalOrder);
-        setLoadPage(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
+        },
+        items: items,
+        totalDiscountPrice: totalDiscountPrice, // Add totalDiscountPrice to normalOrder
+        groupDiscountPrice: order.subTotal - totalDiscountPrice,
+
+      };
+  
+      setReData(normalOrder);
+      setLoadPage(false);
+    })
+    .catch((error) => {
+      console.error("Error fetching data: ", error);
+    });
   }, []);
 
   const handlePageChange = (page: number, pageSize?: number) => {
@@ -198,11 +215,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       render: (_, record) => (
         <p>
           ฿
-          {record.year ? 
-          (record.product.price - (record.product.price * (record.discount/100))).toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }) : record.product.price.toLocaleString("en-US", {
+          {record.product.price.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -258,10 +271,10 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       render: (_, record) => (
         <p>
           ฿
-          {record.discountPrice.toLocaleString("en-US", {
+          {(record.discountPrice.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-          })}
+          }))}
         </p>
       ),
     },
@@ -274,7 +287,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       </p>
       <p className="text-xl font-semibold	text-black default-font">
         ฿
-        {reData?.grandTotal.toLocaleString("en-US", {
+        {reData?.totalDiscountPrice.toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}
@@ -398,7 +411,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
                   </p>
                 </div>
               )} */}
-               {reData?.groupDiscountPrice && (
+               {reData?.groupDiscountPrice  && (
                 <div className="flex justify-between promotion-text pb-4">
                   <p className="text-sm gotham-font text-[#919FAF]">{t("Total Discount Price")}</p>
                   <p className="text-sm default-font">

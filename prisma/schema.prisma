@@ -391,6 +391,7 @@ model Media {
   type          MediaType   
   url           String
   coverImg      String?
+  duration      String?
 }
 
 model News {
