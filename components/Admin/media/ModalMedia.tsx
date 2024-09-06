@@ -185,12 +185,7 @@ const ModalMedia = ({
     setType(selectedType);
     setValue("type", selectedType);
     setCoverImg("");
-    // Reset specific fields based on the selected type
-    if (selectedType === "Video") {
-      setValue("coverImg", "");
-    } else {
-      setValue("coverImg", "");
-    }
+    setValue("coverImg", "");
   };
   return (
     <Modal
@@ -266,6 +261,7 @@ const ModalMedia = ({
           />
         </Form.Item>
 
+
         {/* Conditional Fields */}
         {type === "Video" && (
           <>
@@ -325,23 +321,23 @@ const ModalMedia = ({
             control={control}
             name="coverImg"
             render={({ field }) =>
-              type === "File" ? (
-                <><UploadRewardImage
-                  setFile={setCoverImg}
-                  fileType="auto"
-                  allowType={["pdf"]}
-                  initialImage={coverImg}
-                  multiple={false}
-                  id={editMediaData?.id} /></>
-              ) : (
-                <UploadRewardImage
+              type === "Image" || type === "Video" ? (
+                <><p></p><UploadRewardImage
                   setImage={setCoverImg}
                   fileType="image"
                   allowType={["jpg", "png", "jpeg"]}
                   initialImage={coverImg}
                   multiple={false}
-                  id={editMediaData?.id}
-                />
+                  id={editMediaData?.id} /></>
+              ) : (
+                <UploadRewardImage
+                  setFile={setCoverImg}
+                  fileType="auto"
+                  allowType={["pdf"]}
+                  initialImage={coverImg}
+                  multiple={false}
+                  id={editMediaData?.id} />
+                
               )
             }
           />
