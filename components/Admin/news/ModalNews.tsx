@@ -140,6 +140,8 @@ const ModalNews = ({
         const response = await axios.post(`/api/adminNews`, values, {
           headers: {
             "Content-Type": "application/json",
+            maxContentLength: 50 * 1024 * 1024, // 50 MB
+            maxBodyLength: 50 * 1024 * 1024,    // 50 MB
           },
         });
         resetForm();
