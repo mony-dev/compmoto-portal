@@ -639,7 +639,7 @@ body {
   }
 
 
-  :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"] [class^="ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"] [class^="ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"] [class*=" ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"] [class*=" ant-radio"] {
+  :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"] [class^="ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"] [class^="ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"] [class*=" ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"] [class*=" ant-radio"],:where(.css-98ntnt).ant-radio-button-wrapper:first-child, :where(.css-98ntnt).ant-radio-button-wrapper:first-child, :where(.css-98ntnt).ant-radio-button-wrapper:hover, :where(.css-98ntnt)[class^="ant-radio"] [class^="ant-radio"], :where(.css-98ntnt)[class*=" ant-radio"] [class^="ant-radio"], :where(.css-98ntnt)[class^="ant-radio"] [class*=" ant-radio"], :where(.css-98ntnt)[class*=" ant-radio"] [class*=" ant-radio"]  {
     margin-right: 1rem;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.08);
@@ -651,6 +651,9 @@ body {
     background: none;
   }
   :where(.css-dev-only-do-not-override-98ntnt).ant-radio-button-wrapper:not(:first-child)::before {
+    background: none;
+  }
+  :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active::before, :where(.css-98ntnt).ant-radio-button-wrapper:not(:first-child)::before {
     background: none;
   }
 }
