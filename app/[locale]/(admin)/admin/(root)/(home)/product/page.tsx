@@ -928,10 +928,10 @@ const Product = () => {
                 onFilterChange={handleFilterChange}
               />
             )}
-            <div  className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
+            <div  className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white">
               <Link  className="hover:text-white" href={`/${locale}/admin/news?name=${brandName}`}>{t("News and events")}</Link>
             </div>
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4" >
+            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white" >
               <Link  className="hover:text-white" href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
             </div>
           </div>

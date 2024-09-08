@@ -196,7 +196,7 @@ const News = () => {
           }}
         >
           <div className="flex gap-2 items-center gotham-font">
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
+            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white">
               <Link
                 className="hover:text-white"
                 href={`/${locale}/admin/product?name=${brandName}`}
@@ -205,7 +205,7 @@ const News = () => {
               </Link>
             </div>
             <div
-              className={`cursor-pointer hover:bg-comp-red h-full flex items-center px-4 ${
+              className={`cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white ${
                 isActive ? "bg-comp-red" : ""
               }`}
             >
@@ -216,7 +216,7 @@ const News = () => {
                 {t("News and events")}
               </Link>
             </div>
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
+            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white">
               <Link
                 className="hover:text-white"
                 href={`/${locale}/admin/media?name=${brandName}`}
