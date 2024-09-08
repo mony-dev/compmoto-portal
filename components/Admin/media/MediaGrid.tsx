@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import "../../../styles/globals.scss";
 import "../../../styles/fonts.scss";
 
-import { Image, Modal } from "antd";
+import { Image, Modal, Pagination, PaginationProps } from "antd";
 import {
   formatDateDiff,
   formatDateDiffNumber,
   formatDateNumber,
 } from "@lib-utils/helper";
-import { EyeOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import DataTable from "../Datatable";
+import dynamic from "next/dynamic";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
+const DataTable = dynamic(() => import("../Datatable"));
 
 interface MediaGridProps {
   mediaData: {
@@ -188,10 +188,18 @@ const MediaGrid: React.FC<MediaGridProps> = ({
       setPageSize(pageSize);
     }
   };
-
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>previous</a>;
+    }
+    if (type === 'next') {
+      return <a>next</a>;
+    }
+    return originalElement;
+  };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-8">
+    <><div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-8">
       {mediaData.map((media, index) => (
         <div
           key={media.key}
@@ -224,8 +232,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
                     >
                       <path
                         d="M19.586 0.666748H8.41268C3.55935 0.666748 0.666016 3.56008 0.666016 8.41341V19.5867C0.666016 21.0401 0.919349 22.3067 1.41268 23.3734C2.55935 25.9067 5.01268 27.3334 8.41268 27.3334H19.586C24.4393 27.3334 27.3327 24.4401 27.3327 19.5867V16.5334V8.41341C27.3327 3.56008 24.4393 0.666748 19.586 0.666748ZM25.1593 14.6667C24.1193 13.7734 22.4393 13.7734 21.3993 14.6667L15.8527 19.4267C14.8127 20.3201 13.1327 20.3201 12.0927 19.4267L11.6393 19.0534C10.6927 18.2267 9.18602 18.1467 8.11935 18.8667L3.13268 22.2134C2.83935 21.4667 2.66602 20.6001 2.66602 19.5867V8.41341C2.66602 4.65341 4.65268 2.66675 8.41268 2.66675H19.586C23.346 2.66675 25.3327 4.65341 25.3327 8.41341V14.8134L25.1593 14.6667Z"
-                        fill="white"
-                      />
+                        fill="white" />
                     </svg>
                     <p className="text-xs default-font text-white">
                       {t("View")}
@@ -233,9 +240,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
                   </div>
                   <div className="grid place-items-center">
                     <svg
-                      onClick={() =>
-                        handleDownloadClick(media.url, media.coverImg)
-                      }
+                      onClick={() => handleDownloadClick(media.url, media.coverImg)}
                       className="text-white text-2xl mx-2 cursor-pointer"
                       width="24"
                       height="26"
@@ -245,12 +250,10 @@ const MediaGrid: React.FC<MediaGridProps> = ({
                     >
                       <path
                         d="M12 0C12.7364 0 13.3333 0.58203 13.3333 1.3V14.6154L16.714 11.3192C17.2347 10.8115 18.079 10.8115 18.5997 11.3192C19.1204 11.8269 19.1204 12.65 18.5997 13.1577L13.1785 18.4433C12.5276 19.0779 11.4724 19.0779 10.8215 18.4433L5.40034 13.1577C4.87964 12.65 4.87964 11.8269 5.40034 11.3192C5.92104 10.8115 6.76526 10.8115 7.28595 11.3192L10.6667 14.6154V1.3C10.6667 0.58203 11.2636 0 12 0Z"
-                        fill="white"
-                      />
+                        fill="white" />
                       <path
                         d="M1.33333 16.9C2.06971 16.9 2.66667 17.482 2.66667 18.2V23.4H21.3333V18.2C21.3333 17.482 21.9303 16.9 22.6667 16.9C23.403 16.9 24 17.482 24 18.2V23.4C24 24.8359 22.8061 26 21.3333 26H2.66667C1.19391 26 0 24.8359 0 23.4V18.2C0 17.482 0.596954 16.9 1.33333 16.9Z"
-                        fill="white"
-                      />
+                        fill="white" />
                     </svg>
                     <p className="text-xs default-font text-white">
                       {t("Download")}
@@ -273,6 +276,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
             </>
           )}
         </div>
+
       ))}
       {type === "File" && (
         <div className="col-span-full">
@@ -282,11 +286,10 @@ const MediaGrid: React.FC<MediaGridProps> = ({
             total={total}
             currentPage={1}
             pageSize={pageSize}
-            onPageChange={handlePageChange}
-          />
+            onPageChange={handlePageChange} />
         </div>
       )}
-      {/* Ant Design Modal for image preview */}
+
       <Modal
         visible={isModalVisible}
         footer={null}
@@ -298,10 +301,23 @@ const MediaGrid: React.FC<MediaGridProps> = ({
           alt="Preview"
           width="100%"
           preview={false}
-          className="rounded-lg"
-        />
+          className="rounded-lg" />
       </Modal>
-    </div>
+    </div><div className="flex justify-center">
+        {type !== "File" &&
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={total}
+            onChange={handlePageChange}
+            className="mt-4"
+            showSizeChanger={false}
+            showQuickJumper={false}
+            itemRender={itemRender}
+            />
+            }
+      </div></>
+      
   );
 };
 
