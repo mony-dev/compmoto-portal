@@ -138,35 +138,55 @@ export function formatDateDiff(date: string) {
   // Calculate "time ago"
   const now = new Date();
   const diffTime = now.getTime() - start.getTime();
+
   const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days in a month
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+  const diffMinutes = Math.floor(diffTime / (1000 * 60));
   
   let timeAgo = '';
+  
   if (diffMonths > 0) {
     timeAgo = `${diffMonths} months ago`;
-  } else {
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  } else if (diffDays > 0) {
     timeAgo = `${diffDays} days ago`;
+  } else if (diffHours > 0) {
+    timeAgo = `${diffHours} hours ago`;
+  } else if (diffMinutes > 0) {
+    timeAgo = `${diffMinutes} minutes ago`;
+  } else {
+    timeAgo = `just now`;
   }
 
   return `${startDay}-${month < 10 ? '0' + month : month}-${year} ・ ${timeAgo}`;
 }
 export function formatDateDiffNumber(date: string) {
   const start = new Date(date);
-  // Calculate "time ago"
   const now = new Date();
   const diffTime = now.getTime() - start.getTime();
+
   const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days in a month
-  
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+  const diffMinutes = Math.floor(diffTime / (1000 * 60));
+
   let timeAgo = '';
+  
   if (diffMonths > 0) {
     timeAgo = `${diffMonths} months ago`;
-  } else {
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  } else if (diffDays > 0) {
     timeAgo = `${diffDays} days ago`;
+  } else if (diffHours > 0) {
+    timeAgo = `${diffHours} hours ago`;
+  } else if (diffMinutes > 0) {
+    timeAgo = `${diffMinutes} minutes ago`;
+  } else {
+    timeAgo = `just now`;
   }
 
-  return `${timeAgo}`;
+  return timeAgo;
 }
+
 export function formatDateNumber(date: string) {
   const start = new Date(date);
 

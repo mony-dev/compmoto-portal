@@ -61,7 +61,6 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
   const [minisizeOptions, setMinisizeOptions] = useState<
     { value: string; label: string }[]
   >([]);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   const deleteMedia = (id: number) => {
     Modal.confirm({
@@ -177,12 +176,12 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     router.push(newUrl, undefined, { shallow: true });
   }, [searchText]);
 
-  async function fetchData(type: string = "") {
+  async function fetchData(type: string = "", query: string = "") {
     setLoadPage(true);
     try {
       const { data } = await axios.get(`/api/adminMedia`, {
         params: {
-          q: searchText,
+          q: query,
           type,
           page: currentPage,
           pageSize: pageSize,
@@ -247,7 +246,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(mediaType);
+    fetchData(mediaType, value);
   };
 
   const handleClear = () => {

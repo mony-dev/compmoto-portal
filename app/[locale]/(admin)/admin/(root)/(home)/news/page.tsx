@@ -22,116 +22,47 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import NewsCard from "@components/Admin/news/NewsCard";
+const Loading = dynamic(() => import("@components/Loading"));
+
 interface MinisizeDataType {
   id: number;
   imageProfile: string;
   newsBanner: string;
 }
 
-interface PromotionDataType {
-  id: number;
-  name: string;
-  isActive: boolean;
-  minisizeId: number;
-  amount: number;
-  productRedeem: string;
-  userGroup: string;
-  startDate: string;
-  endDate: string;
-  image: string;
-}
-
 interface DataType {
   id: number;
-  code: string;
+  key: number;
   name: string;
-  brandId: number;
-  price: number;
-  navStock: number;
-  portalStock: number;
-  minisizeId?: number;
-  promotionId?: number;
-  updatedAt: string;
-  years: YearDataType[];
-  lv1Id?: number;
-  lv2Id?: number;
-  lv3Id?: number;
-  totalOrder: number;
-  brand?: {
-    name: string;
-  };
-  minisize?: {
-    name: string;
-    lv1?: any;
-    lv2?: any;
-    lv3?: any;
-  };
-  promotion?: {
-    name: string;
+  minisize: {
     id: number;
+    name: string;
   };
-  imageProducts?: { url: string }[];
-  lv1Name: string;
-  lv2Name: string;
-  lv3Name: string;
-}
-
-interface YearDataType {
-  year: string;
   isActive: boolean;
-  discount: number;
+  coverImg: string;
+  content: string;
+  createdAt: string;
 }
-
-interface FilterType {
-  id: string;
-  label: string;
-}
-
-interface SelectedFilters {
-  lv1?: FilterType;
-  lv2?: FilterType;
-  lv3?: FilterType;
-  promotion?: FilterType;
-}
-
 const News = () => {
   const {
     formState: { errors },
   } = useForm();
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
-  const { cartItemCount, setCartItemCount } = useCart();
   const { data: session, status } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
-  const [promotiondData, setPromotionData] = useState<PromotionDataType[]>([]);
-  const searchParams = useSearchParams();
   const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(
     null
   );
-  const [searchText, setSearchText] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [productData, setProductData] = useState<DataType[]>([]);
   const [brandName, setBrandName] = useState("");
-  const [selectedProductYear, setSelectedProductYear] = useState<{
-    [key: number]: string | null;
-  }>({});
-  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
-
-  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
-
-  type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
-  type GetSingle<T> = T extends (infer U)[] ? U : never;
-  type Sorts = GetSingle<Parameters<OnChange>[2]>;
-  const [sortedInfo, setSortedInfo] = useState<Sorts>({});
-  const [hoveredPromotionId, setHoveredPromotionId] = useState<number | null>(
-    null
-  );
-  const dataTableRef = useRef<HTMLDivElement>(null);
-  // Settings for the slider
+  const [loading, setLoading] = useState(false);
+  const [newsData, setNewsData] = useState<DataType[]>([]);
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
@@ -164,7 +95,39 @@ const News = () => {
       console.error("Error fetching data: ", error);
     }
   };
+  useEffect(() => {
+    fetchData(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
+  async function fetchData(currentPage: number, pageSize: number) {
+    setLoadPage(true);
+    try {
+      const { data } = await axios.get(`/api/adminNews`, {
+        params: {
+          page: currentPage,
+          pageSize: pageSize,
+          isActive: true,
+        },
+      });
+  
+      const newsDataWithKeys = await Promise.all(
+        data.news.map(async (news: DataType, index: number) => {
+  
+          return {
+            ...news,
+            key: index + 1 + (currentPage - 1) * pageSize,
+          };
+        })
+      );
+  
+      setNewsData(newsDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
   return (
     <div className="px-4">
       <div className="mx-4 pb rounded-lg">
@@ -195,35 +158,32 @@ const News = () => {
             boxShadow: "0px 4px 4px 0px #00000040",
           }}
         >
-          <div className="flex gap-2 items-center gotham-font">
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-              <Link
-                className="hover:text-white text-white"
-                href={`/${locale}/admin/product?name=${brandName}`}
-              >
+          <div className="flex gap-2 items-center  default-font">
+            <Link
+              className="hover:text-white text-white hover:bg-comp-red h-full"
+              href={`/${locale}/admin/product?name=${brandName}`}
+            >
+              <div className="cursor-pointer h-full flex items-center px-4">
                 {t("Product")}
-              </Link>
-            </div>
-            <div
+              </div>
+            </Link>
+
+            <Link
               className={`cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white ${
                 isActive ? "bg-comp-red" : ""
               }`}
+              href={`/${locale}/admin/news?name=${brandName}`}
             >
-              <Link
-                className="hover:text-white text-white"
-                href={`/${locale}/admin/news?name=${brandName}`}
-              >
-                {t("News and events")}
-              </Link>
-            </div>
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-              <Link
-                className="hover:text-white text-white"
-                href={`/${locale}/admin/media?name=${brandName}`}
-              >
+              {t("News and events")}
+            </Link>
+            <Link
+              className="hover:text-white text-white hover:bg-comp-red h-full"
+              href={`/${locale}/admin/media?name=${brandName}`}
+            >
+              <div className="cursor-pointer h-full flex items-center px-4">
                 {t("Marketing")}
-              </Link>
-            </div>
+              </div>
+            </Link>
           </div>
           <div>
             <Image
@@ -242,6 +202,23 @@ const News = () => {
           </div>
         </nav>
         <div className="flex py-8 items-center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12.6775 19.957C12.9523 20.0209 12.9775 20.3807 12.7099 20.4699L11.1299 20.9899C7.15985 22.2699 5.06985 21.1999 3.77985 17.2299L2.49985 13.2799C1.21985 9.30992 2.27985 7.20992 6.24985 5.92992L6.77385 5.75639C7.17671 5.62297 7.56878 6.02703 7.45438 6.43571C7.39768 6.63828 7.34314 6.84968 7.28985 7.06992L6.30985 11.2599C5.20985 15.9699 6.81985 18.5699 11.5299 19.6899L12.6775 19.957Z"
+              fill="#292D32"
+            />
+            <path
+              d="M17.1702 3.21001L15.5002 2.82001C12.1602 2.03001 10.1702 2.68001 9.00018 5.10001C8.70018 5.71001 8.46018 6.45001 8.26018 7.30001L7.28018 11.49C6.30018 15.67 7.59018 17.73 11.7602 18.72L13.4402 19.12C14.0202 19.26 14.5602 19.35 15.0602 19.39C18.1802 19.69 19.8402 18.23 20.6802 14.62L21.6602 10.44C22.6402 6.26001 21.3602 4.19001 17.1702 3.21001ZM15.2902 13.33C15.2002 13.67 14.9002 13.89 14.5602 13.89C14.5002 13.89 14.4402 13.88 14.3702 13.87L11.4602 13.13C11.0602 13.03 10.8202 12.62 10.9202 12.22C11.0202 11.82 11.4302 11.58 11.8302 11.68L14.7402 12.42C15.1502 12.52 15.3902 12.93 15.2902 13.33ZM18.2202 9.95001C18.1302 10.29 17.8302 10.51 17.4902 10.51C17.4302 10.51 17.3702 10.5 17.3002 10.49L12.4502 9.26001C12.0502 9.16001 11.8102 8.75001 11.9102 8.35001C12.0102 7.95001 12.4202 7.71001 12.8202 7.81001L17.6702 9.04001C18.0802 9.13001 18.3202 9.54001 18.2202 9.95001Z"
+              fill="#292D32"
+            />
+          </svg>
+
           {locale === "en" ? (
             <svg
               className="my-2"
@@ -265,7 +242,7 @@ const News = () => {
                   gradientUnits="userSpaceOnUse"
                 >
                   <stop />
-                  <stop offset="0.515625" stop-color="#DD2C37" />
+                  <stop offset="0.515625" stopColor="#DD2C37" />
                 </linearGradient>
               </defs>
             </svg>
@@ -292,12 +269,13 @@ const News = () => {
                   gradientUnits="userSpaceOnUse"
                 >
                   <stop />
-                  <stop offset="0.515625" stop-color="#DD2C37" />
+                  <stop offset="0.515625" stopColor="#DD2C37" />
                 </linearGradient>
               </defs>
             </svg>
           )}
         </div>
+        {loading ? <Loading /> : <NewsCard newsData={newsData} total={total} setCurrentPage={setCurrentPage} currentPage={currentPage} setPageSize={setPageSize} pageSize={pageSize} />}
       </div>
     </div>
   );

@@ -199,34 +199,31 @@ const Media = () => {
           }}
         >
           <div className="flex gap-2 items-center default-font">
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-              <Link
-                className="hover:text-white text-white"
-                href={`/${locale}/admin/product?name=${brandName}`}
-              >
+          <Link
+              className="hover:text-white text-white hover:bg-comp-red h-full"
+              href={`/${locale}/admin/product?name=${brandName}`}
+            >
+              <div className="cursor-pointer h-full flex items-center px-4">
                 {t("Product")}
-              </Link>
-            </div>
-            <div className="cursor-pointer hover:bg-comp-red h-full flex items-center px-4">
-              <Link
-                className="hover:text-white text-white"
-                href={`/${locale}/admin/news?name=${brandName}`}
-              >
+              </div>
+            </Link>
+            <Link
+              className="hover:text-white text-white hover:bg-comp-red h-full"
+              href={`/${locale}/admin/news?name=${brandName}`}
+            >
+              <div className="cursor-pointer h-full flex items-center px-4">
                 {t("News and events")}
-              </Link>
-            </div>
-            <div
+              </div>
+            </Link>
+            <Link
               className={`cursor-pointer hover:bg-comp-red h-full flex items-center px-4 text-white ${
                 isActive ? "bg-comp-red" : ""
               }`}
+              href={`/${locale}/admin/media?name=${brandName}`}
             >
-              <Link
-                className="hover:text-white text-white"
-                href={`/${locale}/admin/media?name=${brandName}`}
-              >
-                {t("Marketing")}
-              </Link>
-            </div>
+              {t("Marketing")}
+            </Link>
+    
           </div>
           <div>
             <Image
@@ -312,7 +309,7 @@ const Media = () => {
                   gradientUnits="userSpaceOnUse"
                 >
                   <stop />
-                  <stop offset="0.515625" stop-color="#DD2C37" />
+                  <stop offset="0.515625" stopColor="#DD2C37" />
                 </linearGradient>
               </defs>
             </svg>
