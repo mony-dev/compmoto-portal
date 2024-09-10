@@ -219,6 +219,7 @@ model Brand {
   updatedAt DateTime @updatedAt
   minisizes Minisize[]
   products  Product[]
+  specialBonusItem  SpecialBonusItem[]
 }
 
 model BrandProduct {
@@ -437,4 +438,56 @@ model InvoiceItem {
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
 
   @@unique([invoiceId, productId])
+}
+
+
+model TotalPurchase {
+  id                  Int          @id @default(autoincrement())
+  period              Int
+  year                Int
+  resetDate           Int
+  isActive            Boolean            
+  items               TotalPurchaseItem[]
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model TotalPurchaseItem {
+  id                  Int          @id @default(autoincrement())
+  totalPurchaseId     Int
+  totalPurchase       TotalPurchase   @relation(fields: [totalPurchaseId], references: [id])
+  totalPurchaseAmount       Int
+  cn                  Int     
+  incentivePoint      Int
+  loyaltyPoint        Int
+  order               Int
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+   @@unique([totalPurchaseId])
+}
+
+model SpecialBonus {
+  id                  Int          @id @default(autoincrement())
+  period              Int
+  year                Int
+  resetDate           Int
+  isActive            Boolean 
+  items               SpecialBonusItem[]
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model SpecialBonusItem {
+  id                  Int          @id @default(autoincrement())
+  specialBonusId     Int
+  specialBonus       SpecialBonus   @relation(fields: [specialBonusId], references: [id])
+  totalPurchaseAmount       Int
+  cn                  Int     
+  incentivePoint      Int
+  order               Int
+  brandId             Int
+  brand               Brand        @relation(fields: [brandId], references: [id])
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  @@unique([specialBonusId])
 }

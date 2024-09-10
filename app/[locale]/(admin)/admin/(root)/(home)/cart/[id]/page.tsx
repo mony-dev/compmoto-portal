@@ -932,36 +932,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       toastError(t("No items selected for checkout"));
       return;
     }
-      //     const orderItemsData = selectedCartItems.map(
-      //   (item: {
-      //     amount: number;
-      //     product: { years: any[]; id: any; code: string; discount: number; price: number; };
-      //     id: string | number;
-      //     type: any;
-      //   }) => {
-      //     const selectedYearData = item.product.years.find(
-      //       (yearData) => yearData.year === selectedProductYear[item.id]
-      //     );
-      //     return {
-      //       cartId: item.id,
-      //       // orderId: createdOrder.id,
-      //       productId: item.product.id,
-      //       code: item.product.code,
-      //       amount: item.amount,
-      //       type: item.type,
-      //       unitPrice: selectedYearData?.year ? item.product.price - (item.product.price * (item.product.discount/100)) : item.product.price,
-      //       price: calculateOriginalPrice(item, item.amount),
-      //       year: selectedYearData?.year
-      //         ? parseInt(selectedYearData.year)
-      //         : null,
-      //       discount: item.product.discount,
-      //       discountPrice: item.product.discount
-      //         ? calculateTotalPrice(item, item.amount) 
-      //         : calculateOriginalPrice(item, item.amount),
-      //     };
-      //   }
-      // );
-      // console.log("orderItemsData", orderItemsData)
+
     setIsProcessing(true);
     try {
       let joinedString = "";
@@ -1032,6 +1003,7 @@ const Checkout: React.FC<CheckoutProps> = ({
            orderItemsData.map((item: OrderItem) => ({
              itemNo: item.code,
              qty: item.amount,
+             year: item.year,
              unitPrice: item.unitPrice,
              lineDiscount: !item.year ? item.discount : 0,
              tyreDiscount: item.year ? item.discount : 0
@@ -1096,6 +1068,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       itemNo: string;
       qty: number;
       unitPrice: number;
+      year: number;
       lineDiscount: number;
       tyreDiscount: number;
     }[]

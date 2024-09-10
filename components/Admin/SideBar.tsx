@@ -221,8 +221,8 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `` },
-        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `` },
+        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `/${locale}/admin/adminTotalPurchase` },
+        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `/${locale}/admin/adminSpecialBonus` },
       ],
       id: "adminDashboard",
       openMenuId: openMenuId,
@@ -350,7 +350,7 @@ export default function SideBar({
         } sm:translate-x-0 flex flex-col justify-between`}
         aria-label="Sidebar"
       >
-        <div className="overflow-y-auto font-bold hidden-scroll">
+        <div className="overflow-y-auto font-bold hidden-scroll default-font">
           {sidebarItems.map(
             (item, index) =>
               item.forRole.includes(session?.user.role) && (

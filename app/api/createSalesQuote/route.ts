@@ -3,7 +3,6 @@ import axios from 'axios';
 
 export async function POST(req: NextRequest) {
   const { customerNo, externalDoc, createBy, orderItems } = await req.json();
-  console.log(orderItems)
   const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
       <soapenv:Header/>
@@ -17,13 +16,15 @@ export async function POST(req: NextRequest) {
               <CreateBy>${createBy}</CreateBy>
               ${orderItems
                 .map(
-                  (item: { itemNo: string; qty: number; unitPrice: number, lineDiscount: number, tyreDiscount: number }) => `
+                  (item: { itemNo: string, qty: number, year: number, unitPrice: number, lineDiscount: number, tyreDiscount: number }) => `
               <PT_SalesLine>
                 <ItemNo>${item.itemNo}</ItemNo>
                 <Qty>${item.qty}</Qty>
                 <UnitPrice>${item.unitPrice}</UnitPrice>
                 <LineDiscountP>${item.lineDiscount}</LineDiscountP>
                 <LineTyreP>${item.tyreDiscount}</LineTyreP>
+                <TyreYear>${item.year}</TyreYear>
+
               </PT_SalesLine>`
                 )
                 .join('')}
