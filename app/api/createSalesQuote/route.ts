@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
                 <UnitPrice>${item.unitPrice}</UnitPrice>
                 <LineDiscountP>${item.lineDiscount}</LineDiscountP>
                 <LineTyreP>${item.tyreDiscount}</LineTyreP>
-                <TyreYear>${item.year}</TyreYear>
+                <TyreYear>${item.year ?? 0}</TyreYear>
 
               </PT_SalesLine>`
                 )
