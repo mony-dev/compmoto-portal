@@ -1,0 +1,25 @@
+{
+    "total purchase setting": "ตั้งค่ายอดสั่งซื้อรวม",
+    "year": "ปี",
+    "month": "เดือน",
+    "resetDate": "วันที่รีเซต",
+    "Reset": "รีเซต",
+    "totalPurchaseAmount": "ยอดสั่งซื้อต่อเดือน",
+    "cn": "CN",
+    "incentivePoint": "Incentive Point",
+    "Loyalty Point": "Loyalty Point",
+    "At least one item is required": "จำเป็นต้องเพิ่มอย่างน้อย 1 ข้อมูล",
+    "Year is required": "จำเป็นต้องเลือกปี",
+    "Month is required": "จำเป็นต้องเลือกเดือน",
+    "Please select reset date": "กรุณาเลือกวันที่รีเซตข้อมูล",
+    "Form saved successfully": "สร้างเรียบร้อยแล้ว",
+    "Form updated successfully": "แก้ไขเรียบร้อยแล้ว",
+    "No setting available to reset": "ไม่มีการตั้งค่าที่เปิดใช้งานอยู่",
+    "Reset successfully": "รีเซตเรียบร้อยแล้ว",
+    "are_you_sure_you_want_to_reset_this_setting": "คุณแน่ใจใช่ไหมที่จะรีเซตการตั้งค่านี้?",
+    "this_action_cannot_be_undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+    "yes": "ใช่",
+    "Cancel": "ยกเลิก"
+
+
+}

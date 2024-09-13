@@ -21,7 +21,7 @@ const DataTable: React.FC<TableComponentProps<any>> = ({
   onPageChange,
 }) => {
   const customPagination = getCustomPagination(total, currentPage, pageSize, onPageChange);
-
+  console.log(data)
   return (
     <div className="flex flex-col w-full">
       <Table

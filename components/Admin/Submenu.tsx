@@ -15,9 +15,10 @@ interface SubmenuProps {
     lv3?: { id: string; label: string };
   }) => void;
   minisizeId: number;
+  t: any;
 }
 
-const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId }) => {
+const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t }) => {
   const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{
     lv1?: { id: string; label: string };
@@ -92,7 +93,7 @@ const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId }) => {
   return (
     <div className="dropdown dropdown-filter">
       <div className="dropdownToggle flex items-center gap-4">
-        <p className="m-0 text-white">รุ่นสินค้า</p>
+        <p className="m-0 text-white">{t('brand_product')}</p>
         <svg
           width="10"
           height="6"

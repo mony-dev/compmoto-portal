@@ -671,3 +671,8 @@ body {
 .Toastify__progress-bar {
   font-family: 'AnuphanRegular', sans-serif;
 }
+.col-custom {
+  .ant-form-item {
+    margin-bottom: 0px;
+  }
+}

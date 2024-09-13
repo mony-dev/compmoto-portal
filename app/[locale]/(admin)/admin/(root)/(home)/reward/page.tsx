@@ -221,12 +221,12 @@ const Reward = () => {
           </p>
         </div>
         {rewardData.length > 0 ? (
-          <div className="grid gap-x-8 gap-y-4 grid-cols-5 py-4 reward-card">
+          <div className="grid gap-x-8 gap-y-4 grid-cols-4 py-4 reward-card">
             {rewardData.map((reward, index) => (
               <Card
                 title={false}
                 bordered={false}
-                style={{ width: 300, boxShadow:'0px 4px 16px 0px rgba(0, 0, 0, 0.16)' }}
+                style={{ width: '100%', boxShadow:'0px 4px 16px 0px rgba(0, 0, 0, 0.16)' }}
                 key={index}
                 className="rounded-lg"
                 actions={[
@@ -447,12 +447,12 @@ const Reward = () => {
           <h1 className="text-3xl default-font">{t("Reward Redemption")}</h1>
         </Divider>
         {rewardUserData.length > 0 ? (
-          <div className="grid gap-x-8 gap-y-4 grid-cols-5 py-4 redeem-card">
+          <div className="grid gap-x-8 gap-y-4 grid-cols-4 py-4 redeem-card">
             {rewardUserData.map((reward, index) => (
               <Card
                 title={false}
                 bordered={false}
-                style={{ width: 300, boxShadow:' 0px 4px 16px 0px rgba(0, 0, 0, 0.16)'
+                style={{ width: '100%', boxShadow:' 0px 4px 16px 0px rgba(0, 0, 0, 0.16)'
                 }}
                 key={index}
                 className="rounded-lg"

@@ -24,7 +24,7 @@ export async function POST(request: Request, { body }: { body: any }) {
     }
 
     // Calculate the new points
-    const newPoints = user.rewardPoint - data.point * data.quantity;
+    const newPoints = user.rewardPoint - data.point;
 
     // Update the user's points
     const updatedUser = await prisma.user.update({

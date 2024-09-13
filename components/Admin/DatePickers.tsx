@@ -2,13 +2,36 @@ import React from "react";
 import { useController } from "react-hook-form";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
+import { RangePickerProps } from "antd/es/date-picker";
 
 function DatePickers(props:  any) {
   const { field, fieldState } = useController(props);
+
+  // eslint-disable-next-line arrow-body-style
+const disabledDate: RangePickerProps['disabledDate'] = (current) => {
+  // Can not select days before today and today
+  return current && current < dayjs().startOf('month');
+};
   return (
     <div className="flex flex-col">
+      {props.disabledDate ? 
       <DatePicker
-        className="h-14"
+      placeholder={props.placeholder}
+      status={fieldState.error ? "error" : undefined}
+      ref={field.ref}
+      name={field.name}
+      onBlur={field.onBlur}
+      value={field.value ? dayjs(field.value) : null}
+      onChange={(date) => {
+          field.onChange(date ? date.toISOString() : null);
+      }}
+      size={props.size}
+      picker={props.picker}
+      disabledDate={disabledDate}
+    />
+      :
+      
+      <DatePicker
         placeholder={props.placeholder}
         status={fieldState.error ? "error" : undefined}
         ref={field.ref}
@@ -18,7 +41,10 @@ function DatePickers(props:  any) {
         onChange={(date) => {
             field.onChange(date ? date.toISOString() : null);
         }}
+        size={props.size}
       />
+      }
+      
       <span className="text-red-500 text-left">
         {fieldState?.error?.message}
       </span>

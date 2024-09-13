@@ -443,9 +443,9 @@ model InvoiceItem {
 
 model TotalPurchase {
   id                  Int          @id @default(autoincrement())
-  period              Int
+  month               Int
   year                Int
-  resetDate           Int
+  resetDate           DateTime
   isActive            Boolean            
   items               TotalPurchaseItem[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
@@ -463,14 +463,13 @@ model TotalPurchaseItem {
   order               Int
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
-   @@unique([totalPurchaseId])
 }
 
 model SpecialBonus {
   id                  Int          @id @default(autoincrement())
-  period              Int
+  month              Int
   year                Int
-  resetDate           Int
+  resetDate           DateTime
   isActive            Boolean 
   items               SpecialBonusItem[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
@@ -489,5 +488,4 @@ model SpecialBonusItem {
   brand               Brand        @relation(fields: [brandId], references: [id])
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
-  @@unique([specialBonusId])
 }

@@ -926,6 +926,7 @@ const Product = () => {
               <Submenu
                 minisizeId={minisizeData.id}
                 onFilterChange={handleFilterChange}
+                t={t}
               />
             )}
             <Link  className="hover:text-white text-white cursor-pointer hover:bg-comp-red h-full flex items-center px-4 h-full" href={`/${locale}/admin/news?name=${brandName}`}>{t("News and events")}</Link>
