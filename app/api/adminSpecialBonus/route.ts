@@ -65,7 +65,7 @@ export async function GET() {
 
     // If no special bonus is found
     if (!specialBonus) {
-      return NextResponse.json({ specialBonus: [] });
+      return NextResponse.json({ });
     }
 
     // Structure the response to fit your form needs

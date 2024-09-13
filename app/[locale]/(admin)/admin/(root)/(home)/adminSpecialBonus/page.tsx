@@ -1,75 +1,72 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useForm,
   Controller,
-  SubmitHandler,
   useFieldArray,
+  SubmitHandler,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Form, Row, Col, InputNumber, Modal, Select } from "antd";
+import { Button, Row, Col, InputNumber, Select, Form, Modal } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { useCart } from "@components/Admin/Cartcontext";
-import { usePathname, useRouter } from "next/navigation";
-import { CheckCircleIcon, PowerIcon } from "@heroicons/react/24/outline";
-import DatePickers from "@components/Admin/DatePickers";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import i18nConfig from "../../../../../../../i18nConfig";
-import { useCurrentLocale } from "next-i18n-router/client";
+import { usePathname, useRouter } from "next/navigation";
 import {
   specialBonusSchema,
   SpecialBonusSchema,
 } from "@lib-schemas/user/special-bonus-schema";
 import axios from "axios";
+import DatePickers from "@components/Admin/DatePickers";
+import { PowerIcon } from "@heroicons/react/24/outline";
+import { useCurrentLocale } from "next-i18n-router/client";
+import i18nConfig from "../../../../../../../i18nConfig";
+import { useCart } from "@components/Admin/Cartcontext";
+import debounce from "lodash.debounce";
+import dynamic from "next/dynamic";
 
-type Brand = {
-  id: number;
-  name: string;
-};
 
-export default function adminSpecialBonus() {
+export default function AdminSpecialBonus() {
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
-  const { setI18nName } = useCart();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
-  const [form] = Form.useForm();
-  const [id, setId] = useState(0);
   const router = useRouter();
+  const Loading = dynamic(() => import("@components/Loading"));
+
   const [brandOptions, setBrandOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const [id, setId] = useState(0);
   const defaultValues = {
     year: "",
     month: "",
     resetDate: "",
     isActive: true,
-    items: [
+    brands: [
       {
-        totalPurchaseAmount: 0,
-        cn: 0,
-        incentivePoint: 0,
         brandId: null,
+        items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
       },
-    ], // Ensure items start with one object
+    ],
   };
 
   const {
-    handleSubmit,
     control,
-    formState: { errors },
+    handleSubmit,
     setValue,
-    getValues,
+    formState: { errors },
   } = useForm<SpecialBonusSchema>({
     defaultValues,
     resolver: zodResolver(specialBonusSchema),
   });
 
+  // Field array for brands
   const {
     fields: brandFields,
     append: appendBrand,
     remove: removeBrand,
-    replace,
+    replace: replaceBrands,
   } = useFieldArray({
     control,
     name: "brands",
@@ -86,21 +83,25 @@ export default function adminSpecialBonus() {
         }));
         setBrandOptions(brands);
       } catch (error: any) {
-        console.log("fetch brand :", error.message);
         toastError(error.message);
       }
     };
     fetchBrands();
   }, []);
 
-  useEffect(() => {
-    const fetchSpecialBonus = async () => {
-      try {
-        const response = await fetch("/api/adminSpecialBonus");
-        const data = await response.json();
-
-        if (data && data.specialBonus.brands.length > 0) {
-          replace(
+  const fetchSpecialBonus = async () => {
+    setLoadPage(true);
+    try {
+      const response = await fetch("/api/adminSpecialBonus");
+      const data = await response.json();
+      if (data && data.specialBonus) {
+        if (data.specialBonus.brands.length > 0) {
+          setValue("month", data.specialBonus.month.toString());
+          setValue("year", data.specialBonus.year.toString());
+          setValue("resetDate", data.specialBonus.resetDate);
+          setValue("isActive", data.specialBonus.isActive);
+          setId(data.specialBonus.id);
+          replaceBrands(
             data.specialBonus.brands.map((brand: any) => ({
               brandId: brand.brandId,
               items: brand.items.map((item: any) => ({
@@ -111,6 +112,9 @@ export default function adminSpecialBonus() {
             }))
           );
         } else {
+          setValue("month", "");
+          setValue("year", "");
+          setValue("resetDate", "");
           setValue("brands", [
             {
               brandId: null,
@@ -118,31 +122,71 @@ export default function adminSpecialBonus() {
             },
           ]);
         }
-      } catch (error) {
-        console.error("Error fetching SpecialBonus:", error);
+      }else {
+        setValue("month", "");
+        setValue("year", "");
+        setValue("resetDate", "");
+        setValue("brands", [
+          {
+            brandId: null,
+            items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
+          },
+        ]);
       }
-    };
+  
+    } catch (error) {
+      console.error("Error fetching SpecialBonus:", error);
+    } finally {
+      setLoadPage(false);
+    }
+  };
 
-    fetchSpecialBonus();
+  // Debounce function for search input
+  const debouncedFetchData = useCallback(
+    debounce(() => {
+      fetchSpecialBonus();
+    }, 500), // 500 ms debounce delay
+    []
+  );
+      
+  useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
+
+    // Call the debounced fetch function
+    debouncedFetchData();
+
+    // Cleanup debounce on unmount
+    return () => {
+      debouncedFetchData.cancel();
+    };
   }, [id]);
+
 
   const onFinish: SubmitHandler<SpecialBonusSchema> = async (values) => {
     try {
       if (id > 0) {
+        // Update the record if `id` exists
         const response = await fetch(`/api/adminSpecialBonus/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            id, // Pass the ID to identify the record
-            ...values, // Pass the form values
+            id,
+            ...values,
           }),
         });
+
         const result = await response.json();
-        toastSuccess(t("Form updated successfully"));
+
+        if (response.ok) {
+          toastSuccess(t("Form updated successfully"));
+        } else {
+          toastError(t(result.message || "Error updating data"));
+        }
       } else {
-        console.log("values", values);
+        // Create a new record if `id` is 0 or undefined
         const response = await fetch("/api/adminSpecialBonus", {
           method: "POST",
           headers: {
@@ -150,14 +194,20 @@ export default function adminSpecialBonus() {
           },
           body: JSON.stringify(values),
         });
+
         const result = await response.json();
-        toastSuccess(t("Form saved successfully"));
+
+        if (response.ok) {
+          toastSuccess(t("Form saved successfully"));
+        } else {
+          toastError(t(result.message || "Error saving data"));
+        }
       }
     } catch (error) {
       toastError(t("Error saving data"));
+      console.error("Error:", error);
     }
   };
-
   const handleReset = async () => {
     Modal.confirm({
       title: t("are_you_sure_you_want_to_reset_this_setting"),
@@ -202,6 +252,11 @@ export default function adminSpecialBonus() {
     });
   };
 
+  if (loadPage || !t) {
+    return (
+      <Loading/>
+    );
+  }
   return (
     <div className="px-4">
       <div
@@ -214,16 +269,10 @@ export default function adminSpecialBonus() {
           </p>
         </div>
 
-        <Form
-          form={form}
-          onFinish={handleSubmit(onFinish)}
-          layout="horizontal"
-          labelWrap
-        >
-          {/* Year and Reset Date */}
+        <form onSubmit={handleSubmit(onFinish)}>
           <div className="flex justify-between gap-2">
             <div className="flex gap-2">
-              <Form.Item
+            <Form.Item
                 name="month"
                 label={t("month")}
                 required
@@ -238,6 +287,7 @@ export default function adminSpecialBonus() {
                   disabledDate={true}
                 />
               </Form.Item>
+
               <Form.Item
                 name="year"
                 label={t("year")}
@@ -253,6 +303,8 @@ export default function adminSpecialBonus() {
                   disabledDate={true}
                 />
               </Form.Item>
+
+              {/* </Form.Item> */}
             </div>
             <div className="flex gap-2">
               <Form.Item
@@ -279,9 +331,9 @@ export default function adminSpecialBonus() {
               </Button>
             </div>
           </div>
-
           {brandFields.map((brandField, brandIndex) => (
             <div key={brandField.id} className="mb-8">
+              {/* Brand Select */}
               <div
                 className="flex place-items-baseline gap-4"
                 style={{
@@ -291,7 +343,7 @@ export default function adminSpecialBonus() {
                   borderTopLeftRadius: "0.5rem",
                 }}
               >
-                <Form.Item label={t("Select Brand")} className="w-4/12	mb-0">
+                <Form.Item label={t("Select Brand")} className="w-4/12	mb-0" required>
                   <Controller
                     name={`brands.${brandIndex}.brandId`}
                     control={control}
@@ -313,99 +365,38 @@ export default function adminSpecialBonus() {
                 <MinusCircleOutlined onClick={() => removeBrand(brandIndex)} />
               </div>
 
-              {/* Managing items for the specific brand */}
-              <Form.List name={`brands.${brandIndex}.items`}>
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map((field, itemIndex) => (
-                      <Row
-                        key={itemIndex}
-                        gutter={16}
-                        align="middle"
-                        className="py-4 bg-[#f0f8ff]"
-                        style={{ marginLeft: "0px", marginRight: "0px" }}
-                      >
-                        <Col span={6}>
-                          <Controller
-                            name={`brands.${brandIndex}.items.${itemIndex}.totalPurchaseAmount`}
-                            control={control}
-                            render={({ field }) => (
-                              <InputNumber
-                                {...field}
-                                placeholder="Total Purchase Amount"
-                                className="w-full"
-                              />
-                            )}
-                          />
-                        </Col>
-                        <Col span={4}>
-                          <Controller
-                            name={`brands.${brandIndex}.items.${itemIndex}.cn`}
-                            control={control}
-                            render={({ field }) => (
-                              <InputNumber
-                                {...field}
-                                placeholder="CN"
-                                className="w-full"
-                              />
-                            )}
-                          />
-                        </Col>
-                        <Col span={4}>
-                          <Controller
-                            name={`brands.${brandIndex}.items.${itemIndex}.incentivePoint`}
-                            control={control}
-                            render={({ field }) => (
-                              <InputNumber
-                                {...field}
-                                placeholder="Incentive Point"
-                                className="w-full"
-                              />
-                            )}
-                          />
-                        </Col>
-                        <Col span={2}>
-                          <MinusCircleOutlined
-                            onClick={() => remove(itemIndex)}
-                          />
-                        </Col>
-                      </Row>
-                    ))}
-
-                    {/* Button to add new item */}
-                    <Button
-                      type="dashed"
-                      onClick={() =>
-                        add({
-                          totalPurchaseAmount: 0,
-                          cn: 0,
-                          incentivePoint: 0,
-                        })
-                      }
-                      icon={<PlusOutlined />}
-                      style={{ marginTop: 16 }}
-                    >
-                      {t("Add Item")}
-                    </Button>
-                  </>
-                )}
-              </Form.List>
+              {/* Items inside brand */}
+              <Row
+                gutter={16}
+                className="bg-[#ebebeb] py-4 font-medium"
+                style={{
+                  // borderTopRightRadius: "0.5rem",
+                  // borderTopLeftRadius: "0.5rem",
+                  margin: '0px'
+                }}
+              >
+                <Col span={6}>
+                  <p>{t("totalPurchaseAmount")}</p>
+                </Col>
+                <Col span={6}>
+                  <p>{t("cn")}</p>
+                </Col>
+                <Col span={6}>
+                  <p>{t("incentivePoint")}</p>
+                </Col>
+              
+                <Col span={2}></Col> {/* Empty space for the remove icon */}
+              </Row>
+              <ItemFields control={control} brandIndex={brandIndex} />
             </div>
           ))}
 
-          {/* Button to add new brand */}
           <Button
             type="dashed"
             onClick={() =>
               appendBrand({
                 brandId: null,
-                items: [
-                  {
-                    totalPurchaseAmount: 0,
-                    cn: 0,
-                    incentivePoint: 0,
-                  },
-                ],
+                items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
               })
             }
             icon={<PlusOutlined />}
@@ -413,18 +404,98 @@ export default function adminSpecialBonus() {
             {t("Add Brand")}
           </Button>
 
-          <Form.Item className="flex justify-end">
+          <div className="flex justify-end mt-4">
             <Button
               className="bg-comp-red button-backend"
               type="primary"
               htmlType="submit"
-              icon={<CheckCircleIcon className="w-4" />}
             >
-              {t("submit")}
+              {t("Submit")}
             </Button>
-          </Form.Item>
-        </Form>
+          </div>
+        </form>
       </div>
     </div>
+  );
+}
+
+function ItemFields({
+  control,
+  brandIndex,
+}: {
+  control: any;
+  brandIndex: number;
+}) {
+  const { t } = useTranslation();
+
+  const {
+    fields: itemFields,
+    append: appendItem,
+    remove: removeItem,
+  } = useFieldArray({
+    control,
+    name: `brands.${brandIndex}.items`,
+  });
+
+  return (
+    <>
+      {itemFields.map((itemField, itemIndex) => (
+        <Row key={itemField.id} gutter={16} align="middle" className="py-4 bg-[#f0f8ff]" style={{margin: '0px'}}>
+          <Col span={6}>
+            <Controller
+              name={`brands.${brandIndex}.items.${itemIndex}.totalPurchaseAmount`}
+              control={control}
+              render={({ field }) => (
+                <InputNumber
+                      {...field}
+                      placeholder={t("totalPurchaseAmount")}
+                      className="w-full"
+                    />
+              )}
+            />
+          </Col>
+          <Col span={6}>
+            <Controller
+              name={`brands.${brandIndex}.items.${itemIndex}.cn`}
+              control={control}
+              render={({ field }) => (
+                <InputNumber
+                {...field}
+                placeholder={t("cn")}
+                className="w-full"
+              />
+              )}
+            />
+          </Col>
+          <Col span={6}>
+            <Controller
+              name={`brands.${brandIndex}.items.${itemIndex}.incentivePoint`}
+              control={control}
+              render={({ field }) => (
+                <InputNumber
+                {...field}
+                placeholder={t("incentivePoint")}
+                className="w-full"
+              />
+              )}
+            />
+          </Col>
+          <Col span={2}>
+            <MinusCircleOutlined onClick={() => removeItem(itemIndex)} />
+          </Col>
+        </Row>
+      ))}
+
+      <Button
+        type="dashed"
+        onClick={() =>
+          appendItem({ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 })
+        }
+        icon={<PlusOutlined />}
+        style={{ marginTop: 16 }}
+      >
+        {t("Add Item")}
+      </Button>
+    </>
   );
 }

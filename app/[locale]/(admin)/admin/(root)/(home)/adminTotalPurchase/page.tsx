@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useForm,
@@ -21,15 +21,18 @@ import DatePickers from "@components/Admin/DatePickers";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
-
+import debounce from "lodash.debounce";
+import dynamic from "next/dynamic";
 export default function AdminTotalPurchase() {
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
-  const { setI18nName } = useCart();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const [form] = Form.useForm();
   const [id, setId] = useState(0);
   const router = useRouter();
+  const Loading = dynamic(() => import("@components/Loading"));
+
   const defaultValues = {
     year: "",
     month: "",
@@ -91,20 +94,26 @@ export default function AdminTotalPurchase() {
     }
   };
 
-  useEffect(() => {
-    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    setI18nName(lastPart);
-
-    // Fetch the active TotalPurchase on page load
-    fetchActiveTotalPurchase();
-  }, [id]);
-
-  useEffect(() => {
-    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-    setI18nName(lastPart);
-
-    fetchActiveTotalPurchase();
-  }, []);
+    // Debounce function for search input
+    const debouncedFetchData = useCallback(
+      debounce(() => {
+        fetchActiveTotalPurchase();
+      }, 500), // 500 ms debounce delay
+      []
+    );
+        
+    useEffect(() => {
+      const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+      setI18nName(lastPart);
+  
+      // Call the debounced fetch function
+      debouncedFetchData();
+  
+      // Cleanup debounce on unmount
+      return () => {
+        debouncedFetchData.cancel();
+      };
+    }, [id]);
 
   const onFinish: SubmitHandler<TotalPurchaseSchema> = async (values) => {
     try {
@@ -290,10 +299,6 @@ export default function AdminTotalPurchase() {
               gutter={16}
               align="middle"
               className="py-4 bg-[#f0f8ff]"
-              style={{
-                borderBottomRightRadius: "0.5rem",
-                borderBottomLeftRadius: "0.5rem",
-              }}
             >
               <Col span={6}>
                 <Controller
