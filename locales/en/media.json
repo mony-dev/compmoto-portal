@@ -4,6 +4,13 @@
     "Marketing": "Social Media File",
     "Video": "Video",
     "Image": "Image",
-    "Pdf File": "Pdf File"
-
+    "Pdf File": "Pdf File",
+    "previous": "Previous",
+    "next": "Next",
+    "View": "View",
+    "Download": "Download",
+    "file": "File",
+    "date": "Date",
+    "size": "Size",
+    "Action": "Action"
 }

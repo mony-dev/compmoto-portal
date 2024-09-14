@@ -64,30 +64,6 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
     mediaBanner: string;
   }
 
-  // const deleteMinisize = (id: number) => {
-  //   Modal.confirm({
-  //     title: t("are_you_sure_you_want_to_delete_this_minisize"),
-  //     content: t("this_action_cannot_be_undone"),
-  //     okText: t("yes"),
-  //     okType: "danger",
-  //     cancelText: t("cancel"),
-  //     onOk: async () => {
-  //       try {
-  //         const response = await axios.delete(`/api/adminMinisize/${id}`, {
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //         });
-  //         setTriggerMinisize(!triggerMinisize);
-  //         router.replace(`/${locale}/admin/adminMinisize`);
-  //         toastSuccess(t("minisize_deleted_successfully"));
-  //       } catch (error: any) {
-  //         toastError(error.response.data.message);
-  //       }
-  //     },
-  //   });
-  // };
-
   const deleteMinisize = (id: number) => {
     // Check if Minisize has related data
     axios

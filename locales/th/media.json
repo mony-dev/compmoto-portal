@@ -4,7 +4,13 @@
     "Marketing": "สื่อการตลาด",
     "Video": "วิดีโอ",
     "Image": "รูปภาพ",
-    "Pdf File": "ไฟล์ PDF"
-
-
+    "Pdf File": "ไฟล์ PDF",
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "View": "แสดง",
+    "Download": "ดาวน์โหลด",
+    "file": "เอกสาร",
+    "date": "วันที่",
+    "size": "ขนาด",
+    "Action": "การกระทำ"
 }

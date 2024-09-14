@@ -178,26 +178,6 @@ export default function admins() {
   
     }, [searchText]);
     
-    // const fetchBrands = async () => {
-    //   try {
-    //     console.log("data find many fetch")
-    //     const { data } = await axios.get(`/api/adminBrand`);
-    //     console.log("data", data)
-  
-    //     // const brands = data.brands.map((brand: any) => ({
-    //     //   value: brand.id,
-    //     //   label: brand.name,
-    //     // }));
-  
-    //     // console.log(brands)
-        
-    //   } catch (error: any) {
-    //     console.log("fetch brand :", error.message)
-    //     toastError(error.message);
-    //   }
-    // };
-
-
   async function fetchData(query: string = "") {
     setLoadPage(true);
     try {

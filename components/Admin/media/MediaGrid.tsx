@@ -37,6 +37,7 @@ interface MediaGridProps {
   setCurrentPage: any;
   pageSize: number;
   currentPage: number;
+  t: any;
 }
 
 interface MediaDataType {
@@ -194,10 +195,10 @@ const MediaGrid: React.FC<MediaGridProps> = ({
     originalElement
   ) => {
     if (type === "prev") {
-      return <a>previous</a>;
+      return <a>{t('previous')}</a>;
     }
     if (type === "next") {
-      return <a>next</a>;
+      return <a>{t('next')}</a>;
     }
     return originalElement;
   };

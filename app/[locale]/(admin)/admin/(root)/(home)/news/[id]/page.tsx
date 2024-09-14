@@ -88,8 +88,6 @@ const News = ({ params }: { params: { id: number } }) => {
         const [newsResponse] = await Promise.all([
           axios.get(`/api/adminNews/${params.id}`),
         ]);
-        console.log(newsResponse);
-
         setMinisizeData(newsResponse.data.minisize);
         setNewsData(newsResponse.data);
         setLoading(false);

@@ -172,8 +172,6 @@ const ModalMinisize = ({
     if (newsImage) {
       effNewsImage = newsImage;
     }
-    console.log("effMediaImage", effMediaImage)
-    console.log("effNewsImage", effNewsImage)
 
     setValue("imageProfile", effImage);
     setValue("mediaBanner", effMediaImage);
@@ -208,10 +206,10 @@ const ModalMinisize = ({
     setIsModalVisible(false)
     setProductCount(null);
     setId(0);
+    setEditMinisizeData(null)
   };
   const onSubmit: SubmitHandler<MinisizeSchema> = async (values) => {
     if(mode === 'EDIT' && editMinisizeData) {
-      console.log("values",values)
       try {
         const response = await axios.put(`/api/adminMinisize/${editMinisizeData.id}`, values, {
           headers: {
@@ -291,7 +289,7 @@ const ModalMinisize = ({
               control={control}
               name="name"
               render={({ field }) => (
-                <Input {...field} placeholder={t("name")} size="large" />
+                <Input {...field} placeholder={t("name")} size="large"/>
               )}
             />
           </Form.Item>

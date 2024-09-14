@@ -140,6 +140,7 @@ const ModalMedia = ({
     });
     setIsModalVisible(false);
     setId(0);
+    setEditMediaData(null)
   };
 
   const onSubmit: SubmitHandler<MediaSchema> = async (values) => {
@@ -230,7 +231,7 @@ const ModalMedia = ({
           <Controller
             control={control}
             name="name"
-            render={({ field }) => <Input {...field} placeholder={t("name")} />}
+            render={({ field }) => <Input {...field} placeholder={t("name")} disabled={!!editMediaData}/>}
           />
         </Form.Item>
 

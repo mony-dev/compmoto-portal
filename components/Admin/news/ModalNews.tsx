@@ -113,6 +113,7 @@ const ModalNews = ({
     });
     setIsModalVisible(false);
     setId(0);
+    setEditNewsData(null)
   };
 
   const onSubmit: SubmitHandler<NewsSchema> = async (values) => {

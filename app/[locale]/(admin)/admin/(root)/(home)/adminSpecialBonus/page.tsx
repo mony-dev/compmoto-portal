@@ -450,6 +450,9 @@ function ItemFields({
                       {...field}
                       placeholder={t("totalPurchaseAmount")}
                       className="w-full"
+                      step={0.01}
+                      min={0}
+                      addonAfter={t("baht")}
                     />
               )}
             />
@@ -463,6 +466,9 @@ function ItemFields({
                 {...field}
                 placeholder={t("cn")}
                 className="w-full"
+                step={0.01}
+                min={0}
+                addonAfter="%"
               />
               )}
             />
@@ -476,6 +482,9 @@ function ItemFields({
                 {...field}
                 placeholder={t("incentivePoint")}
                 className="w-full"
+                step={0.01}
+                min={0}
+                addonAfter={t("point")}
               />
               )}
             />

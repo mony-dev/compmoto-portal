@@ -23,5 +23,7 @@
     "Select Brand": "Select Brand",
     "Add Item": "Add Item",
     "Add Brand": "Add Brand",
-    "this_is_a_required_field":"This is a required field"
+    "this_is_a_required_field":"This is a required field",
+    "baht": "Baht",
+    "point": "Point"
 }

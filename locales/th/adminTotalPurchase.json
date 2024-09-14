@@ -19,7 +19,7 @@
     "are_you_sure_you_want_to_reset_this_setting": "คุณแน่ใจใช่ไหมที่จะรีเซตการตั้งค่านี้?",
     "this_action_cannot_be_undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
     "yes": "ใช่",
-    "Cancel": "ยกเลิก"
-
-
+    "Cancel": "ยกเลิก",
+    "baht": "บาท",
+    "point": "คะแนน"
 }

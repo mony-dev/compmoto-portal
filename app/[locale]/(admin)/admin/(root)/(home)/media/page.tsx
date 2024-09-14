@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  Radio,
-  RadioChangeEvent,
-} from "antd";
+import { Radio, RadioChangeEvent } from "antd";
 
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "next-i18n-router/client";
@@ -69,6 +66,7 @@ const Media = () => {
   const [mediaData, setMediaData] = useState<DataType[]>([]);
   const [type, setType] = useState<"File" | "Video" | "Image">("Video");
   const [loading, setLoading] = useState(false);
+  const [loadingBaner, setLoadingBanner] = useState(false);
 
   // Settings for the slider
 
@@ -88,6 +86,7 @@ const Media = () => {
 
   const fetchMinisizeData = async (name: string) => {
     try {
+      setLoadingBanner(true);
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
       if (response.data) {
         const minisize = response.data.minisizes.map(
@@ -101,6 +100,8 @@ const Media = () => {
       }
     } catch (error) {
       console.error("Error fetching data: ", error);
+    } finally {
+      setLoadingBanner(false);
     }
   };
 
@@ -124,12 +125,16 @@ const Media = () => {
 
   // Extract the public ID from the Cloudinary URL
   const extractPublicIdFromUrl = (url: string) => {
-    const parts = url.split('/');
+    const parts = url.split("/");
     const fileNameWithExtension = parts[parts.length - 1];
-    return fileNameWithExtension.split('.')[0]; // Remove extension
+    return fileNameWithExtension.split(".")[0]; // Remove extension
   };
 
-  async function fetchData(type: string = "", currentPage: number, pageSize: number) {
+  async function fetchData(
+    type: string = "",
+    currentPage: number,
+    pageSize: number
+  ) {
     setLoadPage(true);
     try {
       const { data } = await axios.get(`/api/adminMedia`, {
@@ -140,12 +145,13 @@ const Media = () => {
           isActive: true,
         },
       });
-  
+
       const mediaDataWithKeys = await Promise.all(
         data.medias.map(async (media: DataType, index: number) => {
           const publicId = extractPublicIdFromUrl(media.coverImg);
-          const fileSize = media.type == "File" ? await fetchImageSize(publicId) : "Unknown"
-  
+          const fileSize =
+            media.type == "File" ? await fetchImageSize(publicId) : "Unknown";
+
           return {
             ...media,
             key: index + 1 + (currentPage - 1) * pageSize,
@@ -153,7 +159,7 @@ const Media = () => {
           };
         })
       );
-  
+
       setMediaData(mediaDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
@@ -167,6 +173,9 @@ const Media = () => {
     setType(selectedType);
   };
 
+  if (loadingBaner) {
+    return <Loading />;
+  }
 
   return (
     <div className="px-4">
@@ -199,7 +208,7 @@ const Media = () => {
           }}
         >
           <div className="flex gap-2 items-center default-font">
-          <Link
+            <Link
               className="hover:text-white text-white hover:bg-comp-red h-full"
               href={`/${locale}/admin/product?name=${brandName}`}
             >
@@ -223,7 +232,6 @@ const Media = () => {
             >
               {t("Marketing")}
             </Link>
-    
           </div>
           <div>
             <Image
@@ -241,6 +249,7 @@ const Media = () => {
             />
           </div>
         </nav>
+
         <div className="flex py-8 items-center">
           <svg
             width="24"
@@ -333,7 +342,20 @@ const Media = () => {
             </Radio.Button>
           </Radio.Group>
         </div>
-        {loading ? <Loading /> : <MediaGrid mediaData={mediaData} type={type} total={total} setCurrentPage={setCurrentPage} currentPage={currentPage} setPageSize={setPageSize} pageSize={pageSize} />}
+        {loading ? (
+          <Loading />
+        ) : (
+          <MediaGrid
+            mediaData={mediaData}
+            type={type}
+            total={total}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            setPageSize={setPageSize}
+            pageSize={pageSize}
+            t={t}
+          />
+        )}
       </div>
     </div>
   );

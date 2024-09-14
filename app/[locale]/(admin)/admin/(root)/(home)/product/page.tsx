@@ -22,6 +22,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Link from "next/link";
+import Loading from "@components/Loading";
 interface MinisizeDataType {
   id: number;
   imageProfile: string;
@@ -130,7 +131,10 @@ const Product = () => {
     null
   );
   const dataTableRef = useRef<HTMLDivElement>(null);
-  // Settings for the slider
+  const [loadingMini, setLoadingMini] = useState(false);
+  const [loadingPromo, setLoadingPromo] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(false);
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -181,6 +185,7 @@ const Product = () => {
   };
   const fetchMinisizeData = async (name: string) => {
     try {
+      setLoadingMini(true)
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
       if (response.data) {
         const minisize = response.data.minisizes.map(
@@ -198,6 +203,8 @@ const Product = () => {
       }
     } catch (error) {
       console.error("Error fetching data: ", error);
+    } finally {
+      setLoadingMini(false)
     }
   };
 
@@ -215,6 +222,7 @@ const Product = () => {
       page: currentPage,
       pageSize: pageSize,
     };
+    setLoadingProduct(true)
     axios
       .get(
         `/api/getProduct?q=${searchText}&brandName=${name}&sortBy=${sortBy}`,
@@ -262,13 +270,15 @@ const Product = () => {
         }));
         setProductData(useProduct);
         setTotal(response.data.total);
+        setLoadingProduct(false)
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
-      });
+      })
   };
 
   const fetchPromotion = async (id: number, filters = {}) => {
+    setLoadingPromo(true)
     const group = session?.user.custPriceGroup;
     id &&
       axios
@@ -289,6 +299,7 @@ const Product = () => {
             })
           );
           setPromotionData(promotions);
+          setLoadingPromo(false)
         })
         .catch((error) => {
           console.error("Error fetching data: ", error);
@@ -685,8 +696,13 @@ const Product = () => {
       setPageSize(pageSize);
     }
   };
-
+  
+  if (loadingMini || loadingProduct || loadingPromo) {
+    return <Loading />;
+  }
+  
   return (
+    
     <div className="px-4">
       <div className="px-4 pb rounded-lg">
         <div className="promotion-card pb-4">

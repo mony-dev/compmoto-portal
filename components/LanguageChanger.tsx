@@ -34,7 +34,6 @@ const LanguageChanger = () => {
       newPathname += queryParams;
     }
 
-  console.log("newPathname", newPathname);
   router.push(newPathname as any); // Using 'any' to bypass the type error
   };
 

@@ -29,7 +29,7 @@ model User {
   language           Language            @default(English)
   paymentTerms       String? 
   creditPoint        Int?                @default(0)
-  rewardPoint        Int                 @default(0)
+  rewardPoint        Float                 @default(0)
   phoneNumber        String?
   birthDate          DateTime?
   image              String? 
@@ -41,6 +41,9 @@ model User {
   contactName        String?
   custPriceGroup     String?
   custNo             String
+  cn                 Float                 @default(0)
+  cnBrand            Json?                  
+  loyaltyPoint       Float                 @default(0)
   sessions           Session[]
   userLogs           UserLog[]          
   userRewards        UserReward[]     
@@ -48,7 +51,8 @@ model User {
   orders             Order[]     
   invoices           Invoice[]  
   minisizes             Minisize[]  @relation("UserMinisizes")
-
+  totalPurchaseHistories  TotalPurchaseHistory[]
+  SpecialBonusHistories  SpecialBonusHistory[]
 
   @@index([id])
   @@map("users")
@@ -448,6 +452,7 @@ model TotalPurchase {
   resetDate           DateTime
   isActive            Boolean            
   items               TotalPurchaseItem[]
+  totalPurchaseHistories TotalPurchaseHistory[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
@@ -456,10 +461,10 @@ model TotalPurchaseItem {
   id                  Int          @id @default(autoincrement())
   totalPurchaseId     Int
   totalPurchase       TotalPurchase   @relation(fields: [totalPurchaseId], references: [id])
-  totalPurchaseAmount       Int
-  cn                  Int     
-  incentivePoint      Int
-  loyaltyPoint        Int
+  totalPurchaseAmount       Float
+  cn                  Float     
+  incentivePoint      Float
+  loyaltyPoint        Float
   order               Int
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
@@ -472,6 +477,7 @@ model SpecialBonus {
   resetDate           DateTime
   isActive            Boolean 
   items               SpecialBonusItem[]
+  SpecialBonusHistories SpecialBonusHistory[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
@@ -480,12 +486,40 @@ model SpecialBonusItem {
   id                  Int          @id @default(autoincrement())
   specialBonusId     Int
   specialBonus       SpecialBonus   @relation(fields: [specialBonusId], references: [id])
-  totalPurchaseAmount       Int
-  cn                  Int     
-  incentivePoint      Int
+  totalPurchaseAmount       Float
+  cn                  Float     
+  incentivePoint      Float
   order               Int
   brandId             Int
   brand               Brand        @relation(fields: [brandId], references: [id])
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model TotalPurchaseHistory {
+  id                  Int          @id @default(autoincrement())
+  userId              Int
+  user                User   @relation(fields: [userId], references: [id])
+  totalPurchaseId     Int
+  totalPurchase       TotalPurchase   @relation(fields: [totalPurchaseId], references: [id])
+  cn                  Float     
+  incentivePoint      Float
+  loyaltyPoint        Float
+  level               Int
+  totalSpend          Float
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model SpecialBonusHistory {
+  id                  Int          @id @default(autoincrement())
+  userId              Int
+  user                User   @relation(fields: [userId], references: [id])
+  specialBonusId     Int
+  specialBonus       SpecialBonus   @relation(fields: [specialBonusId], references: [id])
+  cn                  Float     
+  incentivePoint      Float
+  totalSpend          Json
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }

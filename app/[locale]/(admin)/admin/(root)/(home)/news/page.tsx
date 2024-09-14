@@ -59,10 +59,11 @@ const News = () => {
     null
   );
   const [brandName, setBrandName] = useState("");
-  const { setI18nName, setLoadPage, loadPage } = useCart();
+  const { setI18nName } = useCart();
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [newsData, setNewsData] = useState<DataType[]>([]);
+  const [loadingBaner, setLoadingBanner] = useState(false);
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
@@ -80,6 +81,7 @@ const News = () => {
 
   const fetchMinisizeData = async (name: string) => {
     try {
+      setLoadingBanner(true);
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
       if (response.data) {
         const minisize = response.data.minisizes.map(
@@ -93,6 +95,8 @@ const News = () => {
       }
     } catch (error) {
       console.error("Error fetching data: ", error);
+    } finally {
+      setLoadingBanner(false);
     }
   };
   useEffect(() => {
@@ -100,7 +104,7 @@ const News = () => {
   }, [currentPage, pageSize]);
 
   async function fetchData(currentPage: number, pageSize: number) {
-    setLoadPage(true);
+    setLoading(true);
     try {
       const { data } = await axios.get(`/api/adminNews`, {
         params: {
@@ -109,25 +113,28 @@ const News = () => {
           isActive: true,
         },
       });
-  
+
       const newsDataWithKeys = await Promise.all(
         data.news.map(async (news: DataType, index: number) => {
-  
           return {
             ...news,
             key: index + 1 + (currentPage - 1) * pageSize,
           };
         })
       );
-  
+
       setNewsData(newsDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
       toastError(error);
     } finally {
-      setLoadPage(false);
+      setLoading(false);
     }
   }
+  if (loadingBaner || loading) {
+    return <Loading />;
+  }
+
   return (
     <div className="px-4">
       <div className="mx-4 pb rounded-lg">
@@ -275,7 +282,18 @@ const News = () => {
             </svg>
           )}
         </div>
-        {loading ? <Loading /> : <NewsCard newsData={newsData} total={total} setCurrentPage={setCurrentPage} currentPage={currentPage} setPageSize={setPageSize} pageSize={pageSize} />}
+        {loading ? (
+          <Loading />
+        ) : (
+          <NewsCard
+            newsData={newsData}
+            total={total}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            setPageSize={setPageSize}
+            pageSize={pageSize}
+          />
+        )}
       </div>
     </div>
   );
