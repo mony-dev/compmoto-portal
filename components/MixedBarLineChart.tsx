@@ -1,0 +1,452 @@
+// "use client";
+
+// import React, { useEffect } from "react";
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   LineElement,
+//   PointElement,
+//   Legend,
+//   Tooltip,
+// } from "chart.js";
+// import { Chart } from "react-chartjs-2";
+// import { useTranslation } from "react-i18next";
+// import axios from "axios";
+// import { toastError } from "@lib-utils/helper";
+
+// // Register required Chart.js components
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   LineElement,
+//   PointElement,
+//   Legend,
+//   Tooltip
+// );
+
+// const MixedBarLineChart: React.FC<{ selectedFilters: any[], userId: string }> = ({ selectedFilters, userId }) => {
+//   // Data with both bar and line chart datasets
+//   const { t } = useTranslation();
+
+// // Inside your useEffect:
+// useEffect(() => {
+//   const fetchInvoices = async () => {
+//     if (selectedFilters) {
+//       try {
+//         // Use POST request instead of GET
+//         const { data } = await axios.post(`/api/getFilteredInvoices`, {
+//           userId: userId,
+//           filters: selectedFilters,
+//         });
+//         console.log("data", data);
+//       } catch (error: any) {
+//         toastError(error);
+//       }
+//     }
+//   };
+
+//   fetchInvoices();
+// }, [selectedFilters]);
+//   const data = {
+//     labels: [
+//       "January",
+//       "February",
+//       "March",
+//       "April",
+//       "May",
+//       "January",
+//       "February",
+//       "March",
+//       "April",
+//       "May",
+//     ],
+//     datasets: [
+//       {
+//         type: "bar",
+//         label: "Sales",
+//         data: [65, 59, 80, 81, 56],
+//         backgroundColor: "#E8727A",
+//         borderColor: "#E8727A",
+//         stack: "combined",
+//       },
+//       {
+//         type: "line",
+//         label: "Sales",
+//         data: [65, 59, 80, 81, 56],
+//         borderColor: '#6AD5AC',
+//         borderWidth: 2,
+//         stack: "combined",
+//       },
+//     ],
+//   };
+
+//   // Chart options
+//   const options = {
+//     type: "line",
+//     data: data,
+//     options: {
+//       plugins: {
+//         title: {
+//           display: true,
+//           text: "Chart.js Stacked Line/Bar Chart",
+//         },
+//       },
+//       scales: {
+//         y: {
+//           stacked: true,
+//         },
+//       },
+//     },
+//   };
+
+//   return (
+//     <>
+//       <div className="grid grid-rows-4 grid-flow-col gap-4">
+//         <div
+//           className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+//           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+//         >
+//           <div className="grid">
+//             <p className="text-comp-natural-base default-font text-lg	self-center">
+//               {t("all total purchase")}
+//             </p>
+//             <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+//               ฿18,660,330
+//             </p>
+//           </div>
+//         </div>
+
+//         <div
+//           className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+//           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+//         >
+//
+//         </div>
+//         <div
+//           className="row-span-1 mt-4 p-4 rounded-lg bg-white"
+//           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+//         >
+//           <div className="grid">
+//             <p className="text-comp-natural-base default-font text-lg	self-center">
+//               {t("all total bill")}
+//             </p>
+//             <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+//               20 {t("items")}
+//             </p>
+//           </div>
+//         </div>
+//         <div
+//           className="row-span-1 mt-4 p-4 rounded-lg bg-white"
+//           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+//         >
+//           <div className="grid">
+//             <p className="text-comp-natural-base default-font text-lg	self-center">
+//               {t("all total discount")}
+//             </p>
+//             <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+//               ฿5000
+//             </p>
+//           </div>
+//         </div>
+//         <div
+//           className="row-span-4 col-span-2 mt-4 p-6 rounded-lg bg-white"
+//           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+//         >
+//           <Chart type="bar" data={data} options={options} />
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default MixedBarLineChart;
+"use client";
+
+import React, { useEffect, useState } from "react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Legend,
+  Tooltip,
+  ChartData,
+  ChartOptions,
+} from "chart.js";
+import { Chart } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { toastError } from "@lib-utils/helper";
+import { Skeleton } from "antd";
+
+// Register required Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Legend,
+  Tooltip
+);
+
+interface InvoiceItem {
+  id: number;
+  invoiceId: number;
+  productId: number;
+  amount: number;
+  price: number;
+  discount: number;
+  discountPrice: number;
+}
+
+interface Invoice {
+  id: number;
+  userId: number;
+  documentNo: string;
+  date: string;
+  totalAmount: number;
+  totalPrice: number;
+  subTotal: number;
+  groupDiscount: number;
+  externalDocument: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: InvoiceItem[];
+}
+
+interface FilterItem {
+  id: number | string;
+  name: string;
+}
+
+interface SelectedFilter {
+  type: string;
+  selected: FilterItem[];
+}
+
+interface ChartProps {
+  selectedFilters: SelectedFilter[];
+  userId: string;
+}
+
+const MixedBarLineChart: React.FC<ChartProps> = ({
+  selectedFilters,
+  userId,
+}) => {
+  const { t } = useTranslation();
+  const [chartData, setChartData] = useState<ChartData<"bar" | "line">>({
+    labels: [],
+    datasets: [],
+  });
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      if (selectedFilters) {
+        setLoading(true);
+        try {
+          const currentYear = new Date().getFullYear();
+          const allMonths = Array.from({ length: 12 }, (_, i) => i + 1); // [1, 2, ..., 12]
+
+          // Get selected months and years from filters
+          const monthFilters =
+            selectedFilters.find((filter) => filter.type === "month")
+              ?.selected || [];
+          const yearFilters =
+            selectedFilters.find((filter) => filter.type === "year")
+              ?.selected || [];
+
+          let selectedMonths = monthFilters.map((item) => Number(item.id));
+          let selectedYears = yearFilters.map((item) => Number(item.id));
+
+          // If no months are selected, use all months
+          if (selectedMonths.length === 0) {
+            selectedMonths = allMonths;
+          }
+
+          // If no year is selected, use the current year
+          if (selectedYears.length === 0) {
+            selectedYears = [currentYear];
+          }
+
+          const { data } = await axios.post<{ invoices: Invoice[] }>(
+            "/api/getFilteredInvoices",
+            {
+              userId,
+              filters: selectedFilters,
+            }
+          );
+
+          // Process invoices data
+          const invoices = data.invoices;
+          setInvoices(data.invoices);
+          // Create an object to group total prices by month
+          const groupedData: Record<number, number> = {};
+          invoices.forEach((invoice) => {
+            const invoiceDate = new Date(invoice.date);
+            const invoiceMonth = invoiceDate.getMonth() + 1; // Get month (0-based, so +1)
+            const invoiceYear = invoiceDate.getFullYear(); // Get year
+
+            if (selectedYears.includes(invoiceYear)) {
+              if (!groupedData[invoiceMonth]) {
+                groupedData[invoiceMonth] = 0;
+              }
+              groupedData[invoiceMonth] += invoice.totalPrice;
+            }
+          });
+
+          // Prepare labels and datasets based on the selected months
+          const labels = selectedMonths.map((month) => {
+            const date = new Date(0, month - 1); // Map month number to name
+            return date.toLocaleString("default", { month: "long" }); // Month name (January, February, etc.)
+          });
+
+          // Prepare datasets for bar and line charts
+          const barData = selectedMonths.map(
+            (month) => groupedData[month] || 0
+          ); // Data for bar chart
+          const lineData = [...barData]; // Data for line chart (same in this case)
+
+          setChartData({
+            labels: labels,
+            datasets: [
+              {
+                type: "bar", // Specify the type explicitly
+                label: "Total Sales (Bar)",
+                data: barData,
+                backgroundColor: "#E8727A",
+                borderColor: "#E8727A",
+                stack: "combined",
+              },
+              {
+                type: "line", // Specify the type explicitly
+                label: "Total Sales (Line)",
+                data: lineData,
+                borderColor: "#6AD5AC",
+                borderWidth: 2,
+                stack: "combined",
+              },
+            ],
+          });
+        } catch (error: any) {
+          toastError(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchInvoices();
+  }, [selectedFilters, userId]);
+
+  // Calculate totals
+  const totalPurchase = invoices.reduce(
+    (sum, invoice) => sum + invoice.totalPrice,
+    0
+  );
+  const totalAmount = invoices.reduce(
+    (sum, invoice) => sum + invoice.totalAmount,
+    0
+  );
+  const totalDiscount = invoices.reduce(
+    (sum, invoice) => sum + (invoice.subTotal - invoice.totalPrice),
+    0
+  );
+  const totalBillCount = invoices.length;
+
+  // Chart options
+  const options: ChartOptions<"bar" | "line"> = {
+    plugins: {
+      title: {
+        display: true,
+        text: "Sales Chart (Bar and Line)",
+      },
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        stacked: true,
+      },
+    },
+  };
+
+  return (
+    <>
+      {loading ? (
+        <><Skeleton active /><Skeleton active /><Skeleton active /></>
+      ) : (
+        <div className="grid grid-rows-4 grid-flow-col gap-4">
+          <div
+            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <div className="grid">
+              <p className="text-comp-natural-base default-font text-lg self-center">
+                {t("all total purchase")}
+              </p>
+              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+                ฿{totalPurchase.toLocaleString()}
+              </p>
+            </div>
+          </div>
+          <div
+            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <div className="grid">
+              <p className="text-comp-natural-base default-font text-lg self-center">
+                {t("all total amount")}
+              </p>
+              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+                {totalAmount} {t("items")}
+              </p>
+            </div>
+          </div>
+          <div
+            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <div className="grid">
+              <p className="text-comp-natural-base default-font text-lg self-center">
+                {t("all total discount")}
+              </p>
+              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+                ฿{totalDiscount.toLocaleString()}
+              </p>
+            </div>
+          </div>
+          <div
+            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <div className="grid">
+              <p className="text-comp-natural-base default-font text-lg self-center">
+                {t("all total bill")}
+              </p>
+              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+                {totalBillCount} {t("items")}
+              </p>
+            </div>
+          </div>
+          <div
+            className="row-span-4 col-span-2 mt-4 p-6 rounded-lg bg-white"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <Chart type="bar" data={chartData} options={options} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default MixedBarLineChart;

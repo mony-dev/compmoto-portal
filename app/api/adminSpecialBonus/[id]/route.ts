@@ -34,6 +34,8 @@ export async function PUT(request: Request) {
       updateData.isActive = isActive;
     }
 
+
+
     // If there's nothing to update, return an error
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: "No valid fields provided for update" }, { status: 400 });
@@ -56,17 +58,22 @@ export async function PUT(request: Request) {
       const updatedItems = [];
       for (const brand of brands) {
         for (const [index, item] of brand.items.entries()) {
-          updatedItems.push({
+          const newItem: any = {
             specialBonusId: id,
             brandId: brand.brandId, // Link to the Brand
             totalPurchaseAmount: item.totalPurchaseAmount,
             cn: item.cn,
             incentivePoint: item.incentivePoint,
             order: index + 1, // Provide the order value based on the array index
-          });
+          };
+          // Only add color if it exists
+          if (brand.color) {
+            newItem.color = brand.color;
+          }
+      
+          updatedItems.push(newItem);
         }
       }
-
       await prisma.specialBonusItem.createMany({
         data: updatedItems,
       });

@@ -52,7 +52,6 @@ export async function GET() {
         items: true, // Include the related TotalPurchaseItem records
       },
     });
-
     return NextResponse.json({ totalPurchase });
   } catch (error) {
     console.error("Error fetching active TotalPurchase:", error);

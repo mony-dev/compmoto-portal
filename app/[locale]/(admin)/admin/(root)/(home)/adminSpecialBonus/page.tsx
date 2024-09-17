@@ -8,7 +8,7 @@ import {
   SubmitHandler,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Row, Col, InputNumber, Select, Form, Modal } from "antd";
+import { Button, Row, Col, InputNumber, Select, Form, Modal, ColorPicker } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import { usePathname, useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import dynamic from "next/dynamic";
+const Loading = dynamic(() => import("@components/Loading"));
 
 
 export default function AdminSpecialBonus() {
@@ -32,7 +33,6 @@ export default function AdminSpecialBonus() {
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const router = useRouter();
-  const Loading = dynamic(() => import("@components/Loading"));
 
   const [brandOptions, setBrandOptions] = useState<
     { value: string; label: string }[]
@@ -46,6 +46,7 @@ export default function AdminSpecialBonus() {
     brands: [
       {
         brandId: null,
+        color: '',
         items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
       },
     ],
@@ -104,6 +105,7 @@ export default function AdminSpecialBonus() {
           replaceBrands(
             data.specialBonus.brands.map((brand: any) => ({
               brandId: brand.brandId,
+              color: brand.color,
               items: brand.items.map((item: any) => ({
                 totalPurchaseAmount: item.totalPurchaseAmount,
                 cn: item.cn,
@@ -118,6 +120,7 @@ export default function AdminSpecialBonus() {
           setValue("brands", [
             {
               brandId: null,
+              color: '',
               items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
             },
           ]);
@@ -129,6 +132,7 @@ export default function AdminSpecialBonus() {
         setValue("brands", [
           {
             brandId: null,
+            color: '',
             items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
           },
         ]);
@@ -164,6 +168,8 @@ export default function AdminSpecialBonus() {
 
 
   const onFinish: SubmitHandler<SpecialBonusSchema> = async (values) => {
+    console.log(values)
+
     try {
       if (id > 0) {
         // Update the record if `id` exists
@@ -362,8 +368,20 @@ export default function AdminSpecialBonus() {
                     )}
                   />
                 </Form.Item>
+                <Form.Item label={t("Select Color")} className="w-4/12	mb-0" required>
+                  <Controller
+                    name={`brands.${brandIndex}.color`}
+                    control={control}
+                    render={({ field }) => (
+                      <ColorPicker {...field} defaultValue="#1677ff" showText allowClear  onChange={(color) => {
+                        field.onChange(color ? color.toHexString() : "");
+                    }} />
+                    )}
+                  />
+                </Form.Item>
                 <MinusCircleOutlined onClick={() => removeBrand(brandIndex)} />
               </div>
+              
 
               {/* Items inside brand */}
               <Row
@@ -396,6 +414,7 @@ export default function AdminSpecialBonus() {
             onClick={() =>
               appendBrand({
                 brandId: null,
+                color: '',
                 items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
               })
             }

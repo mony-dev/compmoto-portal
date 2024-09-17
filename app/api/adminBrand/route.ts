@@ -21,11 +21,11 @@ export async function GET(request: Request) {
 
   try {
     const [brands, total] = await Promise.all([
-      prisma.brandProduct.findMany({
+      prisma.brand.findMany({
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.brandProduct.count(),
+      prisma.brand.count(),
     ]);
     return NextResponse.json({ data: brands, total });
   } catch (error) {

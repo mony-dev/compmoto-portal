@@ -1,30 +1,24 @@
 "use client";
 
-import { Card, Divider, Input, Select, Tag, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { toastError, toastSuccess } from "@lib-utils/helper";
+import { toastError } from "@lib-utils/helper";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import NoImage from "@public/images/no_image_rectangle.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
-import { ColumnsType, TableProps } from "antd/es/table";
-import Submenu from "@components/Admin/Submenu";
-import DataTable from "@components/Admin/Datatable";
 import { useCart } from "@components/Admin/Cartcontext";
-import FilterTag from "@components/Admin/FilterTag";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import NewsCard from "@components/Admin/news/NewsCard";
 const Loading = dynamic(() => import("@components/Loading"));
+const NewsCard = dynamic(() => import("@components/Admin/news/NewsCard"));
 
 interface MinisizeDataType {
   id: number;

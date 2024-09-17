@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     // Create SpecialBonusItems for each brand and their items
     for (const brand of brands) {
-      const { brandId, items } = brand;
+      const { brandId, color, items } = brand;
 
       // Loop through items and create them with order (index + 1)
       items.forEach(async (item: any, index: number) => {
@@ -33,7 +33,8 @@ export async function POST(request: Request) {
             incentivePoint: item.incentivePoint,
             brandId: brandId, // Link to the Brand
             order: index + 1, // Set order as index + 1
-          },
+            color: color ?? '#1677ff'
+          } as any,
         });
       });
     }
@@ -75,9 +76,9 @@ export async function GET() {
       year: specialBonus.year,
       resetDate: specialBonus.resetDate,
       isActive: specialBonus.isActive,
-      brands: specialBonus.items.reduce((acc: any[], item) => {
+      brands: specialBonus.items.sort((a, b) => a.order - b.order).reduce((acc: any[], item) => {
         const brandIndex = acc.findIndex((b) => b.brandId === item.brandId);
-        const newItem = {
+        const newItem: any = {
           totalPurchaseAmount: item.totalPurchaseAmount,
           cn: item.cn,
           incentivePoint: item.incentivePoint,
@@ -88,6 +89,7 @@ export async function GET() {
         } else {
           acc.push({
             brandId: item.brandId,
+            color: (item as any).color || null,
             brandName: item.brand.name,
             items: [newItem],
           });
@@ -96,7 +98,6 @@ export async function GET() {
         return acc;
       }, []),
     };
-
     return NextResponse.json({ specialBonus: responseData });
   } catch (error) {
     console.error("Error fetching SpecialBonus:", error);

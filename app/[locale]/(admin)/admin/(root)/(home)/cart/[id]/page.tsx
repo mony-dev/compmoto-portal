@@ -896,10 +896,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   const selectedCartItems = cartData.filter((item: any) =>
     selectedItems.includes(item.id)
   );
-  // const subTotal = selectedCartItems.reduce((acc: any, item: any) => {
-  //   // Multiply the product price by the amount and add to the accumulator
-  //   return acc + item.product.price * item.amount;
-  // }, 0);
+
   const sumTotal = selectedCartItems.reduce((acc: any, item: any) => {
     const itemTotal =
       (item.product.price * item.amount);

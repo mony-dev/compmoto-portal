@@ -490,6 +490,7 @@ model SpecialBonusItem {
   cn                  Float     
   incentivePoint      Float
   order               Int
+  color               String?       @default("#1677ff")
   brandId             Int
   brand               Brand        @relation(fields: [brandId], references: [id])
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)

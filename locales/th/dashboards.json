@@ -1,1 +1,32 @@
-{"lastest_login":"เข้าสู่ระบบล่าสุด"}
+{
+    "lastest_login":"เข้าสู่ระบบล่าสุด",
+    "Your point": "คะแนนของคุณ",
+    "Point": "คะแนน",
+    "claim a reward": "แลกคะแนน",
+    "Reward": "รางวัล",
+    "total purchase": "ยอดรวมสั่งซื้อ",
+    "level": "Level",
+    "Total purchase": "ยอดรวม",
+    "Special bonus": "โบนัสคะแนนพิเศษ",
+    "get": "ได้รับ",
+    "promotion": "โปรโมชัน",
+    "No promotions available": "ไม่มีโปรโมชัน",
+    "brands": "ยี่ห้อ",
+    "sizes": "ขนาด",
+    "categories": "หมวดหมู่",
+    "productCode": "รหัสสินค้า",
+    "month": "เดือน",
+    "year": "ปี",
+    "all": "ทั้งหมด",
+    "order overview": "ภาพรวมการสั่งซื้อ",
+    "all total purchase": "ยอดสั่งซื้อทั้งหมด",
+    "total point": "คะแนนทั้งหมด",
+    "all total amount": "จำนวนสินค้าทั้งหมด",
+    "items": "รายการ",
+    "all total bill": "รายการบิลทั้งหมด",
+    "all total discount": "จำนวนส่วนลดทั้งหมดที่ได้รับ"
+
+
+
+
+}

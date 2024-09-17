@@ -10,6 +10,7 @@ const specialBonusItemSchema = z.object({
 // Schema for each Brand's SpecialBonus
 const brandSpecialBonusSchema = z.object({
   brandId: z.number().nullable(),
+  color: z.string().optional(),
   items: z.array(specialBonusItemSchema).nonempty({ message: "At least one item is required" }),
 });
 

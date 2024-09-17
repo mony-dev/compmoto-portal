@@ -83,7 +83,7 @@ body {
 #cardSlider {
   --f-carousel-slide-width: 100%;
   --f-carousel-spacing: 0;
-  --f-carousel-slide-padding: 0 1rem;
+  --f-carousel-slide-padding: 0 1rem 0 0.5rem;
 
   --f-button-prev-pos: 5rem;
   --f-button-next-pos: 5rem;
@@ -152,8 +152,9 @@ body {
 }
 
 .f-carousel__nav {
-  top: -30% !important;
+  top: -20% !important;
   position: absolute !important;
+  left: 80px !important;
 }
 .is-next {
   left: 56rem !important;
@@ -246,16 +247,15 @@ body {
 }
 
 .promotion-card {
-  :where(.css-dev-only-do-not-override-98ntnt).ant-card .ant-card-body{
-    margin: 24px!important;
-    padding: 0px!important;
+  :where(.css-dev-only-do-not-override-98ntnt).ant-card .ant-card-body {
+    margin: 24px !important;
+    padding: 0px !important;
   }
 
   .ant-card {
     width: 100% !important;
   }
 }
-
 
 .ant-table-thead tr {
   font-family: "AnuphanRegular", sans-serif;
@@ -293,6 +293,9 @@ body {
 .ant-pagination-item {
   border-color: #0000000a !important;
   background-color: #0000000a !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 
 .ant-pagination-item-active {
@@ -471,10 +474,9 @@ body {
   }
 }
 
-
 .filter-tag {
   .ant-tag-close-icon {
-    background-color: #A6AEBB;
+    background-color: #a6aebb;
     padding: 2px;
     border-radius: 10px;
     color: white;
@@ -486,11 +488,11 @@ body {
   .dropdownToggle {
     cursor: pointer;
   }
-  
+
   .dropdownToggle svg {
     transition: transform 0.3s ease;
   }
-  
+
   .dropdownToggle:hover svg {
     transform: rotate(180deg);
   }
@@ -498,38 +500,38 @@ body {
 
 .ant-input-search {
   input:hover {
-    border-color: #FFE8EB;
+    border-color: #ffe8eb;
   }
 }
 
 .sort-filter {
   .ant-select-show-arrow {
-    width: 10%!important;
+    width: 10% !important;
   }
 }
 
 .order-table {
   .ant-table-cell {
-    color: #919FAF!important;
+    color: #919faf !important;
   }
   th {
-    background: white!important;
+    background: white !important;
   }
   .ant-card-actions {
-    border-top: 1px dashed #919FAF;
+    border-top: 1px dashed #919faf;
   }
 }
 
 .ant-spin-dot {
-  color: #DD2C37; /* Change this to your desired color */
+  color: #dd2c37; /* Change this to your desired color */
 }
 
 .ant-spin-dot i {
-  background-color: #DD2C37; /* Change this to your desired color */
+  background-color: #dd2c37; /* Change this to your desired color */
 }
 
-.ant-image-error{
-  height: 140px!important;
+.ant-image-error {
+  height: 140px !important;
 }
 
 .show-album {
@@ -539,14 +541,12 @@ body {
   .ant-modal-body {
     height: 300px;
   }
-
- 
 }
-.anticon-right{
-  display: none!important;
+.anticon-right {
+  display: none !important;
 }
-.anticon-left{
-  display: none!important;
+.anticon-left {
+  display: none !important;
 }
 
 :where(.css-dev-only-do-not-override-98ntnt).ant-carousel .slick-next::after {
@@ -554,25 +554,26 @@ body {
   margin-left: 5px;
 }
 
-:where(.css-dev-only-do-not-override-98ntnt).ant-carousel .slick-prev::after{
+:where(.css-dev-only-do-not-override-98ntnt).ant-carousel .slick-prev::after {
   margin-top: 7px;
   margin-left: 10px;
 }
 
-.slick-list{
-  height:  auto!important;
+.slick-list {
+  height: auto !important;
 }
 
 .slick-slide {
   width: 375px;
 }
 
-.slick-prev:before, .slick-next:before {
-  color: #3e3e3f!important;
+.slick-prev:before,
+.slick-next:before {
+  color: #3e3e3f !important;
 }
 
 .hoverley-img {
-  transition: .5s ease;
+  transition: 0.5s ease;
   opacity: 0;
   position: absolute;
   top: 50%;
@@ -591,7 +592,7 @@ body {
 }
 
 .hover-text {
-  background-color: #04AA6D;
+  background-color: #04aa6d;
   color: white;
   font-size: 16px;
   padding: 16px 32px;
@@ -603,8 +604,11 @@ body {
   }
 }
 
-.media-radio{
-  .ant-radio-group-solid :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+.media-radio {
+  .ant-radio-group-solid
+    :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(
+      .ant-radio-button-wrapper-disabled
+    ) {
     margin-right: 1rem;
     border-radius: 8px;
     background: rgba(166, 33, 41, 1);
@@ -612,7 +616,10 @@ body {
     border: none;
     font-weight: 600;
   }
-  .ant-radio-group-solid :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active {
+  .ant-radio-group-solid
+    :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(
+      .ant-radio-button-wrapper-disabled
+    ):active {
     margin-right: 1rem;
     border-radius: 8px;
     background: rgba(166, 33, 41, 1);
@@ -620,7 +627,10 @@ body {
     border: none;
     font-weight: 600;
   }
-  .ant-radio-group-solid :where(.css-dev-only-do-not-override-98ntnt).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  .ant-radio-group-solid
+    :where(
+      .css-dev-only-do-not-override-98ntnt
+    ).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
     margin-right: 1rem;
     border-radius: 8px;
     background: rgba(166, 33, 41, 1);
@@ -638,8 +648,21 @@ body {
     // color: #e37614;
   }
 
-
-  :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"] [class^="ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"] [class^="ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"] [class*=" ant-radio"], :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"] [class*=" ant-radio"],:where(.css-98ntnt).ant-radio-button-wrapper:first-child, :where(.css-98ntnt).ant-radio-button-wrapper:first-child, :where(.css-98ntnt).ant-radio-button-wrapper:hover, :where(.css-98ntnt)[class^="ant-radio"] [class^="ant-radio"], :where(.css-98ntnt)[class*=" ant-radio"] [class^="ant-radio"], :where(.css-98ntnt)[class^="ant-radio"] [class*=" ant-radio"], :where(.css-98ntnt)[class*=" ant-radio"] [class*=" ant-radio"]  {
+  :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"]
+    [class^="ant-radio"],
+  :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"]
+    [class^="ant-radio"],
+  :where(.css-dev-only-do-not-override-98ntnt)[class^="ant-radio"]
+    [class*=" ant-radio"],
+  :where(.css-dev-only-do-not-override-98ntnt)[class*=" ant-radio"]
+    [class*=" ant-radio"],
+  :where(.css-98ntnt).ant-radio-button-wrapper:first-child,
+  :where(.css-98ntnt).ant-radio-button-wrapper:first-child,
+  :where(.css-98ntnt).ant-radio-button-wrapper:hover,
+  :where(.css-98ntnt)[class^="ant-radio"] [class^="ant-radio"],
+  :where(.css-98ntnt)[class*=" ant-radio"] [class^="ant-radio"],
+  :where(.css-98ntnt)[class^="ant-radio"] [class*=" ant-radio"],
+  :where(.css-98ntnt)[class*=" ant-radio"] [class*=" ant-radio"] {
     margin-right: 1rem;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.08);
@@ -647,32 +670,171 @@ body {
     border: none;
     font-weight: 600;
   }
-  :where(.css-dev-only-do-not-override-98ntnt).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  :where(
+      .css-dev-only-do-not-override-98ntnt
+    ).ant-radio-button-wrapper-checked:not(
+      .ant-radio-button-wrapper-disabled
+    )::before {
     background: none;
   }
-  :where(.css-dev-only-do-not-override-98ntnt).ant-radio-button-wrapper:not(:first-child)::before {
+  :where(.css-dev-only-do-not-override-98ntnt).ant-radio-button-wrapper:not(
+      :first-child
+    )::before {
     background: none;
   }
-  :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active::before, :where(.css-98ntnt).ant-radio-button-wrapper:not(:first-child)::before {
+  :where(.css-98ntnt).ant-radio-button-wrapper-checked:not(
+      .ant-radio-button-wrapper-disabled
+    ):active::before,
+  :where(.css-98ntnt).ant-radio-button-wrapper:not(:first-child)::before {
     background: none;
   }
 }
 
 .media-container {
   .ant-image {
-    display: flex!important;
+    display: flex !important;
   }
   .ant-modal-content {
-    padding: 0!important;
-    border-radius: 2rem!important;
+    padding: 0 !important;
+    border-radius: 2rem !important;
   }
 }
 
 .Toastify__progress-bar {
-  font-family: 'AnuphanRegular', sans-serif;
+  font-family: "AnuphanRegular", sans-serif;
 }
 .col-custom {
   .ant-form-item {
     margin-bottom: 0px;
+  }
+}
+
+.level-items1 {
+  clip-path: polygon(0px 0px, 100% 0px, 80% 100%, 0px 100%);
+  margin-right: -26px;
+  width: 133px;
+}
+.level-items2 {
+  clip-path: polygon(20% 0px, 100% 0px, 100% 100%, 0px 100%);
+  width: 133px;
+}
+.promotion-slide {
+  :where(.css-dev-only-do-not-override-98ntnt).ant-carousel
+    .slick-dots
+    li
+    button {
+    background: #d9d9d9;
+    margin-top: -3rem;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-carousel
+    .slick-dots
+    li.slick-active
+    button {
+    background: #dd2c37;
+    margin-top: -3rem;
+  }
+  .ant-image-mask {
+    border-radius: 1rem;
+  }
+}
+
+.chart-filter {
+  button:first-child {
+    border-top-left-radius: 8px !important;
+  }
+  button:last-child {
+    border-top-right-radius: 8px !important;
+  }
+  button,
+  [type="button"],
+  [type="reset"],
+  [type="submit"] {
+    background-color: #ffe8eb;
+    border-color: #ffe8eb;
+    color: #dd2c37;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-btn-default:not(
+      :disabled
+    ):not(.ant-btn-disabled):hover {
+    color: #dd2c37;
+    border-color: #ffe8eb;
+    background: #ffe8eb;
+  }
+  /* For WebKit browsers (Chrome, Safari, Edge) */
+  .dropdown-filter .ant-dropdown-menu::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+  }
+
+  .dropdown-filter .ant-dropdown-menu::-webkit-scrollbar-track {
+    background: #ffe8eb; /* Background of the scrollbar track */
+  }
+
+  .dropdown-filter .ant-dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the scrollbar */
+    border-radius: 10px; /* Roundness of the scrollbar thumb */
+    border: 2px solid #ffe8eb; /* Optional: adds a border around the scrollbar thumb */
+  }
+
+  .dropdown-filter .ant-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Change color on hover */
+  }
+
+  /* For Firefox */
+  .dropdown-filter .ant-dropdown-menu {
+    scrollbar-width: thin; /* Makes the scrollbar thinner */
+    scrollbar-color: #888 #ffe8eb; /* Thumb color and track color */
+  }
+}
+
+.dropdown-filter {
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-wrapper:not(
+      .ant-checkbox-wrapper-disabled
+    ):hover
+    .ant-checkbox-inner,
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox:not(
+      .ant-checkbox-disabled
+    ):hover
+    .ant-checkbox-inner {
+    border-color: #dd2c37;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-checked
+    .ant-checkbox-inner {
+    background-color: #dd2c37;
+    border-color: #dd2c37;
+  }
+
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-wrapper:not(
+      .ant-checkbox-wrapper-disabled
+    ):hover
+    .ant-checkbox-checked:not(.ant-checkbox-disabled)
+    .ant-checkbox-inner {
+    background-color: #ffe8eb;
+    border-color: transparent;
+  }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-checkbox-wrapper {
+    gap: 4px;
+    padding-bottom: 16px;
+    font-family: 'GothamRegular', sans-serif;
+    font-weight: 500;
+  }
+  .ant-checkbox-checked + span {
+    color: #dd2c37;
+  }
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #E8727A!important; /* Scrollbar thumb color */
+  border-radius: 10px!important; /* Round the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 10px!important; /* Optional: Round the track for aesthetic */
+}
+
+.custom-filter{
+  .ant-tag-close-icon{
+    height: fit-content;
   }
 }

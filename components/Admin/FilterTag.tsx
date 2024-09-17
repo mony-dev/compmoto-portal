@@ -52,9 +52,11 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
   };
   const tagPlusStyle: React.CSSProperties = {
     background: '#E4E7EB',
-    borderStyle: 'solid',
+    borderStyle: 'none',
     borderColor: 'E4E7EB',
     padding: '8px',
+    borderRadius: '10px',
+    boxShadow: '0px 3.5px 5.5px 0px #0000000A'
   };
 
   const tagChild = tags.map(tag => (

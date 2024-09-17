@@ -1,23 +1,39 @@
 "use client";
-import { useEffect, useState } from "react";
-import IconFooter from "@components/Admin/IconFooter";
-import { Image } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { Image, Skeleton } from "antd";
 import Star from "@public/images/star.png";
 import "@fancyapps/ui/dist/carousel/carousel.css";
-import Total from "@public/images/logo/total-order.png";
-import BonusPoint from "@public/images/logo/bonus-point.png";
-import Chart from "@public/images/logo/chart.png";
-import News from "@public/images/logo/news.png";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import Link from "next/link";
-import { formatEndDate } from "@lib-utils/helper";
+import { formatEndDate, toastError } from "@lib-utils/helper";
 import ModalProfile from "@components/Admin/profile/ModalProfile";
-import NoImage from "@public/images/no_img_cart.png";
 import { useCart } from "@components/Admin/Cartcontext";
+import debounce from "lodash.debounce";
+import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+import NewsCard from "@components/Admin/news/NewsCard";
+interface DataType {
+  id: number;
+  key: number;
+  name: string;
+  minisize: {
+    id: number;
+    name: string;
+  };
+  isActive: boolean;
+  coverImg: string;
+  content: string;
+  createdAt: string;
+}
+const TotalPurchase = dynamic(() => import("@components/TotalPurchase"));
+const SpecialBonus = dynamic(() => import("@components/SpecialBonus"));
+const Chart = dynamic(() => import("@components/Chart"));
+const PromotionSlide = dynamic(() => import("@components/PromotionSlide"));
+const MixedBarLineChart = dynamic(() => import("@components/MixedBarLineChart"));
 
 const Carousel =
   typeof window !== "undefined" ? require("@fancyapps/ui").Carousel : null;
@@ -25,6 +41,7 @@ const Carousel =
 const Dashboard = () => {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
+  const pathname = usePathname();
   interface RewardDataType {
     id: number;
     name: string;
@@ -45,9 +62,68 @@ const Dashboard = () => {
   const [title, setTitle] = useState("แก้ไขรูปโปรไฟล์");
   const [triggerProfile, setTriggerProfile] = useState(false);
   // const [profileImage, setProfileImage] = useState("");
-  const { profileImage, setProfileImage } = useCart();
+  const { setI18nName, setLoadPage, profileImage, setProfileImage } = useCart();
+  const [loadReward, setLoadReward] = useState(false);
+  const [loadNews, setLoadNews] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+  const [total, setTotal] = useState(0);
+const [newsData, setNewsData] = useState<DataType[]>([]);
+
+  // Debounce function for search input
+  const debouncedFetchData = useCallback(
+    debounce(() => {
+      fetchData();
+      fetchReward();
+      fetchNews();
+    }, 500), // 500 ms debounce delay
+    []
+  );
 
   useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
+
+    // Call the debounced fetch function
+    debouncedFetchData();
+
+    // Cleanup debounce on unmount
+    return () => {
+      debouncedFetchData.cancel();
+    };
+  }, [session, triggerProfile]);
+
+  async function fetchNews() {
+    setLoadNews(true);
+    try {
+      const { data } = await axios.get(`/api/adminNews`, {
+        params: {
+          page: currentPage,
+          pageSize: pageSize,
+          isActive: true,
+        },
+      });
+
+      const newsDataWithKeys = await Promise.all(
+        data.news.map(async (news: DataType, index: number) => {
+          return {
+            ...news,
+            key: index + 1 + (currentPage - 1) * pageSize,
+          };
+        })
+      );
+
+      setNewsData(newsDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadNews(false);
+    }
+  }
+  
+  async function fetchReward() {
+    setLoadReward(true);
     if (Carousel) {
       new Carousel(document.getElementById("cardSlider"), {
         Navigation: {
@@ -67,23 +143,27 @@ const Dashboard = () => {
     axios
       .get(`/api/reward`)
       .then((response) => {
+        const validLocale: "en" | "th" = locale === "th" ? "th" : "en";
+
         const rewards = response.data.map((reward: RewardDataType) => {
           return {
             id: reward.id,
             name: reward.name,
             point: reward.point,
-            date: formatEndDate(reward.endDate),
+            date: formatEndDate(reward.startDate, reward.endDate, validLocale),
             image: reward.image,
           };
         });
         setRewardData(rewards);
+        setLoadReward(false);
       })
       .catch((error) => {
-        console.error("Error fetching data: ", error);
+        // console.error("Error fetching data: ", error);
       });
-  }, []);
+  }
 
-  useEffect(() => {
+  async function fetchData() {
+    setLoadPage(true);
     if (session?.user?.data?.CustPriceGroup) {
       if (session?.user.data.CustPriceGroup.includes("3STARS")) {
         setStarLevel(3);
@@ -121,10 +201,7 @@ const Dashboard = () => {
       const formattedDate = `${day}/${month}/${year}, ${hours}.${minutes}`;
       setLastedLogin(formattedDate);
     }
-    fetchData();
-  }, [session, triggerProfile]);
 
-  async function fetchData() {
     try {
       const [userResponse] = await Promise.all([
         axios.get(`/api/users/${session?.user.id}`),
@@ -132,7 +209,9 @@ const Dashboard = () => {
 
       setProfileImage(userResponse.data.image);
     } catch (error) {
-      console.error("Error fetching data: ", error);
+      // console.error("Error fetching data: ", error);
+    } finally {
+      setLoadPage(false);
     }
   }
 
@@ -141,7 +220,6 @@ const Dashboard = () => {
       setIsModalVisible(isShow);
     };
   }
-
   return (
     <>
       <div className="px-4">
@@ -186,34 +264,32 @@ const Dashboard = () => {
               </p>
               <div className="flex space-x-2 pt-2">
                 {[...Array(starLevel)].map((_, index) => (
-                  <Image
-                    width={20}
-                    height={20}
-                    src={Star.src}
-                    alt="star"
-                  />
+                  <Image width={20} height={20} src={Star.src} alt="star" />
                 ))}
               </div>
               <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
                 {t("lastest_login")} {lastedLogin}
               </p>
               <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
-                คะแนนของคุณ{" "}
+                {t("Your point")}
                 <span className=" bg-comp-red-hover p-1 rounded">
-                  <span className="text-black">{`${rewardPoint}`} คะแนน</span> |{" "}
+                  <span className="text-black">
+                    {`${rewardPoint}`} {t("Point")}
+                  </span>{" "}
+                  |{" "}
                   <Link
                     className="text-comp-red font-semibold"
                     href={`/${locale}/admin/reward`}
                   >
-                    แลกคะแนน
+                    {t("claim a reward")}
                   </Link>
                 </span>
               </p>
             </div>
           </div>
           <div className="ml-4">
-            <p className="default-font font-medium text-xl text-black leading-7">
-              รางวัล
+            <p className="default-font font-black text-xl text-black leading-7">
+              {t("Reward")}
             </p>
             <div className="max-w-5xl mx-auto">
               <div id="cardSlider" className="f-carousel pt-4">
@@ -226,125 +302,153 @@ const Dashboard = () => {
                       key={index}
                       className="f-carousel__slide rounded-md border border-comp-red flex justify-start items-center bg-comp-red-hover"
                     >
-                      {reward && (
+                      {loadReward ? (
                         <>
-                          <div className="flex-shrink-0">
-                            <Image
-                              className="w-full rounded-lg py-1"
-                              alt={reward.name}
-                              width={50}
-                              height={50}
-                              src={reward.image}
+                          <div className="flex items-center">
+                            <Skeleton.Avatar
+                              active={loadReward}
+                              size="large"
+                              shape="circle"
                             />
-                          </div>
-                          <div className="pl-4">
-                            <p className="text-comp-red leading-4 default-font">
-                              {reward.name}
-                            </p>
-                            <p className="text-base default-font font-semibold text-comp-red">
-                              {reward.point}
-                              <span className="text-comp-red leading-4 font-normal pl-2">
-                                คะแนน
-                              </span>
-                            </p>
-                            <div className="text-comp-red leading-4 font-normal flex items-center">
-                              <svg
-                                width="14"
-                                height="15"
-                                viewBox="0 0 14 15"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M4.66669 1.66663V3.41663"
-                                  stroke="#DD2C37"
-                                  strokeWidth="0.875"
-                                  strokeMiterlimit="10"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M9.33331 1.66663V3.41663"
-                                  stroke="#DD2C37"
-                                  strokeWidth="0.875"
-                                  strokeMiterlimit="10"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M2.04169 5.80249H11.9584"
-                                  stroke="#DD2C37"
-                                  strokeWidth="0.875"
-                                  strokeMiterlimit="10"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M12.25 5.45829V10.4166C12.25 12.1666 11.375 13.3333 9.33333 13.3333H4.66667C2.625 13.3333 1.75 12.1666 1.75 10.4166V5.45829C1.75 3.70829 2.625 2.54163 4.66667 2.54163H9.33333C11.375 2.54163 12.25 3.70829 12.25 5.45829Z"
-                                  stroke="#DD2C37"
-                                  strokeWidth="0.875"
-                                  strokeMiterlimit="10"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M9.15522 8.4915H9.16046"
-                                  stroke="#DD2C37"
-                                  strokeWidth="1.16667"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M9.15522 10.2415H9.16046"
-                                  stroke="#DD2C37"
-                                  strokeWidth="1.16667"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M6.99739 8.4915H7.00263"
-                                  stroke="#DD2C37"
-                                  strokeWidth="1.16667"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M6.99739 10.2415H7.00263"
-                                  stroke="#DD2C37"
-                                  strokeWidth="1.16667"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M4.83833 8.4915H4.84357"
-                                  stroke="#DD2C37"
-                                  strokeWidth="1.16667"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M4.83833 10.2415H4.84357"
-                                  stroke="#DD2C37"
-                                  strokeWidth="1.16667"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-
-                              <span className="pl-2 text-xs">
-                                {" "}
-                                {reward.date}
-                              </span>
+                            <div>
+                              <Skeleton.Input
+                                active={loadReward}
+                                size="small"
+                              />
+                              <Skeleton.Input
+                                active={loadReward}
+                                size="small"
+                              />
+                              <Skeleton.Input
+                                active={loadReward}
+                                size="small"
+                              />
                             </div>
                           </div>
-                          <div className="cuts">
-                            <div className="cut"></div>
-                            <div className="cut"></div>
-                            <div className="cut"></div>
-                            <div className="cut"></div>
-                            <div className="cut"></div>
-                          </div>
                         </>
+                      ) : (
+                        reward && (
+                          <>
+                            <div className="flex">
+                              <Image
+                                className="w-full rounded-lg py-1"
+                                alt={reward.name}
+                                width={60}
+                                height={"100%"}
+                                src={reward.image}
+                              />
+                            </div>
+                            <Link
+                              className="pl-4"
+                              href={`/${locale}/admin/reward`}
+                            >
+                              <p className="text-comp-red leading-4 default-font">
+                                {reward.name}
+                              </p>
+                              <p className="text-base default-font font-semibold text-comp-red">
+                                {reward.point}
+                                <span className="text-comp-red leading-4 font-normal pl-2">
+                                  {t("Point")}
+                                </span>
+                              </p>
+                              <div className="text-comp-red leading-4 font-normal flex items-center">
+                                <svg
+                                  width="14"
+                                  height="15"
+                                  viewBox="0 0 14 15"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M4.66669 1.66663V3.41663"
+                                    stroke="#DD2C37"
+                                    strokeWidth="0.875"
+                                    strokeMiterlimit="10"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M9.33331 1.66663V3.41663"
+                                    stroke="#DD2C37"
+                                    strokeWidth="0.875"
+                                    strokeMiterlimit="10"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M2.04169 5.80249H11.9584"
+                                    stroke="#DD2C37"
+                                    strokeWidth="0.875"
+                                    strokeMiterlimit="10"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M12.25 5.45829V10.4166C12.25 12.1666 11.375 13.3333 9.33333 13.3333H4.66667C2.625 13.3333 1.75 12.1666 1.75 10.4166V5.45829C1.75 3.70829 2.625 2.54163 4.66667 2.54163H9.33333C11.375 2.54163 12.25 3.70829 12.25 5.45829Z"
+                                    stroke="#DD2C37"
+                                    strokeWidth="0.875"
+                                    strokeMiterlimit="10"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M9.15522 8.4915H9.16046"
+                                    stroke="#DD2C37"
+                                    strokeWidth="1.16667"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M9.15522 10.2415H9.16046"
+                                    stroke="#DD2C37"
+                                    strokeWidth="1.16667"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M6.99739 8.4915H7.00263"
+                                    stroke="#DD2C37"
+                                    strokeWidth="1.16667"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M6.99739 10.2415H7.00263"
+                                    stroke="#DD2C37"
+                                    strokeWidth="1.16667"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M4.83833 8.4915H4.84357"
+                                    stroke="#DD2C37"
+                                    strokeWidth="1.16667"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M4.83833 10.2415H4.84357"
+                                    stroke="#DD2C37"
+                                    strokeWidth="1.16667"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+
+                                <span className="pl-2 text-xs">
+                                  {reward.date}
+                                </span>
+                              </div>
+                            </Link>
+                            <div className="cuts">
+                              <div className="cut"></div>
+                              <div className="cut"></div>
+                              <div className="cut"></div>
+                              <div className="cut"></div>
+                              <div className="cut"></div>
+                            </div>
+                          </>
+                        )
                       )}
                     </figure>
                   ))}
@@ -354,35 +458,42 @@ const Dashboard = () => {
           </div>
         </div>
         <div
-          className="mt-4 p-4 rounded-lg flex bg-white"
+          className="mt-4 p-4 rounded-lg bg-white "
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          <IconFooter width={2000} height={600} src={Total.src} alt="logo" />
+          <TotalPurchase userId={session?.user?.id} />
         </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div
+            className="mt-4 p-4 rounded-lg bg-white col-span-2"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <SpecialBonus userId={session?.user?.id} />
+          </div>
+          <div
+            className="mt-4 p-4 rounded-lg bg-white "
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <PromotionSlide custPriceGroup={session?.user?.custPriceGroup} />
+          </div>
+        </div>
+       
+        <Chart userId={session?.user?.id}/>
         <div
-          className="mt-4 p-4 rounded-lg flex bg-white"
-          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-        >
-          {/* <p className='default-font font-medium text-xl text-black leading-7'>ยอดสั่งซื้อรวม</p> */}
-          <IconFooter
-            width={2000}
-            height={600}
-            src={BonusPoint.src}
-            alt="logo"
+            className="mt-4 p-4 rounded-lg bg-white col-span-2"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <NewsCard
+            newsData={newsData}
+            total={total}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            setPageSize={setPageSize}
+            pageSize={pageSize}
           />
-        </div>
-        <div
-          className="mt-4 p-4 rounded-lg flex bg-white"
-          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-        >
-          <IconFooter width={2000} height={600} src={Chart.src} alt="logo" />
-        </div>
-        <div
-          className="mt-4 p-4 rounded-lg flex bg-white"
-          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-        >
-          <IconFooter width={2000} height={600} src={News.src} alt="logo" />
-        </div>
+            </div>
+        
       </div>
       <ModalProfile
         isModalVisible={isModalVisible}
