@@ -461,7 +461,7 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
           className="mt-4 p-4 rounded-lg bg-white "
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          {/* <TotalPurchase userId={session?.user?.id} /> */}
+          <TotalPurchase userId={session?.user?.id} />
         </div>
 
         <div className="grid grid-cols-3 gap-4">
@@ -469,7 +469,7 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
             className="mt-4 p-4 rounded-lg bg-white col-span-2"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
           >
-            {/* <SpecialBonus userId={session?.user?.id} /> */}
+            <SpecialBonus userId={session?.user?.id} />
           </div>
           <div
             className="mt-4 p-4 rounded-lg bg-white "
