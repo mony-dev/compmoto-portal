@@ -168,6 +168,8 @@
 import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
+  BarController,
+  LineController,
   CategoryScale,
   LinearScale,
   BarElement,
@@ -186,6 +188,8 @@ import { Skeleton } from "antd";
 
 // Register required Chart.js components
 ChartJS.register(
+  BarController,
+  LineController,
   CategoryScale,
   LinearScale,
   BarElement,
