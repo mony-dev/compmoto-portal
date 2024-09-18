@@ -56,6 +56,60 @@
     min-height: 35px;
   }
 
+  // prod
+  :where(
+    .css-98ntnt
+  ).ant-progress.ant-progress-status-success
+  .ant-progress-inner:not(.ant-progress-circle-gradient)
+  .ant-progress-circle-path {
+  stroke: var(--step-color);
+}
+
+:where(.css-98ntnt).ant-steps
+  .ant-steps-item-process
+  .ant-steps-item-icon {
+  background-color: var(--step-color);
+  border-color: var(--step-color);
+}
+:where(.css-98ntnt).ant-steps
+  .ant-steps-item-finish
+  .ant-steps-item-icon
+  > .ant-steps-icon {
+  color: white;
+}
+:where(.css-98ntnt).ant-steps
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-tail::after {
+  /* background-color: #1677ff; */
+  background-color: var(--step-color);
+  padding: 2px;
+  border-radius: 32px;
+}
+:where(
+    .css-98ntnt
+  ).ant-steps.ant-steps-label-vertical
+  .ant-steps-item-content {
+  width: fit-content;
+}
+
+:where(.css-98ntnt).ant-card-bordered {
+  border: 1px solid var(--step-color);
+}
+:where(.css-98ntnt).ant-card .ant-card-body {
+  padding: 0px;
+  background-color: var(--step-color);
+  color: white;
+  font-size: 12px;
+  font-family: "GothamRegular", sans-serif;
+  text-align: center;
+  padding: 8px 16px;
+}
+:where(.css-98ntnt).ant-card .ant-card-head {
+  border-bottom: 1px solid var(--step-color);
+  min-height: 35px;
+}
+
   .text-card {
     color: white;
     font-size: 12px;
@@ -95,6 +149,40 @@
     color: white;
   }
   :where(.css-dev-only-do-not-override-98ntnt).ant-steps
+    .ant-steps-item-wait
+    .ant-steps-item-icon {
+    background-color: rgb(188 194 204);
+    border-color: transparent;
+  }
+
+  // prod
+  :where(
+      .css-98ntnt
+    ).ant-steps.ant-steps-label-vertical
+    .ant-steps-item-tail {
+    margin-inline-start: 65px;
+    padding: 0 24px;
+  }
+
+  :where(
+      .css-98ntnt
+    ).ant-steps.ant-steps-label-vertical
+    .ant-steps-item-icon {
+    display: inline-block;
+    margin-inline-start: 50px;
+  }
+
+  :where(.css-98ntnt).ant-steps
+    .ant-steps-item-tail::after {
+    height: 3px;
+  }
+  :where(.css-98ntnt).ant-steps
+    .ant-steps-item-wait
+    .ant-steps-item-icon
+    > .ant-steps-icon {
+    color: white;
+  }
+  :where(.css-98ntnt).ant-steps
     .ant-steps-item-wait
     .ant-steps-item-icon {
     background-color: rgb(188 194 204);

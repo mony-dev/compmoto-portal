@@ -41,6 +41,48 @@
     border-bottom: 1px solid #dd2c37;
   }
 
+  // prod
+  :where(.css-98ntnt).ant-progress.ant-progress-status-success .ant-progress-inner:not(.ant-progress-circle-gradient) .ant-progress-circle-path {
+    stroke: #DD2C37;
+  }
+  
+  :where(.css-98ntnt).ant-steps .ant-steps-item-process .ant-steps-item-icon {
+    background-color: #DD2C37;
+    border-color: #DD2C37;
+  }
+  :where(.css-98ntnt).ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+    background-color: #FFE8EB;
+    border-color: #FFE8EB;
+  }
+  
+  :where(.css-98ntnt).ant-steps .ant-steps-item-finish .ant-steps-item-icon >.ant-steps-icon {
+    color: #DD2C37;
+  }
+  :where(.css-98ntnt).ant-steps .ant-steps-item-finish>.ant-steps-item-container>.ant-steps-item-tail::after {
+    /* background-color: #1677ff; */
+    background: linear-gradient(90deg, rgb(221, 44, 55) 0%, rgb(252, 208, 13) 100%);
+    padding: 2px;
+    border-radius: 32px;
+  }
+  :where(.css-98ntnt).ant-steps.ant-steps-label-vertical .ant-steps-item-content {
+    width: fit-content;
+  }
+
+  :where(.css-98ntnt).ant-card-bordered {
+    border: 1px solid #dd2c37;
+  }
+  :where(.css-98ntnt).ant-card .ant-card-body {
+    padding: 0px;
+    background-color: #dd2c37;
+    color: white;
+    font-size: 12px;
+    font-family: "GothamRegular", sans-serif;
+    text-align: start;
+    padding: 8px 16px;
+  }
+  :where(.css-98ntnt).ant-card .ant-card-head {
+    border-bottom: 1px solid #dd2c37;
+  }
 .text-card {
   color: white;
     font-size: 12px;
@@ -66,5 +108,20 @@
 
 :where(.css-dev-only-do-not-override-98ntnt).ant-steps .ant-steps-item-tail::after {
   height: 3px;
+}
+
+// prod
+:where(.css-98ntnt).ant-steps.ant-steps-label-vertical .ant-steps-item-tail {
+  margin-inline-start: 90px;
+  padding: 0 24px;
+}
+
+:where(.css-98ntnt).ant-steps.ant-steps-label-vertical .ant-steps-item-icon {
+display: inline-block;
+margin-inline-start: 75px;
+}
+
+:where(.css-98ntnt).ant-steps .ant-steps-item-tail::after {
+height: 3px;
 }
 }
