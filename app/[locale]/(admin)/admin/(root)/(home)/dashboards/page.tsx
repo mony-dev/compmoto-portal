@@ -483,6 +483,9 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
             className="mt-4 p-4 rounded-lg bg-white col-span-2"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
           >
+          <h1 className="text-black default-font text-xl font-black">
+            {t("News and events")}
+          </h1>
             <NewsCard
             newsData={newsData}
             total={total}
