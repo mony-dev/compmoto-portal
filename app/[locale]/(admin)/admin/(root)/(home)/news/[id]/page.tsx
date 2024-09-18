@@ -14,6 +14,8 @@ import { BLACK_BG_COLOR } from "@components/Colors";
 import Link from "next/link";
 import { Divider } from "antd";
 import { formatDateDiffNumber } from "@lib-utils/helper";
+import dynamic from "next/dynamic";
+const Loading = dynamic(() => import("@components/Loading"));
 
 interface MinisizeDataType {
   id: number;
@@ -54,23 +56,6 @@ const News = ({ params }: { params: { id: number } }) => {
   const [newsData, setNewsData] = useState<DataType>();
   const isActive = pathname.includes("admin/news");
 
-  const fetchMinisizeData = async (name: string) => {
-    try {
-      const response = await axios.get(`/api/adminMinisize?q=${name}`);
-      if (response.data) {
-        const minisize = response.data.minisizes.map(
-          (data: MinisizeDataType) => ({
-            id: data.id,
-            imageProfile: data.imageProfile,
-            newsBanner: data.newsBanner,
-          })
-        );
-        minisize[0] && setMinisizeData(minisize[0]);
-      }
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-    }
-  };
   useEffect(() => {
     const parts = pathname.split("/");
     const lastPart = parts[parts.length - 2];
@@ -97,6 +82,9 @@ const News = ({ params }: { params: { id: number } }) => {
       }
     }
   }
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="px-4">
@@ -122,7 +110,7 @@ const News = ({ params }: { params: { id: number } }) => {
           />
         </div>
         <nav
-          className="flex justify-between flex default-font text-white text-sm"
+          className="flex justify-between flex default-font text-white text-sm nav-product"
           style={{
             background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`,
             boxShadow: "0px 4px 4px 0px #00000040",

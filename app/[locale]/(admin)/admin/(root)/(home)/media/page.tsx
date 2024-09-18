@@ -201,7 +201,7 @@ const Media = () => {
           />
         </div>
         <nav
-          className="flex justify-between flex default-font text-white text-sm"
+          className="flex justify-between flex default-font text-white text-sm nav-product"
           style={{
             background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`,
             boxShadow: "0px 4px 4px 0px #00000040",

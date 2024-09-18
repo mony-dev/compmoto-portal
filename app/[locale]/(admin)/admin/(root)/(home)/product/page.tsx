@@ -931,7 +931,7 @@ const Product = () => {
           )}
         </div>
         <nav
-          className="flex justify-between flex default-font text-white text-sm mt-4"
+          className="flex justify-between flex default-font text-white text-sm mt-4 nav-product"
           style={{
             background: `linear-gradient(90deg, ${BLACK_BG_COLOR} 0%, rgba(27, 27, 27, 0.9) 100%)`,
             boxShadow: "0px 4px 4px 0px #00000040",

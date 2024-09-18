@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
                 .map(
                   (item: { itemNo: string; qty: number; unitPrice: number }) => `
               <PT_SalesLine>
-                <ItemNo>31309</ItemNo>
+                <ItemNo>${item.itemNo}</ItemNo>
                 <Qty>${item.qty}</Qty>
                 <UnitPrice>${item.unitPrice}</UnitPrice>
                 <BlanketRemainQty>${item.qty}</BlanketRemainQty>    
