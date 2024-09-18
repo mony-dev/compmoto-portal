@@ -223,7 +223,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
         <Badge
           className="redeem-badge default-font"
           count={orderTotal}
-          offset={[15, -6]}
+          offset={[15, -1]}
           overflowCount={99}
         >
           <p>{t('Back orders')}</p>

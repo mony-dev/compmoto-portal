@@ -47,6 +47,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   const [activeTabKey, setActiveTabKey] = useState("1");
   const [isSyncing, setIsSyncing] = useState(false);
   const searchParams = useSearchParams();
+  const [triggerData, setTriggerData] = useState(false);
 
   const { data: session } = useSession();
   const locale = useCurrentLocale(i18nConfig);
@@ -196,7 +197,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     debounce(() => {
       fetchData(searchText);
     }, 500), // 500 ms debounce delay
-    [currentPage, pageSize, activeTabKey]
+    [currentPage, pageSize, activeTabKey, triggerData]
   );
 
   
@@ -302,6 +303,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   const fetchInvoices = async () => {
     try {
       const { data } = await axios.get(`/api/fetchInvoices`);
+      setTriggerData(!triggerData)
       toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
       toastError(error.message);

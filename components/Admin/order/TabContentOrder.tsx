@@ -74,7 +74,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
         <Badge
           className="redeem-badge default-font"
           count={orderTotal}
-          offset={[15, -6]}
+          offset={[15, -1]}
           overflowCount={99}
         >
           <p>{t("Sale Quotes")}</p>
@@ -97,7 +97,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
         <Badge
           className="redeem-badge default-font"
           count={invoiceTotal}
-          offset={[15, -6]}
+          offset={[15, -1]}
           overflowCount={99}
         >
           <p>{t("Invoice")}</p>

@@ -1,11 +1,9 @@
-import { execSync } from "child_process";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 import { parseStringPromise } from "xml2js";
 import axios from "axios";
 import logger from "../../../logger";
-import { PrismaClientInitializationError } from "@prisma/client/runtime/library";
 
 // Function to format the date to YYYY-MM-DD
 const formatDate = (date: any) => {
@@ -253,7 +251,7 @@ export async function GET(request: Request) {
         logger.info(`activeSpecialBonus ${activeSpecialBonus}.`);
 
         if (activeSpecialBonus) {
-          const existingSpecialBonusHistory =
+          let  existingSpecialBonusHistory =
             await prisma.specialBonusHistory.findFirst({
               where: {
                 userId,
@@ -263,6 +261,18 @@ export async function GET(request: Request) {
           logger.info(
             `existingSpecialBonusHistory ${existingSpecialBonusHistory}.`
           );
+            // If not found, initialize a new entry
+          if (!existingSpecialBonusHistory) {
+            existingSpecialBonusHistory = await prisma.specialBonusHistory.create({
+              data: {
+                userId,
+                specialBonusId: activeSpecialBonus.id,
+                totalSpend: [], // Initialize empty spend data
+                cn: 0,
+                incentivePoint: 0,
+              },
+            });
+          }
           let totalSpend = existingSpecialBonusHistory
             ? existingSpecialBonusHistory.totalSpend
             : [];
@@ -366,34 +376,16 @@ export async function GET(request: Request) {
                   logger.info(`totalSpend ${totalSpend}.`);
 
                   // Update or create the SpecialBonusHistory record
-                  if (existingSpecialBonusHistory) {
-                    logger.info(
-                      `existingSpecialBonusHistory ${existingSpecialBonusHistory}.`
-                    );
-
-                    await prisma.specialBonusHistory.update({
-                      where: { id: existingSpecialBonusHistory.id },
-                      data: {
-                        totalSpend: totalSpend,
-                        cn: existingSpecialBonusHistory.cn + matchingItemCn,
-                        incentivePoint:
-                          existingSpecialBonusHistory.incentivePoint +
-                          matchingItemIncentivePoint,
-                      },
-                    });
-                  } else {
-                    logger.info(`create.`);
-
-                    await prisma.specialBonusHistory.create({
-                      data: {
-                        userId,
-                        specialBonusId: activeSpecialBonus.id,
-                        totalSpend: totalSpend,
-                        cn: matchingItemCn,
-                        incentivePoint: matchingItemIncentivePoint,
-                      },
-                    });
-                  }
+                  await prisma.specialBonusHistory.update({
+                    where: { id: existingSpecialBonusHistory.id },
+                    data: {
+                      totalSpend: totalSpend,
+                      cn: existingSpecialBonusHistory.cn + matchingItemCn,
+                      incentivePoint:
+                        existingSpecialBonusHistory.incentivePoint +
+                        matchingItemIncentivePoint,
+                    },
+                  });
 
                   // Update the User model with reward points and cnBrand JSON
                   const user = await prisma.user.findUnique({

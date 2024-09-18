@@ -207,7 +207,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     debounce(() => {
       fetchData(searchText);
     }, 500), // 500 ms debounce delay
-    [currentPage, pageSize, activeTabKey]
+    [currentPage, pageSize, activeTabKey, triggerOrder]
   );
 
   
@@ -328,6 +328,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
   const fetchInvoices = async () => {
     try {
       const { data } = await axios.get(`/api/fetchInvoices`);
+      setTriggerOrder(!triggerOrder)
       toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
       toastError(error.message);
