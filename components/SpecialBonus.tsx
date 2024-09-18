@@ -63,6 +63,8 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
     async function fetchSpecialBonusData() {
       setLoading(true);
       try {
+        const test = await fetch("/api/adminSpecialBonus");
+        console.log("test",test)
         // Fetch the active SpecialBonus and its items
         // const specialBonusResponse = await axios.get(
         //   `/api/specialBonus?userId=${userId}`
