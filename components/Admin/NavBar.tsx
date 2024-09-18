@@ -180,7 +180,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
               className="inline-flex items-center text-gray-500 rounded-lg"
             >
               <Link href={`/${locale}/admin/cart/${userId}`} className="flex">
-                <Badge count={cartItemCount}>
+                <Badge count={cartItemCount} overflowCount={99}>
                   <svg
                     className="self-center m-1"
                     width="24"

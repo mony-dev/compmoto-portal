@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import debounce from "lodash.debounce";
 import { formatDate, toastError, toastSuccess } from "@lib-utils/helper";
-import { Badge, Button, Input, Tabs, TabsProps } from "antd";
+import { Button, Input } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import Link from "next/link";
@@ -15,10 +15,7 @@ import { useCart } from "@components/Admin/Cartcontext";
 import { useTranslation } from "react-i18next";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { CloseCircleOutlined } from "@ant-design/icons";
-import TabContent from "@components/TabContent";
-import TabContentOrder from "@components/Admin/order/TabContentOrder";
-const Loading = dynamic(() => import("@components/Loading"));
-const DataTable = dynamic(() => import("@components/Admin/Datatable"));
+const TabContentOrder = dynamic(() => import("@components/Admin/order/TabContentOrder"));
 
 export default function adminOrder({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
@@ -56,6 +53,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     subTotal: number;
     totalPrice: number;
     createdAt: string;
+    calculatedSubTotal: number;
     user: {
       custNo: string;
       id: number;
@@ -110,7 +108,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) =>
         a.user.saleUser.custNo.localeCompare(b.user.saleUser.custNo),
-      render: (_, record) => <p>{record.user.saleUser.custNo}</p>,
+      render: (_, record) => <p>{record.user?.saleUser?.custNo}</p>,
     },
     {
       title: t("date"),
@@ -124,10 +122,10 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       title: t("Total"),
       dataIndex: "totalPrice",
       key: "totalPrice",
-      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sorter: (a, b) => a.calculatedSubTotal - b.calculatedSubTotal,
       render: (_, record) => (
         <p>
-          {record.totalPrice.toLocaleString("en-US", {
+          {record.calculatedSubTotal.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -178,7 +176,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) =>
         a.user.saleUser.custNo.localeCompare(b.user.saleUser.custNo),
-      render: (_, record) => <p>{record.user.saleUser.custNo}</p>,
+      render: (_, record) => <p>{record.user?.saleUser?.custNo}</p>,
     },
     {
       title: t("date"),
@@ -277,13 +275,28 @@ export default function adminOrder({ params }: { params: { id: number } }) {
         setInvoiceTotal(invoiceResponse.data.total);
         setTotal(invoiceResponse.data.total);
       
-        // Process the response from `/api/adminOrder`
-        const orderDataWithKeys = orderResponse.data.orders.map(
-          (order: any, index: number) => ({
+        const orderDataWithKeys = orderResponse.data.orders.map((order: any, index: number) => {
+          // Initialize a variable to store the calculated subTotal for each order
+          let calculatedSubTotal = 0;
+        
+          // Iterate through each item in the order
+          order.items.forEach((item: any) => {
+            if (item.year === null) {
+              // If the item has no year
+              const yearDiscount = (item.price * item.discount) / 100;
+              calculatedSubTotal += item.price - yearDiscount
+            } else {
+              // If the item has a year, calculate the discount and subtract it from the subTotal
+              calculatedSubTotal += item.discountPrice
+            }
+          });
+          // Return the order with the new subTotal and a unique key
+          return {
             ...order,
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
-          })
-        );
+            calculatedSubTotal: calculatedSubTotal, // Add the calculated subTotal to each order
+            key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
+          };
+        });
         setOrderData(orderDataWithKeys);
         setOrderTotal(orderResponse.data.total);
         setTotal(orderResponse.data.total);

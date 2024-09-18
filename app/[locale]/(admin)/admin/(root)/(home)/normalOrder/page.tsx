@@ -42,7 +42,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   const [total, setTotal] = useState(0);
   const [orderData, setOrderData] = useState<OrderDataType[]>([]);
   const [invoiceData, setInvoiceData] = useState<OrderDataType[]>([]);
-  const [triggerOrder, setTriggerOrder] = useState(false);
   const [orderTotal, setOrderTotal] = useState(0);
   const [invoiceTotal, setInvoiceTotal] = useState(0);
   const [activeTabKey, setActiveTabKey] = useState("1");
@@ -63,6 +62,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     groupDiscount: number;
     subTotal: number;
     totalPrice: number;
+    calculatedSubTotal: number;
     createdAt: string;
     user: {
       custNo: string;
@@ -122,10 +122,10 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       title: t("Total"),
       dataIndex: "totalPrice",
       key: "totalPrice",
-      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sorter: (a, b) => a.calculatedSubTotal - b.calculatedSubTotal,
       render: (_, record) => (
         <p>
-          {record.totalPrice.toLocaleString("en-US", {
+          {record.calculatedSubTotal.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -262,13 +262,28 @@ export default function normalOrder({ params }: { params: { id: number } }) {
         setInvoiceTotal(invoiceResponse.data.total);
         setTotal(invoiceResponse.data.total);
       
-        // Process the response from `/api/adminOrder`
-        const orderDataWithKeys = orderResponse.data.orders.map(
-          (order: any, index: number) => ({
+        const orderDataWithKeys = orderResponse.data.orders.map((order: any, index: number) => {
+          // Initialize a variable to store the calculated subTotal for each order
+          let calculatedSubTotal = 0;
+        
+          // Iterate through each item in the order
+          order.items.forEach((item: any) => {
+            if (item.year === null) {
+              // If the item has no year
+              const yearDiscount = (item.price * item.discount) / 100;
+              calculatedSubTotal += item.price - yearDiscount
+            } else {
+              // If the item has a year, calculate the discount and subtract it from the subTotal
+              calculatedSubTotal += item.discountPrice
+            }
+          });
+          // Return the order with the new subTotal and a unique key
+          return {
             ...order,
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
-          })
-        );
+            calculatedSubTotal: calculatedSubTotal, // Add the calculated subTotal to each order
+            key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
+          };
+        });
         setOrderData(orderDataWithKeys);
         setOrderTotal(orderResponse.data.total);
         setTotal(orderResponse.data.total);

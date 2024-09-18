@@ -56,6 +56,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
     subTotal: number;
     totalPrice: number;
     createdAt: string;
+    calculatedSubTotal: number;
     user: {
       custNo: string;
       id: number;
@@ -110,10 +111,10 @@ export default function backOrder({ params }: { params: { id: number } }) {
       title: t("Total"),
       dataIndex: "totalPrice",
       key: "totalPrice",
-      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sorter: (a, b) => a.calculatedSubTotal - b.calculatedSubTotal,
       render: (_, record) => (
         <p>
-          {record.totalPrice.toLocaleString("en-US", {
+          {record.calculatedSubTotal.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -161,28 +162,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
       setPageSize(pageSize);
     }
   };
-  const items: TabsProps["items"] = [
-    {
-      key: "1",
-      label: (
-        <Badge
-          className="redeem-badge default-font"
-          count={orderTotal}
-          offset={[15, 1]}
-        >
-          <p>{t('Back orders')}</p>
-        </Badge>
-      ),
-      children: <DataTable
-      columns={columns}
-      data={orderData}
-      total={total}
-      currentPage={currentPage}
-      pageSize={pageSize}
-      onPageChange={handlePageChange}
-    />,
-    }
-  ];
+
 
   async function fetchData(query: string = "") {
     setLoadPage(true);
@@ -198,13 +178,30 @@ export default function backOrder({ params }: { params: { id: number } }) {
             pageSize: pageSize,
           },
         });
-  
-        const orderDataWithKeys = data.orders.map(
-          (order: any, index: number) => ({
+        
+        const orderDataWithKeys = data.orders.map((order: any, index: number) => {
+          // Initialize a variable to store the calculated subTotal for each order
+          let calculatedSubTotal = 0;
+        
+          // Iterate through each item in the order
+          order.items.forEach((item: any) => {
+            if (item.year === null) {
+              // If the item has no year
+              const yearDiscount = (item.price * item.discount) / 100;
+              calculatedSubTotal += item.price - yearDiscount
+            } else {
+              // If the item has a year, calculate the discount and subtract it from the subTotal
+              calculatedSubTotal += item.discountPrice
+            }
+          });
+          // Return the order with the new subTotal and a unique key
+          return {
             ...order,
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
-          })
-        );
+            calculatedSubTotal, // Add the calculated subTotal to each order
+            key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
+          };
+        });
+        
         setOrderData(orderDataWithKeys);
         setOrderTotal(orderDataWithKeys.length);
         setTotal(data.total);
@@ -218,6 +215,30 @@ export default function backOrder({ params }: { params: { id: number } }) {
     }
    
   }
+
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <Badge
+          className="redeem-badge default-font"
+          count={orderTotal}
+          offset={[15, -6]}
+          overflowCount={99}
+        >
+          <p>{t('Back orders')}</p>
+        </Badge>
+      ),
+      children: <DataTable
+      columns={columns}
+      data={orderData}
+      total={total}
+      currentPage={currentPage}
+      pageSize={pageSize}
+      onPageChange={handlePageChange}
+    />,
+    }
+  ];
   const onChange = (key: string) => {
     if (key === "1") {
       setTriggerOrder(false);

@@ -758,6 +758,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           className="redeem-badge default-font"
           count={normalCount}
           offset={[10, 1]}
+          overflowCount={99}
         >
           <p>{t('Normal Order')}</p>
         </Badge>
@@ -793,6 +794,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           className="redeem-badge default-font"
           count={backCount}
           offset={[10, 1]}
+          overflowCount={99}
         >
           <p>{t('Back Order')}</p>
         </Badge>

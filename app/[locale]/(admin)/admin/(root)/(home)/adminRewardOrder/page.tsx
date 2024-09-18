@@ -147,7 +147,7 @@ export default function adminRewardOrder({
     {
       key: "1",
       label: (
-        <Badge className="redeem-badge default-font" count={incompleteCount} offset={[10, 1]}>
+        <Badge className="redeem-badge default-font" count={incompleteCount} offset={[10, 1]} overflowCount={99}>
           <p>{t("Reviewing")}</p>
         </Badge>
       ),
@@ -165,7 +165,7 @@ export default function adminRewardOrder({
     {
       key: "2",
       label: (
-        <Badge className="redeem-badge default-font" count={completeCount} offset={[10, 1]}>
+        <Badge className="redeem-badge default-font" count={completeCount} offset={[10, 1]} overflowCount={99}>
           <p>{t("Verified")}</p>
         </Badge>
       ),

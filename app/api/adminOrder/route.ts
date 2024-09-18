@@ -58,6 +58,9 @@ export async function GET(request: Request) {
         },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        orderBy: {
+          createdAt: 'desc',
+        },
       }),
       prisma.order.count({
         where: {

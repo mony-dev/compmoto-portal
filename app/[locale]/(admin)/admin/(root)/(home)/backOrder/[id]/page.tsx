@@ -124,7 +124,9 @@ export default function backOrder({ params }: { params: { id: number } }) {
             price: item.price,
             year: item.year,
             discount: item.discount,
-            discountPrice: item.discountPrice,
+            discountPrice: item.year
+            ? item.discountPrice
+            : item.price - (item.price * item.discount) / 100,
             createdAt: item.createdAt,
             updatedAt: item.updatedAt,
             product: {

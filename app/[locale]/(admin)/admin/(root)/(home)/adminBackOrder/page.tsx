@@ -54,6 +54,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
     groupDiscount: number;
     subTotal: number;
     totalPrice: number;
+    calculatedSubTotal: number;
     createdAt: string;
     user: {
       custNo: string;
@@ -106,7 +107,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       key: "saleAdmin",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.user.saleUser.custNo.localeCompare(b.user.saleUser.custNo),
-      render: (_, record) => <p>{record.user.saleUser.custNo}</p>,
+      render: (_, record) => <p>{record.user?.saleUser?.custNo}</p>,
     },
     {
       title: t("date"),
@@ -120,10 +121,10 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
       title: t("Total"),
       dataIndex: "totalPrice",
       key: "totalPrice",
-      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sorter: (a, b) => a.calculatedSubTotal - b.calculatedSubTotal,
       render: (_, record) => (
         <p>
-          {record.totalPrice.toLocaleString("en-US", {
+          {record.calculatedSubTotal.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -180,7 +181,8 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
         <Badge
           className="redeem-badge default-font"
           count={orderTotal}
-          offset={[15, 1]}
+          offset={[15, -6]}
+          overflowCount={99}
         >
           <p>{t('Back orders')}</p>
         </Badge>
@@ -211,12 +213,28 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
           },
         });
   
-        const orderDataWithKeys = data.orders.map(
-          (order: any, index: number) => ({
+        const orderDataWithKeys = data.orders.map((order: any, index: number) => {
+          // Initialize a variable to store the calculated subTotal for each order
+          let calculatedSubTotal = 0;
+        
+          // Iterate through each item in the order
+          order.items.forEach((item: any) => {
+            if (item.year === null) {
+              // If the item has no year
+              const yearDiscount = (item.price * item.discount) / 100;
+              calculatedSubTotal += item.price - yearDiscount
+            } else {
+              // If the item has a year, calculate the discount and subtract it from the subTotal
+              calculatedSubTotal += item.discountPrice
+            }
+          });
+          // Return the order with the new subTotal and a unique key
+          return {
             ...order,
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
-          })
-        );
+            calculatedSubTotal, // Add the calculated subTotal to each order
+            key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
+          };
+        });
         setOrderData(orderDataWithKeys);
         setOrderTotal(orderDataWithKeys.length);
         setTotal(data.total);
