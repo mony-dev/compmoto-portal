@@ -81,6 +81,7 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
         key: brand.id,
         label: brand.name,
       }));
+      console.log("brands", brands)
       setBrandOptions(brands);
     } catch (error: any) {
       console.error(error.message);
@@ -95,6 +96,7 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
         key: size.id,
         label: size.name,
       }));
+      console.log("sizes", sizes)
       setSizeOptions(sizes);
     } catch (error: any) {
       console.error(error.message);
@@ -105,6 +107,8 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
     try {
       const response = await axios.get(`/api/getCategory`);
       setCateOptions(response.data);
+      console.log("getCategory", response.data)
+
     } catch (error) {
       console.error("Error fetching menu items: ", error);
     }
@@ -115,6 +119,7 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
       const { data } = await axios.get("/api/getProductByUser", {
         params: { userId, currentPage, pageSize },
       });
+      console.log("fetchProducts", data.products)
 
       setProducts(data.products);
     } catch (error) {

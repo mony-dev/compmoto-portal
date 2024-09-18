@@ -33,7 +33,6 @@ const TotalPurchase = dynamic(() => import("@components/TotalPurchase"));
 const SpecialBonus = dynamic(() => import("@components/SpecialBonus"));
 const Chart = dynamic(() => import("@components/Chart"));
 const PromotionSlide = dynamic(() => import("@components/PromotionSlide"));
-const MixedBarLineChart = dynamic(() => import("@components/MixedBarLineChart"));
 
 const Carousel =
   typeof window !== "undefined" ? require("@fancyapps/ui").Carousel : null;
@@ -479,7 +478,7 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
           </div>
         </div>
        
-        {/* <Chart userId={session?.user?.id}/> */}
+        <Chart userId={session?.user?.id}/>
         <div
             className="mt-4 p-4 rounded-lg bg-white col-span-2"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
