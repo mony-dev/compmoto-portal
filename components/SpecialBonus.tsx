@@ -67,6 +67,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
         const specialBonusResponse = await axios.get(
           `/api/specialBonus?userId=${userId}`
         );
+        console.log("specialBonusResponse", specialBonusResponse)
         const specialBonus = specialBonusResponse.data.data;
 
         // Group items by brandId
