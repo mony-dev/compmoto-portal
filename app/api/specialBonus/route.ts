@@ -10,29 +10,25 @@ export async function GET(request: Request) {
   const pageSize = 50;
 
   try {
-    const [specialBonus] = await Promise.all([
-      prisma.specialBonus.findFirst({
-        where: {
-          isActive: true,
-        },
-        include: {
-          items: {
-            orderBy: {
-              order: "asc",
-            },
-            include: {
-              brand: {
-                include: {
-                  minisizes: true, // Include minisizes related to the brand
-                },
+    const specialBonus = await prisma.specialBonus.findFirst({
+      where: {
+        isActive: true,
+      },
+      include: {
+        items: {
+          orderBy: {
+            order: "asc",
+          },
+          include: {
+            brand: {
+              include: {
+                minisizes: true,
               },
-            }
+            },
           },
         },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-    ]);
+      },
+    });
     return NextResponse.json({ data: specialBonus, total: 1 });
   } catch (error) {
     return NextResponse.json(error);
