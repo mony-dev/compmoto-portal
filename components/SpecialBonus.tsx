@@ -64,14 +64,16 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
       setLoading(true);
       try {
         // Fetch the active SpecialBonus and its items
-        const specialBonusResponse = await axios.get(
-          `/api/specialBonus?userId=${userId}`
-        );
-        console.log("specialBonusResponse", specialBonusResponse)
-        const specialBonus = specialBonusResponse.data.data;
-
+        // const specialBonusResponse = await axios.get(
+        //   `/api/specialBonus?userId=${userId}`
+        // );
+        const response = await fetch("/api/specialBonus");
+        console.log("response", response)
+        const data = await response.json();
+        console.log("data", data)
+        const specialBonusResponse = data.data
         // Group items by brandId
-        const groupedItemsByBrand = specialBonus.items.reduce(
+        const groupedItemsByBrand = specialBonusResponse.items.reduce(
           (
             acc: { [brandId: number]: SpecialBonusItem[] },
             item: SpecialBonusItem
@@ -89,7 +91,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
 
         // Fetch the SpecialBonusHistory to get the totalSpend and determine the levels
         const historyResponse = await axios.get(
-          `/api/specialBonusHistory?userId=${userId}&specialBonusId=${specialBonus.id}`
+          `/api/specialBonusHistory?userId=${userId}&specialBonusId=${specialBonusResponse.id}`
         );
         const specialBonusHistory = historyResponse.data.data[0];
         // Process the history to map brandId to levels
