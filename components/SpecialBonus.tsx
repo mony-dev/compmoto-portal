@@ -71,7 +71,8 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
         console.log("response", response)
         const data = await response.json();
         console.log("data", data)
-        const specialBonusResponse = data.data
+        const specialBonusResponse = data.specialBonus
+
         // Group items by brandId
         const groupedItemsByBrand = specialBonusResponse.items.reduce(
           (
