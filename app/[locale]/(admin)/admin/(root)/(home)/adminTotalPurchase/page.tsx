@@ -12,7 +12,17 @@ import {
   totalPurchaseSchema,
   TotalPurchaseSchema,
 } from "@lib-schemas/user/total-purchase-schema";
-import { Button, Form, Input, Space, Row, Col, InputNumber, Modal } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Space,
+  Row,
+  Col,
+  InputNumber,
+  Modal,
+  Select,
+} from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCart } from "@components/Admin/Cartcontext";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,6 +33,11 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
 import debounce from "lodash.debounce";
 import dynamic from "next/dynamic";
+import { SelectValue } from "antd/es/select";
+interface Option {
+  label: string;
+  value: string;
+}
 export default function AdminTotalPurchase() {
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
@@ -32,6 +47,8 @@ export default function AdminTotalPurchase() {
   const [id, setId] = useState(0);
   const router = useRouter();
   const Loading = dynamic(() => import("@components/Loading"));
+  const [monthOptions, setMonthOptions] = useState<Option[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>(""); // Default to "All" (empty string)
 
   const defaultValues = {
     year: "",
@@ -58,6 +75,41 @@ export default function AdminTotalPurchase() {
     name: "items", // Specify which part of the form this array refers to
   });
 
+  const handleMonthChange = (value: SelectValue) => {
+    setSelectedMonth(value?.toString() || ""); // Update selected month, allowing for the "All" option (empty string)
+    value && setValue("month", value.toString());
+  };
+
+  const fetchMonth = async () => {
+    const months = [
+      { en: "January", th: "มกราคม", key: "1" },
+      { en: "February", th: "กุมภาพันธ์", key: "2" },
+      { en: "March", th: "มีนาคม", key: "3" },
+      { en: "April", th: "เมษายน", key: "4" },
+      { en: "May", th: "พฤษภาคม", key: "5" },
+      { en: "June", th: "มิถุนายน", key: "6" },
+      { en: "July", th: "กรกฎาคม", key: "7" },
+      { en: "August", th: "สิงหาคม", key: "8" },
+      { en: "September", th: "กันยายน", key: "9" },
+      { en: "October", th: "ตุลาคม", key: "10" },
+      { en: "November", th: "พฤศจิกายน", key: "11" },
+      { en: "December", th: "ธันวาคม", key: "12" },
+    ];
+    let month = [];
+    if (locale === "en") {
+      month = months.map((option) => ({
+        label: option.en,
+        value: option.key,
+      }));
+    } else {
+      month = months.map((option) => ({
+        label: option.th,
+        value: option.key,
+      }));
+    }
+    setMonthOptions(month);
+  };
+
   const fetchActiveTotalPurchase = async () => {
     try {
       const response = await fetch("/api/adminTotalPurchase");
@@ -65,12 +117,14 @@ export default function AdminTotalPurchase() {
 
       if (data && data.totalPurchase) {
         // Set the basic form values
+        console.log(data.totalPurchase.month.toString());
+        setSelectedMonth(data.totalPurchase.month.toString());
         setValue("month", data.totalPurchase.month.toString());
         setValue("year", data.totalPurchase.year.toString());
         setValue("resetDate", data.totalPurchase.resetDate);
         setValue("isActive", data.totalPurchase.isActive);
         setValue("items", data.totalPurchase.items);
-        setId(data.totalPurchase.id)
+        setId(data.totalPurchase.id);
         // Manually update the field array using replace
         replace(
           data.totalPurchase.items.map((item: any) => ({
@@ -80,42 +134,43 @@ export default function AdminTotalPurchase() {
             loyaltyPoint: item.loyaltyPoint,
           }))
         );
-      }  else {
+      } else {
         setValue("month", "");
         setValue("year", "");
         setValue("resetDate", "");
         setValue("items", [
           { totalPurchaseAmount: 0, cn: 0, incentivePoint: 0, loyaltyPoint: 0 },
         ]);
-       
       }
     } catch (error) {
       console.error("Error fetching active TotalPurchase:", error);
     }
   };
 
-    // Debounce function for search input
-    const debouncedFetchData = useCallback(
-      debounce(() => {
-        fetchActiveTotalPurchase();
-      }, 500), // 500 ms debounce delay
-      []
-    );
-        
-    useEffect(() => {
-      const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-      setI18nName(lastPart);
-  
-      // Call the debounced fetch function
-      debouncedFetchData();
-  
-      // Cleanup debounce on unmount
-      return () => {
-        debouncedFetchData.cancel();
-      };
-    }, [id]);
+  // Debounce function for search input
+  const debouncedFetchData = useCallback(
+    debounce(() => {
+      fetchActiveTotalPurchase();
+      fetchMonth();
+    }, 500), // 500 ms debounce delay
+    []
+  );
+
+  useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
+
+    // Call the debounced fetch function
+    debouncedFetchData();
+
+    // Cleanup debounce on unmount
+    return () => {
+      debouncedFetchData.cancel();
+    };
+  }, [id]);
 
   const onFinish: SubmitHandler<TotalPurchaseSchema> = async (values) => {
+    console.log(values);
     try {
       if (id > 0) {
         const response = await fetch(`/api/adminTotalPurchase/${id}`, {
@@ -160,7 +215,7 @@ export default function AdminTotalPurchase() {
             toastError(t("No setting available to reset"));
             return;
           }
-      
+
           // Send the PUT request to update isActive to false
           const response = await fetch(`/api/adminTotalPurchase/${id}`, {
             method: "PUT",
@@ -172,9 +227,9 @@ export default function AdminTotalPurchase() {
               isActive: false, // Set isActive to false
             }),
           });
-      
+
           const result = await response.json();
-      
+
           if (response.ok) {
             setId(0);
             router.replace(`/${locale}/admin/adminTotalPurchase`);
@@ -188,7 +243,6 @@ export default function AdminTotalPurchase() {
         }
       },
     });
-  
   };
 
   return (
@@ -218,13 +272,24 @@ export default function AdminTotalPurchase() {
                 required
                 tooltip={t("this_is_a_required_field")}
               >
-                <DatePickers
-                  placeholder={t("month")}
+                <Controller
+                  control={control} // control from useForm()
                   name="month"
-                  control={control}
-                  size="middle"
-                  picker="month"
-                  disabledDate={true}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      showSearch
+                      placeholder={t("Search a month")}
+                      value={selectedMonth} // Default to current month
+                      onChange={handleMonthChange} // Handle month change
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={monthOptions}
+                    />
+                  )}
                 />
               </Form.Item>
               <Form.Item
@@ -374,10 +439,9 @@ export default function AdminTotalPurchase() {
           <div
             style={{ display: "flex", justifyContent: "center", marginTop: 16 }}
           >
-          {errors.items && (
+            {errors.items && (
               <div className="text-red-500 mt-2 font-semibold">
-                {errors.items.message &&
-                  t("At least one item is required")}
+                {errors.items.message && t("At least one item is required")}
               </div>
             )}
             <Button

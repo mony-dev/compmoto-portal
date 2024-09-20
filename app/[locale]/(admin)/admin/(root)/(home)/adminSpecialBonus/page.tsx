@@ -24,8 +24,13 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import dynamic from "next/dynamic";
+import { SelectValue } from "antd/es/select";
 const Loading = dynamic(() => import("@components/Loading"));
 
+interface Option {
+  label: string;
+  value: string;
+}
 
 export default function AdminSpecialBonus() {
   const { t } = useTranslation();
@@ -33,6 +38,8 @@ export default function AdminSpecialBonus() {
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const router = useRouter();
+  const [monthOptions, setMonthOptions] = useState<Option[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>(""); // Default to "All" (empty string)
 
   const [brandOptions, setBrandOptions] = useState<
     { value: string; label: string }[]
@@ -90,6 +97,41 @@ export default function AdminSpecialBonus() {
     fetchBrands();
   }, []);
 
+  const handleMonthChange = (value: SelectValue) => {
+    setSelectedMonth(value?.toString() || ""); // Update selected month, allowing for the "All" option (empty string)
+    value && setValue("month", value.toString());
+  };
+
+  const fetchMonth = async () => {
+    const months = [
+      { en: "January", th: "มกราคม", key: "1" },
+      { en: "February", th: "กุมภาพันธ์", key: "2" },
+      { en: "March", th: "มีนาคม", key: "3" },
+      { en: "April", th: "เมษายน", key: "4" },
+      { en: "May", th: "พฤษภาคม", key: "5" },
+      { en: "June", th: "มิถุนายน", key: "6" },
+      { en: "July", th: "กรกฎาคม", key: "7" },
+      { en: "August", th: "สิงหาคม", key: "8" },
+      { en: "September", th: "กันยายน", key: "9" },
+      { en: "October", th: "ตุลาคม", key: "10" },
+      { en: "November", th: "พฤศจิกายน", key: "11" },
+      { en: "December", th: "ธันวาคม", key: "12" },
+    ];
+    let month = [];
+    if (locale === "en") {
+      month = months.map((option) => ({
+        label: option.en,
+        value: option.key,
+      }));
+    } else {
+      month = months.map((option) => ({
+        label: option.th,
+        value: option.key,
+      }));
+    }
+    setMonthOptions(month);
+  };
+
   const fetchSpecialBonus = async () => {
     setLoadPage(true);
     try {
@@ -97,6 +139,7 @@ export default function AdminSpecialBonus() {
       const data = await response.json();
       if (data && data.specialBonus) {
         if (data.specialBonus.brands.length > 0) {
+          setSelectedMonth(data.specialBonus.month.toString());
           setValue("month", data.specialBonus.month.toString());
           setValue("year", data.specialBonus.year.toString());
           setValue("resetDate", data.specialBonus.resetDate);
@@ -149,6 +192,7 @@ export default function AdminSpecialBonus() {
   const debouncedFetchData = useCallback(
     debounce(() => {
       fetchSpecialBonus();
+      fetchMonth();
     }, 500), // 500 ms debounce delay
     []
   );
@@ -280,19 +324,28 @@ export default function AdminSpecialBonus() {
             <div className="flex gap-2">
             <Form.Item
                 name="month"
-                label={t("month")}
+                label={t('month')}
                 required
-                tooltip={t("this_is_a_required_field")}
+                tooltip={t('this_is_a_required_field')}
               >
-                <DatePickers
-                  placeholder={t("month")}
+                <Controller
+                  control={control} // control from useForm()
                   name="month"
-                  control={control}
-                  size="middle"
-                  picker="month"
-                  disabledDate={true}
+                  render={({ field }) => (
+                    <Select
+                    {...field} 
+                    showSearch
+                    placeholder={t('Search a month')}
+                    value={selectedMonth} // Default to current month
+                    onChange={handleMonthChange} // Handle month change
+                    filterOption={(input, option) =>
+                      (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                    options={monthOptions}
+                  />
+                  )}
                 />
-              </Form.Item>
+                 </Form.Item>
 
               <Form.Item
                 name="year"

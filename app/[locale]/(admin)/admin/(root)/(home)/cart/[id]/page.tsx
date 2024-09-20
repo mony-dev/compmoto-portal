@@ -7,6 +7,7 @@ import {
   Divider,
   Form,
   InputNumber,
+  InputNumberProps,
   Modal,
   Space,
   Tabs,
@@ -295,6 +296,36 @@ const Cart = ({ params }: { params: { id: number } }) => {
         recalculateTotals(
           cartData.filter((item) => selectedItems.includes(item.id))
         );
+        checkPromotion();
+      }
+    }
+  };
+
+ 
+  const handleInputAmount = (name: string, record: CartDataType, newValue: number) => {
+    // Use the passed newValue instead of fetching it from getValues
+    const currentValue = newValue || 0;  
+    if (currentValue > 0) {
+      setValue(name, currentValue);
+      if (newValue >=  record.product.navStock && record.type !== "Back") {
+        Modal.warning({
+          title: t("You cannot place an order that exceeds our available stock"),
+          content: t("Please check the quantity and place your order again"),
+          okText: false,
+          okType: "danger",
+          cancelText: t("Cancel"),
+        });
+        setValue(name,  record.product.navStock);
+      }
+      if (currentValue === 0) {
+        removeItem(record); // Call removeItem if the new value is 0
+        setValue(name, 1);
+      } else {
+        const totalPrice = calculateTotalPrice(record, currentValue);
+        const originalPrice = calculateOriginalPrice(record, currentValue);
+        updateItem(record, currentValue, totalPrice);
+        updatePriceDisplay(record.id, totalPrice, originalPrice);
+        recalculateTotals(cartData.filter((item) => selectedItems.includes(item.id)));
         checkPromotion();
       }
     }
@@ -627,7 +658,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                   control={control}
                   name={`amount_${record.id}`}
                   render={({ field }) => (
-                    <div className="flex custom-input-number justify-center border-year">
+                    <div className="flex custom-input-number custom-input-cart justify-center border-year">
                       <Button
                         className="minus-icon-cart"
                         icon={<MinusIcon className="w-6 text-black" />}
@@ -640,10 +671,11 @@ const Cart = ({ params }: { params: { id: number } }) => {
                         min={0}
                         max={record.product.navStock}
                         step={1}
-                        disabled={true}
+                        disabled={false}
                         className="w-full text-lg"
                         value={getValues(`amount_${record.id}`)}
-                      />
+                        onChange={(value) => handleInputAmount(`amount_${record.id}`, record, value)}  // Pass the new value here
+                        />
 
                       <Button
                         className="plus-icon-cart"

@@ -183,6 +183,9 @@ const Product = () => {
       setSortedInfo({});
     }
   };
+  const handleTableChange: TableProps<DataType>["onChange"] = (pagination, filters, sorter) => {
+    setSortedInfo(sorter as Sorts);
+  };
   const fetchMinisizeData = async (name: string) => {
     try {
       setLoadingMini(true)
@@ -463,6 +466,12 @@ const Product = () => {
     </svg>
   );
 
+  const getStatusValue = (record: DataType) => {
+    if (record.portalStock === 0) return 0; // Out of stock
+    if (record.portalStock > 100) return 2; // Available
+    return 1; // Limited stock
+  };
+
   const columns: ColumnsType<DataType> = [
     {
       title: t("Product Lists"),
@@ -470,6 +479,7 @@ const Product = () => {
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
+      sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
       render: (name: string) => {
         return (
           <>
@@ -558,6 +568,7 @@ const Product = () => {
       key: "lv2Name",
       defaultSortOrder: "descend",
       sorter: (a, b) => (a.lv2Name || "").localeCompare(b.lv2Name || ""),
+      sortOrder: sortedInfo.columnKey === "lv2Name" ? sortedInfo.order : null,
     },
     {
       title: t("Rim"),
@@ -565,6 +576,7 @@ const Product = () => {
       key: "lv3Name",
       defaultSortOrder: "descend",
       sorter: (a, b) => (a.lv3Name || "").localeCompare(b.lv3Name || ""),
+      sortOrder: sortedInfo.columnKey === "lv3Name" ? sortedInfo.order : null,
     },
     {
       title: t("Price"),
@@ -604,14 +616,8 @@ const Product = () => {
     {
       title: t("Status"),
       key: "action",
-      sorter: (a, b) => {
-        const getStatusValue = (record: DataType) => {
-          if (record.portalStock === 0) return 0;
-          if (record.portalStock > 100) return 2;
-          return 1;
-        };
-        return getStatusValue(a) - getStatusValue(b);
-      },
+      sorter: (a, b) => getStatusValue(a) - getStatusValue(b),
+      sortOrder: sortedInfo.columnKey === "action" ? sortedInfo.order : null,
       render: (_, record) => {
         const backgroundColor =
           hoveredProduct === record.id && record.portalStock === 0
@@ -1011,6 +1017,7 @@ const Product = () => {
             currentPage={currentPage}
             pageSize={pageSize}
             onPageChange={handlePageChange}
+            onChange={handleTableChange}
           />
         </div>
       </div>

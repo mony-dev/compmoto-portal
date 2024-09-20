@@ -999,3 +999,39 @@ body {
     color: white!important;
   }
 }
+
+.custom-table {
+  .ant-table-cell + :not(.force-bottom) {
+    vertical-align: top !important;
+    // padding: 0px;
+  }
+  .ant-table-cell {
+    vertical-align: top !important;
+  }
+  .ant-table-row {
+    td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) {
+      padding: 0px;
+    }
+  }
+ 
+}
+
+.custom-input-cart {
+  // width: 50%!important;
+  :where(.css-dev-only-do-not-override-98ntnt).ant-input-number-outlined:focus, :where(.css-dev-only-do-not-override-98ntnt).ant-input-number-outlined:focus-within {
+    border-color: white;
+    box-shadow: none;
+    outline: 0;
+    background-color: white;
+  }
+  //prod
+  :where(.css-98ntnt).ant-input-number-outlined:focus, :where(.css-dev-only-do-not-override-98ntnt).ant-input-number-outlined:focus-within {
+    border-color: white;
+    box-shadow: none;
+    outline: 0;
+    background-color: white;
+  }
+  .ant-input-number {
+    width: 50%;
+  }
+}

@@ -108,7 +108,6 @@ export async function GET(request: Request) {
     const detailedProducts = await Promise.all(
       products.map(async (product) => {
         const orderCount = productOrderMap[product.id] || 0;
-
         if (!product.minisize) {
           return {
             ...product,

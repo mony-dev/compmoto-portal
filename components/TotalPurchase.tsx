@@ -130,7 +130,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
     >
       <div className="flex justify-between gap-4">
         <p className="text-card">CN</p>
-        <p className="text-card">{cn}</p>
+        <p className="text-card">{cn}%</p>
       </div>
       <div className="flex justify-between gap-4">
         <p className="text-card">Incentive point</p>

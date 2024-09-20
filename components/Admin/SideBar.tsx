@@ -223,6 +223,9 @@ export default function SideBar({
       items: [
         { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `/${locale}/admin/adminTotalPurchase` },
         { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `/${locale}/admin/adminSpecialBonus` },
+        { title: "รายการยอดสั่งซื้อรวม", href: `/${locale}/admin/totalPurchaseHistory` },
+        { title: "รายการโบนัสพิเศษ", href: `/${locale}/admin/specialBonusHistory` },
+
       ],
       id: "adminDashboard",
       openMenuId: openMenuId,
