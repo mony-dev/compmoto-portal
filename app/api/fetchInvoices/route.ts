@@ -172,6 +172,9 @@ export async function GET(request: Request) {
         if (activeTotalPurchase) {
           // Calculate totalSpend for the user
           const totalSpend = totalAmount; // totalAmount from your earlier calculation in Step 5
+          logger.info(`invoiceNo : ${invoiceNo}.`);
+          logger.info(`totalSpend : ${totalSpend}.`);
+          
           const existingTotalPurchaseHistory =
             await prisma.totalPurchaseHistory.findFirst({
               where: {
@@ -198,10 +201,11 @@ export async function GET(request: Request) {
               : null;
 
           if (matchingItem) {
+            logger.info(`matchingItem`);
             if (existingTotalPurchaseHistory) {
+              logger.info(`existingTotalPurchaseHistory : ${existingTotalPurchaseHistory}.`);
               // Update the existing TotalPurchaseHistory
-              logger.info(`updated ${userId} : ${price}.`);
-
+              logger.info(`updated from userId => ${userId} and invoice ${invoiceNo} : ${price}.`);
               await prisma.totalPurchaseHistory.update({
                 where: { id: existingTotalPurchaseHistory.id },
                 data: {
@@ -218,7 +222,8 @@ export async function GET(request: Request) {
               });
             } else {
               // Create a new TotalPurchaseHistory
-              logger.info(`first create ${userId} : ${totalSpend}.`);
+              logger.info(`existingTotalPurchaseHistory : ${existingTotalPurchaseHistory}.`);
+              logger.info(`first create from userId => ${userId} and invoice ${invoiceNo} : ${price}.`);
               await prisma.totalPurchaseHistory.create({
                 data: {
                   userId,
