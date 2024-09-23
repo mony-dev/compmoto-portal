@@ -200,6 +200,8 @@ export async function GET(request: Request) {
           if (matchingItem) {
             if (existingTotalPurchaseHistory) {
               // Update the existing TotalPurchaseHistory
+              logger.info(`updated ${userId} : ${price}.`);
+
               await prisma.totalPurchaseHistory.update({
                 where: { id: existingTotalPurchaseHistory.id },
                 data: {
@@ -216,6 +218,7 @@ export async function GET(request: Request) {
               });
             } else {
               // Create a new TotalPurchaseHistory
+              logger.info(`first create ${userId} : ${totalSpend}.`);
               await prisma.totalPurchaseHistory.create({
                 data: {
                   userId,
@@ -248,7 +251,6 @@ export async function GET(request: Request) {
             items: true, // Include related SpecialBonusItems
           },
         });
-        logger.info(`activeSpecialBonus ${activeSpecialBonus}.`);
 
         if (activeSpecialBonus) {
           let  existingSpecialBonusHistory =
@@ -258,9 +260,7 @@ export async function GET(request: Request) {
                 specialBonusId: activeSpecialBonus.id,
               },
             });
-          logger.info(
-            `existingSpecialBonusHistory ${existingSpecialBonusHistory}.`
-          );
+     
             // If not found, initialize a new entry
           if (!existingSpecialBonusHistory) {
             existingSpecialBonusHistory = await prisma.specialBonusHistory.create({
@@ -300,7 +300,6 @@ export async function GET(request: Request) {
                 const matchingBonusItem = activeSpecialBonus.items.filter(
                   (bonusItem) => bonusItem.brandId === brandId
                 );
-                logger.info(`matchingBonusItem ${matchingBonusItem}.`);
 
                 //        // Find the matching TotalPurchaseItem for the calculated price
                 //     const total = invoiceItems.price; // Calculate total for the current product
@@ -319,7 +318,6 @@ export async function GET(request: Request) {
                   let brandTotalEntry = (totalSpend as Array<any>).find(
                     (entry) => entry.brandId === brandId
                   );
-                  logger.info(`brandTotalEntry ${brandTotalEntry}.`);
                   const total = invoiceItems.price;
 
                   // Check if the brandId already exists in totalSpend JSON
@@ -333,7 +331,6 @@ export async function GET(request: Request) {
                       (item: any) =>
                         brandTotalEntry.total >= item.totalPurchaseAmount
                     ); // Filter all items where price is greater or equal
-                    logger.info(`matchingItems ${matchingItems}.`);
 
                     // Get the item with the highest order
                     const matchingItem =
@@ -348,15 +345,9 @@ export async function GET(request: Request) {
                       matchingItem?.incentivePoint || 0;
                   } else {
                     // Add a new entry to totalSpend for this brandId
-                    logger.info(`total ${total}.`);
                     const matchingItems = matchingBonusItem.filter(
                       (item: any) => total >= item.totalPurchaseAmount
                     ); // Filter all items where price is greater or equal
-                    logger.info(`matchingItems ${matchingItems}.`);
-                    logger.info(
-                      `matchingItems.length ${matchingItems.length}.`
-                    );
-
                     // Get the item with the highest order
                     const matchingItem =
                       matchingItems.length > 0
@@ -373,7 +364,6 @@ export async function GET(request: Request) {
                     matchingItemIncentivePoint =
                       matchingItem?.incentivePoint || 0;
                   }
-                  logger.info(`totalSpend ${totalSpend}.`);
 
                   // Update or create the SpecialBonusHistory record
                   await prisma.specialBonusHistory.update({
