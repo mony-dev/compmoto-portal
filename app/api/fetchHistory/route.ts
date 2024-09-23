@@ -1,8 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-const prisma = new PrismaClient();
 import logger from "../../../logger";
-
+import prisma from "../../../lib/prisma"; 
 export async function POST() {
   try {
     // Fetch all unchecked invoices
@@ -249,7 +248,5 @@ export async function POST() {
   } catch (error) {
     console.error("Error processing invoices:", error);
     return NextResponse.json({ error: "Failed to process invoices" });
-  } finally {
-    await prisma.$disconnect();
   }
 }
