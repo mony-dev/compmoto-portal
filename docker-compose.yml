@@ -15,12 +15,15 @@ services:
       - compmoto-net
     env_file:
       - .env
+    environment:
+      - TZ=Asia/Bangkok 
   postgres: 
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: compmoto_dev
       POSTGRES_USER: compmoto_dev
       POSTGRES_PASSWORD: compmoto_dev
+      TZ: Asia/Bangkok
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -41,6 +44,8 @@ services:
       - app
     networks:
       - compmoto-net
+    environment:
+      - TZ=Asia/Bangkok
 networks:
   compmoto-net:
     driver: bridge
