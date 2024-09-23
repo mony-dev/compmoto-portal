@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
+import logger from "../../../logger";
 
 export async function POST() {
   try {
@@ -33,16 +34,31 @@ export async function POST() {
     for (const invoice of uncheckedInvoices) { 
       if (activeTotalPurchase) {
         const totalSpend = invoice.totalPrice;
-        const existingTotalPurchaseHistory =
+        let existingTotalPurchaseHistory =
         await prisma.totalPurchaseHistory.findFirst({
           where: {
             userId: invoice.userId,
             totalPurchaseId: activeTotalPurchase.id,
           },
         });
+
+        if (!existingTotalPurchaseHistory) {
+          existingTotalPurchaseHistory = await prisma.totalPurchaseHistory.create({
+            data: {
+              userId: invoice.userId,
+              totalPurchaseId: activeTotalPurchase.id,
+              totalSpend: 0,
+              level: 0,
+              cn: 0,
+              incentivePoint: 0,
+              loyaltyPoint: 0,
+            },
+          });
+        }
         const price = existingTotalPurchaseHistory
-            ? existingTotalPurchaseHistory.totalSpend + totalSpend
-            : totalSpend;
+        ? existingTotalPurchaseHistory.totalSpend + totalSpend
+        : totalSpend;
+        
         const matchingItems = activeTotalPurchase.items.filter(
           (item: any) => price >= item.totalPurchaseAmount
         );
@@ -52,37 +68,24 @@ export async function POST() {
               prev.order > curr.order ? prev : curr
             )
           : null;
+          
         if (matchingItem) {
-          if (existingTotalPurchaseHistory) {
-            // Update the existing TotalPurchaseHistory
-            await prisma.totalPurchaseHistory.update({
-              where: { id: existingTotalPurchaseHistory.id },
-              data: {
-                totalSpend: price,
-                level: matchingItem.order,
-                cn: existingTotalPurchaseHistory.cn + matchingItem.cn,
-                incentivePoint:
-                  existingTotalPurchaseHistory.incentivePoint +
-                  matchingItem.incentivePoint,
-                loyaltyPoint:
-                  existingTotalPurchaseHistory.loyaltyPoint +
-                  matchingItem.loyaltyPoint,
-              },
-            });
-          } else {
-            // Create a new TotalPurchaseHistory
-            await prisma.totalPurchaseHistory.create({
-              data: {
-                userId: invoice.userId,
-                totalPurchaseId: activeTotalPurchase.id,
-                totalSpend: totalSpend,
-                level: matchingItem.order,
-                cn: matchingItem.cn,
-                incentivePoint: matchingItem.incentivePoint,
-                loyaltyPoint: matchingItem.loyaltyPoint,
-              },
-            });
-          }
+          await prisma.totalPurchaseHistory.update({
+            where: { id: existingTotalPurchaseHistory.id },
+            data: {
+              totalSpend: price,
+              level: matchingItem.order,
+              cn: existingTotalPurchaseHistory.cn + matchingItem.cn,
+              incentivePoint:
+                existingTotalPurchaseHistory.incentivePoint +
+                matchingItem.incentivePoint,
+              loyaltyPoint:
+                existingTotalPurchaseHistory.loyaltyPoint +
+                matchingItem.loyaltyPoint,
+            },
+          });
+          logger.info(`invoiceNo : ${invoice.documentNo}.`);
+          logger.info(`invoiceNo : ${invoice.totalPrice}.`);
 
           // Update the User model with the new points and cn
           await prisma.user.update({
