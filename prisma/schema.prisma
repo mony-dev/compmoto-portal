@@ -425,6 +425,7 @@ model Invoice {
   subTotal            Float
   groupDiscount       Int
   externalDocument   String?
+  checked             Boolean      @default(false)
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }

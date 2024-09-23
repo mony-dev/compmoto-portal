@@ -328,10 +328,39 @@ export default function adminOrder({ params }: { params: { id: number } }) {
   const fetchInvoices = async () => {
     try {
       const { data } = await axios.get(`/api/fetchInvoices`);
+      // setTriggerOrder(!triggerOrder)
+      // toastSuccess(t("Sync invoice successfully"));
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+
+  const processInvoices = async () => {
+    try {
+      const { data } = await axios.post(`/api/fetchHistory`);
+      // toastSuccess(t("Processed invoices successfully"));
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+  
+  const syncAndProcessInvoices = async () => {
+    try {
+      setIsSyncing(true); // Set loading state
+      // Step 1: Fetch Invoices
+      await fetchInvoices(); // Wait until this is done
+  
+      // Step 2: Process Invoices
+      await processInvoices(); // Wait until this is done
+  
+      // Step 3: Toast Success
       setTriggerOrder(!triggerOrder)
       toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
+      // Handle error for both fetch and process steps
       toastError(error.message);
+    } finally {
+      setIsSyncing(false); // Remove loading state
     }
   };
 
@@ -368,7 +397,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               onClick={async () => {
                 setIsSyncing(true); // Start loading
                 try {
-                  await fetchInvoices(); // Call the async function
+                  await syncAndProcessInvoices(); // Call the async function
                 } catch (error: any) {
                   toastError(error); // Handle the error
                 } finally {

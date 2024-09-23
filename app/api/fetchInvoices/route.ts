@@ -161,269 +161,269 @@ export async function GET(request: Request) {
             },
           });
         }
-        // Step 7: Check for active TotalPurchase and handle TotalPurchaseHistory
-        const activeTotalPurchase = await prisma.totalPurchase.findFirst({
-          where: { isActive: true },
-          include: {
-            items: true,
-          },
-        });
+        // // Step 7: Check for active TotalPurchase and handle TotalPurchaseHistory
+        // const activeTotalPurchase = await prisma.totalPurchase.findFirst({
+        //   where: { isActive: true },
+        //   include: {
+        //     items: true,
+        //   },
+        // });
 
-        if (activeTotalPurchase) {
-          // Calculate totalSpend for the user
-          const totalSpend = totalAmount; // totalAmount from your earlier calculation in Step 5
-          logger.info(`invoiceNo : ${invoiceNo}.`);
-          logger.info(`totalSpend : ${totalSpend}.`);
+        // if (activeTotalPurchase) {
+        //   // Calculate totalSpend for the user
+        //   const totalSpend = totalAmount; // totalAmount from your earlier calculation in Step 5
+        //   logger.info(`invoiceNo : ${invoiceNo}.`);
+        //   logger.info(`totalSpend : ${totalSpend}.`);
           
-          const existingTotalPurchaseHistory =
-            await prisma.totalPurchaseHistory.findFirst({
-              where: {
-                userId,
-                totalPurchaseId: activeTotalPurchase.id,
-              },
-            });
+        //   const existingTotalPurchaseHistory =
+        //     await prisma.totalPurchaseHistory.findFirst({
+        //       where: {
+        //         userId,
+        //         totalPurchaseId: activeTotalPurchase.id,
+        //       },
+        //     });
 
-          // Calculate new price for checking levels
-          const price = existingTotalPurchaseHistory
-            ? existingTotalPurchaseHistory.totalSpend + totalSpend
-            : totalSpend;
-          // Find the matching TotalPurchaseItem for the calculated price
-          const matchingItems = activeTotalPurchase.items.filter(
-            (item: any) => price >= item.totalPurchaseAmount
-          ); // Filter all items where price is greater or equal
+        //   // Calculate new price for checking levels
+        //   const price = existingTotalPurchaseHistory
+        //     ? existingTotalPurchaseHistory.totalSpend + totalSpend
+        //     : totalSpend;
+        //   // Find the matching TotalPurchaseItem for the calculated price
+        //   const matchingItems = activeTotalPurchase.items.filter(
+        //     (item: any) => price >= item.totalPurchaseAmount
+        //   ); // Filter all items where price is greater or equal
 
-          // Get the item with the highest order
-          const matchingItem =
-            matchingItems.length > 0
-              ? matchingItems.reduce((prev, curr) =>
-                  prev.order > curr.order ? prev : curr
-                )
-              : null;
+        //   // Get the item with the highest order
+        //   const matchingItem =
+        //     matchingItems.length > 0
+        //       ? matchingItems.reduce((prev, curr) =>
+        //           prev.order > curr.order ? prev : curr
+        //         )
+        //       : null;
 
-          if (matchingItem) {
-            logger.info(`matchingItem`);
-            if (existingTotalPurchaseHistory) {
-              logger.info(`existingTotalPurchaseHistory : ${existingTotalPurchaseHistory}.`);
-              // Update the existing TotalPurchaseHistory
-              logger.info(`updated from userId => ${userId} and invoice ${invoiceNo} : ${price}.`);
-              await prisma.totalPurchaseHistory.update({
-                where: { id: existingTotalPurchaseHistory.id },
-                data: {
-                  totalSpend: price,
-                  level: matchingItem.order,
-                  cn: existingTotalPurchaseHistory.cn + matchingItem.cn,
-                  incentivePoint:
-                    existingTotalPurchaseHistory.incentivePoint +
-                    matchingItem.incentivePoint,
-                  loyaltyPoint:
-                    existingTotalPurchaseHistory.loyaltyPoint +
-                    matchingItem.loyaltyPoint,
-                },
-              });
-            } else {
-              // Create a new TotalPurchaseHistory
-              logger.info(`existingTotalPurchaseHistory : ${existingTotalPurchaseHistory}.`);
-              logger.info(`first create from userId => ${userId} and invoice ${invoiceNo} : ${price}.`);
-              await prisma.totalPurchaseHistory.create({
-                data: {
-                  userId,
-                  totalPurchaseId: activeTotalPurchase.id,
-                  totalSpend: totalSpend,
-                  level: matchingItem.order,
-                  cn: matchingItem.cn,
-                  incentivePoint: matchingItem.incentivePoint,
-                  loyaltyPoint: matchingItem.loyaltyPoint,
-                },
-              });
-            }
+        //   if (matchingItem) {
+        //     logger.info(`matchingItem`);
+        //     if (existingTotalPurchaseHistory) {
+        //       logger.info(`existingTotalPurchaseHistory : ${existingTotalPurchaseHistory}.`);
+        //       // Update the existing TotalPurchaseHistory
+        //       logger.info(`updated from userId => ${userId} and invoice ${invoiceNo} : ${price}.`);
+        //       await prisma.totalPurchaseHistory.update({
+        //         where: { id: existingTotalPurchaseHistory.id },
+        //         data: {
+        //           totalSpend: price,
+        //           level: matchingItem.order,
+        //           cn: existingTotalPurchaseHistory.cn + matchingItem.cn,
+        //           incentivePoint:
+        //             existingTotalPurchaseHistory.incentivePoint +
+        //             matchingItem.incentivePoint,
+        //           loyaltyPoint:
+        //             existingTotalPurchaseHistory.loyaltyPoint +
+        //             matchingItem.loyaltyPoint,
+        //         },
+        //       });
+        //     } else {
+        //       // Create a new TotalPurchaseHistory
+        //       logger.info(`existingTotalPurchaseHistory : ${existingTotalPurchaseHistory}.`);
+        //       logger.info(`first create from userId => ${userId} and invoice ${invoiceNo} : ${price}.`);
+        //       await prisma.totalPurchaseHistory.create({
+        //         data: {
+        //           userId,
+        //           totalPurchaseId: activeTotalPurchase.id,
+        //           totalSpend: totalSpend,
+        //           level: matchingItem.order,
+        //           cn: matchingItem.cn,
+        //           incentivePoint: matchingItem.incentivePoint,
+        //           loyaltyPoint: matchingItem.loyaltyPoint,
+        //         },
+        //       });
+        //     }
 
-            // Update the User model with the new points and cn
-            await prisma.user.update({
-              where: { id: userId },
-              data: {
-                cn: { increment: matchingItem.cn },
-                rewardPoint: { increment: matchingItem.incentivePoint },
-                loyaltyPoint: { increment: matchingItem.loyaltyPoint },
-              },
-            });
-          }
-        }
+        //     // Update the User model with the new points and cn
+        //     await prisma.user.update({
+        //       where: { id: userId },
+        //       data: {
+        //         cn: { increment: matchingItem.cn },
+        //         rewardPoint: { increment: matchingItem.incentivePoint },
+        //         loyaltyPoint: { increment: matchingItem.loyaltyPoint },
+        //       },
+        //     });
+        //   }
+        // }
 
-        // Step 8: Check for active SpecialBonus and handle SpecialBonusHistory
-        const activeSpecialBonus = await prisma.specialBonus.findFirst({
-          where: { isActive: true },
-          include: {
-            items: true, // Include related SpecialBonusItems
-          },
-        });
+        // // Step 8: Check for active SpecialBonus and handle SpecialBonusHistory
+        // const activeSpecialBonus = await prisma.specialBonus.findFirst({
+        //   where: { isActive: true },
+        //   include: {
+        //     items: true, // Include related SpecialBonusItems
+        //   },
+        // });
 
-        if (activeSpecialBonus) {
-          let  existingSpecialBonusHistory =
-            await prisma.specialBonusHistory.findFirst({
-              where: {
-                userId,
-                specialBonusId: activeSpecialBonus.id,
-              },
-            });
+        // if (activeSpecialBonus) {
+        //   let  existingSpecialBonusHistory =
+        //     await prisma.specialBonusHistory.findFirst({
+        //       where: {
+        //         userId,
+        //         specialBonusId: activeSpecialBonus.id,
+        //       },
+        //     });
      
-            // If not found, initialize a new entry
-          if (!existingSpecialBonusHistory) {
-            existingSpecialBonusHistory = await prisma.specialBonusHistory.create({
-              data: {
-                userId,
-                specialBonusId: activeSpecialBonus.id,
-                totalSpend: [], // Initialize empty spend data
-                cn: 0,
-                incentivePoint: 0,
-              },
-            });
-          }
-          let totalSpend = existingSpecialBonusHistory
-            ? existingSpecialBonusHistory.totalSpend
-            : [];
+        //     // If not found, initialize a new entry
+        //   if (!existingSpecialBonusHistory) {
+        //     existingSpecialBonusHistory = await prisma.specialBonusHistory.create({
+        //       data: {
+        //         userId,
+        //         specialBonusId: activeSpecialBonus.id,
+        //         totalSpend: [], // Initialize empty spend data
+        //         cn: 0,
+        //         incentivePoint: 0,
+        //       },
+        //     });
+        //   }
+        //   let totalSpend = existingSpecialBonusHistory
+        //     ? existingSpecialBonusHistory.totalSpend
+        //     : [];
 
-          // Check if totalSpend is an array before continuing
-          if (Array.isArray(totalSpend)) {
-            const findNewInvoice = await prisma.invoice.findFirst({
-              where: { id: newInvoice.id },
-              include: {
-                items: {
-                  include: {
-                    product: true,
-                  },
-                },
-              },
-            });
-            if (findNewInvoice) {
-              for (const invoice of findNewInvoice.items) {
-                const invoiceItems = invoice; // Define invoiceItems properly
+        //   // Check if totalSpend is an array before continuing
+        //   if (Array.isArray(totalSpend)) {
+        //     const findNewInvoice = await prisma.invoice.findFirst({
+        //       where: { id: newInvoice.id },
+        //       include: {
+        //         items: {
+        //           include: {
+        //             product: true,
+        //           },
+        //         },
+        //       },
+        //     });
+        //     if (findNewInvoice) {
+        //       for (const invoice of findNewInvoice.items) {
+        //         const invoiceItems = invoice; // Define invoiceItems properly
 
-                const product = invoiceItems.productId; // Assuming invoiceItem has product information
-                const brandId = invoiceItems.product.brandId;
+        //         const product = invoiceItems.productId; // Assuming invoiceItem has product information
+        //         const brandId = invoiceItems.product.brandId;
 
-                // Find the matching specialBonusItem for the product's brandId
-                const matchingBonusItem = activeSpecialBonus.items.filter(
-                  (bonusItem) => bonusItem.brandId === brandId
-                );
+        //         // Find the matching specialBonusItem for the product's brandId
+        //         const matchingBonusItem = activeSpecialBonus.items.filter(
+        //           (bonusItem) => bonusItem.brandId === brandId
+        //         );
 
-                //        // Find the matching TotalPurchaseItem for the calculated price
-                //     const total = invoiceItems.price; // Calculate total for the current product
-                //     logger.info(`total ${total}.`);
-                //   const matchingItems = matchingBonusItem.filter((item: any) => total >= item.totalPurchaseAmount); // Filter all items where price is greater or equal
-                //   logger.info(`matchingItems ${matchingItems}.`);
+        //         //        // Find the matching TotalPurchaseItem for the calculated price
+        //         //     const total = invoiceItems.price; // Calculate total for the current product
+        //         //     logger.info(`total ${total}.`);
+        //         //   const matchingItems = matchingBonusItem.filter((item: any) => total >= item.totalPurchaseAmount); // Filter all items where price is greater or equal
+        //         //   logger.info(`matchingItems ${matchingItems}.`);
 
-                // // Get the item with the highest order
-                // const matchingItem = matchingItems.length > 0
-                //   ? matchingItems.reduce((prev, curr) => (prev.order > curr.order ? prev : curr))
-                //   : null;
-                //     logger.info(`matchingItem ${matchingItem}.`);
+        //         // // Get the item with the highest order
+        //         // const matchingItem = matchingItems.length > 0
+        //         //   ? matchingItems.reduce((prev, curr) => (prev.order > curr.order ? prev : curr))
+        //         //   : null;
+        //         //     logger.info(`matchingItem ${matchingItem}.`);
 
-                if (matchingBonusItem) {
-                  // Find if the brandId already exists in totalSpend
-                  let brandTotalEntry = (totalSpend as Array<any>).find(
-                    (entry) => entry.brandId === brandId
-                  );
-                  const total = invoiceItems.price;
+        //         if (matchingBonusItem) {
+        //           // Find if the brandId already exists in totalSpend
+        //           let brandTotalEntry = (totalSpend as Array<any>).find(
+        //             (entry) => entry.brandId === brandId
+        //           );
+        //           const total = invoiceItems.price;
 
-                  // Check if the brandId already exists in totalSpend JSON
-                  let matchingItemCn = 0;
-                  let matchingItemIncentivePoint = 0;
+        //           // Check if the brandId already exists in totalSpend JSON
+        //           let matchingItemCn = 0;
+        //           let matchingItemIncentivePoint = 0;
 
-                  if (brandTotalEntry) {
-                    // Update the existing total and level
-                    brandTotalEntry.total += total;
-                    const matchingItems = matchingBonusItem.filter(
-                      (item: any) =>
-                        brandTotalEntry.total >= item.totalPurchaseAmount
-                    ); // Filter all items where price is greater or equal
+        //           if (brandTotalEntry) {
+        //             // Update the existing total and level
+        //             brandTotalEntry.total += total;
+        //             const matchingItems = matchingBonusItem.filter(
+        //               (item: any) =>
+        //                 brandTotalEntry.total >= item.totalPurchaseAmount
+        //             ); // Filter all items where price is greater or equal
 
-                    // Get the item with the highest order
-                    const matchingItem =
-                      matchingItems.length > 0
-                        ? matchingItems.reduce((prev, curr) =>
-                            prev.order > curr.order ? prev : curr
-                          )
-                        : null;
-                    brandTotalEntry.level = matchingItem?.order;
-                    matchingItemCn = matchingItem?.cn || 0;
-                    matchingItemIncentivePoint =
-                      matchingItem?.incentivePoint || 0;
-                  } else {
-                    // Add a new entry to totalSpend for this brandId
-                    const matchingItems = matchingBonusItem.filter(
-                      (item: any) => total >= item.totalPurchaseAmount
-                    ); // Filter all items where price is greater or equal
-                    // Get the item with the highest order
-                    const matchingItem =
-                      matchingItems.length > 0
-                        ? matchingItems.reduce((prev, curr) =>
-                            prev.order > curr.order ? prev : curr
-                          )
-                        : null;
-                    (totalSpend as Array<any>).push({
-                      brandId: brandId,
-                      total: total,
-                      level: matchingItem?.order,
-                    });
-                    matchingItemCn = matchingItem?.cn || 0;
-                    matchingItemIncentivePoint =
-                      matchingItem?.incentivePoint || 0;
-                  }
+        //             // Get the item with the highest order
+        //             const matchingItem =
+        //               matchingItems.length > 0
+        //                 ? matchingItems.reduce((prev, curr) =>
+        //                     prev.order > curr.order ? prev : curr
+        //                   )
+        //                 : null;
+        //             brandTotalEntry.level = matchingItem?.order;
+        //             matchingItemCn = matchingItem?.cn || 0;
+        //             matchingItemIncentivePoint =
+        //               matchingItem?.incentivePoint || 0;
+        //           } else {
+        //             // Add a new entry to totalSpend for this brandId
+        //             const matchingItems = matchingBonusItem.filter(
+        //               (item: any) => total >= item.totalPurchaseAmount
+        //             ); // Filter all items where price is greater or equal
+        //             // Get the item with the highest order
+        //             const matchingItem =
+        //               matchingItems.length > 0
+        //                 ? matchingItems.reduce((prev, curr) =>
+        //                     prev.order > curr.order ? prev : curr
+        //                   )
+        //                 : null;
+        //             (totalSpend as Array<any>).push({
+        //               brandId: brandId,
+        //               total: total,
+        //               level: matchingItem?.order,
+        //             });
+        //             matchingItemCn = matchingItem?.cn || 0;
+        //             matchingItemIncentivePoint =
+        //               matchingItem?.incentivePoint || 0;
+        //           }
 
-                  // Update or create the SpecialBonusHistory record
-                  await prisma.specialBonusHistory.update({
-                    where: { id: existingSpecialBonusHistory.id },
-                    data: {
-                      totalSpend: totalSpend,
-                      cn: existingSpecialBonusHistory.cn + matchingItemCn,
-                      incentivePoint:
-                        existingSpecialBonusHistory.incentivePoint +
-                        matchingItemIncentivePoint,
-                    },
-                  });
+        //           // Update or create the SpecialBonusHistory record
+        //           await prisma.specialBonusHistory.update({
+        //             where: { id: existingSpecialBonusHistory.id },
+        //             data: {
+        //               totalSpend: totalSpend,
+        //               cn: existingSpecialBonusHistory.cn + matchingItemCn,
+        //               incentivePoint:
+        //                 existingSpecialBonusHistory.incentivePoint +
+        //                 matchingItemIncentivePoint,
+        //             },
+        //           });
 
-                  // Update the User model with reward points and cnBrand JSON
-                  const user = await prisma.user.findUnique({
-                    where: { id: userId },
-                  });
-                  if (user) {
-                    // Ensure cnBrand is an array and safely access it
-                    let cnBrand = (user.cnBrand as Prisma.JsonArray) || [];
+        //           // Update the User model with reward points and cnBrand JSON
+        //           const user = await prisma.user.findUnique({
+        //             where: { id: userId },
+        //           });
+        //           if (user) {
+        //             // Ensure cnBrand is an array and safely access it
+        //             let cnBrand = (user.cnBrand as Prisma.JsonArray) || [];
 
-                    // Check if cnBrand is an array before using .find()
-                    if (Array.isArray(cnBrand)) {
-                      const brandCnEntry = (cnBrand as Array<any>).find(
-                        (entry) => entry.brandId === brandId
-                      );
+        //             // Check if cnBrand is an array before using .find()
+        //             if (Array.isArray(cnBrand)) {
+        //               const brandCnEntry = (cnBrand as Array<any>).find(
+        //                 (entry) => entry.brandId === brandId
+        //               );
 
-                      if (brandCnEntry) {
-                        // Update the existing cn for the brandId
-                        brandCnEntry.cn += matchingItemCn;
-                      } else {
-                        // Add a new entry to cnBrand for this brandId
-                        cnBrand.push({
-                          brandId: brandId,
-                          cn: matchingItemCn,
-                        });
-                      }
+        //               if (brandCnEntry) {
+        //                 // Update the existing cn for the brandId
+        //                 brandCnEntry.cn += matchingItemCn;
+        //               } else {
+        //                 // Add a new entry to cnBrand for this brandId
+        //                 cnBrand.push({
+        //                   brandId: brandId,
+        //                   cn: matchingItemCn,
+        //                 });
+        //               }
 
-                      // Update user with new reward points and cnBrand
-                      await prisma.user.update({
-                        where: { id: userId },
-                        data: {
-                          rewardPoint: {
-                            increment: matchingItemIncentivePoint,
-                          },
-                          cnBrand: cnBrand,
-                        },
-                      });
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+        //               // Update user with new reward points and cnBrand
+        //               await prisma.user.update({
+        //                 where: { id: userId },
+        //                 data: {
+        //                   rewardPoint: {
+        //                     increment: matchingItemIncentivePoint,
+        //                   },
+        //                   cnBrand: cnBrand,
+        //                 },
+        //               });
+        //             }
+        //           }
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
       } else {
         logger.info(`Invoice ${invoiceNo} already exists. Skipping.`);
         console.log(`Invoice ${invoiceNo} already exists. Skipping.`);
