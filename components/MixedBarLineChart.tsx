@@ -410,7 +410,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
               <p className="text-comp-natural-base default-font text-lg self-center">
                 {t("all total amount")}
               </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+              <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
                 {totalAmount} {t("items")}
               </p>
             </div>
@@ -423,7 +423,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
               <p className="text-comp-natural-base default-font text-lg self-center">
                 {t("all total discount")}
               </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+              <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
                 ฿{totalDiscount.toLocaleString()}
               </p>
             </div>
@@ -436,7 +436,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
               <p className="text-comp-natural-base default-font text-lg self-center">
                 {t("all total bill")}
               </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+              <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
                 {totalBillCount} {t("items")}
               </p>
             </div>

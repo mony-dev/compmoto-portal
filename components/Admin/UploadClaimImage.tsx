@@ -19,7 +19,7 @@ type imageProps = {
   id?: number;
 };
 
-const UploadRewardImage = ({
+const UploadClaimImage = ({
   setImage,
   setFile,
   fileType,
@@ -131,4 +131,4 @@ const UploadRewardImage = ({
   );
 };
 
-export default UploadRewardImage;
+export default UploadClaimImage;

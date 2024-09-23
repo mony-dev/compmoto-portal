@@ -53,6 +53,7 @@ model User {
   minisizes             Minisize[]  @relation("UserMinisizes")
   totalPurchaseHistories  TotalPurchaseHistory[]
   SpecialBonusHistories  SpecialBonusHistory[]
+  claim               Claim[]
 
   @@index([id])
   @@map("users")
@@ -285,6 +286,7 @@ model Product {
   cartItems           CartItem[] 
   orderItems          OrderItem[] 
   invoiceItems        InvoiceItem[] 
+  claim               Claim[]
 }
 
 model Promotion {
@@ -523,4 +525,60 @@ model SpecialBonusHistory {
   totalSpend          Json
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+enum ConditionType {
+  Before  @map("before")
+  After   @map("after")
+}
+
+enum ClaimStatus {
+  InProgress  @map("inProgress")
+  Complete   @map("complete")
+  Incomplete   @map("incomplete")
+
+}
+
+model Claim {
+  id                  Int          @id @default(autoincrement())
+  userId              Int
+  user                User   @relation(fields: [userId], references: [id])
+  productId     Int
+  product       Product   @relation(fields: [productId], references: [id])
+  condition     ConditionType
+  details       String
+  claimNo       String
+  status        ClaimStatus
+  images              ImageClaim[]
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+enum ImageClaimType {
+  Image  @map("image")
+  Video   @map("video")
+}
+
+enum ImageClaimRole {
+  User  @map("user")
+  Admin   @map("admin")
+}
+
+model ImageClaim {
+  id          Int           @id @default(autoincrement())
+  claimId              Int
+  claim                Claim   @relation(fields: [claimId], references: [id])
+  url        String
+  type       ImageClaimType
+  role       ImageClaimRole
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model UserManual {
+  id          Int           @id @default(autoincrement())
+  name        String
+  content        String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
 }

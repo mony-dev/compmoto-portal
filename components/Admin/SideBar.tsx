@@ -142,14 +142,30 @@ export default function SideBar({
       openMenuId: openMenuId,
       forRole: ["USER"],
     },
+    // {
+    //   title: "เคลมสินค้า",
+    //   icon: (
+    //     <Image src={openMenuId == "claims" ? BoxRed : BoxGrey} alt="claim" />
+    //   ),
+    //   items: [
+    //     { title: "กรอกแบบฟอร์มเคลม", href: `/${locale}/admin/claims/new` },
+    //     { title: "รายการเคลมสินค้า", href: `/${locale}/admin/claims` },
+    //   ],
+    //   id: "claims",
+    //   openMenuId: openMenuId,
+    //   forRole: ["USER"],
+    // },
     {
       title: "เคลมสินค้า",
-      icon: (
-        <Image src={openMenuId == "claims" ? BoxRed : BoxGrey} alt="claim" />
-      ),
+      icon:
+        openMenuId == "claims" || pathname == `/${locale}/admin/claims` || pathname == `/${locale}/admin/claim/new`  || pathname.includes("claim") ? (
+          <Image src={BoxRed} alt="claim" />
+        ) : (
+          <Image src={BoxGrey} alt="claim" />
+        ),
       items: [
-        { title: "กรอกแบบฟอร์มเคลม", href: `/${locale}/admin/new-claim` },
-        { title: "รายการเคลมสินค้า", href: `/${locale}/admin/claim-list` },
+        { title: "กรอกแบบฟอร์มเคลม", href: `/${locale}/admin/claim/new` },
+        { title: "รายการเคลมสินค้า", href: `/${locale}/admin/claims` },
       ],
       id: "claims",
       openMenuId: openMenuId,
