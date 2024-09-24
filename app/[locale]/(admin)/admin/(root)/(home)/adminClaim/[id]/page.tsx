@@ -1,7 +1,13 @@
 "use client";
 import dynamic from "next/dynamic";
-import { ChevronRightIcon, EyeIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronRightIcon,
+  EyeIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import { toastError, toastSuccess } from "@lib-utils/helper";
 import { Image, Col, Form, Input, Radio, Row, Select, Tag, Button } from "antd";
+import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,12 +20,21 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import TextArea from "antd/es/input/TextArea";
 import { zodResolver } from "@hookform/resolvers/zod";
 const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 import NoVideo from "@public/images/no_video.png";
 import {
   adminClaimSchema,
   AdminClaimSchema,
 } from "@lib-schemas/user/admin-claim-schema";
+import UploadRewardImage from "@components/Admin/UploadRewardImage";
+import { useSession } from "next-auth/react";
 import { ImageClaimRole, ImageClaimType } from "@prisma/client";
+
+interface ImageClaim {
+  type: ImageClaimType;
+  role: ImageClaimRole;
+  url: string;
+}
 
 export default function adminClaim({ params }: { params: { id: number } }) {
   const [reData, setReData] = useState<ClaimDataType>();
@@ -30,10 +45,19 @@ export default function adminClaim({ params }: { params: { id: number } }) {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [image, setImage] = useState<string | { url: string }[]>([]);
+  const { data: session, status } = useSession();
   const [file, setFile] = useState<string>();
   const [fileName, setFileName] = useState<string>();
 
-  const { setValue: setValue } = useForm<AdminClaimSchema>({
+  const router = useRouter();
+  const { Option } = Select;
+
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue: setValue,
+  } = useForm<AdminClaimSchema>({
     resolver: zodResolver(adminClaimSchema),
   });
   const [visiblePreviewIndex, setVisiblePreviewIndex] = useState<number | null>(
@@ -72,6 +96,17 @@ export default function adminClaim({ params }: { params: { id: number } }) {
     lv2Name: string;
     lv3Name: string;
   }
+
+  //   useEffect(() => {
+  //     let effFile = ""
+  //     let effImage:any = ""
+  //     if (file) {
+  //       effFile = file
+  //     }
+
+  //     setValue("imageClaims", effFile);
+  //     // mode == "EDIT" &&  trigger(["file", "image"]);
+  //   }, [file]);
   useEffect(() => {
     setLoading(true);
     const parts = pathname.split("/");
@@ -126,6 +161,42 @@ export default function adminClaim({ params }: { params: { id: number } }) {
     setVisiblePreviewIndex(index);
   };
 
+  const transformImageArray = (imageArray: any): ImageClaim => {
+    return {
+      type: ImageClaimType.File,
+      role: ImageClaimRole.Admin, // Setting the role as user
+      url: file || "",
+    };
+  };
+  const onFinish: SubmitHandler<AdminClaimSchema> = async (values) => {
+    if (!file) {
+      toastError(t("File of the damage is required"));
+      return;
+    }
+
+    const imageClaims: ImageClaim = transformImageArray(file);
+    const response = await axios
+      .put(
+        `/api/claim/${params.id}`,
+        {
+          images: imageClaims,
+          ...values,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        toastSuccess("Claim updated successfully");
+        router.replace(`/${locale}/admin/adminClaim`);
+      })
+      .catch((error) => {
+        toastError(error);
+      });
+  };
+
   if (loading || !t) {
     return <Loading />;
   }
@@ -136,7 +207,7 @@ export default function adminClaim({ params }: { params: { id: number } }) {
         <div className="text-lg pb-4 default-font flex">
           <Link
             className="text-comp-sub-header"
-            href={`/${locale}/admin/claims`}
+            href={`/${locale}/admin/adminClaim`}
           >
             {t("Claim list")}
           </Link>{" "}
@@ -156,7 +227,7 @@ export default function adminClaim({ params }: { params: { id: number } }) {
             <p className="gotham-font text-[#919FAF] text-sm">
               #{reData?.claimNo}
             </p>
-            {file && (
+            {reData?.status !== "InProgress" && file && (
               <div className="gotham-font text-[#919FAF] text-base file-box p-2 flex justify-between gap-8 my-4">
                 <p>{fileName}</p>
                 <Link
@@ -439,43 +510,136 @@ export default function adminClaim({ params }: { params: { id: number } }) {
             )}
           </div>
         </div>
-        {reData?.status !== "InProgress" && (
-          <Form
-            form={form}
-            name="claim_form"
-            layout="horizontal"
-            className="grow pr-12"
-          >
-            <div className="grid grid-cols-6 gap-4">
-              <div className="col-start-1 col-span-4">
-                <div className="text-lg pb-4 default-font flex gap-4">
-                  <p className="text-xl	default-font font-semibold text-black">
-                    {t("claim_details")}
-                  </p>
-                </div>
 
-                <Row gutter={[8, 8]} className="claim_form pt-4">
-                  <Col span={24}>
-                    <TextArea
-                      placeholder={t("please_specify_details")}
-                      autoSize={{ minRows: 10, maxRows: 10 }}
-                      disabled={true}
-                      value={reData?.statusMessage}
+        <Form
+          form={form}
+          name="claim_form"
+          onFinish={handleSubmit(onFinish)}
+          layout="horizontal"
+          className="grow pr-12"
+        >
+          <div className="grid grid-cols-6 gap-4">
+            <div className="col-start-1 col-span-4">
+              <div className="text-lg pb-4 default-font flex gap-4">
+                <p className="text-xl	default-font font-semibold text-black">
+                  {t("claim_details")}
+                </p>
+              </div>
+
+              <Row gutter={[8, 8]} className="claim_form pt-4">
+                <Col span={24}>
+                  <Form.Item
+                    name="statusMessage"
+                    label={false}
+                    className="switch-backend basis-1/2"
+                    hasFeedback
+                    required
+                    tooltip={t("this_is_a_required_field")}
+                    help={errors.statusMessage && t("please_specify_details")}
+                    validateStatus={errors.statusMessage ? "error" : "success"}
+                  >
+                    <Controller
+                      control={control}
+                      name="statusMessage"
+                      render={({ field }) => (
+                        <TextArea
+                          {...field}
+                          placeholder={t("please_specify_details")}
+                          autoSize={{ minRows: 10, maxRows: 10 }}
+                          disabled={reData?.status !== "InProgress"}
+                        />
+                      )}
                     />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <div className="sec2 basis-6/12">
+                <Row gutter={[16, 8]}>
+                  <Col span={24}>
+                    <hr className="my-8 hr-spacing"></hr>
                   </Col>
                 </Row>
-
-                <div className="sec2 basis-6/12">
-                  <Row gutter={[16, 8]}>
-                    <Col span={24}>
-                      <hr className="my-8 hr-spacing"></hr>
-                    </Col>
-                  </Row>
-                </div>
+                {reData?.status === "InProgress" || session?.user.role === 'CLAIM' && (
+                  <>
+                    <Row gutter={[8, 8]} className="claim_form pt-4">
+                      <Col span={24}>
+                        <Form.Item
+                          name="imageClaims"
+                          label={t("Upload Claim File")}
+                        >
+                          <Controller
+                            control={control}
+                            name="imageClaims"
+                            render={({ field }) => (
+                              <UploadRewardImage
+                                setFile={setFile}
+                                fileType="auto"
+                                allowType={["pdf"]}
+                                initialImage={file}
+                                multiple={false}
+                              />
+                            )}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Row gutter={[8, 8]} className="claim_form pt-4">
+                      <Col span={24}>
+                        <Form.Item
+                          name="status"
+                          label={t("status")}
+                          required
+                          help={
+                            errors.imageClaims &&
+                            t("Please select claim status")
+                          }
+                          hasFeedback
+                          validateStatus={errors.status ? "error" : "success"}
+                        >
+                          <Controller
+                            control={control}
+                            name="status"
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                placeholder={t("select_a_status")}
+                                size="large"
+                              >
+                                <Option value="InProgress">
+                                  {t("inprogress")}
+                                </Option>
+                                <Option value="Complete">
+                                  {t("complete")}
+                                </Option>
+                                <Option value="Incomplete">
+                                  {t("incomplete")}
+                                </Option>
+                              </Select>
+                            )}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </>
+                )}
               </div>
             </div>
-          </Form>
-        )}
+          </div>
+          <div className="flex justify-center gap-4 pt-4">
+            {reData?.status === "InProgress" || session?.user.role === 'CLAIM' && (
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="bg-[#0C8CE9] text-white default-font text-base p-4"
+                >
+                  {t("save")}
+                </Button>
+              </Form.Item>
+            )}
+          </div>
+        </Form>
       </div>
 
       <div
@@ -505,6 +669,281 @@ export default function adminClaim({ params }: { params: { id: number } }) {
             </p>
           </div>
         </div>
+        {/* <Form
+          form={form}
+          name="claim_form"
+        //   onFinish={handleSubmit(onFinish)}
+          layout="horizontal"
+          className="grow pr-12"
+        >
+         
+            <div className="grid grid-cols-6 gap-4">
+                <div className="col-start-2 col-span-4">
+                <div className="text-lg pb-4 default-font flex gap-4">
+                    <svg
+                    width="50"
+                    height="50"
+                    viewBox="0 0 50 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    >
+                    <path
+                        d="M33.7295 4.1665H16.2712C8.68783 4.1665 4.16699 8.68734 4.16699 16.2707V33.7082C4.16699 41.3123 8.68783 45.8332 16.2712 45.8332H33.7087C41.292 45.8332 45.8128 41.3123 45.8128 33.729V16.2707C45.8337 8.68734 41.3128 4.1665 33.7295 4.1665ZM35.417 35.9373H14.5837C13.7295 35.9373 13.0212 35.229 13.0212 34.3748C13.0212 33.5207 13.7295 32.8123 14.5837 32.8123H35.417C36.2712 32.8123 36.9795 33.5207 36.9795 34.3748C36.9795 35.229 36.2712 35.9373 35.417 35.9373ZM35.417 26.5623H14.5837C13.7295 26.5623 13.0212 25.854 13.0212 24.9998C13.0212 24.1457 13.7295 23.4373 14.5837 23.4373H35.417C36.2712 23.4373 36.9795 24.1457 36.9795 24.9998C36.9795 25.854 36.2712 26.5623 35.417 26.5623ZM35.417 17.1873H14.5837C13.7295 17.1873 13.0212 16.479 13.0212 15.6248C13.0212 14.7707 13.7295 14.0623 14.5837 14.0623H35.417C36.2712 14.0623 36.9795 14.7707 36.9795 15.6248C36.9795 16.479 36.2712 17.1873 35.417 17.1873Z"
+                        fill="#292D32"
+                    />
+                    </svg>
+                    <div>
+                    <p className="text-xl	default-font font-semibold text-black">
+                        {t("product_details")}
+                    </p>
+                    <p className="default-font text-base text-[#919FAF]">
+                        {t("Please provide details of the damaged product")}
+                    </p>
+                    </div>
+                </div>
+                <Row gutter={[16, 8]} className="claim_form">
+                    <Col span={3} className="disable-label">
+                    {" "}
+                    <label>{t("CustNo")}</label>
+                    </Col>
+                    <Col span={3} className="disable-input">
+                    <Input
+                        name="CustNo"
+                        value={reData?.user.custNo ?? ""}
+                        disabled
+                        className="mt-2"
+                        size="large"
+                    />
+                    </Col>
+                    <Col span={4} className="disable-label">
+                    {" "}
+                    <label>{t("CustName")}</label>
+                    </Col>
+                    <Col span={8} className="disable-input">
+                    <Input
+                        name="CustName"
+                        value={reData?.user.contactName ?? ""}
+                        disabled
+                        className="mt-2"
+                        size="large"
+                    />
+                    </Col>
+                </Row>
+                <Row gutter={[8, 8]} className="claim_form pt-4">
+                    <Col span={24}>
+                    <Form.Item
+                        name="productId"
+                        label={t("product")}
+                        className="switch-backend basis-1/2"
+                    >
+                        <Controller
+                        control={control}
+                        name="productId"
+                        render={({ field }) => (
+                            <Input
+                            name="productId"
+                            value={reData?.product.name ?? ""}
+                            disabled
+                            className="mt-2"
+                            size="large"
+                        />
+                        )}
+                        />
+                    </Form.Item>
+                    </Col>
+                </Row>
+                
+                <Row gutter={[16, 8]} className="claim_form">
+                    <Col span={3} className="disable-label">
+                    {" "}
+                    <label>{t("brand")}</label>
+                    </Col>
+                    <Col span={3} className="disable-input">
+                    <Input
+                        name="brand"
+                        value={reData?.product.brand.name ?? ""}
+                        disabled
+                        className="mt-2"
+                        size="large"
+                    />
+                    </Col>
+                    <Col span={3} className="disable-label">
+                    {" "}
+                    <label>{t("category")}</label>
+                    </Col>
+                    <Col span={3} className="disable-input">
+                    <Input
+                        name="category"
+                        value={reData?.lv1Name ?? ""}
+                        disabled
+                        className="mt-2"
+                        size="large"
+                    />
+                    </Col>
+                    <Col span={3} className="disable-label">
+                    {" "}
+                    <label>{t("model")}</label>
+                    </Col>
+                    <Col span={3} className="disable-input">
+                    <Input
+                        name="model"
+                        value={reData?.lv2Name ?? ""}
+                        disabled
+                        className="mt-2"
+                        size="large"
+                    />
+                    </Col>
+                    <Col span={3} className="disable-label">
+                    {" "}
+                    <label>{t("size")}</label>
+                    </Col>
+                    <Col span={3} className="disable-input">
+                    <Input
+                        name="size"
+                        value={reData?.lv3Name ?? ""}
+                        disabled
+                        className="mt-2"
+                        size="large"
+                    />
+                    </Col>
+                </Row>
+                <Row gutter={[16, 8]}>
+                    <Col span={24}>
+                    <hr className="my-8 hr-spacing"></hr>
+                    </Col>
+                </Row>
+
+                <Row gutter={[16, 8]}>
+                    <Col span={12} className="disable-label">
+                    <label className="default-font text-[#919FAF]">
+                        {t("condition")}
+                    </label>
+                    <p className="text-xs	default-font text-[#919FAF]">
+                        {t("The time of the product damage")}
+                    </p>
+                    </Col>
+                    <Col span={12} className="disable-input text-end">
+                    <Controller
+                        control={control}
+                        name="condition"
+                        defaultValue="Before" // Set this default value inside the Controller
+                        render={({ field }) => (
+                        <Radio.Group
+                            {...field}
+                            buttonStyle="solid"
+                            //   disabled={true}
+                            value={reData?.condition}
+                        >
+                            <Radio.Button value="Before" checked={reData?.condition === "Before"} className="default-font">
+                            {t("before")}
+                            </Radio.Button>
+                            <Radio.Button value="After"  checked={reData?.condition === "After"} className="default-font">
+                            {t("after")}
+                            </Radio.Button>
+                        </Radio.Group>
+                        )}
+                    />
+                    </Col>
+                </Row>
+                <Row gutter={[8, 8]} className="claim_form pt-4">
+                    <Col span={24}>
+                    <Form.Item
+                        name="details"
+                        label={t("details")}
+                        className="switch-backend basis-1/2"
+                    >
+                        <Controller
+                        control={control}
+                        name="details"
+                        render={({ field }) => (
+                            <TextArea
+                            {...field}
+                            value={reData?.details}
+                            placeholder={t("please_specify_details")}
+                            autoSize={{ minRows: 10, maxRows: 10 }}
+                            disabled={true}
+                            />
+                        )}
+                        />
+                    </Form.Item>
+                    </Col>
+                </Row>
+                <div className="sec2 basis-6/12">
+                    <Row gutter={[16, 8]}>
+                    <Col span={24}>
+                        <hr className="my-8 hr-spacing"></hr>
+                    </Col>
+                    </Row>
+
+                    <div className="flex flex-wrap">
+                    {Array.isArray(reData?.images) &&
+                        reData?.images.map((albumItem, index) => {
+                        const isImage = ["jpg", "png", "jpeg"].some((ext) =>
+                            albumItem.url.includes(ext)
+                        );
+
+                        return (
+                            <div key={index} className="m-2">
+                            {isImage ? (
+                                <Image
+                                className="border border-comp-gray-layout rounded-xl"
+                                alt="claim"
+                                width={80}
+                                height={80}
+                                src={albumItem.url}
+                                preview={{
+                                    visible: visiblePreviewIndex === index, // Show preview based on index
+                                    onVisibleChange: (vis) => {
+                                    if (!vis) handleClosePreview(); // Close preview when visibility changes to false
+                                    },
+                                    mask: (
+                                    <>
+                                        <EyeIcon
+                                        className="w-6"
+                                        style={{ color: "white" }}
+                                        onClick={() => handlePreview(index)}
+                                        />
+                                    </>
+                                    ),
+                                }}
+                                />
+                            ) : (
+                                <Image
+                                alt="claim"
+                                width={80}
+                                height={80}
+                                preview={{
+                                    destroyOnClose: true,
+                                    imageRender: () => (
+                                    <video
+                                        muted
+                                        width="100%"
+                                        controls
+                                        src={albumItem.url}
+                                    />
+                                    ),
+                                    toolbarRender: () => null,
+                                    mask: (
+                                    <>
+                                        <EyeIcon
+                                        className="w-6"
+                                        style={{ color: "white" }}
+                                        onClick={() => handlePreview(index)}
+                                        />
+                                    </>
+                                    ),
+                                }}
+                                src={NoVideo.src}
+                                />
+                            )}
+                            </div>
+                        );
+                        })}
+                    </div>
+                </div>
+                </div>
+            </div>
+        </Form> */}
       </div>
       <div
         className="py-8 pl-8 rounded-lg flex flex-col bg-white mt-4"

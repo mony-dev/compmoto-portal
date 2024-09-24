@@ -142,19 +142,6 @@ export default function SideBar({
       openMenuId: openMenuId,
       forRole: ["USER"],
     },
-    // {
-    //   title: "เคลมสินค้า",
-    //   icon: (
-    //     <Image src={openMenuId == "claims" ? BoxRed : BoxGrey} alt="claim" />
-    //   ),
-    //   items: [
-    //     { title: "กรอกแบบฟอร์มเคลม", href: `/${locale}/admin/claims/new` },
-    //     { title: "รายการเคลมสินค้า", href: `/${locale}/admin/claims` },
-    //   ],
-    //   id: "claims",
-    //   openMenuId: openMenuId,
-    //   forRole: ["USER"],
-    // },
     {
       title: "เคลมสินค้า",
       icon:
@@ -180,11 +167,10 @@ export default function SideBar({
         />
       ),
       href: `/${locale}/admin/user-manuals`,
-      id: "manual",
+      id: "user-manuals",
       openMenuId: openMenuId,
       forRole: ["USER"],
     },
-
     {
       title: "จัดการผู้ใช้งาน",
       icon:
@@ -329,12 +315,12 @@ export default function SideBar({
       title: "จัดการคู่มือการใช้งาน",
       icon: (
         <Image
-          src={pathname == `` ? BookRed : BookGrey}
+          src={pathname == `/${locale}/admin/adminUserManual` ? BookRed : BookGrey}
           alt="Grid Red"
         />
       ),
-      href: ``,
-      id: "adminUserManual",
+      href: `/${locale}/admin/adminUserManual`,
+      id: "dashboard",
       openMenuId: openMenuId,
       forRole: ["ADMIN"],
     },
@@ -342,11 +328,13 @@ export default function SideBar({
       title: "จัดการเคลมสินค้า",
       icon: (
         <Image
-          src={pathname == `` ? BookRed : BookGrey}
-          alt="Grid Red"
+          src={openMenuId == "adminClaim" || pathname == `/${locale}/admin/adminClaim` ? BoxRed : BoxGrey}
+          alt="adminClaim"
         />
-      ),
-      href: ``,
+      ), 
+      items: [
+        { title: "รายการเคลมสินค้า", href: `/${locale}/admin/adminClaim` },
+      ],
       id: "adminClaim",
       openMenuId: openMenuId,
       forRole: ["CLAIM"],

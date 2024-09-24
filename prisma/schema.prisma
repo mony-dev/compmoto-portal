@@ -550,6 +550,7 @@ model Claim {
   details       String
   claimNo       String
   status        ClaimStatus
+  statusMessage       String?
   images              ImageClaim[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
@@ -558,6 +559,7 @@ model Claim {
 enum ImageClaimType {
   Image  @map("image")
   Video   @map("video")
+  File   @map("file")
 }
 
 enum ImageClaimRole {

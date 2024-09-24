@@ -27,7 +27,13 @@
     "Claim list": "รายการเคลมสินค้า",
     "Approved request list": "รายการอนุมัติคำร้องขอ",
     "CustName": "ชื่อลูกค้า",
-    "CustNo": "รหัสลูกค้า"
-
+    "CustNo": "รหัสลูกค้า",
+    "Details of the damaged product": "รายละเอียดข้อมูลสินค้าที่ได้รับความเสียหาย",
+    "user_details": "ข้อมูลส่วนบุคคล",
+    "Details of the user": "รายละเอียดข้อมูลส่วนบุคคล",
+    "storeName": "ชื่อร้าน",
+    "phoneNumber": "เบอร์โทร",
+    "address": "ที่อยู่",
+    "claim_details": "รายละเอียดการเคลม"
 
 }

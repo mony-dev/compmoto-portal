@@ -110,9 +110,11 @@ export async function GET(request: Request) {
 
   try {
     const whereConditions: any = {};
+    const whereCount: any = {};
 
     if (userId) {
       whereConditions.userId = Number(userId);
+      whereCount.userId = Number(userId);
     }
 
     if (claimStatus !== null || claimStatus !== "") {
@@ -122,6 +124,15 @@ export async function GET(request: Request) {
 
     if (q) {
       whereConditions.OR = [
+        {
+          claimNo: {
+            contains: q,
+            mode: 'insensitive', // Case-insensitive search
+          },
+        },
+      ];
+
+      whereCount.OR = [
         {
           claimNo: {
             contains: q,
@@ -142,17 +153,7 @@ export async function GET(request: Request) {
         where: whereConditions,
       }),
       prisma.claim.findMany({
-        where: {
-          userId: Number(userId),
-          OR: q ? [
-            {
-              claimNo: {
-                contains: q, 
-                mode: 'insensitive', 
-              },
-            }
-          ] : undefined,
-        },
+        where: whereCount,
       }),
     ]);
 

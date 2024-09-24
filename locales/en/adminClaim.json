@@ -1,7 +1,15 @@
 {
+    "claimNo": "No",
+    "name": "Name",
+    "Inprogress": "In progress",
+    "complated": "Complated",
+    "inComplated": "In Complated",
+    "Claim List": "Claim List",
+    "Search": "Search",
+    "product": "Product",
+    "Date": "Date",
     "product_details": "Product Details",
     "Please provide details of the damaged product": "Please provide details of the damaged product.",
-    "product": "Product",
     "Select a product": "Select a product",
     "this_is_a_required_field": "This is a required field",
     "please_select_product": "Please select product",
@@ -34,5 +42,19 @@
     "storeName": "Store Name",
     "phoneNumber": "Phone Number",
     "address": "Address",
-    "claim_details": "Claim Details"
+    "please_input_details": "Please input details",
+    "claim_details": "Claim Details",
+    "Upload Claim File": "Upload Claim File",
+    "File of the damage is required": "File of the damage is required",
+    "Claim updated successfully": "Claim updated successfully",
+    "save": "Save",
+    "Please upload claim file": "Please upload claim file",
+    "status": "Status",
+    "Please select claim status": "Please select claim status",
+    "select_a_status": "Select a claim status",
+    "inprogress": "Inprogress",
+    "complete": "Complete",
+    "incomplete": "Incomplete",
+    "download": "Download"
+
 }

@@ -117,7 +117,6 @@ export default function AdminTotalPurchase() {
 
       if (data && data.totalPurchase) {
         // Set the basic form values
-        console.log(data.totalPurchase.month.toString());
         setSelectedMonth(data.totalPurchase.month.toString());
         setValue("month", data.totalPurchase.month.toString());
         setValue("year", data.totalPurchase.year.toString());
@@ -170,7 +169,6 @@ export default function AdminTotalPurchase() {
   }, [id]);
 
   const onFinish: SubmitHandler<TotalPurchaseSchema> = async (values) => {
-    console.log(values);
     try {
       if (id > 0) {
         const response = await fetch(`/api/adminTotalPurchase/${id}`, {

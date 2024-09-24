@@ -1,0 +1,26 @@
+{
+    "add_user_manual": "เพิ่มคู่มือการใช้งาน",
+    "edit_user_manual": "แก้ไขคู่มือการใช้งาน",
+    "are_you_sure_you_want_to_delete_this_user_manual": "คุณแน่ใจว่าต้องการลบคู่การใช้งานนี้หรือไม่",
+    "this_action_cannot_be_undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+    "yes": "ใช่",
+    "cancel": "ยกเลิก",
+    "user_manual_deleted_successfully": "คู่มือการใช้งานถูกลบเรียบร้อยแล้ว",
+    "no": "ลำดับ",
+    "name": "ชื่อ",
+    "action": "การกระทำ",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "user_manual": "คู่มือการใช้งาน",
+    "search": "ค้นหา",
+    "add": "เพิ่ม",
+    "User_manual_updated_successfully": "แก้ไขคู่มือการใช้งานเรียบร้อยแล้ว",
+    "User_manual_created_successfully": "เพิ่มคู่มือการใช้งานเรียบร้อยแล้ว",
+    "this_is_a_required_field": "ช่องที่จำเป็นต้องกรอก",
+    "content": "เนื้อหา",
+    "enter_content": "ระบุเนื้อหา",
+    "submit": "บันทึก"
+
+
+
+}

@@ -1,11 +1,44 @@
 import { NextResponse } from "next/server";
-import { OrderType, PrismaClient } from "@prisma/client";
+import { ClaimStatus, ImageClaimRole, ImageClaimType, OrderType, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-interface dataBodyInterface {
-    documentNo: string;
+function mapImageTypeToEnum(type: string): ImageClaimType {
+  switch (type.toLowerCase()) {
+    case "image":
+      return ImageClaimType.Image;
+    case "video":
+      return ImageClaimType.Video;
+    case "file":
+      return ImageClaimType.File;
+    default:
+      return ImageClaimType.Image;
+  }
 }
+function mapImageRoleToEnum(type: string): ImageClaimRole {
+  switch (type.toLowerCase()) {
+    case "user":
+      return ImageClaimRole.User;
+    case "admin":
+      return ImageClaimRole.Admin;
+    default:
+      return ImageClaimRole.User;
+  }
+}
+    // Function to map string to MediaType enum
+    function mapTypeToEnum(type: string): ClaimStatus | "" {
+      switch (type.toLowerCase()) {
+        case "inProgress":
+          return ClaimStatus.InProgress;
+        case "complete":
+          return ClaimStatus.Complete;
+        case "incomplete":
+          return ClaimStatus.Incomplete;
+        default:
+          return ClaimStatus.InProgress;// If no matching type, return undefined to exclude from filter
+      }
+    }
+  
 const tableModelMap: Record<string, keyof PrismaClient> = {
     ProductGroup: "productGroup",
     Size: "size",
@@ -22,20 +55,32 @@ export async function PUT(
 ) {
   const data = await request.json();
   const id = params.id;
-  let dataBody: dataBodyInterface = {
-    documentNo: data.documentNo
-  };
-
   try {
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prisma.claim.update({
       where: {
         id: Number(id),
       },
-      data: dataBody,
+      data: {
+        statusMessage: data.statusMessage,
+        status: data.status
+      },
+    });
+    const imageClaims = {
+      claimId: Number(id), 
+      url: data.images.url,
+      type: mapImageTypeToEnum(data.images.type), 
+      role: mapImageRoleToEnum(data.images.role), 
+    }
+    
+    await prisma.imageClaim.createMany({
+      data: imageClaims,
     });
     return NextResponse.json(updatedOrder);
   } catch (error) {
+  console.log("error", error)
+
     return NextResponse.json(error);
+
   } finally {
     await prisma.$disconnect();
   }

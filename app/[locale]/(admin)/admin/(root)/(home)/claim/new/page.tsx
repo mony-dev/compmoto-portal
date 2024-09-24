@@ -123,13 +123,11 @@ export default function Claim({ params }: { params: { id: number } }) {
   };
 
   const onFinish: SubmitHandler<ClaimSchema> = async (values) => {
-    console.log(values);
     if (image.length === 0) {
       toastError(t("Image of the damage is required"));
       return;
     }
     const imageClaims: ImageClaim[] = transformImageArray(image);
-    console.log(imageClaims)
     const response = await axios.post(
       `/api/claim`,
       {
@@ -172,7 +170,6 @@ export default function Claim({ params }: { params: { id: number } }) {
     setLoading(true);
     const parts = pathname.split("/");
     const lastPart = parts[parts.length - 2];
-    console.log("lastPart", lastPart);
     setI18nName(lastPart);
     fetchProducts();
     setLoading(false);

@@ -212,8 +212,6 @@ export default function AdminSpecialBonus() {
 
 
   const onFinish: SubmitHandler<SpecialBonusSchema> = async (values) => {
-    console.log(values)
-
     try {
       if (id > 0) {
         // Update the record if `id` exists

@@ -1,0 +1,25 @@
+{
+    "add_user_manual": "Add user manual",
+    "edit_user_manual": "Edit user manual",
+    "are_you_sure_you_want_to_delete_this_user_manual": "Are you sure you want to delete this user manual?",
+    "this_action_cannot_be_undone": "This action cannot be undone.",
+    "yes": "Yes",
+    "cancel": "Cancel",
+    "user_manual_deleted_successfully": "User manual deleted successfully",
+    "no": "No",
+    "name": "Name",
+    "action": "Action",
+    "edit": "Edit",
+    "delete": "Delete",
+    "user_manual": "User manual",
+    "search": "Search",
+    "add": "Add",
+    "User_manual_updated_successfully": "User manual updated successfully",
+    "User_manual_created_successfully": "User manual created successfully",
+    "this_is_a_required_field": "This is a required field",
+    "content": "Content",
+    "enter_content": "Enter content",
+    "submit": "Submit"
+
+
+}

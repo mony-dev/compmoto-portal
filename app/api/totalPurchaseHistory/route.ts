@@ -46,8 +46,6 @@ export async function GET(request: Request) {
         },
       }),
     ]);
-    console.log("totalPurchaseHistory", totalPurchaseHistory)
-
     if (!totalPurchaseHistory.length) {
         // If no history, fetch the active TotalPurchase and items to display them as inactive
         const totalPurchase = await prisma.totalPurchase.findMany({

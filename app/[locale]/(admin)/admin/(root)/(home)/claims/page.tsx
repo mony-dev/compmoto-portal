@@ -29,7 +29,7 @@ const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 const ModalVerify = dynamic(() => import("@components/Admin/RewardUser/ModalVerify"));
 
-export default function adminRewardOrder({
+export default function claims({
   params,
 }: {
   params: { id: number };
@@ -244,7 +244,6 @@ export default function adminRewardOrder({
   ];
 
   const fetchData = async (claimStatus: string, query: string = "") => {
-    console.log(claimStatus)
     setLoading(true);
     try {
       const { data } = await axios.get(`/api/claim`, {
@@ -271,7 +270,6 @@ export default function adminRewardOrder({
       const complete = data.claimCount.filter((item: ClaimDataType) => item.status === "Complete").length;
       const incomplete = data.claimCount.filter((item: ClaimDataType) => item.status === "Incomplete").length;
       const inprogress = data.claimCount.filter((item: ClaimDataType) => item.status === "InProgress").length;
-      console.log("inprogress", inprogress)
       setCompleteCount(complete);
       setIncompleteCount(incomplete);
       setInProgressCount(inprogress);
