@@ -18,9 +18,10 @@ import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import { CloseCircleOutlined } from "@ant-design/icons";
-import ModalManual from "@components/Admin/userManual/ModalManual";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
+const ModalManual = dynamic(() => import("@components/Admin/userManual/ModalManual"));
+
 
 export default function adminUserManual() {
   const locale = useCurrentLocale(i18nConfig);
