@@ -33,6 +33,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
     useState<totalPurchaseInterface | null>(null);
   const locale = useCurrentLocale(i18nConfig);
   const [loading, setLoading] = useState(false);
+  const [sumCn, setSumCn] = useState(0);
 
   const { t } = useTranslation();
 
@@ -45,6 +46,8 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           `/api/totalPurchaseHistory?userId=${userId}`
         );
         const history = response.data.totalPurchaseHistory[0];
+        const sumCn = response.data.sumTotalAmount
+        setSumCn(sumCn)
         if (history) {
           setTotalPurchase(history);
           const purchaseItems = history.items;
@@ -480,7 +483,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
                 >
                   ฿
                   {totalPurchase?.totalSpend
-                    ? totalPurchase?.totalSpend.toLocaleString()
+                    ?(totalPurchase?.totalSpend - sumCn).toLocaleString()
                     : 0}
                 </div>
                 <div

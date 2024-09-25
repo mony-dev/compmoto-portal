@@ -97,16 +97,6 @@ export default function adminClaim({ params }: { params: { id: number } }) {
     lv3Name: string;
   }
 
-  //   useEffect(() => {
-  //     let effFile = ""
-  //     let effImage:any = ""
-  //     if (file) {
-  //       effFile = file
-  //     }
-
-  //     setValue("imageClaims", effFile);
-  //     // mode == "EDIT" &&  trigger(["file", "image"]);
-  //   }, [file]);
   useEffect(() => {
     setLoading(true);
     const parts = pathname.split("/");
@@ -560,85 +550,90 @@ export default function adminClaim({ params }: { params: { id: number } }) {
                     <hr className="my-8 hr-spacing"></hr>
                   </Col>
                 </Row>
-                {reData?.status === "InProgress" || session?.user.role === 'CLAIM' && (
-                  <>
-                    <Row gutter={[8, 8]} className="claim_form pt-4">
-                      <Col span={24}>
-                        <Form.Item
-                          name="imageClaims"
-                          label={t("Upload Claim File")}
-                        >
-                          <Controller
-                            control={control}
+                {reData?.status === "InProgress" &&
+                  session?.user.role !== "USER" && (
+                    <>
+                      <Row gutter={[8, 8]} className="claim_form pt-4">
+                        <Col span={24}>
+                          <Form.Item
                             name="imageClaims"
-                            render={({ field }) => (
-                              <UploadRewardImage
-                                setFile={setFile}
-                                fileType="auto"
-                                allowType={["pdf"]}
-                                initialImage={file}
-                                multiple={false}
-                              />
-                            )}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 8]} className="claim_form pt-4">
-                      <Col span={24}>
-                        <Form.Item
-                          name="status"
-                          label={t("status")}
-                          required
-                          help={
-                            errors.imageClaims &&
-                            t("Please select claim status")
-                          }
-                          hasFeedback
-                          validateStatus={errors.status ? "error" : "success"}
-                        >
-                          <Controller
-                            control={control}
+                            label={t("Upload Claim File")}
+                          >
+                            <Controller
+                              control={control}
+                              name="imageClaims"
+                              render={({ field }) => (
+                                <UploadRewardImage
+                                  setFile={setFile}
+                                  fileType="auto"
+                                  allowType={["pdf"]}
+                                  initialImage={file}
+                                  multiple={false}
+                                />
+                              )}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={[8, 8]} className="claim_form pt-4">
+                        <Col span={24}>
+                          <Form.Item
                             name="status"
-                            render={({ field }) => (
-                              <Select
-                                {...field}
-                                placeholder={t("select_a_status")}
-                                size="large"
-                              >
-                                <Option value="InProgress">
-                                  {t("inprogress")}
-                                </Option>
-                                <Option value="Complete">
-                                  {t("complete")}
-                                </Option>
-                                <Option value="Incomplete">
-                                  {t("incomplete")}
-                                </Option>
-                              </Select>
-                            )}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </>
-                )}
+                            label={t("status")}
+                            required
+                            help={
+                              errors.imageClaims &&
+                              t("Please select claim status")
+                            }
+                            hasFeedback
+                            validateStatus={errors.status ? "error" : "success"}
+                          >
+                            <Controller
+                              control={control}
+                              name="status"
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  placeholder={t("select_a_status")}
+                                  size="large"
+                                >
+                                  <Option value="InProgress">
+                                    {t("inprogress")}
+                                  </Option>
+                                  <Option value="Complete">
+                                    {t("complete")}
+                                  </Option>
+                                  <Option value="Incomplete">
+                                    {t("incomplete")}
+                                  </Option>
+                                </Select>
+                              )}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </>
+                  )}
               </div>
             </div>
           </div>
-          <div className="flex justify-center gap-4 pt-4">
-            {reData?.status === "InProgress" || session?.user.role === 'CLAIM' && (
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="bg-[#0C8CE9] text-white default-font text-base p-4"
-                >
-                  {t("save")}
-                </Button>
-              </Form.Item>
-            )}
-          </div>
+          {/* <div className="flex justify-center gap-4 pt-4"> */}
+          {reData?.status === "InProgress" && session?.user.role !== "USER" && (
+            <Row gutter={[8, 8]} className="claim_form pt-4">
+              <Col span={24}>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="bg-[#0C8CE9] text-white default-font text-base p-4"
+                  >
+                    {t("save")}
+                  </Button>
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+          {/* </div> */}
         </Form>
       </div>
 

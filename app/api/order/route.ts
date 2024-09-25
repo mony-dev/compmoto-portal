@@ -17,11 +17,41 @@ export async function POST(request: Request, { body }: { body: any }) {
         documentNo: 'test'
       },
     });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(data.userId),
+      }
+    });
+    const baseUrl = 'https://portal.comp-moto.com/th/admin/';
+    const link = data.type === 'normal'
+      ? `${baseUrl}normalOrder/${createOrder.id}`
+      : `${baseUrl}backOrder/${createOrder.id}`;
+    
+    const message = `Web Portal : มีออเดอร์สั่งซื้อ จาก ${user?.custNo} \n ${link}`;
+    
+    const lineToken = process.env.LINE_ACCESS_TOKEN; 
+    await sendLineNotification(lineToken, message);
+
     return NextResponse.json(createOrder);
   } catch (error) {
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();
+  }
+}
+
+async function sendLineNotification(token: any, message: any) {
+  const response = await fetch('https://notify-api.line.me/api/notify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: new URLSearchParams({ message }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to send LINE notification');
   }
 }
 

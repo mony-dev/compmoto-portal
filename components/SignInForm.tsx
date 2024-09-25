@@ -4,19 +4,20 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import LoginLogo from "@public/images/login.jpg";
-import Image from "next/image";
+
 import "../styles/login.scss";
-import { Button, Checkbox, Form, FormProps, Input } from "antd";
+import { Button, Form, Input } from "antd";
 import {
   getSession,
   signIn,
-  SignInResponse,
-  useSession,
 } from "next-auth/react";
-import { handleAPIError, toastError, toastSuccess, toastWarning } from "@lib-utils/helper";
+import {
+  toastError,
+  toastSuccess,
+} from "@lib-utils/helper";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
 
 const SignInForm = ({ params }: { params: { locale: string } }) => {
   const router = useRouter();
@@ -79,85 +80,63 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
 
   return (
     <>
-      <div className="limiter">
-        <div className="container-login100">
-          <div className="wrap-login100">
-            <div className="login100-pic js-tilt">
-              <Image
-                className="rounded-lg w-fit	h-4/5 animate-img"
-                width={150}
-                height={30}
-                src={LoginLogo.src}
-                alt={"compmoto-login"}
-              />
-            </div>
-            <Form
-              name="basic"
-              labelCol={{
-                span: 8,
-              }}
-              wrapperCol={{
-                span: 16,
-              }}
-              style={{
-                maxWidth: 600,
-              }}
-              initialValues={{
-                remember: true,
-              }}
-              onFinish={onSubmit}
-              autoComplete="off"
-              className="login100-form validate-form"
-            >
-              <span className="login100-form-title font-bold">
-                ​ {t("member_login")}
-              </span>
-
-              <div className="wrap-input100">
-                <Form.Item<FieldType>
-                  label={t("email")}
-                  name="email"
-                  rules={[
-                    { required: true, message: t("please_input_your_email") },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
-
-              <div className="wrap-input100">
-                <Form.Item<FieldType>
-                  label={t("password")}
-                  name="password"
-                  rules={[
-                    { required: true, message: t("please_input_your_password") },
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-              </div>
-         
-              <div className="container-login100-form-btn">
-                <Button
-                  type="primary"
-                  className="login100-form-btn"
-                  htmlType="submit"
-                  loading={isLoading}
-                  disabled={isSubmitting || isLoading} 
-                >
-                  {t("submit")}
-                </Button>
-              </div>
-
-              {/* <div className="text-center p-t-12">
-                <span className="txt1">Forgot</span>
-                <a className="txt2" href="#">
-                  Username / Password?
-                </a>
-              </div> */}
-            </Form>
-          </div>
+      <div className="justify-center w-100">
+        <div className="mb-4 font-semibold text-2xl text-center">
+          <span>{t("Login to your account")}</span>
         </div>
+
+        <Form
+          className="pl-16 pr-16"
+          layout="vertical"
+          onFinish={onSubmit}
+          requiredMark={"optional"}
+        >
+          <Form.Item<FieldType>
+            name="email"
+            className="mb-2 pb-6"
+            rules={[
+              {
+                required: true,
+                message: t("please_input_your_email"),
+              },
+            ]}
+          >
+            <Input
+              style={{ backgroundColor: "#f5f6ff" }}
+              prefix={<MailOutlined />}
+              className="rounded-lg"
+              size="large"
+              placeholder={t("Email Address")}
+            />
+          </Form.Item>
+          <Form.Item<FieldType>
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: t("please_input_your_password"),
+              },
+            ]}
+          >
+            <Input.Password
+              style={{ backgroundColor: "#f5f6ff" }}
+              prefix={<LockOutlined />}
+              className="rounded-lg"
+              size="large"
+              placeholder={t("password")}
+            />
+          </Form.Item>
+
+          <Button
+            type="primary"
+            className="w-full flex items-center justify-center bg-black mt-4"
+            htmlType="submit"
+            loading={isLoading}
+            disabled={isSubmitting || isLoading}
+          >
+            {t("Login")}
+          </Button>
+        </Form>
       </div>
     </>
   );

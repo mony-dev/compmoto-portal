@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId') || '';
+  const userId = searchParams.get("userId") || "";
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "1000");
 
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
             include: {
               items: {
                 orderBy: {
-                  order: 'asc',
+                  order: "asc",
                 },
               },
             },
@@ -47,37 +47,38 @@ export async function GET(request: Request) {
       }),
     ]);
     if (!totalPurchaseHistory.length) {
-        // If no history, fetch the active TotalPurchase and items to display them as inactive
-        const totalPurchase = await prisma.totalPurchase.findMany({
-          where: {
-            isActive: true,
-          },
-          include: {
-            items: {
-              orderBy: {
-                order: 'asc',
-              },
+      // If no history, fetch the active TotalPurchase and items to display them as inactive
+      const totalPurchase = await prisma.totalPurchase.findMany({
+        where: {
+          isActive: true,
+        },
+        include: {
+          items: {
+            orderBy: {
+              order: "asc",
             },
           },
-        });
-  
-        if (!totalPurchase.length) {
-          return NextResponse.json({ totalPurchaseHistory: [], total });
-        }
-  
-        // Prepare inactive items response
-        const inactiveItems = totalPurchase[0].items.map((item) => ({
-          id: item.id,
-          totalPurchaseAmount: item.totalPurchaseAmount,
-          cn: item.cn,
-          incentivePoint: item.incentivePoint,
-          loyaltyPoint: item.loyaltyPoint,
-          order: item.order,
-          isActive: false, // Mark as inactive
-        }));
-  
-        return NextResponse.json({
-          totalPurchaseHistory: [{
+        },
+      });
+
+      if (!totalPurchase.length) {
+        return NextResponse.json({ totalPurchaseHistory: [], total });
+      }
+
+      // Prepare inactive items response
+      const inactiveItems = totalPurchase[0].items.map((item) => ({
+        id: item.id,
+        totalPurchaseAmount: item.totalPurchaseAmount,
+        cn: item.cn,
+        incentivePoint: item.incentivePoint,
+        loyaltyPoint: item.loyaltyPoint,
+        order: item.order,
+        isActive: false, // Mark as inactive
+      }));
+
+      return NextResponse.json({
+        totalPurchaseHistory: [
+          {
             id: null,
             userId: parseInt(userId),
             totalSpend: 0,
@@ -86,10 +87,11 @@ export async function GET(request: Request) {
             incentivePoint: 0,
             loyaltyPoint: 0,
             items: inactiveItems,
-          }],
-          total,
-        });
-      }
+          },
+        ],
+        total,
+      });
+    }
 
     // Prepare the response data
     const responseData = totalPurchaseHistory.map((history) => ({
@@ -110,7 +112,38 @@ export async function GET(request: Request) {
       })),
     }));
 
-    return NextResponse.json({ totalPurchaseHistory: responseData, total });
+    // Extract month and year from TotalPurchase
+    const activePurchase = await prisma.totalPurchase.findFirst({
+      where: {
+        isActive: true,
+      },
+    });
+
+    let sumTotalAmount = 0;
+    if (activePurchase) {
+      const { month, year } = activePurchase;
+      // Query MemoCredit to sum totalAmount for the extracted month and year
+      const startDate = new Date(year, month - 1, 1); // JS Date months are 0-indexed
+      const endDate = new Date(year, month, 1); // First day of next month
+
+      const memoCreditSum = await prisma.memoCredit.aggregate({
+        where: {
+          userId: parseInt(userId),
+          AND: [{ date: { gte: startDate } }, { date: { lt: endDate } }],
+        },
+        _sum: {
+          totalAmount: true,
+        },
+      });
+
+      // Add memoCreditSum to the response if it exists
+      sumTotalAmount = memoCreditSum._sum.totalAmount || 0;
+    }
+    return NextResponse.json({
+      totalPurchaseHistory: responseData,
+      total: total,
+      sumTotalAmount: sumTotalAmount,
+    });
   } catch (error) {
     return NextResponse.json(error);
   } finally {

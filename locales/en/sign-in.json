@@ -1,1 +1,11 @@
-{"email":"Email","login":"Login","member_login":"Member Login","password":"Password","please_change_password":"Please change password","please_input_your_email":"Please input your email!","please_input_your_password":"Please input your passwordl!","sign_in_successfully":"Sign in successfully"}
+{
+  "email": "Email",
+  "login": "Login",
+  "member_login": "Member Login",
+  "password": "Password",
+  "please_change_password": "Please change password",
+  "please_input_your_email": "Please input your email!",
+  "please_input_your_password": "Please input your passwordl!",
+  "sign_in_successfully": "Sign in successfully",
+  "Login to your account": "Login to your account"
+}

@@ -54,7 +54,7 @@ model User {
   totalPurchaseHistories  TotalPurchaseHistory[]
   SpecialBonusHistories  SpecialBonusHistory[]
   claim               Claim[]
-
+  memoCredit          MemoCredit[]
   @@index([id])
   @@map("users")
 }
@@ -582,6 +582,18 @@ model UserManual {
   id          Int           @id @default(autoincrement())
   name        String
   content        String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model MemoCredit {
+  id          Int           @id @default(autoincrement())
+  userId              Int
+  user                User         @relation(fields: [userId], references: [id])
+  documentNo          String
+  date                DateTime    
+  totalAmount         Int
+  amountIncludingVAT  Int
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
 }
