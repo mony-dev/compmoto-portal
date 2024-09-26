@@ -70,7 +70,8 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("0");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { cartItemCount, setCartItemCount, profileImage, setProfileImage } = useCart();
+  const { cartItemCount, setCartItemCount, profileImage, setProfileImage } =
+    useCart();
   const locale = useCurrentLocale(i18nConfig);
 
   const sidebarItems: NavBarItemProps[] = [
@@ -109,7 +110,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
     }
   }
 
-
   useEffect(() => {
     if (userData?.data?.CustPriceGroup) {
       if (userData.data.CustPriceGroup.includes("3STARS")) {
@@ -134,7 +134,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   useEffect(() => {
     if (userId) {
       fetchCartCount();
-      userData.role === 'USER' && fetchUser();
+      userData.role === "USER" && fetchUser();
     }
   }, [userId]);
 
@@ -242,32 +242,32 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
               className="inline-flex items-center text-gray-500"
               onClick={() => setDropdownVisible(!isDropdownVisible)}
             >
-              {profileImage ?  <Image
-                className="rounded-full transition duration-300 ease-in-out"
-                alt="User profile"
-                width={24}
-                height={24}
-                src={
-                  profileImage 
-                }
-              /> 
-               :  <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="text-white m-1 rounded-full"
-              width="26"
-              height="26"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-              />
-            </svg>}
-         
+              {profileImage ? (
+                <Image
+                  className="rounded-full transition duration-300 ease-in-out"
+                  alt="User profile"
+                  width={24}
+                  height={24}
+                  src={profileImage}
+                />
+              ) : (
+                   <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="text-white m-1 rounded-full"
+                  width="26"
+                  height="26"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+              )}
             </button>
             {/* <DropDownMenu options={sidebarItems} qrCode={qrCodeImage} /> */}
             {isDropdownVisible && (
@@ -277,13 +277,20 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
               >
                 <div className="pt-8 px-8 pb-2">
                   <div className="flex items-center">
-                    <Image
-                      className="rounded-lg w-fit h-4/5"
-                      alt="logo"
-                      width={50}
-                      height={30}
-                      src={AccountMock.src}
-                    />
+                    {profileImage ? 
+                        <Image
+                        className="rounded-full	 w-fit h-4/5"
+                        alt="logo"
+                        width={50}
+                        height={30}
+                        src={profileImage}
+                      />
+                      :
+                    <svg width="60" height="60" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.63091 15.4212C4.48091 14.7905 5.40691 14.2924 6.40891 13.9269C7.41074 13.5616 8.47708 13.3789 9.60791 13.3789C10.7387 13.3789 11.8051 13.5616 12.8069 13.9269C13.8089 14.2924 14.7349 14.7905 15.5849 15.4212C16.2066 14.7378 16.6992 13.9468 17.0627 13.0482C17.4262 12.1495 17.6079 11.1764 17.6079 10.1289C17.6079 7.91224 16.8287 6.02474 15.2704 4.46641C13.7121 2.90807 11.8246 2.12891 9.60791 2.12891C7.39124 2.12891 5.50374 2.90807 3.94541 4.46641C2.38708 6.02474 1.60791 7.91224 1.60791 10.1289C1.60791 11.1764 1.78966 12.1495 2.15316 13.0482C2.51666 13.9468 3.00924 14.7378 3.63091 15.4212ZM9.60816 10.8789C8.69516 10.8789 7.92524 10.5656 7.29841 9.93891C6.67141 9.31207 6.35791 8.54216 6.35791 7.62916C6.35791 6.71616 6.67124 5.94624 7.29791 5.31941C7.92474 4.69241 8.69466 4.37891 9.60766 4.37891C10.5207 4.37891 11.2906 4.69224 11.9174 5.31891C12.5444 5.94574 12.8579 6.71566 12.8579 7.62866C12.8579 8.54166 12.5446 9.31157 11.9179 9.93841C11.2911 10.5654 10.5212 10.8789 9.60816 10.8789ZM9.60791 19.6289C8.28874 19.6289 7.05124 19.3808 5.89541 18.8847C4.73958 18.3885 3.73416 17.7128 2.87916 16.8577C2.02399 16.0027 1.34833 14.9972 0.85216 13.8414C0.355994 12.6856 0.10791 11.4481 0.10791 10.1289C0.10791 8.80974 0.355994 7.57224 0.85216 6.41641C1.34833 5.26057 2.02399 4.25516 2.87916 3.40016C3.73416 2.54499 4.73958 1.86932 5.89541 1.37316C7.05124 0.87699 8.28874 0.628906 9.60791 0.628906C10.9271 0.628906 12.1646 0.87699 13.3204 1.37316C14.4762 1.86932 15.4817 2.54499 16.3367 3.40016C17.1918 4.25516 17.8675 5.26057 18.3637 6.41641C18.8598 7.57224 19.1079 8.80974 19.1079 10.1289C19.1079 11.4481 18.8598 12.6856 18.3637 13.8414C17.8675 14.9972 17.1918 16.0027 16.3367 16.8577C15.4817 17.7128 14.4762 18.3885 13.3204 18.8847C12.1646 19.3808 10.9271 19.6289 9.60791 19.6289ZM9.60791 18.1289C10.5104 18.1289 11.3806 17.9837 12.2184 17.6934C13.0562 17.4029 13.8002 16.9968 14.4502 16.4752C13.8002 15.9725 13.0659 15.5808 12.2474 15.3002C11.4287 15.0193 10.5489 14.8789 9.60791 14.8789C8.66691 14.8789 7.78549 15.0177 6.96366 15.2952C6.14183 15.5728 5.40916 15.9662 4.76566 16.4752C5.41566 16.9968 6.15958 17.4029 6.99741 17.6934C7.83524 17.9837 8.70541 18.1289 9.60791 18.1289ZM9.60791 9.37891C10.1054 9.37891 10.5214 9.21157 10.8559 8.87691C11.1906 8.54241 11.3579 8.12641 11.3579 7.62891C11.3579 7.13141 11.1906 6.71541 10.8559 6.38091C10.5214 6.04624 10.1054 5.87891 9.60791 5.87891C9.11041 5.87891 8.69441 6.04624 8.35991 6.38091C8.02524 6.71541 7.85791 7.13141 7.85791 7.62891C7.85791 8.12641 8.02524 8.54241 8.35991 8.87691C8.69441 9.21157 9.11041 9.37891 9.60791 9.37891Z" fill="#CFCFCF"/>
+                    </svg>
+                  }
+                
                     <div className="ml-8 mr-4">
                       <p className="default-font text-base leading-5 text-black">
                         {userData?.name}
