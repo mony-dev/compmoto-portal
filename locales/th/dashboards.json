@@ -25,5 +25,8 @@
     "items": "รายการ",
     "all total bill": "รายการบิลทั้งหมด",
     "all total discount": "จำนวนส่วนลดทั้งหมดที่ได้รับ",
-    "News and events": "ข่าวและกิจกรรม"
+    "News and events": "ข่าวและกิจกรรม",
+    "Hello": "สวัสดี",
+    "Here your order summary": "นี่คือยอดการสั่งซื้อของคุณ",
+    "Ranking": "ระดับ"
 }

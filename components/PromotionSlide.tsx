@@ -72,6 +72,7 @@ const PromotionSlide: React.FC<{ custPriceGroup: string }> = ({
                     src={promotion.image}
                     alt={promotion.name}
                     className="rounded-lg"
+                    style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
                   />
                 </h3>
               </div>

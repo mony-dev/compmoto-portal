@@ -9,16 +9,22 @@ import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../i18nConfig";
+import dynamic from "next/dynamic";
+const Loading = dynamic(() => import("@components/Loading"));
 
 interface DataType {
   id: number;
   key: number;
   name: string;
   createdAt: string;
-  picture: string;
+  coverImg?: string;
 }
 
-const ManualList: React.FC = () => {
+interface ManualProps {
+  type: string;
+}
+
+const ManualList: React.FC<ManualProps> = ({ type }) => {
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
   const [loading, setLoading] = useState(false);
@@ -35,35 +41,66 @@ const ManualList: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log(`Fetching page ${currentPage} with pageSize ${pageSize}`);
-
-      const { data: response } = await axios.get(`/api/userManual`, {
-        params: {
-          page: currentPage,
-          pageSize: pageSize,
-        },
-      });
-
-      if (response.userManuals.length > 0) {
-        const newManualData = response.userManuals.map(
-          (manual: DataType, index: number) => ({
-            ...manual,
-            key: index + 1 + (currentPage - 1) * pageSize,
-          })
-        );
-
-        setData((prevData) => {
-          const filteredData = newManualData.filter(
-            (manual: any) => !prevData.some((item) => item.id === manual.id)
-          );
-          return [...prevData, ...filteredData];
+      if (type === "manual") {
+        const { data: response } = await axios.get(`/api/userManual`, {
+          params: {
+            page: currentPage,
+            pageSize: pageSize,
+          },
         });
-
-        setTotal(response.total); // Set total items from API
-        setCurrentPage((prevPage) => prevPage + 1); // Increment page after successful fetch
+  
+        if (response.userManuals.length > 0) {
+          const newManualData = response.userManuals.map(
+            (manual: DataType, index: number) => ({
+              ...manual,
+              coverImg: null,
+              key: index + 1 + (currentPage - 1) * pageSize,
+            })
+          );
+  
+          setData((prevData) => {
+            const filteredData = newManualData.filter(
+              (manual: any) => !prevData.some((item) => item.id === manual.id)
+            );
+            return [...prevData, ...filteredData];
+          });
+  
+          setTotal(response.total); // Set total items from API
+          setCurrentPage((prevPage) => prevPage + 1); // Increment page after successful fetch
+        } else {
+          console.log("No more data to load");
+        }
       } else {
-        console.log("No more data to load");
+        const { data: response } = await axios.get(`/api/news`, {
+          params: {
+            page: currentPage,
+            pageSize: pageSize,
+          },
+        });
+        
+        if (response.news.length > 0) {
+          const data = response.news.map(
+            (data: DataType, index: number) => ({
+              ...data,
+              coverImg: data.coverImg,
+              key: index + 1 + (currentPage - 1) * pageSize,
+            })
+          );
+          console.log(data)
+          setData((prevData) => {
+            const filteredData = data.filter(
+              (newsData: any) => !prevData.some((item) => item.id === newsData.id)
+            );
+            return [...prevData, ...filteredData];
+          });
+  
+          setTotal(response.total); // Set total items from API
+          setCurrentPage((prevPage) => prevPage + 1); // Increment page after successful fetch
+        } else {
+          console.log("No more data to load");
+        }
       }
+ 
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -75,38 +112,47 @@ const ManualList: React.FC = () => {
     loadMoreData();
   }, []); 
 
+  // if (loading || !locale) {
+  //   return <Loading />;
+  // }
   return (
-    <div
-      id="scrollableDiv"
-      style={{
-        height: 400,
-        overflow: "auto",
-        padding: "0 16px",
-        border: "1px solid rgba(140, 140, 140, 0.35)",
-      }}
-    >
-      <InfiniteScroll
-        dataLength={data.length}
-        next={loadMoreData}
-        hasMore={data.length < total} 
-        loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-        endMessage={<Divider plain>{t('It is all nothing load more')}</Divider>}
-        scrollableTarget="scrollableDiv"
+    <>
+      {type === "news" && (
+        <p className="text-black default-font text-md font-semibold p-4">
+          {t("News and events")}
+        </p>
+      )}
+      <div
+        id="scrollableDiv"
+        className={type === "manual" ? "px-4" : "px-6"}
+        style={{
+          height: 400,
+          overflow: "auto",
+        }}
       >
-        <List
-          dataSource={data}
-          renderItem={(item) => (
-            <List.Item key={item.id}>
-              <List.Item.Meta
-                avatar={<Avatar src={"https://via.placeholder.com/150"} />}
-                title={<Link href={`/${locale}/admin/user-manuals/${item.id}`}>{item.name}</Link>}
-                description={formatDateDiffNumber(item?.createdAt)} // You can include createdAt or other data if needed
-              />
-            </List.Item>
-          )}
-        />
-      </InfiniteScroll>
-    </div>
+        <InfiniteScroll
+          dataLength={data.length}
+          next={loadMoreData}
+          hasMore={data.length < total} 
+          loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
+          endMessage={<Divider plain>{t('It is all nothing load more')}</Divider>}
+          scrollableTarget="scrollableDiv"
+        >
+          <List
+            dataSource={data}
+            renderItem={(item) => (
+              <List.Item key={item.id}>
+                <List.Item.Meta
+                  avatar={<Avatar src={item.coverImg ? item.coverImg : "https://via.placeholder.com/150"} />}
+                  title={<Link className="hover:comp-red-hover" href={`/${locale}/admin/user-manuals/${item.id}`}><span className="default-font">{item.name}</span></Link>}
+                  description={formatDateDiffNumber(item.createdAt)} // Adjusted this as well to directly use item
+                />
+              </List.Item>
+            )}
+          />
+        </InfiniteScroll>
+      </div>
+    </>
   );
 };
 

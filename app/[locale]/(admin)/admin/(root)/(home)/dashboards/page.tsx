@@ -15,7 +15,9 @@ import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
-import NewsCard from "@components/Admin/news/NewsCard";
+const Loading = dynamic(() => import("@components/Loading"));
+const ManualList = dynamic(() => import("@components/ManualList"));
+
 interface DataType {
   id: number;
   key: number;
@@ -33,6 +35,7 @@ const TotalPurchase = dynamic(() => import("@components/TotalPurchase"));
 const SpecialBonus = dynamic(() => import("@components/SpecialBonus"));
 const Chart = dynamic(() => import("@components/Chart"));
 const PromotionSlide = dynamic(() => import("@components/PromotionSlide"));
+const HalfPieChart = dynamic(() => import("@components/HalfPieChart"));
 
 const Carousel =
   typeof window !== "undefined" ? require("@fancyapps/ui").Carousel : null;
@@ -61,20 +64,23 @@ const Dashboard = () => {
   const [title, setTitle] = useState("แก้ไขรูปโปรไฟล์");
   const [triggerProfile, setTriggerProfile] = useState(false);
   // const [profileImage, setProfileImage] = useState("");
-  const { setI18nName, setLoadPage, profileImage, setProfileImage } = useCart();
+  const { setI18nName, loadPage, setLoadPage, profileImage, setProfileImage } =
+    useCart();
   const [loadReward, setLoadReward] = useState(false);
   const [loadNews, setLoadNews] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
-const [newsData, setNewsData] = useState<DataType[]>([]);
+  const [newsData, setNewsData] = useState<DataType[]>([]);
 
   // Debounce function for search input
   const debouncedFetchData = useCallback(
     debounce(() => {
+      setLoadPage(true);
       fetchData();
       fetchReward();
       fetchNews();
+      setLoadPage(false);
     }, 500), // 500 ms debounce delay
     []
   );
@@ -120,7 +126,7 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
       setLoadNews(false);
     }
   }
-  
+
   async function fetchReward() {
     setLoadReward(true);
     if (Carousel) {
@@ -131,7 +137,7 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
           nextTpl:
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" tabindex="-1"><path d="M9 3l9 9-9 9"/></svg>',
         },
-        infinite: true,
+        infinite: false,
         center: false,
         slidesPerPage: "auto",
         transition: false,
@@ -219,9 +225,13 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
       setIsModalVisible(isShow);
     };
   }
+
+  if (loadPage || !t || !session) {
+    return <Loading />;
+  }
   return (
     <>
-      <div className="px-4">
+      {/* <div className="px-4">
         <div
           className="p-4 rounded-lg flex bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
@@ -495,6 +505,190 @@ const [newsData, setNewsData] = useState<DataType[]>([]);
           />
             </div>
         
+      </div> */}
+      <div className="px-4 grid grid-cols-6 gap-4">
+        <div
+          className="mt-4 p-4 col-span-3 rounded-lg bg-white text-center"
+          style={{
+            boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <h1 className="gradient-text text-4xl font-semibold	default-font">
+            {t("Hello")} {session?.user.name}
+          </h1>
+          <div className="group-hover:blur-xs overflow-hidden pt-4 pb-2">
+            <Image
+              className="transition duration-300 ease-in-out rounded-full"
+              alt="User profile"
+              width={100}
+              height={100}
+              src={profileImage ? profileImage : "error"}
+              fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3PTWBSGcbGzM6GCKqlIBRV0dHRJFarQ0eUT8LH4BnRU0NHR0UEFVdIlFRV7TzRksomPY8uykTk/zewQfKw/9znv4yvJynLv4uLiV2dBoDiBf4qP3/ARuCRABEFAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghgg0Aj8i0JO4OzsrPv69Wv+hi2qPHr0qNvf39+iI97soRIh4f3z58/u7du3SXX7Xt7Z2enevHmzfQe+oSN2apSAPj09TSrb+XKI/f379+08+A0cNRE2ANkupk+ACNPvkSPcAAEibACyXUyfABGm3yNHuAECRNgAZLuYPgEirKlHu7u7XdyytGwHAd8jjNyng4OD7vnz51dbPT8/7z58+NB9+/bt6jU/TI+AGWHEnrx48eJ/EsSmHzx40L18+fLyzxF3ZVMjEyDCiEDjMYZZS5wiPXnyZFbJaxMhQIQRGzHvWR7XCyOCXsOmiDAi1HmPMMQjDpbpEiDCiL358eNHurW/5SnWdIBbXiDCiA38/Pnzrce2YyZ4//59F3ePLNMl4PbpiL2J0L979+7yDtHDhw8vtzzvdGnEXdvUigSIsCLAWavHp/+qM0BcXMd/q25n1vF57TYBp0a3mUzilePj4+7k5KSLb6gt6ydAhPUzXnoPR0dHl79WGTNCfBnn1uvSCJdegQhLI1vvCk+fPu2ePXt2tZOYEV6/fn31dz+shwAR1sP1cqvLntbEN9MxA9xcYjsxS1jWR4AIa2Ibzx0tc44fYX/16lV6NDFLXH+YL32jwiACRBiEbf5KcXoTIsQSpzXx4N28Ja4BQoK7rgXiydbHjx/P25TaQAJEGAguWy0+2Q8PD6/Ki4R8EVl+bzBOnZY95fq9rj9zAkTI2SxdidBHqG9+skdw43borCXO/ZcJdraPWdv22uIEiLA4q7nvvCug8WTqzQveOH26fodo7g6uFe/a17W3+nFBAkRYENRdb1vkkz1CH9cPsVy/jrhr27PqMYvENYNlHAIesRiBYwRy0V+8iXP8+/fvX11Mr7L7ECueb/r48eMqm7FuI2BGWDEG8cm+7G3NEOfmdcTQw4h9/55lhm7DekRYKQPZF2ArbXTAyu4kDYB2YxUzwg0gi/41ztHnfQG26HbGel/crVrm7tNY+/1btkOEAZ2M05r4FB7r9GbAIdxaZYrHdOsgJ/wCEQY0J74TmOKnbxxT9n3FgGGWWsVdowHtjt9Nnvf7yQM2aZU/TIAIAxrw6dOnAWtZZcoEnBpNuTuObWMEiLAx1HY0ZQJEmHJ3HNvGCBBhY6jtaMoEiJB0Z29vL6ls58vxPcO8/zfrdo5qvKO+d3Fx8Wu8zf1dW4p/cPzLly/dtv9Ts/EbcvGAHhHyfBIhZ6NSiIBTo0LNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiEC/wGgKKC4YMA4TAAAAABJRU5ErkJggg=="
+            />
+
+            <div
+              className="absolute rounded-lg inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-sm font-semibold cursor-pointer opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
+              onClick={showModal(true, session?.user.id)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                />
+              </svg>
+            </div>
+          </div>
+          <p className="text-comp-grey pt-2 text-lg">
+            {t("Here your order summary")}
+          </p>
+
+          <div>
+            <HalfPieChart userId={session?.user.id} />
+          </div>
+          <div className="flex justify-between items-start">
+            <div className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
+              <p>{t("Ranking")}</p>
+              <div className="flex space-x-2 pt-2">
+                {[...Array(starLevel)].map((_, index) => (
+                  <Image
+                    width={20}
+                    height={20}
+                    src={Star.src}
+                    alt="star"
+                    preview={false}
+                  />
+                ))}
+              </div>
+            </div>
+            <p className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
+              <div>{t("lastest_login")} </div>
+              <div className="text-[#505050] font-semibold text-3xl">
+                {lastedLogin}
+              </div>
+            </p>
+            <p className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
+              {t("Your point")}
+              <span className="p-1 rounded">
+                <span className="text-[#505050] font-semibold text-3xl	">
+                  {`${rewardPoint}`}
+                </span>
+                {/* <Link
+                    className="text-comp-red font-semibold"
+                    href={`/${locale}/admin/reward`}
+                  >
+                    {t("claim a reward")}
+                  </Link> */}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 col-span-3">
+          <div className="col-span-3 mx-auto w-full">
+            <div id="cardSlider" className="f-carousel">
+              <div className="f-carousel__viewport">
+                {Array.from(
+                  { length: Math.max(10, rewardData.length) },
+                  (_, index) => rewardData[index % rewardData.length]
+                ).map((reward, index) => (
+                  <figure
+                    key={index}
+                    className="f-carousel__slide py-4 rounded-2xl border hover:border-comp-red flex justify-start items-center bg-white hover:bg-comp-red-hover"
+                  >
+                    {loadReward ? (
+                      <>
+                        <div className="flex items-center">
+                          <Skeleton.Avatar
+                            active={loadReward}
+                            size="large"
+                            shape="circle"
+                          />
+                          <div>
+                            <Skeleton.Input active={loadReward} size="small" />
+                            <Skeleton.Input active={loadReward} size="small" />
+                            <Skeleton.Input active={loadReward} size="small" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      reward && (
+                        <>
+                          <div className="flex">
+                            <Image
+                              className="w-full rounded-full py-1"
+                              alt={reward.name}
+                              width={60}
+                              height={"100%"}
+                              src={reward.image}
+                            />
+                          </div>
+                          <Link
+                            className="pl-4"
+                            href={`/${locale}/admin/reward`}
+                          >
+                            <p className="text-comp-red leading-4 default-font">
+                              {reward.name}
+                            </p>
+                            <p className="text-base default-font font-semibold text-comp-red">
+                              {reward.point}
+                              <span className="text-comp-red leading-4 font-normal pl-2">
+                                {t("Point")}
+                              </span>
+                            </p>
+                            <div className="text-comp-red leading-4 font-normal flex items-center">
+                              <span className="pl-2 text-xs">
+                                {reward.date}
+                              </span>
+                            </div>
+                          </Link>
+                        </>
+                      )
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div
+            className="col-span-3 rounded-lg bg-white mt-2 mx-auto w-full"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <div>
+              <ManualList type="news" />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 p-4 col-span-6 rounded-lg">
+          <Chart userId={session?.user?.id} />
+        </div>
+        <div
+          className="mt-4 p-4 col-span-6 rounded-lg bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <TotalPurchase userId={session?.user?.id} />
+        </div>
+        <div
+          className="mt-4 p-4 col-span-4 rounded-lg bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <SpecialBonus userId={session?.user?.id} />
+        </div>
+        <div
+          className="mt-4 p-4 col-span-2 rounded-lg bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
+          <PromotionSlide custPriceGroup={session?.user?.custPriceGroup} />
+        </div>
       </div>
       <ModalProfile
         isModalVisible={isModalVisible}

@@ -27,7 +27,6 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
-const ModalVerify = dynamic(() => import("@components/Admin/RewardUser/ModalVerify"));
 
 export default function adminClaim({
   params,
