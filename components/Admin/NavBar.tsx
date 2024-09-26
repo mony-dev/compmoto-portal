@@ -244,7 +244,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
             >
               {profileImage ? (
                 <Image
-                  className="rounded-full transition duration-300 ease-in-out"
+                  className="rounded-full transition duration-300 ease-in-out m-1"
                   alt="User profile"
                   width={24}
                   height={24}
@@ -279,7 +279,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                   <div className="flex items-center">
                     {profileImage ? 
                         <Image
-                        className="rounded-full	 w-fit h-4/5"
+                        className="rounded-full w-fit h-4/5"
                         alt="logo"
                         width={50}
                         height={30}
