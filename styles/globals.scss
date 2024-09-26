@@ -1100,3 +1100,9 @@ body {
   background-clip: text;
   color: transparent;
 }
+
+.profile-img{
+  .ant-image-mask{
+    border-radius: 9999px;
+  }
+}
