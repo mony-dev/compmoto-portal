@@ -18,12 +18,16 @@ export async function GET(request: Request) {
       const [news, total] = await Promise.all([
         prisma.news.findMany({
           where: whereClause,
+          include: {
+            minisize: true,
+          },
           skip: (page - 1) * pageSize,
           take: pageSize,
         }),
         prisma.news.count({
           where: whereClause, 
-        }),
+        }
+      ),
       ]);
   
       return NextResponse.json({ news, total });

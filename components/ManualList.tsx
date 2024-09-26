@@ -18,6 +18,7 @@ interface DataType {
   name: string;
   createdAt: string;
   coverImg?: string;
+  minisize?: any;
 }
 
 interface ManualProps {
@@ -144,7 +145,7 @@ const ManualList: React.FC<ManualProps> = ({ type }) => {
               <List.Item key={item.id}>
                 <List.Item.Meta
                   avatar={<Avatar src={item.coverImg ? item.coverImg : "https://via.placeholder.com/150"} />}
-                  title={<Link className="hover:comp-red-hover" href={`/${locale}/admin/user-manuals/${item.id}`}><span className="default-font">{item.name}</span></Link>}
+                  title={<Link className="hover:comp-red-hover" href={type === "manual" ? `/${locale}/admin/user-manuals/${item.id}` : `/${locale}/admin/news/${item.id}?name=${item.minisize.name}`}><span className="default-font">{item.name}</span></Link>}
                   description={formatDateDiffNumber(item.createdAt)} // Adjusted this as well to directly use item
                 />
               </List.Item>
