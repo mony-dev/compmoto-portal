@@ -15,6 +15,7 @@ import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
+import { GiftOutlined, StarFilled } from "@ant-design/icons";
 const Loading = dynamic(() => import("@components/Loading"));
 const ManualList = dynamic(() => import("@components/ManualList"));
 
@@ -588,19 +589,23 @@ const Dashboard = () => {
                 <span className="text-[#505050] font-semibold text-3xl	">
                   {`${rewardPoint}`}
                 </span>
-                {/* <Link
-                    className="text-comp-red font-semibold"
-                    href={`/${locale}/admin/reward`}
-                  >
-                    {t("claim a reward")}
-                  </Link> */}
               </span>
             </p>
           </div>
         </div>
         <div className="mt-4 col-span-3">
           <div className="col-span-3 mx-auto w-full">
-            <div id="cardSlider" className="f-carousel">
+            <div
+              className="col-span-3 rounded mt-2 mx-auto w-full mb-2 py-1 flex items-center gap-4"
+            >
+              <Link className="text-black default-font text-md font-semibold p-4 border border-[#fcd00d] bg-[#fcd00d] rounded-full hover:text-comp-red hover:bg-[#ffe572] hover:border-[#ffe572]" href={`/${locale}/admin/reward`}>
+                {t("claim a reward")} <StarFilled />
+              </Link>
+              <h1 className="grey-gradient-text text-4xl font-semibold	default-font">
+                {t("claim your reward here")}
+              </h1>
+            </div>
+            <div id="cardSlider" className="f-carousel pt-4">
               <div className="f-carousel__viewport">
                 {Array.from(
                   { length: Math.max(10, rewardData.length) },
@@ -651,7 +656,7 @@ const Dashboard = () => {
                               </span>
                             </p>
                             <div className="text-comp-red leading-4 font-normal flex items-center">
-                              <span className="pl-2 text-xs">
+                              <span className="text-xs">
                                 {reward.date}
                               </span>
                             </div>
