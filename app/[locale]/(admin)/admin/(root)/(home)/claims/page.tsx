@@ -316,6 +316,7 @@ export default function claims({
 
   const onChange = (key: string) => {
     setActiveTabKey(key); // Update active tab state
+    setCurrentPage(1);
   };
 
   if (loading || !t) {

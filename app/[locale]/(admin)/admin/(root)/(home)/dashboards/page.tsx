@@ -586,7 +586,7 @@ const Dashboard = () => {
             <p className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
               {t("Your point")}
               <span className="p-1 rounded">
-                <span className="text-[#505050] font-semibold text-3xl	">
+                <span className="text-comp-red font-semibold text-3xl	">
                   {`${rewardPoint}`}
                 </span>
               </span>

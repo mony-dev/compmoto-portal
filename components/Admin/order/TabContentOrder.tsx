@@ -118,6 +118,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
 
   const onChange = (key: string) => {
     setActiveTabKey(key)
+    setCurrentPage(1)
   };
 
   return (
