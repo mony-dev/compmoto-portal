@@ -50,6 +50,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
+# Copy your cron job script to the container
+COPY --from=builder /app/lib/web/jobs/scheduleJobs.mjs ./lib/web/jobs/scheduleJobs.mjs
+
 # Create the .next/cache/images directory and set correct permissions
 RUN mkdir -p /app/.next/cache/images && \
     chown -R 1001:1001 /app/.next
@@ -64,5 +67,5 @@ RUN chown -R nextjs:nodejs /app/node_modules
 # Change to the non-root user
 USER nextjs
 
-# Start the Next.js application
-CMD ["npm", "start"]
+# Start the Next.js application and the cron jobs
+CMD ["sh", "-c", "node ./lib/web/jobs/scheduleJobs.mjs & npm start"]

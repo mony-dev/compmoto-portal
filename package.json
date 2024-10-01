@@ -13,6 +13,7 @@
     "fetch-users": "node lib/web/utils/fetchUsers.mjs",
     "fetch-admin": "node lib/web/utils/fetchAdmin.mjs",
     "fetch-brands": "node lib/web/utils/fetchBrands.mjs",
+    "fetch-com-rate": "node lib/web/utils/fetchComrates.mjs",
     "fetch-product-groups": "node lib/web/utils/fetchProductGroups.mjs",
     "fetch-rims": "node lib/web/utils/fetchRims.mjs",
     "fetch-sizes": "node lib/web/utils/fetchSizes.mjs",
@@ -21,8 +22,11 @@
     "fetch-products": "node lib/web/utils/fetchProducts.mjs",
     "update-products": "node lib/web/utils/updateProductImg.mjs",
     "update-lot": "node lib/web/utils/updateLot.mjs",
-    "fetch-reset": "node lib/web/utils/fetchUsers.mjs node lib/web/utils/fetchAdmin.mjs node lib/web/utils/fetchBrands.mjs node lib/web/utils/fetchProductGroups.mjs node lib/web/utils/fetchRims.mjs node lib/web/utils/fetchSizes.mjs node lib/web/utils/fetchFamily.mjs node lib/web/utils/fetchGroupType.mjs node lib/web/utils/fetchProducts.mjs node lib/web/utils/updateProductImg.mjs node lib/web/utils/updateLot.mjs",
-    "fetch-memo": "node lib/web/utils/fetchCreditMemo.mjs"
+    "fetch-memo": "node lib/web/utils/fetchCreditMemo.mjs",
+    "fetch-invoice": "node lib/web/utils/fetchInvoice.mjs",
+    "fetch-history": "node lib/web/utils/fetchHistory.mjs",
+    "fetch-total-purchase": "node lib/web/utils/fetchTotalPurchase.mjs",
+    "fetch-special-bonus": "node lib/web/utils/fetchSpecialBonus.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
@@ -60,6 +64,7 @@
     "next-cloudinary": "^6.6.2",
     "next-i18n-router": "^5.5.1",
     "next-i18next": "^15.3.0",
+    "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
     "rc-tween-one": "^3.0.6",
     "react": "^18",
