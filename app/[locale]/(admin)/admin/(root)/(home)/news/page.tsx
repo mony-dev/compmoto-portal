@@ -58,7 +58,7 @@ const News = () => {
   const [loading, setLoading] = useState(false);
   const [newsData, setNewsData] = useState<DataType[]>([]);
   const [loadingBaner, setLoadingBanner] = useState(false);
-
+  const [imageLoaded, setImageLoaded] = useState(false);
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
@@ -135,7 +135,10 @@ const News = () => {
         <div
           className="pb-2"
           style={{
-            background: `linear-gradient(90deg, #DD2C37 0%, #FCD00D 100%)`,
+            background: imageLoaded
+              ? `linear-gradient(90deg, #DD2C37 0%, #FCD00D 100%)`
+              : "transparent", 
+            transition: "background 0.5s ease-in-out",
           }}
         >
           <Image
@@ -150,6 +153,7 @@ const News = () => {
                   : NoImage.src
                 : NoImage.src
             }
+            onLoad={() => setImageLoaded(true)}
           />
         </div>
         <nav

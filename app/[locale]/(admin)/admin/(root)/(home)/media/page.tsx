@@ -67,6 +67,7 @@ const Media = () => {
   const [type, setType] = useState<"File" | "Video" | "Image">("Video");
   const [loading, setLoading] = useState(false);
   const [loadingBaner, setLoadingBanner] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Settings for the slider
 
@@ -183,7 +184,10 @@ const Media = () => {
         <div
           className="pb-2"
           style={{
-            background: `linear-gradient(90deg, #DD2C37 0%, #FCD00D 100%)`,
+            background: imageLoaded
+              ? `linear-gradient(90deg, #DD2C37 0%, #FCD00D 100%)`
+              : "transparent", 
+            transition: "background 0.5s ease-in-out",
           }}
         >
           <Image
@@ -198,6 +202,7 @@ const Media = () => {
                   : NoImage.src
                 : NoImage.src
             }
+            onLoad={() => setImageLoaded(true)}
           />
         </div>
         <nav
