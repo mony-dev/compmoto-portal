@@ -545,7 +545,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       key: "years",
       render: (_, record) => (
         <div className="flex items-center force-bottom">
-          <p className="gotham-font text-sm text-text-gray-hover pr-2 ">{t('Year')}</p>
+          <p className="default-font text-sm text-text-gray-hover pr-2 ">{t('Year')}</p>
           <div>
             {record.product.years.map((yearData: any, index: number) => (
               <Tooltip
@@ -578,7 +578,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                   onClick={() => handleYearClick(yearData, record)}
                 >
                   <span
-                    className={`gotham-font ${
+                    className={`default-font ${
                       yearData.isActive
                         ? selectedProductYear[record.id] === yearData.year
                           ? "text-white font-semibold"
@@ -896,8 +896,8 @@ const Cart = ({ params }: { params: { id: number } }) => {
             fill="black"
           />
         </svg>
-        <p className="gotham-font text-2xl text-black gotham-black pl-2">
-          {t('Shopping')} <span className="gotham-thin font-bold	">{t('Cart')}</span>
+        <p className="default-font text-2xl text-black pl-2">
+          {t('Shopping')} <span className="default-font font-bold	">{t('Cart')}</span>
         </p>
       </div>
       <div>
@@ -1160,23 +1160,23 @@ const Checkout: React.FC<CheckoutProps> = ({
   };
   return (
     <div className="bg-white row-end-2 row-span-1 p-4 rounded-lg checkout-box">
-      <p className="gotham-font text-black text-base pt-4 font-medium">
+      <p className="default-font text-black text-base pt-4 font-medium">
         {t("Order summary")}
       </p>
       <Divider />
       {promotionText && promotionText.length > 0 && (
         <>
           <div className="flex justify-between promotion-text">
-            <p className="text-sm">{t('Promotion')}</p>
-            <p className="text-sm">{promotionText.join(", ")}</p>
+            <p className="text-sm default-font">{t('Promotion')}</p>
+            <p className="text-sm default-font">{promotionText.join(", ")}</p>
           </div>
           <Divider />
         </>
       )}
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm">{t('Sub Total')}</p>
-          <p className="text-xs text-text-gray-hover sub-amount">
+          <p className="text-sm default-font">{t('Sub Total')}</p>
+          <p className="text-xs text-text-gray-hover sub-amount default-font">
             ({totalAmount} {t('items')})
           </p>
         </div>
@@ -1191,7 +1191,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <Divider />
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm"> {t('Discount')}</p>
+          <p className="text-sm default-font"> {t('Discount')}</p>
           {/* <p className="text-xs text-comp-red sub-discount">({subDiscount}%)</p> */}
         </div>
         <div className="text-base font-base text-comp-red cal-discount">
@@ -1205,7 +1205,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <Divider />
       <div className="flex justify-between">
         <div>
-          <p>{t('Total')}</p>
+          <p className="default-font">{t('Total')}</p>
         </div>
         <div className="text-base font-medium after-discount">
           ฿
@@ -1222,9 +1222,9 @@ const Checkout: React.FC<CheckoutProps> = ({
             type="primary"
             htmlType="submit"
             loading={isProcessing}
-            className="gotham-font bg-comp-red-price button-backend w-full mt-4 p-6 flex justify-between text-base font-medium"
+            className="default-font bg-comp-red-price button-backend w-full mt-4 p-6 flex justify-between text-base font-medium"
           >
-            <p className="text-white font-medium">{t('Checkout')}</p>
+            <p className="text-white font-medium default-font">{t('Checkout')}</p>
             <p className="after-discount text-white font-medium">
               ฿
               {afterDiscount.toLocaleString("en-US", {
