@@ -121,21 +121,6 @@ export default function claims({
       sorter: (a, b) =>
         formatDate(a.createdAt).localeCompare(formatDate(b.createdAt)),
     },
-    // {
-    //   title: t("Action"),
-    //   key: "action",
-    //   render: (_, record) => (
-    //     <div className="flex">
-    //       <p
-    //         className="flex cursor-pointer hover:text-comp-blue-link pr-2 underline"
-    //         onClick={showModal(true, record.id)}
-    //       >
-    //         <CheckBadgeIcon className="w-4 mr-0.5" />
-    //         <span>{t('Verify')}</span>
-    //       </p>
-    //     </div>
-    //   ),
-    // },
   ];
 
     // Debounce function for search input
@@ -279,27 +264,6 @@ export default function claims({
       setLoading(false);
     }
   };
-  function showModal(isShow: boolean, idClaim: number) {
-    return () => {
-      setIsModalVisible(isShow);
-      setId(idClaim);
-      setMode("EDIT");
-      setTitle(t("Claim Verify"));
-    };
-  }
-
-  // useEffect(() => {
-  //   const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-  //   setI18nName(lastPart);
-  //   // Fetch data based on the active tab
-  //   if (activeTabKey === "1") {
-  //     fetchData("inProgress"); // Fetch incomplete data
-  //   } else if (activeTabKey === "2") {
-  //     fetchData("complete"); // Fetch complete data
-  //   } else {
-  //     fetchData("incomplete");
-  //   }
-  // }, [activeTabKey, searchText, currentPage, pageSize]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -330,7 +294,7 @@ export default function claims({
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">{t("Claim List")}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">{t("Claim List")}</p>
           <div className="flex">
           <Input.Search
               placeholder={t("search")}

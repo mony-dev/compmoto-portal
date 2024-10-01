@@ -273,7 +273,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
 
   const actions: React.ReactNode[] = [
     <div className="flex justify-between promotion-text p-6">
-    <p className="text-sm gotham-font text-base text-black">{t("Grand Total")}</p>
+    <p className="text-sm default-font text-base text-black">{t("Grand Total")}</p>
     <p className="text-xl font-semibold	text-black default-font">
       ฿
       {reData?.grandTotal.toLocaleString("en-US", {
@@ -319,7 +319,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
                 fillOpacity="0.5"
               />
             </svg>
-            <p className="text-sm gotham-font text-[#919FAF]">{t("Back")}</p>
+            <p className="text-sm default-font text-[#919FAF]">{t("Back")}</p>
           </Link>
         </div>
       </div>
@@ -362,7 +362,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
             <Card
               title={t("You’re paying")}
               bordered={false}
-              className="gotham-thin"
+              className="default-font"
               actions={actions}
               style={{
                 boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`,
@@ -371,7 +371,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
               {reData && reData.externalDocument && (
                 <>
                   <div className="flex justify-between promotion-text pb-4">
-                    <p className="text-sm gotham-font text-[#919FAF]">
+                    <p className="text-sm default-font text-[#919FAF]">
                     {t("Promotion")}
                     </p>
                     <p className="text-sm default-font">
@@ -382,7 +382,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
               )}
 
               <div className="flex justify-between promotion-text pb-4">
-                <p className="text-sm gotham-font text-[#919FAF]">{t("Sub Total")}</p>
+                <p className="text-sm default-font text-[#919FAF]">{t("Sub Total")}</p>
                 <p className="text-sm default-font">
                   ฿
                   {reData?.subTotal.toLocaleString("en-US", {
@@ -393,7 +393,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
               </div>
               {/* {reData?.groupDiscount && (
                 <div className="flex justify-between promotion-text pb-4">
-                  <p className="text-sm gotham-font text-[#919FAF]">{t("Discount")}</p>
+                  <p className="text-sm default-font text-[#919FAF]">{t("Discount")}</p>
                   <p className="text-sm default-font">
                   <Tag bordered={false} color="error" style={{ borderRadius: "1rem" }}>
                     {reData.groupDiscount}%
@@ -403,7 +403,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
               )} */}
               {reData?.groupDiscountPrice &&
                  <div className="flex justify-between promotion-text pb-4">
-                 <p className="text-sm gotham-font text-[#919FAF]">{t("Discount Price")}</p>
+                 <p className="text-sm default-font text-[#919FAF]">{t("Discount Price")}</p>
                  <p className="text-sm default-font">
                    ฿
                    {(reData?.groupDiscountPrice).toLocaleString("en-US", {

@@ -276,7 +276,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
 
   const actions: React.ReactNode[] = [
     <div className="flex justify-between promotion-text p-6">
-      <p className="text-sm gotham-font text-base text-black">{t("Grand Total")}</p>
+      <p className="text-sm default-font text-base text-black">{t("Grand Total")}</p>
       <p className="text-xl font-semibold	text-black default-font">
         ฿
         {reData?.grandTotal.toLocaleString("en-US", {
@@ -336,7 +336,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
           <div className="col-span-3">
             <div className="flex justify-between items-center pb-4">
               <div className="flex flex-col">
-                <p className="gotham-book text-xl font-thin grow pb-1">
+                <p className="gotham-book text-xl font-thin grow pb-1 default-font">
                   {t("Sale Quote")}
                 </p>
                 <p className="mb-0 default-font text-[#919FAF] text-xs">
@@ -380,7 +380,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               {reData && reData.externalDocument && (
                 <>
                   <div className="flex justify-between promotion-text pb-4">
-                    <p className="text-sm gotham-font text-[#919FAF]">
+                    <p className="text-sm default-font text-[#919FAF]">
                     {t("Promotion")}
                     </p>
                     <p className="text-sm default-font">
@@ -391,7 +391,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               )}
 
               <div className="flex justify-between promotion-text pb-4">
-                <p className="text-sm gotham-font text-[#919FAF]">{t("Sub Total")}</p>
+                <p className="text-sm default-font text-[#919FAF]">{t("Sub Total")}</p>
                 <p className="text-sm default-font">
                   ฿
                   {reData?.subTotal.toLocaleString("en-US", {
@@ -413,7 +413,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
               )} */}
               {reData?.groupDiscountPrice && (
                 <div className="flex justify-between promotion-text pb-4">
-                  <p className="text-sm gotham-font text-[#919FAF]">{t("Discount Price")}</p>
+                  <p className="text-sm default-font text-[#919FAF]">{t("Discount Price")}</p>
                   <p className="text-sm default-font">
                     ฿
                     {(reData?.groupDiscountPrice).toLocaleString("en-US", {

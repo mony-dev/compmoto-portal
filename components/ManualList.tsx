@@ -87,7 +87,6 @@ const ManualList: React.FC<ManualProps> = ({ type }) => {
               key: index + 1 + (currentPage - 1) * pageSize,
             })
           );
-          console.log(data)
           setData((prevData) => {
             const filteredData = data.filter(
               (newsData: any) => !prevData.some((item) => item.id === newsData.id)

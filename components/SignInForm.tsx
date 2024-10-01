@@ -81,8 +81,8 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
   return (
     <>
       <div className="justify-center w-100">
-        <div className="mb-4 font-semibold text-2xl text-center">
-          <span>{t("Login to your account")}</span>
+        <div className="mb-4 text-center">
+          <span className="font-semibold text-2xl default-font">{t("Login to your account")}</span>
         </div>
 
         <Form

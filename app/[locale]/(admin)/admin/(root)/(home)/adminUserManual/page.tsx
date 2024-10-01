@@ -220,7 +220,7 @@ export default function adminUserManual() {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">{t('user_manual')}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">{t('user_manual')}</p>
           <div className="flex">
           <Input.Search
               placeholder={t('search')}

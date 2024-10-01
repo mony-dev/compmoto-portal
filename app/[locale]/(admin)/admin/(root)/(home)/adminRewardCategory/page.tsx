@@ -350,7 +350,7 @@ export default function adminsRewardCategory({
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">{t("Reward Category")}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">{t("Reward Category")}</p>
           <div className="flex">
           <Input.Search
               placeholder={t('search')}
@@ -388,7 +388,7 @@ export default function adminsRewardCategory({
           onPageChange={handlePageChange}
         />
         <div className="flex justify-between items-center pt-4">
-          <p className="text-lg font-semibold pb-4 grow">{t("Album")}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">{t("Album")}</p>
         </div>
         <div className="flex">
           {albumData.map((albumItem) => (

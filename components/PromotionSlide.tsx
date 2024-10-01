@@ -43,7 +43,6 @@ const PromotionSlide: React.FC<{ custPriceGroup: string }> = ({
   }, [custPriceGroup]);
 
   const onChange = (currentSlide: number) => {
-    console.log(currentSlide);
   };
 
   return (

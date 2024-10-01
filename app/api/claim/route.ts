@@ -118,7 +118,6 @@ export async function GET(request: Request) {
     }
 
     if (claimStatus !== null || claimStatus !== "") {
-      // Filter based on the isComplete value, converting it to boolean
       whereConditions.status = claimStatus;
     }
 

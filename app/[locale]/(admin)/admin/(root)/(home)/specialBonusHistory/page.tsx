@@ -418,7 +418,7 @@ export default function specialBonusHistory() {
       >
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-lg font-semibold pb-4 grow">
+            <p className="text-lg font-semibold pb-4 grow default-font">
               {t("total special bonus")}
             </p>
           </div>

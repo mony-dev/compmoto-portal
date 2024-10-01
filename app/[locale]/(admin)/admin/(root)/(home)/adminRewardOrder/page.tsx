@@ -252,7 +252,7 @@ export default function adminRewardOrder({
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow">{t("Reward List")}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">{t("Reward List")}</p>
           <div className="flex">
             <Input.Search
               placeholder={t("Search")}

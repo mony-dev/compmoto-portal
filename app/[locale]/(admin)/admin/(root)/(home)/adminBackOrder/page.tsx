@@ -278,7 +278,7 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-end items-center">
-          <p className="text-lg font-semibold pb-4 grow">{t('Back orders')}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">{t('Back orders')}</p>
           <div className="flex">
           <Input.Search
               placeholder={t("search")}

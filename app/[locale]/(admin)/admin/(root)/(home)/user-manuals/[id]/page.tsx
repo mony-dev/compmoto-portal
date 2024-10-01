@@ -80,7 +80,7 @@ const News = ({ params }: { params: { id: number } }) => {
         </p>
         <Divider style={{  borderColor: '#DD2C37' }}/>
         {newsData?.content && (
-          <div dangerouslySetInnerHTML={{ __html: newsData.content }} />
+          <div className="indent-8" dangerouslySetInnerHTML={{ __html: newsData.content }} />
         )}
       </div>
     </div>
