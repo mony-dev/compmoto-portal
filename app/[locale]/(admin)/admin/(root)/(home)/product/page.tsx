@@ -335,6 +335,7 @@ const Product = () => {
       hoveredPromotionId
         ? fetchProduct(name, selectedFilters, hoveredPromotionId)
         : fetchProduct(name, selectedFilters);
+      fetchMinisizeData(name);
     }
   }, [searchParams, selectedFilters]);
 
