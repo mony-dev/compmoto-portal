@@ -62,9 +62,14 @@ export async function GET(request: Request) {
   const userId = searchParams.get('userId') || '';
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "30");
+
   if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
   }
+
+  // Define the start and end of the current year
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1); // January 1st of this year
+  const endOfYear = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59, 999); // December 31st of this year
 
   try {
     const [orders, total] = await Promise.all([
@@ -75,11 +80,15 @@ export async function GET(request: Request) {
           OR: q ? [
             {
               documentNo: {
-                contains: q, 
-                mode: 'insensitive', 
+                contains: q,
+                mode: 'insensitive',
               },
             }
           ] : undefined,
+          createdAt: {
+            gte: startOfYear,
+            lt: endOfYear,
+          },
         },
         include: {
           user: true,
@@ -102,14 +111,19 @@ export async function GET(request: Request) {
           OR: q ? [
             {
               documentNo: {
-                contains: q, 
-                mode: 'insensitive', 
+                contains: q,
+                mode: 'insensitive',
               },
             }
           ] : undefined,
+          createdAt: {
+            gte: startOfYear,
+            lt: endOfYear,
+          },
         },
       }),
     ]);
+
     return NextResponse.json({ orders: orders, total });
   } catch (error) {
     return NextResponse.json(error);

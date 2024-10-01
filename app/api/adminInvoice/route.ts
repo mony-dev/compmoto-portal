@@ -13,12 +13,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
   }
 
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
-  const endOfMonth = new Date(startOfMonth);
-  endOfMonth.setMonth(startOfMonth.getMonth() + 1);
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1); 
+  const endOfYear = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59, 999);
 
   try {
     const [orders, total] = await Promise.all([
@@ -33,8 +29,8 @@ export async function GET(request: Request) {
             }
           ] : undefined,
           createdAt: {
-            gte: startOfMonth,
-            lt: endOfMonth,
+            gte: startOfYear,
+            lt: endOfYear,
           },
           ...(userRole === 'SALE' && {
             user: {
@@ -71,8 +67,8 @@ export async function GET(request: Request) {
             }
           ] : undefined,
           createdAt: {
-            gte: startOfMonth,
-            lt: endOfMonth,
+            gte: startOfYear,
+            lt: endOfYear,
           },
           ...(userRole === 'SALE' && {
             user: {

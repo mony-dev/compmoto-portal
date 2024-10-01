@@ -346,14 +346,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
                   #{reData?.documentNo}
                 </p>
               </div>
-              <div className="flex">
-                <Input.Search
-                  placeholder={t("Search")}
-                  size="middle"
-                  onChange={(e) => setSearchText(e.target.value)}
-                  style={{ width: "200px", marginBottom: "20px" }}
-                />
-              </div>
             </div>
             {reData && reData.items && (
               <div className="order-table">
