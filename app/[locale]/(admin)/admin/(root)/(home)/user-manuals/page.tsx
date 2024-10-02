@@ -13,7 +13,7 @@ const ManualList = dynamic(() => import("@components/ManualList"));
 
 export default function adminUserManual() {
   const { t } = useTranslation();
-  const { setI18nName, setLoadPage, loadPage } = useCart();
+  const { setI18nName } = useCart();
   const pathname = usePathname();
 
   interface DataType {
@@ -26,7 +26,7 @@ export default function adminUserManual() {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
   }, []);
-  if (loadPage || !t) {
+  if (!t) {
     return (
       <Loading/>
     );
