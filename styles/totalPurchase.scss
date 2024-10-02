@@ -1,4 +1,13 @@
 .total-step {
+  @media screen and (max-width: 1625px) {
+    :where(.css-dev-only-do-not-override-98ntnt).ant-card .ant-card-body {
+      padding: 2px 4px!important;
+    }
+    :where(.css-98ntnt).ant-card .ant-card-body {
+      padding: 2px 4px!important;
+    }
+}
+
   :where(.css-dev-only-do-not-override-98ntnt).ant-progress.ant-progress-status-success .ant-progress-inner:not(.ant-progress-circle-gradient) .ant-progress-circle-path {
     stroke: #DD2C37;
   }

@@ -22,7 +22,11 @@ module.exports = withMT({
       "4xs": { min: "446px", max: "498px" },
       "3xs": { min: "499px", max: "567px" },
       "2xs": { min: "567px", max: "684px" },
-      "2xl": "1440px",
+      "1xl": { min: "1440px", max: "1625px" },
+
+      "2xl": { min: "1626px", max: "1670px" },
+      "3xl": { min: "1671px", max: "1999px" },
+      "4xl":  { min: "2000px" },
       ...defaultTheme.screens,
     },
     extend: {

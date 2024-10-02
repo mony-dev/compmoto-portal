@@ -23,6 +23,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Link from "next/link";
 import Loading from "@components/Loading";
+import { CloseCircleOutlined } from "@ant-design/icons";
 interface MinisizeDataType {
   id: number;
   imageProfile: string;
@@ -110,7 +111,10 @@ const Product = () => {
   const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(
     null
   );
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || "";
+  });
   const [sortBy, setSortBy] = useState("");
   const [productData, setProductData] = useState<DataType[]>([]);
   const [brandName, setBrandName] = useState("");
@@ -128,6 +132,9 @@ const Product = () => {
   type Sorts = GetSingle<Parameters<OnChange>[2]>;
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
   const [hoveredPromotionId, setHoveredPromotionId] = useState<number | null>(
+    null
+  );
+  const [promotionFilterId, setPromotionFilterId] = useState<number | null>(
     null
   );
   const dataTableRef = useRef<HTMLDivElement>(null);
@@ -183,12 +190,16 @@ const Product = () => {
       setSortedInfo({});
     }
   };
-  const handleTableChange: TableProps<DataType>["onChange"] = (pagination, filters, sorter) => {
+  const handleTableChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters,
+    sorter
+  ) => {
     setSortedInfo(sorter as Sorts);
   };
   const fetchMinisizeData = async (name: string) => {
     try {
-      setLoadingMini(true)
+      setLoadingMini(true);
       const response = await axios.get(`/api/adminMinisize?q=${name}`);
       if (response.data) {
         const minisize = response.data.minisizes.map(
@@ -196,39 +207,46 @@ const Product = () => {
             id: data.id,
             imageProfile: data.imageProfile,
           })
-        )
+        );
 
         if (minisize[0]) {
           minisize[0] && setMinisizeData(minisize[0]);
           fetchPromotion(minisize[0].id);
         }
-     
       }
     } catch (error) {
       console.error("Error fetching data: ", error);
     } finally {
-      setLoadingMini(false)
+      setLoadingMini(false);
     }
   };
 
   const fetchProduct = async (
     name: string,
     filters = {} as SelectedFilters,
-    promotionId?: number
+    promotionId?: number | null,
+    query?: string 
   ) => {
+    if (promotionFilterId && promotionId) {
+      promotionId = promotionId
+    }
     setBrandName(name);
     const simplifiedFilters = {
       lv1: filters.lv1?.id,
       lv2: filters.lv2?.id,
       lv3: filters.lv3?.id,
-      promotionId,
+      promotionId: promotionId,
       page: currentPage,
       pageSize: pageSize,
     };
-    setLoadingProduct(true)
+    setLoadingProduct(true);
+    if (!query) {
+      query = ""
+    }
+
     axios
       .get(
-        `/api/getProduct?q=${searchText}&brandName=${name}&sortBy=${sortBy}`,
+        `/api/getProduct?q=${query}&brandName=${name}&sortBy=${sortBy}`,
         {
           params: simplifiedFilters,
         }
@@ -273,15 +291,15 @@ const Product = () => {
         }));
         setProductData(useProduct);
         setTotal(response.data.total);
-        setLoadingProduct(false)
+        setLoadingProduct(false);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
-      })
+      });
   };
 
   const fetchPromotion = async (id: number, filters = {}) => {
-    setLoadingPromo(true)
+    setLoadingPromo(true);
     const group = session?.user.custPriceGroup;
     id &&
       axios
@@ -302,7 +320,7 @@ const Product = () => {
             })
           );
           setPromotionData(promotions);
-          setLoadingPromo(false)
+          setLoadingPromo(false);
         })
         .catch((error) => {
           console.error("Error fetching data: ", error);
@@ -313,11 +331,11 @@ const Product = () => {
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      hoveredPromotionId
-        ? fetchProduct(name, selectedFilters, hoveredPromotionId)
-        : fetchProduct(name, selectedFilters);
+      promotionFilterId
+        ? fetchProduct(name, selectedFilters, promotionFilterId, searchText)
+        : fetchProduct(name, selectedFilters, null, searchText);
     }
-  }, [searchText, selectedFilters, sortBy, currentPage]);
+  }, [selectedFilters, sortBy, currentPage, promotionFilterId]);
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
@@ -333,8 +351,8 @@ const Product = () => {
     const name = searchParams.get("name");
     if (name) {
       hoveredPromotionId
-        ? fetchProduct(name, selectedFilters, hoveredPromotionId)
-        : fetchProduct(name, selectedFilters);
+        ? fetchProduct(name, selectedFilters, hoveredPromotionId, searchText)
+        : fetchProduct(name, selectedFilters, null, searchText);
       fetchMinisizeData(name);
     }
   }, [searchParams, selectedFilters]);
@@ -344,11 +362,14 @@ const Product = () => {
     promotionId?: number
   ) => {
     promotionId && setHoveredPromotionId(promotionId);
+    promotionId && setPromotionFilterId(promotionId);
+    
     setSelectedFilters(filters); // Store the full filter object (with labels)
+
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct(name, filters, promotionId); // Pass promotionId to fetchProduct
+      fetchProduct(name, filters, promotionId, searchText); // Pass promotionId to fetchProduct
     }
 
     // Scroll to the DataTable smoothly
@@ -703,13 +724,42 @@ const Product = () => {
       setPageSize(pageSize);
     }
   };
-  
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSearch = (value: string) => {
+    const query = new URLSearchParams(window.location.search);
+    const name = query.get("name");
+    setSearchText(value);
+    // if (name) {
+    //   fetchProduct(name, selectedFilters, hoveredPromotionId, value); // Trigger data fetch only on search
+    // }
+    if (name) {
+      promotionFilterId
+        ? fetchProduct(name, selectedFilters, promotionFilterId, value)
+        : fetchProduct(name, selectedFilters, null, value);
+      fetchMinisizeData(name);
+    }
+  };
+  const handleClear = () => {
+    setSearchText(""); // Clear the input
+    const query = new URLSearchParams(window.location.search);
+    const name = query.get("name");
+    if (name) {
+      promotionFilterId
+        ? fetchProduct(name, selectedFilters, promotionFilterId, "")
+        : fetchProduct(name, selectedFilters, null, "value");
+      fetchMinisizeData(name);
+    }
+  };
+
   if (loadingMini || loadingProduct || loadingPromo) {
     return <Loading />;
   }
-  
+
   return (
-    
     <div className="px-4">
       <div className="px-4 pb rounded-lg">
         <div className="promotion-card pb-4">
@@ -719,7 +769,7 @@ const Product = () => {
                 <Card
                   title={false}
                   bordered={false}
-                  style={{ width: 300 }}
+                  // style={{ width: 300 }}
                   key={index}
                   className="rounded-lg"
                   onMouseEnter={() => setHoveredPromotionId(promotion.id)}
@@ -732,7 +782,7 @@ const Product = () => {
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      height: "600px", // Set a fixed height for the image container
+                      // height: "600px", // Set a fixed height for the image container
                       overflow: "hidden",
                     }}
                   >
@@ -744,8 +794,8 @@ const Product = () => {
                       src={promotion.image}
                       style={{
                         objectFit: "cover", // Cover the container
-                        width: "100%", // Ensure it takes full width
-                        height: "100%", // Ensure it takes full height
+                        // width: "100%", // Ensure it takes full width
+                        // height: "100%", // Ensure it takes full height
                       }}
                     />
                     {hoveredPromotionId === promotion.id && (
@@ -760,7 +810,7 @@ const Product = () => {
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
-                          borderRadius: "0.5rem"
+                          borderRadius: "0.5rem",
                         }}
                       >
                         <button
@@ -786,7 +836,9 @@ const Product = () => {
                           }}
                         >
                           <div className="flex justify-between gap-2">
-                            <span className="default-font">{t("see more")}</span>
+                            <span className="default-font">
+                              {t("see more")}
+                            </span>
                             <svg
                               width="24"
                               height="24"
@@ -843,7 +895,7 @@ const Product = () => {
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      height: "600px", // Set a fixed height for the image container
+                      // height: "600px", // Set a fixed height for the image container
                       overflow: "hidden",
                     }}
                   >
@@ -871,7 +923,7 @@ const Product = () => {
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
-                          borderRadius: "0.5rem"
+                          borderRadius: "0.5rem",
                         }}
                       >
                         <button
@@ -897,7 +949,9 @@ const Product = () => {
                           }}
                         >
                           <div className="flex justify-between gap-2">
-                            <span className="default-font">{t("see more")}</span>
+                            <span className="default-font">
+                              {t("see more")}
+                            </span>
                             <svg
                               width="24"
                               height="24"
@@ -949,11 +1003,23 @@ const Product = () => {
               <Submenu
                 minisizeId={minisizeData.id}
                 onFilterChange={handleFilterChange}
+                promotiondData={promotiondData}
+                hoveredPromotionId={promotionFilterId}
                 t={t}
               />
             )}
-            <Link  className="hover:text-white text-white cursor-pointer hover:bg-comp-red h-full flex items-center px-4 h-full" href={`/${locale}/admin/news?name=${brandName}`}>{t("News and events")}</Link>
-            <Link  className="hover:text-white text-white cursor-pointer hover:bg-comp-red h-full flex items-center px-4 h-full" href={`/${locale}/admin/media?name=${brandName}`}>{t("Marketing")}</Link>
+            <Link
+              className="hover:text-white text-white cursor-pointer hover:bg-comp-red h-full flex items-center px-4 h-full"
+              href={`/${locale}/admin/news?name=${brandName}`}
+            >
+              {t("News and events")}
+            </Link>
+            <Link
+              className="hover:text-white text-white cursor-pointer hover:bg-comp-red h-full flex items-center px-4 h-full"
+              href={`/${locale}/admin/media?name=${brandName}`}
+            >
+              {t("Marketing")}
+            </Link>
           </div>
           <div>
             <Image
@@ -983,17 +1049,36 @@ const Product = () => {
               <FilterTag
                 selectedFilters={selectedFilters}
                 onFilterChange={handleFilterChange}
+                setPromotionFilterId={setPromotionFilterId}
+                // promotiondData={promotiondData}
+                // hoveredPromotionId={hoveredPromotionId}
               />
             </div>
             <Divider style={{ borderColor: "#E4E7EB" }} dashed />
           </>
         )}
         <div className="flex justify-end items-center gap-4 sort-filter">
-          <Input.Search
+          {/* <Input.Search
             placeholder={t("Search")}
             size="middle"
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: "200px", margin: "1rem 0 1rem 0" }}
+          /> */}
+          <Input.Search
+            placeholder={t("search")}
+            size="middle"
+            style={{ width: "200px", margin: "1rem 0 1rem 0" }}
+            value={searchText}
+            onSearch={handleSearch}
+            onChange={handleInputChange}
+            suffix={
+              searchText ? (
+                <CloseCircleOutlined
+                  onClick={handleClear}
+                  style={{ cursor: "pointer" }}
+                />
+              ) : null
+            }
           />
           <p className="text-comp-text-filter default-font text-sm">
             {t("Sort")}

@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+// @media screen and (max-width: 1625px) {
+//   .f-carousel__slide {
+//     padding: 0.25rem !important;
+//   }
+// }
+canvas {
+  width: 100%!important;
+}
 :root {
   /* --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -109,7 +119,7 @@ body {
 }
 
 .f-carousel__slide {
-  padding: 1rem !important;
+  padding: 0.25rem!important;
 }
 
 @media screen and (min-width: 640px) {
@@ -1113,3 +1123,4 @@ body {
     border-radius: 9999px;
   }
 }
+

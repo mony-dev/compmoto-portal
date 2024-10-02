@@ -96,7 +96,7 @@ const Dashboard = () => {
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [session, triggerProfile]);
+  }, [triggerProfile]);
 
   async function fetchNews() {
     setLoadNews(true);
@@ -625,7 +625,7 @@ const Dashboard = () => {
                 {t("claim your reward here")}
               </h1>
             </div>
-            <div id="cardSlider" className="f-carousel pt-4">
+            <div id="cardSlider" className="f-carousel pt-2">
               <div className="f-carousel__viewport">
                 {Array.from(
                   { length: Math.max(10, rewardData.length) },
@@ -663,7 +663,7 @@ const Dashboard = () => {
                             />
                           </div>
                           <Link
-                            className="pl-4"
+                            className="pl-4 1xl:pl-1"
                             href={`/${locale}/admin/reward`}
                           >
                             <p className="text-comp-red leading-4 default-font">
@@ -696,7 +696,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        <div className="mt-4 p-4 col-span-6 rounded-lg">
+        <div className="mt-4 py-4 col-span-6 rounded-lg">
           <Chart userId={session?.user?.id} />
         </div>
         <div

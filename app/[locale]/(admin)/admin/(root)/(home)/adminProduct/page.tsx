@@ -57,7 +57,6 @@ export default function adminProduct({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState(() => {
-    // Initialize searchText from query parameter 'q' or default to an empty string
     const params = new URLSearchParams(window.location.search);
     return params.get('q') || '';
   });

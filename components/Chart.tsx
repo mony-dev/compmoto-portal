@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import DropdownFilter from "./DropdownFilter";
@@ -228,14 +228,30 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
     marginBottom: "8px",
   };
 
-  const allSelectedItems = [
-    { type: "brand", selected: selectedBrands, options: brandOptions },
-    { type: "size", selected: selectedSizes, options: sizeOptions },
-    { type: "category", selected: selectedCategories, options: cateOptions },
-    { type: "product", selected: selectedProducts, options: productItems },
-    { type: "month", selected: selectedMonths, options: months },
-    { type: "year", selected: selectedYears, options: years },
-  ];
+  const allSelectedItems = useMemo(
+    () => [
+      { type: "brand", selected: selectedBrands, options: brandOptions },
+      { type: "size", selected: selectedSizes, options: sizeOptions },
+      { type: "category", selected: selectedCategories, options: cateOptions },
+      { type: "product", selected: selectedProducts, options: products },
+      { type: "month", selected: selectedMonths, options: monthOptions },
+      { type: "year", selected: selectedYears, options: yearOptions },
+    ],
+    [
+      selectedBrands,
+      selectedSizes,
+      selectedCategories,
+      selectedProducts,
+      selectedMonths,
+      selectedYears,
+      brandOptions,
+      sizeOptions,
+      cateOptions,
+      products,
+      monthOptions,
+      yearOptions,
+    ]
+  );
 
   const renderFilterTags = (
     selected: SelectedItem[],

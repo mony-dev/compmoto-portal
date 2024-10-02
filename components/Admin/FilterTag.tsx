@@ -19,9 +19,10 @@ interface FilterTagProps {
     lv3?: FilterType;
     promotion?: FilterType; // Add promotion filter
   };
+  setPromotionFilterId: any;
 }
 
-const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }) => {
+const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters, setPromotionFilterId }) => {
   const tags = [
     selectedFilters.lv1 ? `${selectedFilters.lv1.label}` : null,
     selectedFilters.lv2 ? `${selectedFilters.lv2.label}` : null,
@@ -33,6 +34,7 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
 
     if (newFilters.promotion && `Promotion: ${newFilters.promotion.label}` === removedTag) {
       // If the removed tag is for promotion, remove promotion
+      setPromotionFilterId(null);
       delete newFilters.promotion;
     } else if (newFilters.lv3 && newFilters.lv3.label === removedTag) {
       // If the removed tag is in lv3, remove lv3
@@ -47,7 +49,6 @@ const FilterTag: React.FC<FilterTagProps> = ({ onFilterChange, selectedFilters }
       delete newFilters.lv2;
       delete newFilters.lv3;
     }
-
     onFilterChange(newFilters);
   };
   const tagPlusStyle: React.CSSProperties = {

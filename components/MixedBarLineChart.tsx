@@ -445,7 +445,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
             className="row-span-4 col-span-2 mt-4 p-6 rounded-lg bg-white"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
           >
-            <Chart type="bar" data={chartData} options={options} />
+            <Chart type="bar" data={chartData} options={options} className="w-full"/>
           </div>
         </div>
       )}

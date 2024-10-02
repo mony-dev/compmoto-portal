@@ -13,12 +13,18 @@ interface SubmenuProps {
     lv1?: { id: string; label: string };
     lv2?: { id: string; label: string };
     lv3?: { id: string; label: string };
-  }) => void;
+    promotion?: {
+      id: string,
+      label: string,
+    },
+  }, promotionId?: number) => void;
   minisizeId: number;
   t: any;
+  promotiondData: any;
+  hoveredPromotionId: number | null;
 }
 
-const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t }) => {
+const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t,promotiondData, hoveredPromotionId }) => {
   const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{
     lv1?: { id: string; label: string };
@@ -69,7 +75,23 @@ const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t }) => {
     if (lv3) newFilters.lv3 = { id: lv3, label: lv3Tag };
 
     setSelectedFilters(newFilters);
-    onFilterChange(newFilters);
+    // onFilterChange(newFilters);
+    if (hoveredPromotionId) {
+      const promotion = promotiondData.find((item: any) => item.id === hoveredPromotionId);
+      onFilterChange(
+        {
+          ...newFilters,
+          promotion: {
+            id: promotion.id.toString(),
+            label: promotion.name,
+          }, // Ensure promotion is added
+        },
+        promotion.id
+      );
+    } else {
+      onFilterChange(newFilters);
+    }
+    
   };
 
   const renderMenu = (

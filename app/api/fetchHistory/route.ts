@@ -249,6 +249,14 @@ export async function POST() {
       }
     });
     
+    exec('node lib/web/utils/fetchCreditMemo.mjs', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return NextResponse.json(error);
+      }
+    });
+    
+    
     return NextResponse.json({ message: "Processing completed" });
   } catch (error) {
     console.error("Error processing invoices:", error);
