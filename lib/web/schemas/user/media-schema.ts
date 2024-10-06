@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const mediaSchema = z.object({
   minisizeId: z.number().nonnegative({ message: "Minisize is required!" }),
-  name: z.string().nonempty("Name is required!"),
+  name: z.string().optional() ,
   isActive: z.boolean().default(true),
   url: z.string().optional() ,
   duration: z.string().optional() ,
