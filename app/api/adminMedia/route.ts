@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       whereClause.AND.push({ isActive });
     }
 
-    if (minisizeId !== undefined) {
+    if (minisizeId) {
       whereClause.AND.push({ minisizeId: Number(minisizeId) });
     }
 
