@@ -1,18 +1,8 @@
 "use client";
 import dynamic from "next/dynamic";
 import debounce from "lodash.debounce";
-import {
-  formatDate,
-  toastError,
-  toastSuccess,
-} from "@lib-utils/helper";
-import {
-  Badge,
-  Button,
-  Input,
-  Tabs,
-  TabsProps,
-} from "antd";
+import { formatDate, toastError, toastSuccess } from "@lib-utils/helper";
+import { Badge, Button, Input, Tabs, TabsProps } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import Link from "next/link";
@@ -26,7 +16,9 @@ import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 const Loading = dynamic(() => import("@components/Loading"));
-const TabContentOrder = dynamic(() => import("@components/Admin/order/TabContentOrder"));
+const TabContentOrder = dynamic(
+  () => import("@components/Admin/order/TabContentOrder")
+);
 
 export default function normalOrder({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
@@ -92,7 +84,9 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) => a.documentNo.localeCompare(b.documentNo),
       render: (_, record) => (
-        <Link href={`/${locale}/admin/normalOrder/${record.id}`}>{record.documentNo}</Link>
+        <Link href={`/${locale}/admin/normalOrder/${record.id}`}>
+          {record.documentNo}
+        </Link>
       ),
     },
     {
@@ -149,7 +143,9 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) => a.documentNo.localeCompare(b.documentNo),
       render: (_, record) => (
-        <Link href={`/${locale}/admin/invoice/${record.id}`}>{record.documentNo}</Link>
+        <Link href={`/${locale}/admin/invoice/${record.id}`}>
+          {record.documentNo}
+        </Link>
       ),
     },
     {
@@ -200,7 +196,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     [currentPage, pageSize, activeTabKey, triggerData]
   );
 
-  
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
@@ -244,14 +239,14 @@ export default function normalOrder({ params }: { params: { id: number } }) {
           axios.get(`/api/order`, {
             params: {
               q: searchText,
-              type: 'Normal',
+              type: "Normal",
               userId: session.user.id,
               page: currentPage,
               pageSize: pageSize,
             },
           }),
         ]);
-      
+
         // Process the response from `/api/adminInvoice`
         const invoiceOrderDataWithKeys = invoiceResponse.data.orders.map(
           (order: any, index: number) => ({
@@ -262,39 +257,39 @@ export default function normalOrder({ params }: { params: { id: number } }) {
         setInvoiceData(invoiceOrderDataWithKeys);
         setInvoiceTotal(invoiceResponse.data.total);
         setTotal(invoiceResponse.data.total);
-      
-        const orderDataWithKeys = orderResponse.data.orders.map((order: any, index: number) => {
-          // Initialize a variable to store the calculated subTotal for each order
-          let calculatedSubTotal = 0;
-        
-          // Iterate through each item in the order
-          order.items.forEach((item: any) => {
-            if (item.year === null) {
-              // If the item has no year
-              const yearDiscount = (item.price * item.discount) / 100;
-              calculatedSubTotal += item.price - yearDiscount
-            } else {
-              // If the item has a year, calculate the discount and subtract it from the subTotal
-              calculatedSubTotal += item.discountPrice
-            }
-          });
-          // Return the order with the new subTotal and a unique key
-          return {
-            ...order,
-            calculatedSubTotal: calculatedSubTotal, // Add the calculated subTotal to each order
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
-          };
-        });
+
+        const orderDataWithKeys = orderResponse.data.orders.map(
+          (order: any, index: number) => {
+            // Initialize a variable to store the calculated subTotal for each order
+            let calculatedSubTotal = 0;
+
+            // Iterate through each item in the order
+            order.items.forEach((item: any) => {
+              if (item.year === null) {
+                // If the item has no year
+                const yearDiscount = (item.price * item.discount) / 100;
+                calculatedSubTotal += item.price - yearDiscount;
+              } else {
+                // If the item has a year, calculate the discount and subtract it from the subTotal
+                calculatedSubTotal += item.discountPrice;
+              }
+            });
+            // Return the order with the new subTotal and a unique key
+            return {
+              ...order,
+              calculatedSubTotal: calculatedSubTotal, // Add the calculated subTotal to each order
+              key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
+            };
+          }
+        );
         setOrderData(orderDataWithKeys);
         setOrderTotal(orderResponse.data.total);
         setTotal(orderResponse.data.total);
-      
       } catch (error: any) {
         toastError(error);
       } finally {
         setLoadPage(false);
       }
-     
     } else {
       console.warn(t("User ID is undefined. Cannot fetch orders"));
     }
@@ -318,18 +313,18 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       toastError(error.message);
     }
   };
-  
+
   const syncAndProcessInvoices = async () => {
     try {
       setIsSyncing(true); // Set loading state
       // Step 1: Fetch Invoices
       await fetchInvoices(); // Wait until this is done
-  
+
       // Step 2: Process Invoices
       await processInvoices(); // Wait until this is done
-  
+
       // Step 3: Toast Success
-      setTriggerData(!triggerData)
+      setTriggerData(!triggerData);
       toastSuccess(t("Sync invoice successfully"));
     } catch (error: any) {
       // Handle error for both fetch and process steps
@@ -360,7 +355,9 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       >
         <div className="text-lg pb-4 default-font">
           <div className="flex">
-            <p className="text-lg font-semibold pb-4 grow">{t("Normal Order")}</p>
+            <p className="text-lg font-semibold pb-4 grow">
+              {t("Normal Order")}
+            </p>
             <Input.Search
               placeholder={t("search")}
               size="middle"
@@ -377,24 +374,26 @@ export default function normalOrder({ params }: { params: { id: number } }) {
                 ) : null
               }
             />
-            <Button
-              className="bg-comp-red button-backend ml-4"
-              type="primary"
-              icon={<ArrowPathIcon className="w-4" />}
-              loading={isSyncing} // Add loading prop
-              onClick={async () => {
-                setIsSyncing(true); // Start loading
-                try {
-                  await syncAndProcessInvoices(); // Call the async function
-                } catch (error: any) {
-                  toastError(error); // Handle the error
-                } finally {
-                  setIsSyncing(false); // Stop loading after the request completes
-                }
-              }}
-            >
-              {t("Sync")}
-            </Button>
+            {activeTabKey === "2" && (
+              <Button
+                className="bg-comp-red button-backend ml-4"
+                type="primary"
+                icon={<ArrowPathIcon className="w-4" />}
+                loading={isSyncing} // Add loading prop
+                onClick={async () => {
+                  setIsSyncing(true); // Start loading
+                  try {
+                    await syncAndProcessInvoices(); // Call the async function
+                  } catch (error: any) {
+                    toastError(error); // Handle the error
+                  } finally {
+                    setIsSyncing(false); // Stop loading after the request completes
+                  }
+                }}
+              >
+                {t("Sync")}
+              </Button>
+            )}
           </div>
           <TabContentOrder
             columns={columns}
@@ -411,8 +410,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
             setActiveTabKey={setActiveTabKey}
           />
         </div>
-
-     
       </div>
     </div>
   );

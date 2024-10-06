@@ -396,9 +396,9 @@ model Media {
   minisize      Minisize @relation(fields: [minisizeId], references: [id])
   image         String?
   type          MediaType   
-  url           String
+  url           String @default("")
   coverImg      String?
-  duration      String?
+  duration      String? @default("")
 }
 
 model News {

@@ -131,7 +131,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
         <div className="flex">
           <p
             className="flex cursor-pointer hover:text-comp-blue-link pr-2"
-            onClick={showModal(true, record.id)}
+            onClick={showModal(true, record.id, "EDIT")}
           >
             <PencilSquareIcon className="w-4 mr-0.5" />
             <span>{t("edit")}</span>
@@ -226,11 +226,11 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     isModalVisible ? setMode("EDIT") : setMode("ADD");
   }, [isModalVisible]);
 
-  function showModal(isShow: boolean, idReward: number) {
+  function showModal(isShow: boolean, idReward: number, modeState: string) {
     return () => {
       setIsModalVisible(isShow);
       setId(idReward);
-      if (idReward === 0) {
+      if (modeState === "ADD") {
         setMode("ADD");
         setTitle(t("add_media"));
       } else {
@@ -288,7 +288,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
               className="bg-comp-red button-backend ml-4"
               type="primary"
               icon={<PlusIcon className="w-4" />}
-              onClick={showModal(true, 0)}
+              onClick={showModal(true, 0, "ADD")}
             >
               {t("add")}
             </Button>

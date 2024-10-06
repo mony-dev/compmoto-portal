@@ -135,7 +135,7 @@ const ManualList: React.FC<ManualProps> = ({ type }) => {
           next={loadMoreData}
           hasMore={data.length < total} 
           loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-          endMessage={<Divider plain>{t('It is all nothing load more')}</Divider>}
+          // endMessage={<Divider plain>{t('It is all nothing load more')}</Divider>}
           scrollableTarget="scrollableDiv"
         >
           <List
@@ -143,8 +143,8 @@ const ManualList: React.FC<ManualProps> = ({ type }) => {
             renderItem={(item) => (
               <List.Item key={item.id}>
                 <List.Item.Meta
-                  avatar={<Avatar src={item.coverImg ? item.coverImg : "https://via.placeholder.com/150"} />}
-                  title={<Link className="hover:comp-red-hover" href={type === "manual" ? `/${locale}/admin/user-manuals/${item.id}` : `/${locale}/admin/news/${item.id}?name=${item.minisize.name}`}><span className="default-font">{item.name}</span></Link>}
+                  avatar={item.coverImg ? <Avatar src={item.coverImg} /> : ''}
+                  title={<Link className="hover:comp-red-hover font-semibold" href={type === "manual" ? `/${locale}/admin/user-manuals/${item.id}` : `/${locale}/admin/news/${item.id}?name=${item.minisize.name}`}><span className="default-font">{item.name}</span></Link>}
                   description={formatDateDiffNumber(item.createdAt)} // Adjusted this as well to directly use item
                 />
               </List.Item>
