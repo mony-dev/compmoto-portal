@@ -76,7 +76,12 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
   // Fetch brands
   const fetchBrands = async () => {
     try {
-      const { data } = await axios.get(`/api/adminBrand`);
+      const { data } = await axios.get(`/api/adminBrand`, {
+        params: {
+          page: 1,
+          pageSize: 50,
+        },
+      });
       const brands = data.data.map((brand: any) => ({
         key: brand.id,
         label: brand.name,

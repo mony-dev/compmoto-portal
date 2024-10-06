@@ -28,7 +28,7 @@ import BoxGrey from "../../public/images/logo/box-grey.png";
 import BoxRed from "../../public/images/logo/box-red.png";
 import BookGrey from "../../public/images/logo/book-grey.png";
 import BookRed from "../../public/images/logo/book-red.png";
-import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../i18nConfig";
 import { useCart } from "./Cartcontext";
@@ -262,6 +262,27 @@ export default function SideBar({
         { title: "ข่าว และกิจกรรม", href: `/${locale}/admin/adminNews` },
       ],
       id: "adminMinisize",
+      openMenuId: openMenuId,
+      forRole: ["ADMIN"],
+    },
+    {
+      title: "ซิงค์ข้อมูล",
+      icon:
+        openMenuId == "adminSyncBrand" ? (
+          <ArrowPathIcon className="size-6 text-comp-red" />
+        ) : (
+          <ArrowPathIcon className="size-6" />
+        ),
+      items: [
+        { title: "แบนด์", href: `/${locale}/admin/adminSyncBrand` },
+        { title: "Com Rate", href: `/${locale}/admin/adminSyncComrate` },
+        { title: "Family", href: `/${locale}/admin/adminSyncFamily` },
+        { title: "Group Type", href: `/${locale}/admin/adminSyncGroupType` },
+        { title: "Product Group", href: `/${locale}/admin/adminSyncProductGroup` },
+        { title: "Rim", href: `/${locale}/admin/adminSyncRim` },
+        { title: "Size", href: `/${locale}/admin/adminSyncSize` },
+      ],
+      id: "adminSyncBrand",
       openMenuId: openMenuId,
       forRole: ["ADMIN"],
     },

@@ -4,16 +4,9 @@ const prisma = new PrismaClient();
 
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const page = 1;
-  const pageSize = 50;
-
   try {
     const [comRate, total] = await Promise.all([
-      prisma.comRate.findMany({
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
+      prisma.comRate.findMany(),
       prisma.comRate.count(),
     ]);
     return NextResponse.json({ data: comRate, total });

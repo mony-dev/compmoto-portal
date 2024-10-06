@@ -144,6 +144,10 @@ const ModalMedia = ({
   };
 
   const onSubmit: SubmitHandler<MediaSchema> = async (values) => {
+    console.log("submit", values)
+    console.log("mode", mode)
+    console.log("editMediaData", editMediaData)
+
     if (mode === "EDIT" && editMediaData) {
       try {
         const response = await axios.put(

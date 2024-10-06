@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   const pageSize = parseInt(searchParams.get("pageSize") || "50");
   const isActiveParam = searchParams.get("isActive");
 
+  const minisizeId = searchParams.get("minisizeId");
   // Convert the 'isActive' parameter to a boolean or undefined if not provided
   const isActive = isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
 
@@ -43,6 +44,10 @@ export async function GET(request: Request) {
     // Add isActive condition to the where clause if it is defined
     if (isActive !== undefined) {
       whereClause.AND.push({ isActive });
+    }
+
+    if (minisizeId !== undefined) {
+      whereClause.AND.push({ minisizeId: Number(minisizeId) });
     }
 
     const [medias, total] = await Promise.all([

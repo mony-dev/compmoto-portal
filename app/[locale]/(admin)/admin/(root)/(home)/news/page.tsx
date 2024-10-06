@@ -95,7 +95,7 @@ const News = () => {
   };
   useEffect(() => {
     fetchData(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, minisizeData]);
 
   async function fetchData(currentPage: number, pageSize: number) {
     setLoading(true);
@@ -105,6 +105,7 @@ const News = () => {
           page: currentPage,
           pageSize: pageSize,
           isActive: true,
+          minisizeId: minisizeData!.id
         },
       });
 

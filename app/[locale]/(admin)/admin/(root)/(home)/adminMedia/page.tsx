@@ -105,6 +105,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
       dataIndex: "minisize",
       key: "minisize",
       sorter: (a, b) => a.minisize.name.localeCompare(b.minisize.name),
+      render: (_, record) => <p>{record?.minisize?.name}</p>,
     },
     {
       title: t("show"),
@@ -187,7 +188,6 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
           pageSize: pageSize,
         },
       });
-
       const mediaDataWithKeys = data.medias.map(
         (mini: DataType, index: number) => ({
           ...mini,

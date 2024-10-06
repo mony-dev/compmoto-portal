@@ -11,6 +11,7 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "50");
   const isActiveParam = searchParams.get("isActive");
+  const minisizeId = searchParams.get("minisizeId");
 
   // Convert the 'isActive' parameter to a boolean or undefined if not provided
   const isActive = isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
@@ -27,6 +28,9 @@ export async function GET(request: Request) {
       whereClause.AND.push({ isActive });
     }
 
+    if (minisizeId) {
+      whereClause.AND.push({ minisizeId: Number(minisizeId) });
+    }
     const [news, total] = await Promise.all([
       prisma.news.findMany({
         where: whereClause,

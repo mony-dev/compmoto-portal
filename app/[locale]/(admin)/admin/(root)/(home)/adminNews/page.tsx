@@ -99,6 +99,7 @@ export default function adminNews() {
       dataIndex: "minisize",
       key: "minisize",
       sorter: (a, b) => a.minisize.name.localeCompare(b.minisize.name),
+      render: (_, record) => <p>{record?.minisize?.name}</p>,
     },
     {
       title: t("show"),

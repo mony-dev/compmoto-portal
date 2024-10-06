@@ -246,8 +246,12 @@ export default function adminMinisizes({ params }: { params: { id: number } }) {
 
   const fetchBrands = async () => {
     try {
-      const { data } = await axios.get(`/api/adminBrand`);
-
+      const { data } = await axios.get(`/api/adminBrand`, {
+        params: {
+          page: 1,
+          pageSize: 50,
+        },
+      });
       const brands = data.data.map((brand: any) => ({
         value: brand.id,
         label: brand.name,

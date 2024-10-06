@@ -519,12 +519,14 @@ const Product = () => {
       key: "years",
       render: (years: YearDataType[], record) => (
         <div>
-          {years.map((yearData, index) => (
+          
+          {record.brand?.name === "PIRELLI" && years.map((yearData, index) => (
             <Tooltip
               placement="top"
               title={`${yearData.discount}%`}
               key={index}
             >
+            
               <Tag
                 color={
                   yearData.isActive

@@ -108,7 +108,7 @@ const Media = () => {
 
   useEffect(() => {
     fetchData(type, currentPage, pageSize);
-  }, [type, currentPage, pageSize]);
+  }, [type, currentPage, pageSize, minisizeData]);
 
   // Function to fetch the image size from Cloudinary based on its public ID
   const fetchImageSize = async (publicId: string) => {
@@ -144,6 +144,7 @@ const Media = () => {
           page: currentPage,
           pageSize: pageSize,
           isActive: true,
+          minisizeId: minisizeData!.id
         },
       });
 

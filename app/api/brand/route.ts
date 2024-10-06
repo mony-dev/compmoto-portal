@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q") || "";
   const page = 1;
-  const pageSize = 50;
+  const pageSize = 200;
 
   try {
     const [brands, total] = await Promise.all([
