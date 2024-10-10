@@ -14,9 +14,13 @@ export async function GET(request: Request) {
           OR: [{ name: { contains: q, mode: "insensitive" } }],
         },
         include: {
-          brand: {
+          brands: {   // Accessing the join table BrandMinisize
             include: {
-              products: true,
+              brand: {  // Access the Brand from the join table
+                include: {
+                  products: true,  // Including products under each Brand
+                },
+              },
             },
           },
         },
@@ -29,10 +33,16 @@ export async function GET(request: Request) {
         },
       }),
     ]);
-    const minisizesWithProductCount = minisizes.map((minisize: any) => ({
-      ...minisize,
-      productCount: minisize.brand.products.length,
-    }));
+    const minisizesWithProductCount = minisizes.map((minisize: any) => {
+      const productCount = minisize.brands.reduce(
+        (acc: number, brandMinisize: any) => acc + brandMinisize.brand.products.length,
+        0
+      );
+      return {
+        ...minisize,
+        productCount,
+      };
+    });
     return NextResponse.json({ minisizes: minisizesWithProductCount, total });
   } catch (error) {
     return NextResponse.json(error);
@@ -44,10 +54,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+    console.log("data", data)
+
     const newMinisize = await prisma.minisize.create({
       data: {
-        brandId: data.brandId,
-        brandProductId: data.brandId,
         name: data.name,
         imageProfile: data.imageProfile,
         isActive: data.isActive,
@@ -58,14 +68,23 @@ export async function POST(request: Request) {
         newsBanner: data.newsBanner
       },
     });
-    const updatedProducts = await prisma.product.updateMany({
+    await prisma.brandMinisize.createMany({
+      data: data.brandIds.map((brandId: number) => ({
+        brandId: brandId,
+        minisizeId: newMinisize.id,
+      })),
+    });
+
+    // Update the products based on brand IDs
+    await prisma.product.updateMany({
       where: {
-        brandId: Number(data.brandId),
+        brandId: { in: data.brandIds },
       },
       data: {
-        minisizeId: Number(newMinisize.id),
+        minisizeId: newMinisize.id,
       },
     });
+
     return NextResponse.json(newMinisize);
   } catch (error) {
     return NextResponse.json(error);

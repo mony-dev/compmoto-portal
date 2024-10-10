@@ -4,14 +4,13 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const brandId = searchParams.get('brandId') || '';
+    const brandIds = searchParams.getAll('brandIds[]').map(Number) || [];
   
     try {
       const products = await prisma.product.findMany({
         where: {
-            brandId: { equals: Number(brandId) }
-        }
-     
+          brandId: { in: brandIds }, 
+        },
       });
       return NextResponse.json(products);
     } catch (error) {

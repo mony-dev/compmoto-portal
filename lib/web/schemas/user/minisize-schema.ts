@@ -38,7 +38,7 @@ const atLeastOneActiveLv1 = z
   });
 
 export const minisizeSchema = z.object({
-  brandId: z.number().nonnegative({ message: "Brand is required!" }),
+  brandIds: z.array(z.number().nonnegative()).min(1, { message: "At least one brand is required!" }),
   name: z.string().nonempty("Name is required!"),
   isActive: z.boolean().default(true),
   lv1: atLeastOneActiveLv1,

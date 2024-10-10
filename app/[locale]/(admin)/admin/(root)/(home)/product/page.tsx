@@ -124,7 +124,7 @@ const Product = () => {
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
 
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
-  const { setI18nName, setLoadPage, loadPage } = useCart();
+  const { setI18nName } = useCart();
   const pathname = usePathname();
 
   type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
@@ -221,32 +221,113 @@ const Product = () => {
     }
   };
 
-  const fetchProduct = async (
+  // const fetchProduct = async (
+  //   name: string,
+  //   filters = {} as SelectedFilters,
+  //   promotionId?: number | null,
+  //   query?: string,
+  // ) => {
+  //   if (promotionFilterId && promotionId) {
+  //     promotionId = promotionId
+  //   }
+  //   setBrandName(name);
+  //   const simplifiedFilters = {
+  //     lv1: filters.lv1?.id,
+  //     lv2: filters.lv2?.id,
+  //     lv3: filters.lv3?.id,
+  //     promotionId: promotionId,
+  //     page: currentPage,
+  //     pageSize: pageSize,
+  //   };
+  //   if (!query) {
+  //     query = ""
+  //   }
+  //   const minisize = await axios.get(`/api/adminMinisize?q=${name}`);
+  //   if (minisize) {
+  //     const miniId = minisize.data.minisizes[0].id
+  //     setLoadingProduct(true);
+  //     axios
+  //     .get(
+  //       `/api/getProduct?q=${query}&brandName=${name}&sortBy=${sortBy}&minisizeId=${miniId}`,
+  //       {
+  //         params: simplifiedFilters,
+  //       }
+  //     )
+  //     .then((response) => {
+  //       const useProduct = response.data.products.map((product: DataType) => ({
+  //         key: product.id,
+  //         id: product.id,
+  //         code: product.code,
+  //         name: product.name,
+  //         brandId: product.brandId,
+  //         price: product.price,
+  //         navStock: product.navStock,
+  //         portalStock: product.portalStock,
+  //         minisizeId: product.minisizeId,
+  //         promotionId: product.promotionId,
+  //         updatedAt: product.updatedAt,
+  //         years: product.years ? JSON.parse(
+  //           product.years as unknown as string
+  //         ) as YearDataType[] : [],
+  //         lv1Id: product.lv1Id,
+  //         lv2Id: product.lv2Id,
+  //         lv3Id: product.lv3Id,
+  //         totalOrder: product.totalOrder,
+  //         brand: {
+  //           name: product?.brand?.name,
+  //         },
+  //         minisize: {
+  //           name: product?.minisize?.name,
+  //           lv1: product?.minisize?.lv1,
+  //           lv2: product?.minisize?.lv2,
+  //           lv3: product?.minisize?.lv3,
+  //         },
+  //         promotion: {
+  //           name: product?.promotion?.name,
+  //           id: product?.promotion?.id,
+  //         },
+  //         imageProducts: product?.imageProducts,
+  //         lv1Name: product.lv1Name,
+  //         lv2Name: product.lv2Name,
+  //         lv3Name: product.lv3Name,
+  //       }));
+  //       setProductData(useProduct);
+  //       setTotal(response.data.total);
+  //       setLoadingProduct(false);
+  //     })
+  //     .catch((error) => {
+  //       setLoadingProduct(false);
+
+  //       console.error("Error fetching data: ", error);
+  //     });
+  //   }
+
+  // };
+
+  const fetchProduct1 = async (
     name: string,
     filters = {} as SelectedFilters,
-    promotionId?: number | null,
-    query?: string 
+    query?: string,
   ) => {
-    if (promotionFilterId && promotionId) {
-      promotionId = promotionId
-    }
     setBrandName(name);
     const simplifiedFilters = {
       lv1: filters.lv1?.id,
       lv2: filters.lv2?.id,
       lv3: filters.lv3?.id,
-      promotionId: promotionId,
+      promotionId: filters?.promotion?.id,
       page: currentPage,
       pageSize: pageSize,
     };
-    setLoadingProduct(true);
     if (!query) {
       query = ""
     }
-
-    axios
+    const minisize = await axios.get(`/api/adminMinisize?q=${name}`);
+    if (minisize) {
+      const miniId = minisize.data.minisizes[0].id
+      setLoadingProduct(true);
+      axios
       .get(
-        `/api/getProduct?q=${query}&brandName=${name}&sortBy=${sortBy}`,
+        `/api/getProduct?q=${query}&sortBy=${sortBy}&minisizeId=${miniId}`,
         {
           params: simplifiedFilters,
         }
@@ -264,9 +345,9 @@ const Product = () => {
           minisizeId: product.minisizeId,
           promotionId: product.promotionId,
           updatedAt: product.updatedAt,
-          years: JSON.parse(
+          years: product.years ? JSON.parse(
             product.years as unknown as string
-          ) as YearDataType[],
+          ) as YearDataType[] : [],
           lv1Id: product.lv1Id,
           lv2Id: product.lv2Id,
           lv3Id: product.lv3Id,
@@ -294,8 +375,10 @@ const Product = () => {
         setLoadingProduct(false);
       })
       .catch((error) => {
+        setLoadingProduct(false);
         console.error("Error fetching data: ", error);
       });
+    }
   };
 
   const fetchPromotion = async (id: number, filters = {}) => {
@@ -328,14 +411,8 @@ const Product = () => {
   };
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const name = query.get("name");
-    if (name) {
-      promotionFilterId
-        ? fetchProduct(name, selectedFilters, promotionFilterId, searchText)
-        : fetchProduct(name, selectedFilters, null, searchText);
-    }
-  }, [selectedFilters, sortBy, currentPage, promotionFilterId]);
+    setCurrentPage(1);
+  }, [brandName]);
 
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
@@ -350,29 +427,27 @@ const Product = () => {
   useEffect(() => {
     const name = searchParams.get("name");
     if (name) {
-      hoveredPromotionId
-        ? fetchProduct(name, selectedFilters, hoveredPromotionId, searchText)
-        : fetchProduct(name, selectedFilters, null, searchText);
+      fetchProduct1(name, selectedFilters, searchText)
       fetchMinisizeData(name);
     }
-  }, [searchParams, selectedFilters]);
+  }, [searchParams, selectedFilters, sortBy, currentPage]);
 
   const handleFilterChange = (
-    filters: SelectedFilters, // Use the updated type
-    promotionId?: number
+    filters: SelectedFilters, 
   ) => {
-    promotionId && setHoveredPromotionId(promotionId);
-    promotionId && setPromotionFilterId(promotionId);
+    if (filters?.promotion?.id) {
+      setHoveredPromotionId(Number(filters?.promotion?.id));
+      setPromotionFilterId(Number(filters?.promotion?.id));
+    } 
     
-    setSelectedFilters(filters); // Store the full filter object (with labels)
+    setSelectedFilters(filters); 
 
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct(name, filters, promotionId, searchText); // Pass promotionId to fetchProduct
+      fetchProduct1(name, filters, searchText); 
     }
 
-    // Scroll to the DataTable smoothly
     if (dataTableRef.current) {
       dataTableRef.current.scrollIntoView({
         behavior: "smooth",
@@ -735,13 +810,8 @@ const Product = () => {
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     setSearchText(value);
-    // if (name) {
-    //   fetchProduct(name, selectedFilters, hoveredPromotionId, value); // Trigger data fetch only on search
-    // }
     if (name) {
-      promotionFilterId
-        ? fetchProduct(name, selectedFilters, promotionFilterId, value)
-        : fetchProduct(name, selectedFilters, null, value);
+      fetchProduct1(name, selectedFilters, value); 
       fetchMinisizeData(name);
     }
   };
@@ -750,9 +820,7 @@ const Product = () => {
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      promotionFilterId
-        ? fetchProduct(name, selectedFilters, promotionFilterId, "")
-        : fetchProduct(name, selectedFilters, null, "value");
+      fetchProduct1(name, selectedFilters, ""); 
       fetchMinisizeData(name);
     }
   };
@@ -832,8 +900,9 @@ const Product = () => {
                                   id: promotion.id.toString(),
                                   label: promotion.name,
                                 }, // Ensure promotion is added
-                              },
-                              promotion.id
+                              }
+                              // ,
+                              // promotion.id
                             );
                           }}
                         >
@@ -936,7 +1005,6 @@ const Product = () => {
                             cursor: "pointer",
                             color: "white",
                           }}
-                          // onClick={() => handleFilterChange(selectedFilters, promotion.id)}
                           onClick={() => {
                             handleFilterChange(
                               {
@@ -945,8 +1013,7 @@ const Product = () => {
                                   id: promotion.id.toString(),
                                   label: promotion.name,
                                 }, // Ensure promotion is added
-                              },
-                              promotion.id
+                              }
                             );
                           }}
                         >
@@ -1005,8 +1072,7 @@ const Product = () => {
               <Submenu
                 minisizeId={minisizeData.id}
                 onFilterChange={handleFilterChange}
-                promotiondData={promotiondData}
-                hoveredPromotionId={promotionFilterId}
+                promotiondData={selectedFilters.promotion}
                 t={t}
               />
             )}
@@ -1052,20 +1118,12 @@ const Product = () => {
                 selectedFilters={selectedFilters}
                 onFilterChange={handleFilterChange}
                 setPromotionFilterId={setPromotionFilterId}
-                // promotiondData={promotiondData}
-                // hoveredPromotionId={hoveredPromotionId}
               />
             </div>
             <Divider style={{ borderColor: "#E4E7EB" }} dashed />
           </>
         )}
         <div className="flex justify-end items-center gap-4 sort-filter">
-          {/* <Input.Search
-            placeholder={t("Search")}
-            size="middle"
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: "200px", margin: "1rem 0 1rem 0" }}
-          /> */}
           <Input.Search
             placeholder={t("search")}
             size="middle"

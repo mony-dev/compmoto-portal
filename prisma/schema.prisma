@@ -217,32 +217,29 @@ model GroupType {
   updatedAt DateTime @updatedAt
 }
 
+model BrandMinisize {
+  brandId     Int
+  minisizeId  Int
+  brand       Brand       @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  minisize    Minisize    @relation(fields: [minisizeId], references: [id], onDelete: Cascade)
+
+  @@id([brandId, minisizeId]) 
+}
+
 model Brand {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  minisizes Minisize[]
-  products  Product[]
+  id                Int                @id @default(autoincrement())
+  name              String             @unique
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  minisizes         BrandMinisize[]
+  products          Product[]
   specialBonusItem  SpecialBonusItem[]
 }
-
-model BrandProduct {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  minisizes Minisize[]
-  products  Product[]
-}
-
 
 model Minisize {
   id                Int      @id @default(autoincrement())
   isActive          Boolean
   name              String
-  brandId           Int
-  brandProductId    Int
   lv1               Json
   lv2               Json
   lv3               Json
@@ -252,20 +249,20 @@ model Minisize {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   users             User[]    @relation("UserMinisizes")
-  brand             Brand    @relation(fields: [brandId], references: [id])
-  brandProduct      BrandProduct    @relation(fields: [brandProductId], references: [id])
   products          Product[]
   promotions        Promotion[]
   media             Media[]
   news              News[]
+  brands            BrandMinisize[]
 }
+
+
 
 model Product {
   id                  Int      @id @default(autoincrement())
   code                String   @unique
   name                String
   brandId             Int
-  brandProductId      Int
   price               Float
   navStock            Int
   portalStock         Int
@@ -279,7 +276,6 @@ model Product {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   brand               Brand    @relation(fields: [brandId], references: [id])
-  brandProduct        BrandProduct    @relation(fields: [brandProductId], references: [id])
   minisize            Minisize? @relation(fields: [minisizeId], references: [id])
   promotion           Promotion? @relation(fields: [promotionId], references: [id])
   imageProducts       ImageProduct[]

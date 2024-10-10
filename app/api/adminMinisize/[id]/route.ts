@@ -2,25 +2,25 @@ import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
-export async function PUT( request: Request,
-  { params, body }: { params: { id: number }; body: any }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: number } }
+) {
   const data = await request.json();
-  const id = params.id;
-  
+  const id = Number(params.id);
+
   interface dataBodyInterface {
-    brandId: number,
-    name: string,
-    isActive: boolean,
-    lv1: string,
-    lv2: string,
-    lv3: string,
+    name: string;
+    isActive: boolean;
+    lv1: string;
+    lv2: string;
+    lv3: string;
     imageProfile: string;
     mediaBanner: string;
     newsBanner: string;
   }
 
   let dataBody: dataBodyInterface = {
-    brandId: data.brandId,
     name: data.name,
     isActive: data.isActive,
     lv1: JSON.stringify(data.lv1),
@@ -28,25 +28,43 @@ export async function PUT( request: Request,
     lv3: JSON.stringify(data.lv3),
     imageProfile: data.imageProfile,
     mediaBanner: data.mediaBanner,
-    newsBanner: data.newsBanner
-  }
-  
+    newsBanner: data.newsBanner,
+  };
+
   try {
+    // Update the minisize
     const updatedMinisize = await prisma.minisize.update({
       where: {
-        id: Number(id),
+        id: id,
       },
       data: dataBody,
     });
 
-    const updatedProducts = await prisma.product.updateMany({
+    // Remove old brand relations from BrandMinisize
+    await prisma.brandMinisize.deleteMany({
       where: {
-        brandId: Number(data.brandId)
+        minisizeId: id,
+      },
+    });
+
+    // Add new brand relations to BrandMinisize
+    await prisma.brandMinisize.createMany({
+      data: data.brandIds.map((brandId: number) => ({
+        brandId: brandId,
+        minisizeId: id,
+      })),
+    });
+
+    // Update products based on the updated brands
+    await prisma.product.updateMany({
+      where: {
+        brandId: { in: data.brandIds },
       },
       data: {
-        minisizeId: Number(id)
-      }
+        minisizeId: id,
+      },
     });
+
     return NextResponse.json(updatedMinisize);
   } catch (error) {
     return NextResponse.json(error);
@@ -55,32 +73,37 @@ export async function PUT( request: Request,
   }
 }
 
+
 export async function DELETE(
   request: Request,
   { params }: { params: { id: number } }
 ) {
-  const id = params.id;
+  const id = Number(params.id);
   const body = await request.json();
   const { cascade } = body;
 
   try {
+    // Remove relations from BrandMinisize before deleting the minisize
+    await prisma.brandMinisize.deleteMany({
+      where: { minisizeId: id },
+    });
+
     if (cascade) {
       // Update related records to set minisizeId to null instead of deleting them
       await prisma.product.updateMany({
-        where: { minisizeId: Number(id) },
+        where: { minisizeId: id },
         data: { minisizeId: null },
       });
-    
       await prisma.promotion.deleteMany({
-        where: { minisizeId: Number(id) },
+        where: { minisizeId: id },
       });
-      await prisma.media.deleteMany({ where: { minisizeId: Number(id) } });
-      await prisma.news.deleteMany({ where: { minisizeId: Number(id) } });
+      await prisma.media.deleteMany({ where: { minisizeId: id } });
+      await prisma.news.deleteMany({ where: { minisizeId: id } });
     }
 
     // Delete the Minisize itself
     const deleted = await prisma.minisize.delete({
-      where: { id: Number(id) },
+      where: { id: id },
     });
 
     return NextResponse.json(deleted);
@@ -90,6 +113,7 @@ export async function DELETE(
     await prisma.$disconnect();
   }
 }
+
 
 export async function GET(
   request: Request,

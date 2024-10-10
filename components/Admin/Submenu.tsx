@@ -17,25 +17,26 @@ interface SubmenuProps {
       id: string,
       label: string,
     },
-  }, promotionId?: number) => void;
+  }) => void;
   minisizeId: number;
   t: any;
   promotiondData: any;
-  hoveredPromotionId: number | null;
 }
 
-const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t,promotiondData, hoveredPromotionId }) => {
+const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t, promotiondData }) => {
   const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{
     lv1?: { id: string; label: string };
     lv2?: { id: string; label: string };
     lv3?: { id: string; label: string };
+    promotion?: { id: string; label: string };
   }>({});
 
   const [newFilter, setNewFilter] = useState<{
     lv1?: { id: string; label: string };
     lv2?: { id: string; label: string };
     lv3?: { id: string; label: string };
+    promotion?: { id: string; label: string };
   }>({});
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -69,29 +70,14 @@ const Submenu: React.FC<SubmenuProps> = ({ onFilterChange, minisizeId,t,promotio
       lv1?: { id: string; label: string };
       lv2?: { id: string; label: string };
       lv3?: { id: string; label: string };
+      promotion?: { id: string; label: string };
     } = {};
     if (lv1) newFilters.lv1 = { id: lv1, label: lv1Tag };
     if (lv2) newFilters.lv2 = { id: lv2, label: lv2Tag };
     if (lv3) newFilters.lv3 = { id: lv3, label: lv3Tag };
-
+    if (promotiondData?.id) newFilters.promotion = { id: promotiondData.id, label: promotiondData.label };
     setSelectedFilters(newFilters);
-    // onFilterChange(newFilters);
-    if (hoveredPromotionId) {
-      const promotion = promotiondData.find((item: any) => item.id === hoveredPromotionId);
-      onFilterChange(
-        {
-          ...newFilters,
-          promotion: {
-            id: promotion.id.toString(),
-            label: promotion.name,
-          }, // Ensure promotion is added
-        },
-        promotion.id
-      );
-    } else {
-      onFilterChange(newFilters);
-    }
-    
+    onFilterChange(newFilters);
   };
 
   const renderMenu = (

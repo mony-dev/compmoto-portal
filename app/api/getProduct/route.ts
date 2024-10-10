@@ -23,7 +23,18 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "1000");
   const promotionId = searchParams.get('promotionId') || null;
+  const minisizeId = searchParams.get('minisizeId') || null;
+
   try {
+    // let brandIds: number[] = [];
+    // if (minisizeId) {
+    //   const brandMinisizeRelations = await prisma.brandMinisize.findMany({
+    //     where: { minisizeId: parseInt(minisizeId) },
+    //     select: { brandId: true },
+    //   });
+    //   brandIds = brandMinisizeRelations.map((relation) => relation.brandId);
+    // }
+
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where: {
@@ -34,11 +45,23 @@ export async function GET(request: Request) {
                 { code: { contains: q, mode: "insensitive" } },
               ],
             },
-            brandName ? {
-              brand: {
-                name: { contains: brandName, mode: "insensitive" }
-              }
-            } : {},
+            // brandName ? {
+            //   brand: {
+            //     name: { contains: brandName, mode: "insensitive" }
+            //   }
+            // } : {},
+            minisizeId ? { minisizeId: parseInt(minisizeId) } : {},
+            // brandIds.length > 0
+            //   ? {
+            //       minisize: {
+            //         brands: {
+            //           some: {
+            //             brandId: { in: brandIds }, // Count products where the brandId is in the given brandIds
+            //           },
+            //         },
+            //       },
+            //     }
+            //   : {}, // No brand filter if brandIds is empty
             lv1 ? { lv1Id: parseInt(lv1) } : {},
             lv2 ? { lv2Id: parseInt(lv2) } : {},
             lv3 ? { lv3Id: parseInt(lv3) } : {},
@@ -79,11 +102,23 @@ export async function GET(request: Request) {
                 { code: { contains: q, mode: "insensitive" } },
               ],
             },
-            brandName ? {
-              brand: {
-                name: { contains: brandName, mode: "insensitive" }
-              }
-            } : {},
+            // brandName ? {
+            //   brand: {
+            //     name: { contains: brandName, mode: "insensitive" }
+            //   }
+            // } : {},
+            minisizeId ? { minisizeId: parseInt(minisizeId) } : {},
+            // brandIds.length > 0
+            //   ? {
+            //       minisize: {
+            //         brands: {
+            //           some: {
+            //             brandId: { in: brandIds }, // Count products where the brandId is in the given brandIds
+            //           },
+            //         },
+            //       },
+            //     }
+            //   : {}, // No brand filter if brandIds is empty
             lv1 ? { lv1Id: parseInt(lv1) } : {},
             lv2 ? { lv2Id: parseInt(lv2) } : {},
             lv3 ? { lv3Id: parseInt(lv3) } : {},

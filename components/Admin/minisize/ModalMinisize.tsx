@@ -1,17 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  toastError,
-  toastSuccess,
-} from "@lib-utils/helper";
-import {
-  Button,
-  Form,
-  Input,
-  Modal,
-  Switch,
-  Select,
-  Checkbox,
-} from "antd";
+import { toastError, toastSuccess } from "@lib-utils/helper";
+import { Button, Form, Input, Modal, Switch, Select, Checkbox } from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useRouter } from "next/navigation";
@@ -81,7 +70,7 @@ const ModalMinisize = ({
     setValue,
     trigger,
     formState: { errors },
-    reset
+    reset,
   } = useForm<MinisizeSchema>({
     resolver: zodResolver(minisizeSchema),
     defaultValues: {
@@ -98,11 +87,12 @@ const ModalMinisize = ({
 
   const router = useRouter();
 
-  const [editMinisizeData, setEditMinisizeData] = useState<MinisizeDataType | null>(null);
+  const [editMinisizeData, setEditMinisizeData] =
+    useState<MinisizeDataType | null>(null);
   const [image, setImage] = useState<string | { url: string }[]>([]);
   const [mediaImage, setMediaImage] = useState<string | { url: string }[]>([]);
   const [newsImage, setNewsImage] = useState<string | { url: string }[]>([]);
-  
+
   const [productCount, setProductCount] = useState<number | null>(null);
   const locale = useCurrentLocale(i18nConfig);
 
@@ -117,10 +107,12 @@ const ModalMinisize = ({
   ];
 
   useEffect(() => {
-    const minisize = minisizeData.find((item: { id: number }) => item.id === id);
+    const minisize = minisizeData.find(
+      (item: { id: number }) => item.id === id
+    );
     if (minisize && mode === "EDIT") {
-      setProductCount(minisize.productCount)
-      setEditMinisizeData(minisize)
+      setProductCount(minisize.productCount);
+      setEditMinisizeData(minisize);
       // Parse JSON fields
       const parsedLv1 = JSON.parse(minisize.lv1);
       const parsedLv2 = JSON.parse(minisize.lv2);
@@ -129,7 +121,10 @@ const ModalMinisize = ({
       // Set form values
       setValue("name", minisize.name);
       setValue("isActive", minisize.isActive);
-      setValue("brandId", minisize.brandId);
+      setValue(
+        "brandIds",
+        minisize.brands.map((brand: any) => brand.brandId)
+      );
       setValue("lv1", parsedLv1);
       setValue("lv2", parsedLv2);
       setValue("lv3", parsedLv3);
@@ -137,22 +132,22 @@ const ModalMinisize = ({
       setValue("mediaBanner", minisize.mediaBanner);
       setValue("newsBanner", minisize.newsBanner);
       setImage(minisize?.imageProfile);
-      setMediaImage(minisize?.mediaBanner)
-      setNewsImage(minisize?.newsBanner)
+      setMediaImage(minisize?.mediaBanner);
+      setNewsImage(minisize?.newsBanner);
     } else {
       setImage("");
-      setMediaImage("")
-      setNewsImage("")
+      setMediaImage("");
+      setNewsImage("");
       reset({
         name: "",
         isActive: true,
-        brandId: undefined,
+        brandIds: [],
         lv1: [{ name: "", isActive: false, data: "" }],
         lv2: [{ name: "", isActive: false, data: "" }],
         lv3: [{ name: "", isActive: false, data: "" }],
         imageProfile: "",
         mediaBanner: "",
-        newsBanner: ""
+        newsBanner: "",
       });
     }
   }, [minisizeData, id]);
@@ -161,7 +156,6 @@ const ModalMinisize = ({
     let effImage: any = "";
     let effMediaImage: any = "";
     let effNewsImage: any = "";
-
 
     if (image) {
       effImage = image;
@@ -182,12 +176,17 @@ const ModalMinisize = ({
       trigger(["mediaBanner"]);
       trigger(["newsBanner"]);
     }
-   
   }, [image, mediaImage, newsImage]);
 
-  const fetchProductCount = async (brandId: number) => {
+  const fetchProductCount = async (brandIds: number[]) => {
     try {
-      const response = await axios.get(`/api/products?brandId=${brandId}`);
+      // const response = await axios.get(`/api/products?brandId=${brandId}`);
+      const response = await axios.get('/api/products', {
+        params: {
+          brandIds, // Pass the array of selected brand IDs to the API
+        },
+      });
+
       setProductCount(response.data.length);
     } catch (error: any) {
       toastError(error.message);
@@ -198,27 +197,31 @@ const ModalMinisize = ({
     reset({
       name: "",
       isActive: true,
-      brandId: undefined,
+      brandIds: [],
       lv1: [{ name: "", isActive: false, data: "" }],
       lv2: [{ name: "", isActive: false, data: "" }],
       lv3: [{ name: "", isActive: false, data: "" }],
     });
-    setIsModalVisible(false)
+    setIsModalVisible(false);
     setProductCount(null);
     setId(0);
-    setEditMinisizeData(null)
+    setEditMinisizeData(null);
   };
   const onSubmit: SubmitHandler<MinisizeSchema> = async (values) => {
-    if(mode === 'EDIT' && editMinisizeData) {
+    if (mode === "EDIT" && editMinisizeData) {
       try {
-        const response = await axios.put(`/api/adminMinisize/${editMinisizeData.id}`, values, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.put(
+          `/api/adminMinisize/${editMinisizeData.id}`,
+          values,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         resetForm();
         setTriggerMinisize(!triggerMinisize);
-        setTriggerMini(!triggerMini)
+        setTriggerMini(!triggerMini);
         toastSuccess(t("minisize_updated_successfully"));
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
@@ -233,14 +236,13 @@ const ModalMinisize = ({
         });
         resetForm();
         setTriggerMinisize(!triggerMinisize);
-        setTriggerMini(!triggerMini)
+        setTriggerMini(!triggerMini);
         toastSuccess(t("minisize_created_successfully"));
         router.replace(`/${locale}/admin/adminMinisize`);
       } catch (error: any) {
         toastError(error.message);
       }
     }
-
   };
   return (
     <Modal
@@ -252,12 +254,12 @@ const ModalMinisize = ({
       <h2 className="font-semibold">{t("setting")}</h2>
       <hr className="my-2" />
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
-      <Form.Item
+        <Form.Item
           name="imageProfile"
           label={t("upload_image")}
           required
-          tooltip={t('this_is_a_required_field')}
-          help={errors.imageProfile && t('please_upload_minisize_image')}
+          tooltip={t("this_is_a_required_field")}
+          help={errors.imageProfile && t("please_upload_minisize_image")}
           validateStatus={errors.imageProfile ? "error" : ""}
         >
           <Controller
@@ -275,13 +277,12 @@ const ModalMinisize = ({
           />
         </Form.Item>
         <div className="flex w-full pb-2">
-    
           <Form.Item
             name="name"
             label={t("name")}
             className="switch-backend basis-1/2"
             required
-            tooltip={t('this_is_a_required_field')}
+            tooltip={t("this_is_a_required_field")}
             help={errors.name?.message}
             validateStatus={errors.name ? "error" : ""}
           >
@@ -289,7 +290,7 @@ const ModalMinisize = ({
               control={control}
               name="name"
               render={({ field }) => (
-                <Input {...field} placeholder={t("name")} size="large"/>
+                <Input {...field} placeholder={t("name")} size="large" />
               )}
             />
           </Form.Item>
@@ -312,40 +313,43 @@ const ModalMinisize = ({
             />
           </Form.Item>
         </div>
-        <div className="flex w-full pb-2">
-          <Form.Item
-            name="brandId"
-            label={t("brand")}
-            className="switch-backend basis-1/2"
-            required
-            tooltip={t('this_is_a_required_field')}
-            help={errors.brandId?.message}
-            validateStatus={errors.brandId ? "error" : ""}
-          >
-            <Controller
-              control={control}
-              name="brandId"
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  showSearch
-                  placeholder={t('select_a_brand')}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
+        <Form.Item
+          name="brandIds"
+          label={t("brand")}
+          required
+          help={errors.brandIds?.message}
+          validateStatus={errors.brandIds ? "error" : ""}
+        >
+          <Controller
+            control={control}
+            name="brandIds"
+            render={({ field }) => (
+              <Select
+                {...field}
+                mode="multiple" 
+                showSearch
+                placeholder={t("select_a_brand")}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={brandOptions}
+                onChange={async (value: number[]) => {
+                  field.onChange(value);  
+                  if (value.length > 0) {
+                    const totalProductCount = await fetchProductCount(value);
+                    // setProductCount(totalProductCount); // Update the product count in the state
+                  } else {
+                    setProductCount(0); // Reset if no brands are selected
                   }
-                  options={brandOptions}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    fetchProductCount(value);
-                  }}
-                />
-              )}
-            />
-          </Form.Item>
-          <div className="basis-1/2 pl-2">
-            <label>{t('total')}</label>
+                }}
+              />
+            )}
+          />
+        </Form.Item>
+        <div className="pb-4">
+            <label>{t("total")}</label>
             <Input
               name="total"
               value={productCount ?? ""}
@@ -353,8 +357,7 @@ const ModalMinisize = ({
               className="mt-2"
             />
           </div>
-        </div>
-        <h2 className="font-semibold">{t('category')}</h2>
+        <h2 className="font-semibold">{t("category")}</h2>
         <hr className="my-2" />
         {lv1Fields.map((field, index) => (
           <div key={field.id} className="flex items-center">
@@ -364,7 +367,7 @@ const ModalMinisize = ({
                 control={control}
                 render={({ field }) => (
                   <Checkbox {...field} checked={field.value}>
-                    {t('product_category')}
+                    {t("product_category")}
                   </Checkbox>
                 )}
               />
@@ -377,7 +380,9 @@ const ModalMinisize = ({
               <Controller
                 name={`lv1.${index}.name`}
                 control={control}
-                render={({ field }) => <Input {...field} placeholder={t('name')} />}
+                render={({ field }) => (
+                  <Input {...field} placeholder={t("name")} />
+                )}
               />
             </Form.Item>
             <Form.Item
@@ -391,7 +396,7 @@ const ModalMinisize = ({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    placeholder={t('select_data')}
+                    placeholder={t("select_data")}
                     options={dataOptions}
                   />
                 )}
@@ -412,7 +417,7 @@ const ModalMinisize = ({
                 control={control}
                 render={({ field }) => (
                   <Checkbox {...field} checked={field.value}>
-                    {t('sub_category_1')}
+                    {t("sub_category_1")}
                   </Checkbox>
                 )}
               />
@@ -439,7 +444,7 @@ const ModalMinisize = ({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    placeholder={t('select_data')}
+                    placeholder={t("select_data")}
                     options={dataOptions}
                   />
                 )}
@@ -455,7 +460,7 @@ const ModalMinisize = ({
                 control={control}
                 render={({ field }) => (
                   <Checkbox {...field} checked={field.value}>
-                    {t('sub_category_2')}
+                    {t("sub_category_2")}
                   </Checkbox>
                 )}
               />
@@ -482,7 +487,7 @@ const ModalMinisize = ({
                 render={({ field }) => (
                   <Select
                     {...field}
-                    placeholder={t('select_data')}
+                    placeholder={t("select_data")}
                     options={dataOptions}
                   />
                 )}
@@ -490,12 +495,9 @@ const ModalMinisize = ({
             </Form.Item>
           </div>
         ))}
-        <h2 className="font-semibold">{t('banner')}</h2>
+        <h2 className="font-semibold">{t("banner")}</h2>
         <hr className="my-2" />
-        <Form.Item
-          name="mediaBanner"
-          label={t("upload_media_banner")}
-        >
+        <Form.Item name="mediaBanner" label={t("upload_media_banner")}>
           <Controller
             control={control}
             name="mediaBanner"
@@ -510,10 +512,7 @@ const ModalMinisize = ({
             )}
           />
         </Form.Item>
-        <Form.Item
-          name="newsBanner"
-          label={t("upload_news_banner")}
-        >
+        <Form.Item name="newsBanner" label={t("upload_news_banner")}>
           <Controller
             control={control}
             name="newsBanner"
@@ -534,7 +533,7 @@ const ModalMinisize = ({
             htmlType="submit"
             className="bg-comp-red button-backend"
           >
-            {t('submit')}
+            {t("submit")}
           </Button>
         </Form.Item>
       </Form>
