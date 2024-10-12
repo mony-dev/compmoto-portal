@@ -493,8 +493,8 @@ model SpecialBonusItem {
   color               String?       @default("#1677ff")
   brandId             Int
   brand               Brand        @relation(fields: [brandId], references: [id])
-  minisizeId             Int?
-  minisize               Minisize?        @relation(fields: [minisizeId], references: [id])
+  minisizeId             Int       @default(1)
+  minisize               Minisize        @relation(fields: [minisizeId], references: [id])
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
