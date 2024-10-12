@@ -32,8 +32,8 @@ interface DataType {
   };
   totalSpend: [
     {
-      brandId: number;
-      brandName: string;
+      minisizeId: number;
+      minisizeName: string;
       total: number;
       level: number;
       cn: number;
@@ -189,9 +189,9 @@ export default function specialBonusHistory() {
       render: (_, record) => <p>{record.user.name}</p>,
     },
     {
-      title: t("brand"),
+      title: t("minisize"),
       dataIndex: "totalSpend", // Assuming 'totalSpend' is at the root level of record
-      key: "brand",
+      key: "minisize",
       defaultSortOrder: "descend",
       render: (_, record) => {
         const { totalSpend } = record; // Extract totalSpend from record
@@ -201,12 +201,12 @@ export default function specialBonusHistory() {
         
         return (
           <div className="grid grid-flow-row auto-rows-max total-spend">
-            {totalSpend.map((total: { brandName: string }) => (
+            {totalSpend.map((total: { minisizeName: string }) => (
               <div
-                key={total.brandName}
+                key={total.minisizeName}
                 className="py-4 border-b border-[#f0f0f0]"
               >
-                {total.brandName}
+                {total.minisizeName}
               </div>
             ))}
           </div>

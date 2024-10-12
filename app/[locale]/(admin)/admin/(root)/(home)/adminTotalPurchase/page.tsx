@@ -263,7 +263,7 @@ export default function AdminTotalPurchase() {
         >
           {/* Year and Reset Date */}
           <div className="flex justify-between gap-2">
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Form.Item
                 name="month"
                 label={t("month")}

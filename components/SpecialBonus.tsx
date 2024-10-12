@@ -12,6 +12,7 @@ const Loading = dynamic(() => import("@components/Loading"));
 
 interface Minisize {
   id: number;
+  name: string;
   imageProfile: string;
 }
 
@@ -29,29 +30,24 @@ interface SpecialBonusItem {
   cn: number;
   incentivePoint: number;
   totalPurchaseAmount: number;
-  brandId: number;
+  minisizeId: number;
   color: string;
   brand: Brand;
-}
+  minisize: Minisize;
 
-interface SpecialBonusInterface {
-  month: number;
-  year: number;
-  resetDate: Date;
-  items: SpecialBonusItem[];
 }
 
 interface SpecialBonusHistory {
-  brandId: number;
+  minisizeId: number;
   level: number;
   total: number;
 }
 
 const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
   const [groupedItems, setGroupedItems] = useState<{
-    [brandId: number]: SpecialBonusItem[];
+    [minisizeId: number]: SpecialBonusItem[];
   }>({});
-  const [brandLevels, setBrandLevels] = useState<{ [brandId: number]: number }>(
+  const [brandLevels, setBrandLevels] = useState<{ [minisizeId: number]: number }>(
     {}
   );
   const { t } = useTranslation();
@@ -66,36 +62,36 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
         const response = await fetch("/api/specialBonus");
         const data = await response.json();
         const specialBonusResponse = data.specialBonus
-        // Group items by brandId
-        const groupedItemsByBrand = specialBonusResponse.items.reduce(
+        // Group items by minisizeId
+        const groupedItemsByMinisize = specialBonusResponse.items.reduce(
           (
-            acc: { [brandId: number]: SpecialBonusItem[] },
+            acc: { [minisizeId: number]: SpecialBonusItem[] },
             item: SpecialBonusItem
           ) => {
-            if (!acc[item.brandId]) {
-              acc[item.brandId] = [];
+            if (!acc[item.minisizeId]) {
+              acc[item.minisizeId] = [];
             }
-            acc[item.brandId].push(item);
+            acc[item.minisizeId].push(item);
             return acc;
           },
           {}
         );
 
-        setGroupedItems(groupedItemsByBrand);
+        setGroupedItems(groupedItemsByMinisize);
 
         // Fetch the SpecialBonusHistory to get the totalSpend and determine the levels
         const historyResponse = await axios.get(
           `/api/specialBonusHistory?userId=${userId}&specialBonusId=${specialBonusResponse.id}`
         );
 
-        const specialBonusHistory = historyResponse.data.data[0];
-        // Process the history to map brandId to levels
+        const specialBonusHistory = historyResponse.data.data;
+        // Process the history to map minisizeId to levels
         const brandLevelMap = specialBonusHistory.totalSpend.reduce(
           (
-            acc: { [brandId: number]: number },
+            acc: { [minisizeId: number]: number },
             history: SpecialBonusHistory
           ) => {
-            acc[history.brandId] = history.level;
+            acc[history.minisizeId] = history.level;
             return acc;
           },
           {}
@@ -112,13 +108,13 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
   }, [userId]);
 
   // Render steps for each brand
-  const renderStepsForBrand = (brandId: number, items: SpecialBonusItem[]) => {
-    const userLevel = brandLevels[brandId] || 0;
+  const renderStepsForBrand = (minisizeId: number, items: SpecialBonusItem[]) => {
+    const userLevel = brandLevels[minisizeId] || 0;
 
     // Use the color of the first item in the brand to style the steps
     const brandColor = items[0]?.color || "#1677ff"; // Default color if none is provided
-    const imageProfile = items[0]?.brand?.minisizes[0]?.imageProfile;
-    const brandName = items[0]?.brand?.name || "";
+    const imageProfile = items[0]?.minisize?.imageProfile;
+    const brandName = items[0]?.minisize?.name || "";
     const stepsItems = items.map((item) => {
       return {
         title: "",
@@ -141,7 +137,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
 
     return (
       <div
-        key={brandId}
+        key={minisizeId}
         className="mb-6 special-step grid grid-cols-6"
         style={{ "--step-color": brandColor } as CSSProperties}
       >
@@ -301,10 +297,10 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
             {t("Special bonus")}
           </h1>
           <div className="pt-4">
-            {Object.keys(groupedItems).map((brandId) =>
+            {Object.keys(groupedItems).map((minisizeId) =>
               renderStepsForBrand(
-                Number(brandId),
-                groupedItems[Number(brandId)]
+                Number(minisizeId),
+                groupedItems[Number(minisizeId)]
               )
             )}
           </div>

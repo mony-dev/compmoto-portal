@@ -8,7 +8,16 @@ import {
   SubmitHandler,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Row, Col, InputNumber, Select, Form, Modal, ColorPicker } from "antd";
+import {
+  Button,
+  Row,
+  Col,
+  InputNumber,
+  Select,
+  Form,
+  Modal,
+  ColorPicker,
+} from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import { usePathname, useRouter } from "next/navigation";
@@ -44,6 +53,9 @@ export default function AdminSpecialBonus() {
   const [brandOptions, setBrandOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const [minisizeOptions, setMinisizeOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [id, setId] = useState(0);
   const defaultValues = {
     year: "",
@@ -53,7 +65,8 @@ export default function AdminSpecialBonus() {
     brands: [
       {
         brandId: null,
-        color: '',
+        minisizeId: null,
+        color: "",
         items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
       },
     ],
@@ -94,7 +107,20 @@ export default function AdminSpecialBonus() {
         toastError(error.message);
       }
     };
+    const fetchMinisize = async () => {
+      try {
+        const { data } = await axios.get(`/api/getMinisize`);
+        const minisizes = data.minisizes.map((mini: any) => ({
+          value: mini.id,
+          label: mini.name,
+        }));
+        setMinisizeOptions(minisizes);
+      } catch (error: any) {
+        toastError(error.message);
+      }
+    };
     fetchBrands();
+    fetchMinisize();
   }, []);
 
   const handleMonthChange = (value: SelectValue) => {
@@ -148,6 +174,7 @@ export default function AdminSpecialBonus() {
           replaceBrands(
             data.specialBonus.brands.map((brand: any) => ({
               brandId: brand.brandId,
+              minisizeId: brand.minisizeId,
               color: brand.color,
               items: brand.items.map((item: any) => ({
                 totalPurchaseAmount: item.totalPurchaseAmount,
@@ -163,24 +190,25 @@ export default function AdminSpecialBonus() {
           setValue("brands", [
             {
               brandId: null,
-              color: '',
+              minisizeId: null,
+              color: "",
               items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
             },
           ]);
         }
-      }else {
+      } else {
         setValue("month", "");
         setValue("year", "");
         setValue("resetDate", "");
         setValue("brands", [
           {
             brandId: null,
-            color: '',
+            minisizeId: null,
+            color: "",
             items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
           },
         ]);
       }
-  
     } catch (error) {
       console.error("Error fetching SpecialBonus:", error);
     } finally {
@@ -196,7 +224,7 @@ export default function AdminSpecialBonus() {
     }, 500), // 500 ms debounce delay
     []
   );
-      
+
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
@@ -209,7 +237,6 @@ export default function AdminSpecialBonus() {
       debouncedFetchData.cancel();
     };
   }, [id]);
-
 
   const onFinish: SubmitHandler<SpecialBonusSchema> = async (values) => {
     try {
@@ -301,9 +328,7 @@ export default function AdminSpecialBonus() {
   };
 
   if (loadPage || !t) {
-    return (
-      <Loading/>
-    );
+    return <Loading />;
   }
   return (
     <div className="px-4">
@@ -319,31 +344,33 @@ export default function AdminSpecialBonus() {
 
         <form onSubmit={handleSubmit(onFinish)}>
           <div className="flex justify-between gap-2">
-            <div className="flex gap-2">
-            <Form.Item
+            <div className="grid grid-cols-2 gap-2">
+              <Form.Item
                 name="month"
-                label={t('month')}
+                label={t("month")}
                 required
-                tooltip={t('this_is_a_required_field')}
+                tooltip={t("this_is_a_required_field")}
               >
                 <Controller
                   control={control} // control from useForm()
                   name="month"
                   render={({ field }) => (
                     <Select
-                    {...field} 
-                    showSearch
-                    placeholder={t('Search a month')}
-                    value={selectedMonth} // Default to current month
-                    onChange={handleMonthChange} // Handle month change
-                    filterOption={(input, option) =>
-                      (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-                    }
-                    options={monthOptions}
-                  />
+                      {...field}
+                      showSearch
+                      placeholder={t("Search a month")}
+                      value={selectedMonth} // Default to current month
+                      onChange={handleMonthChange} // Handle month change
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={monthOptions}
+                    />
                   )}
                 />
-                 </Form.Item>
+              </Form.Item>
 
               <Form.Item
                 name="year"
@@ -400,7 +427,11 @@ export default function AdminSpecialBonus() {
                   borderTopLeftRadius: "0.5rem",
                 }}
               >
-                <Form.Item label={t("Select Brand")} className="w-4/12	mb-0" required>
+                <Form.Item
+                  label={t("Select Brand")}
+                  className="w-4/12	mb-0"
+                  required
+                >
                   <Controller
                     name={`brands.${brandIndex}.brandId`}
                     control={control}
@@ -419,20 +450,52 @@ export default function AdminSpecialBonus() {
                     )}
                   />
                 </Form.Item>
-                <Form.Item label={t("Select Color")} className="w-4/12	mb-0" required>
+                <Form.Item
+                  label={t("Select Minisize")}
+                  className="w-4/12	mb-0"
+                  required
+                >
+                  <Controller
+                    name={`brands.${brandIndex}.minisizeId`}
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        placeholder={t("Select Minisize")}
+                        showSearch
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={minisizeOptions}
+                      />
+                    )}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={t("Select Color")}
+                  className="w-4/12	mb-0"
+                  required
+                >
                   <Controller
                     name={`brands.${brandIndex}.color`}
                     control={control}
                     render={({ field }) => (
-                      <ColorPicker {...field} defaultValue="#1677ff" showText allowClear  onChange={(color) => {
-                        field.onChange(color ? color.toHexString() : "");
-                    }} />
+                      <ColorPicker
+                        {...field}
+                        defaultValue="#1677ff"
+                        showText
+                        allowClear
+                        onChange={(color) => {
+                          field.onChange(color ? color.toHexString() : "");
+                        }}
+                      />
                     )}
                   />
                 </Form.Item>
                 <MinusCircleOutlined onClick={() => removeBrand(brandIndex)} />
               </div>
-              
 
               {/* Items inside brand */}
               <Row
@@ -441,7 +504,7 @@ export default function AdminSpecialBonus() {
                 style={{
                   // borderTopRightRadius: "0.5rem",
                   // borderTopLeftRadius: "0.5rem",
-                  margin: '0px'
+                  margin: "0px",
                 }}
               >
                 <Col span={6}>
@@ -453,7 +516,6 @@ export default function AdminSpecialBonus() {
                 <Col span={6}>
                   <p>{t("incentivePoint")}</p>
                 </Col>
-              
                 <Col span={2}></Col> {/* Empty space for the remove icon */}
               </Row>
               <ItemFields control={control} brandIndex={brandIndex} />
@@ -465,7 +527,8 @@ export default function AdminSpecialBonus() {
             onClick={() =>
               appendBrand({
                 brandId: null,
-                color: '',
+                minisizeId: null,
+                color: "",
                 items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
               })
             }
@@ -510,20 +573,26 @@ function ItemFields({
   return (
     <>
       {itemFields.map((itemField, itemIndex) => (
-        <Row key={itemField.id} gutter={16} align="middle" className="py-4 bg-[#f0f8ff]" style={{margin: '0px'}}>
+        <Row
+          key={itemField.id}
+          gutter={16}
+          align="middle"
+          className="py-4 bg-[#f0f8ff]"
+          style={{ margin: "0px" }}
+        >
           <Col span={6}>
             <Controller
               name={`brands.${brandIndex}.items.${itemIndex}.totalPurchaseAmount`}
               control={control}
               render={({ field }) => (
                 <InputNumber
-                      {...field}
-                      placeholder={t("totalPurchaseAmount")}
-                      className="w-full"
-                      step={0.01}
-                      min={0}
-                      addonAfter={t("baht")}
-                    />
+                  {...field}
+                  placeholder={t("totalPurchaseAmount")}
+                  className="w-full"
+                  step={0.01}
+                  min={0}
+                  addonAfter={t("baht")}
+                />
               )}
             />
           </Col>
@@ -533,13 +602,13 @@ function ItemFields({
               control={control}
               render={({ field }) => (
                 <InputNumber
-                {...field}
-                placeholder={t("cn")}
-                className="w-full"
-                step={0.01}
-                min={0}
-                addonAfter="%"
-              />
+                  {...field}
+                  placeholder={t("cn")}
+                  className="w-full"
+                  step={0.01}
+                  min={0}
+                  addonAfter="%"
+                />
               )}
             />
           </Col>
@@ -549,13 +618,13 @@ function ItemFields({
               control={control}
               render={({ field }) => (
                 <InputNumber
-                {...field}
-                placeholder={t("incentivePoint")}
-                className="w-full"
-                step={0.01}
-                min={0}
-                addonAfter={t("point")}
-              />
+                  {...field}
+                  placeholder={t("incentivePoint")}
+                  className="w-full"
+                  step={0.01}
+                  min={0}
+                  addonAfter={t("point")}
+                />
               )}
             />
           </Col>

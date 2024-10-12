@@ -51,11 +51,14 @@ export async function GET() {
             order: "asc",
           },
           include: {
-            brand: {
-              include: {
-                minisizes: true,
-              },
-            },
+            // brand: {
+            //   include: {
+            //     minisizes: true,
+            //   },
+            // },
+            minisize: {
+              include: {brands: true}
+            }
           },
         },
       },

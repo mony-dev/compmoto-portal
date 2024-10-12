@@ -348,7 +348,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     try {
       setIsSyncing(true); // Set loading state
       // Step 1: Fetch Invoices
-      await fetchInvoices(); // Wait until this is done
+      // await fetchInvoices(); // Wait until this is done
   
       // Step 2: Process Invoices
       await processInvoices(); // Wait until this is done
