@@ -100,28 +100,6 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const data = await request.json();
-    const newMinisize = await prisma.minisize.create({
-      data: {
-        brandId: data.brandId,
-        brandProductId: data.brandId,
-        name: data.name,
-        isActive: data.isActive,
-        lv1: JSON.stringify(data.lv1),
-        lv2: JSON.stringify(data.lv2),
-        lv3: JSON.stringify(data.lv3),
-      },
-    });
-    return NextResponse.json(newMinisize);
-  } catch (error) {
-    return NextResponse.json(error);
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
 async function getCategoryName(tableName: string, id: number) {
   const model = tableModelMap[tableName];
   if (!model) return null;
