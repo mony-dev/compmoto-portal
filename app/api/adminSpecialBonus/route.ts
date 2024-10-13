@@ -59,7 +59,9 @@ export async function GET() {
       include: {
         items: {
           include: {
-            brand: true, // Include the related Brand for each SpecialBonusItem
+            minisize: {
+              include: { brands: true },
+            },
           },
         },
       },
@@ -78,7 +80,7 @@ export async function GET() {
       resetDate: specialBonus.resetDate,
       isActive: specialBonus.isActive,
       brands: specialBonus.items.sort((a, b) => a.order - b.order).reduce((acc: any[], item) => {
-        const brandIndex = acc.findIndex((b) => b.brandId === item.brandId);
+        const brandIndex = acc.findIndex((b) => b.minisizeId === item.minisizeId);
         const newItem: any = {
           totalPurchaseAmount: item.totalPurchaseAmount,
           cn: item.cn,
@@ -89,9 +91,9 @@ export async function GET() {
           acc[brandIndex].items.push(newItem);
         } else {
           acc.push({
-            brandId: item.brandId,
+            minisizeId: item.minisizeId,
             color: (item as any).color || null,
-            brandName: item.brand.name,
+            minisizeName: item.minisize.name,
             items: [newItem],
           });
         }

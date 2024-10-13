@@ -64,7 +64,6 @@ export default function AdminSpecialBonus() {
     isActive: true,
     brands: [
       {
-        brandId: null,
         minisizeId: null,
         color: "",
         items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
@@ -95,18 +94,18 @@ export default function AdminSpecialBonus() {
 
   useEffect(() => {
     // Fetch available brands
-    const fetchBrands = async () => {
-      try {
-        const { data } = await axios.get(`/api/brand`);
-        const brands = data.brands.map((brand: any) => ({
-          value: brand.id,
-          label: brand.name,
-        }));
-        setBrandOptions(brands);
-      } catch (error: any) {
-        toastError(error.message);
-      }
-    };
+    // const fetchBrands = async () => {
+    //   try {
+    //     const { data } = await axios.get(`/api/brand`);
+    //     const brands = data.brands.map((brand: any) => ({
+    //       value: brand.id,
+    //       label: brand.name,
+    //     }));
+    //     setBrandOptions(brands);
+    //   } catch (error: any) {
+    //     toastError(error.message);
+    //   }
+    // };
     const fetchMinisize = async () => {
       try {
         const { data } = await axios.get(`/api/getMinisize`);
@@ -119,7 +118,7 @@ export default function AdminSpecialBonus() {
         toastError(error.message);
       }
     };
-    fetchBrands();
+    // fetchBrands();
     fetchMinisize();
   }, []);
 
@@ -173,7 +172,7 @@ export default function AdminSpecialBonus() {
           setId(data.specialBonus.id);
           replaceBrands(
             data.specialBonus.brands.map((brand: any) => ({
-              brandId: brand.brandId,
+              // brandId: brand.brandId,
               minisizeId: brand.minisizeId,
               color: brand.color,
               items: brand.items.map((item: any) => ({
@@ -189,7 +188,7 @@ export default function AdminSpecialBonus() {
           setValue("resetDate", "");
           setValue("brands", [
             {
-              brandId: null,
+              // brandId: null,
               minisizeId: null,
               color: "",
               items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
@@ -202,7 +201,7 @@ export default function AdminSpecialBonus() {
         setValue("resetDate", "");
         setValue("brands", [
           {
-            brandId: null,
+            // brandId: null,
             minisizeId: null,
             color: "",
             items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],
@@ -417,7 +416,6 @@ export default function AdminSpecialBonus() {
           </div>
           {brandFields.map((brandField, brandIndex) => (
             <div key={brandField.id} className="mb-8">
-              {/* Brand Select */}
               <div
                 className="flex place-items-baseline gap-4"
                 style={{
@@ -427,29 +425,6 @@ export default function AdminSpecialBonus() {
                   borderTopLeftRadius: "0.5rem",
                 }}
               >
-                <Form.Item
-                  label={t("Select Brand")}
-                  className="w-4/12	mb-0"
-                  required
-                >
-                  <Controller
-                    name={`brands.${brandIndex}.brandId`}
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        placeholder={t("Select Brand")}
-                        showSearch
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={brandOptions}
-                      />
-                    )}
-                  />
-                </Form.Item>
                 <Form.Item
                   label={t("Select Minisize")}
                   className="w-4/12	mb-0"
@@ -526,7 +501,6 @@ export default function AdminSpecialBonus() {
             type="dashed"
             onClick={() =>
               appendBrand({
-                brandId: null,
                 minisizeId: null,
                 color: "",
                 items: [{ totalPurchaseAmount: 0, cn: 0, incentivePoint: 0 }],

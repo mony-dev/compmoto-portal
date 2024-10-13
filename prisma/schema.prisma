@@ -233,7 +233,6 @@ model Brand {
   updatedAt         DateTime           @updatedAt
   minisizes         BrandMinisize[]
   products          Product[]
-  specialBonusItem  SpecialBonusItem[]
 }
 
 model Minisize {
@@ -491,10 +490,8 @@ model SpecialBonusItem {
   incentivePoint      Float
   order               Int
   color               String?       @default("#1677ff")
-  brandId             Int
-  brand               Brand        @relation(fields: [brandId], references: [id])
-  minisizeId             Int?       
-  minisize               Minisize?        @relation(fields: [minisizeId], references: [id])
+  minisizeId             Int       
+  minisize               Minisize        @relation(fields: [minisizeId], references: [id])
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
