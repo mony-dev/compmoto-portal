@@ -19,11 +19,10 @@ type TotalSpendType = {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const monthParam = searchParams.get('month');
-  const yearParam = searchParams.get('year');
-  const isActiveParam = searchParams.get('isActive');
+  const monthParam = searchParams.get("month");
+  const yearParam = searchParams.get("year");
+  const isActiveParam = searchParams.get("isActive");
 
-  
   const month = monthParam ? parseInt(monthParam) : null;
   const year = yearParam ? parseInt(yearParam) : null;
   const isActive = isActiveParam ? parseInt(isActiveParam) : true;
@@ -36,8 +35,8 @@ export async function GET(request: Request) {
     // Step 1: Find active SpecialBonus
     const whereCondition: any = {
       ...(isActive && { isActive }),
-      ...(month && { month }),   // Add month to the filter if provided
-      ...(year && { year }),     // Add year to the filter if provided
+      ...(month && { month }), // Add month to the filter if provided
+      ...(year && { year }), // Add year to the filter if provided
     };
     const specialBonus = await prisma.specialBonus.findFirst({
       where: whereCondition,
@@ -62,7 +61,7 @@ export async function GET(request: Request) {
         specialBonusId: specialBonus.id,
       },
       include: {
-        user: true,  // Join with User
+        user: true, // Join with User
       },
       skip,
       take: pageSize,
@@ -70,8 +69,11 @@ export async function GET(request: Request) {
 
     // Step 3: Format the data to match DataType interface, avoiding duplicates
     const formattedData = specialBonusHistories.map((history) => {
-      const totalSpendData = (history.totalSpend && Array.isArray(history.totalSpend)) ? history.totalSpend as TotalSpendEntry[] : [];
-    
+      const totalSpendData =
+        history.totalSpend && Array.isArray(history.totalSpend)
+          ? (history.totalSpend as TotalSpendEntry[])
+          : [];
+
       type TotalSpendType = {
         minisizeId: number;
         minisizeName: string;
@@ -79,70 +81,87 @@ export async function GET(request: Request) {
         level: number;
         cn: number;
         intensivePoint: number;
-        processedBrandIds: Set<number>;  // Add a Set to track processed brandIds for each minisizeId
+        processedBrandIds: Set<number>; // Add a Set to track processed brandIds for each minisizeId
       };
-    
+
       // Create a map to aggregate spend data by minisizeId
       const totalSpendMap: Record<number, TotalSpendType> = {};
-    
-      // Iterate through specialBonus items
-      specialBonus.items.forEach(item => {
-        const minisizeId = item.minisizeId;
-        
-        const minisizeBrandIds = item.minisize.brands.map(brandRelation => brandRelation.brandId);
 
-        // Filter totalSpendData for entries that match the current item's brandId and ensure no duplicates
-        const relatedSpendEntries = totalSpendData.filter((spendEntry: TotalSpendEntry) => 
-          minisizeBrandIds.includes(spendEntry.brandId)
-        );
-        // Initialize the map entry for the minisizeId if not already present
-        if (!totalSpendMap[minisizeId]) {
-          totalSpendMap[minisizeId] = {
-            minisizeId,
-            minisizeName: item.minisize.name,
-            total: 0,
-            level: 0,
-            cn: 0,
-            intensivePoint: 0,
-            processedBrandIds: new Set<number>(),  // Initialize the set for processedBrandIds
-          };
-        }
-    
-        // If there are matching spend entries, update the total and points
-        relatedSpendEntries.forEach(spendEntry => {
-          const total = spendEntry.total || 0;
-          const level = spendEntry.level || 0;
-    
-          // Check if the brandId has already been processed for this minisizeId
-          if (!totalSpendMap[minisizeId].processedBrandIds.has(spendEntry.brandId)) {
-            // Only add the total if the brandId has not been processed yet
-            totalSpendMap[minisizeId].total += total;
-            totalSpendMap[minisizeId].processedBrandIds.add(spendEntry.brandId);  // Mark the brandId as processed
+      // Iterate through specialBonus items
+      specialBonus.items.forEach((item) => {
+        const minisizeId = item.minisizeId;
+        if (item.minisize && minisizeId) {
+          const minisizeBrandIds = item?.minisize?.brands.map(
+            (brandRelation) => brandRelation.brandId
+          );
+          if (minisizeBrandIds) {
+            // Filter totalSpendData for entries that match the current item's brandId and ensure no duplicates
+            const relatedSpendEntries = totalSpendData.filter(
+              (spendEntry: TotalSpendEntry) =>
+                minisizeBrandIds.includes(spendEntry.brandId)
+            );
+            // Initialize the map entry for the minisizeId if not already present
+            if (!totalSpendMap[minisizeId]) {
+              totalSpendMap[minisizeId] = {
+                minisizeId,
+                minisizeName: item.minisize.name,
+                total: 0,
+                level: 0,
+                cn: 0,
+                intensivePoint: 0,
+                processedBrandIds: new Set<number>(), // Initialize the set for processedBrandIds
+              };
+            }
+  
+            // If there are matching spend entries, update the total and points
+            relatedSpendEntries.forEach((spendEntry) => {
+              const total = spendEntry.total || 0;
+              const level = spendEntry.level || 0;
+  
+              // Check if the brandId has already been processed for this minisizeId
+              if (
+                !totalSpendMap[minisizeId].processedBrandIds.has(
+                  spendEntry.brandId
+                )
+              ) {
+                // Only add the total if the brandId has not been processed yet
+                totalSpendMap[minisizeId].total += total;
+                totalSpendMap[minisizeId].processedBrandIds.add(
+                  spendEntry.brandId
+                ); // Mark the brandId as processed
+              }
+  
+              // Sum cn and intensivePoint based on the level and order
+              const cn = level === item.order ? item.cn : 0;
+              const intensivePoint =
+                level === item.order ? item.incentivePoint : 0;
+  
+              // Update totals and points for the minisizeId
+              totalSpendMap[minisizeId].cn += cn;
+              totalSpendMap[minisizeId].intensivePoint += intensivePoint;
+  
+              // Adjust level if necessary (e.g., take the highest level)
+              totalSpendMap[minisizeId].level = Math.max(
+                totalSpendMap[minisizeId].level,
+                level
+              );
+            });
           }
-    
-          // Sum cn and intensivePoint based on the level and order
-          const cn = (level === item.order) ? item.cn : 0;
-          const intensivePoint = (level === item.order) ? item.incentivePoint : 0;
-    
-          // Update totals and points for the minisizeId
-          totalSpendMap[minisizeId].cn += cn;
-          totalSpendMap[minisizeId].intensivePoint += intensivePoint;
-    
-          // Adjust level if necessary (e.g., take the highest level)
-          totalSpendMap[minisizeId].level = Math.max(totalSpendMap[minisizeId].level, level);
-        });
+        }
       });
-    
+
       // Convert the map to an array of totalSpend values grouped by minisize
-      const totalSpend = Object.values(totalSpendMap).map(({ processedBrandIds, ...rest }) => rest);  // Exclude processedBrandIds
-    
+      const totalSpend = Object.values(totalSpendMap).map(
+        ({ processedBrandIds, ...rest }) => rest
+      ); // Exclude processedBrandIds
+
       return {
         key: history.id,
         id: history.id,
         user: {
           userId: history.user.id,
-          name: history.user.name || 'N/A',
-          custNo: history.user.custNo
+          name: history.user.name || "N/A",
+          custNo: history.user.custNo,
         },
         totalSpend,
         cn: history.cn,
@@ -153,7 +172,7 @@ export async function GET(request: Request) {
     const total = await prisma.specialBonusHistory.count({
       where: {
         specialBonusId: specialBonus.id,
-      }
+      },
     });
 
     return NextResponse.json({ specialBonusHistories: formattedData, total });

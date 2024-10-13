@@ -4,7 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import i18nConfig from "../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
 import Loading from "@components/Loading";
-
+import tinycolor from "tinycolor2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -27,6 +27,19 @@ const HalfPieChart: React.FC<ChartProps> = ({ userId }) => {
   const [data, setData] = useState<ChartData>({ labels: [], datasets: [] });
   const locale = useCurrentLocale(i18nConfig);
   const [loading, setLoading] = useState(false);
+
+  // Generate distinct color variants for each month
+  const generateMonthlyColors = (baseColor: string, count: number) => {
+    const colors = [];
+    const base = tinycolor(baseColor);
+
+    // Create `count` distinct colors by darkening the base color
+    for (let i = 0; i < count; i++) {
+      const color = base.clone().lighten(i + 5); // Adjust the darkening step
+      colors.push(color.toHexString()); // Push the generated color to the array
+    }
+    return colors;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,14 +84,17 @@ const HalfPieChart: React.FC<ChartProps> = ({ userId }) => {
           (label, index) => result.total[index] || 0
         );
 
+        // Generate 12 distinct background colors based on the base color f87575
+        const backgroundColors = generateMonthlyColors("#fd4242", 12);
+
         setData({
           labels: monthlyLabels, // Set the conditionally selected month names as labels
           datasets: [
             {
               label: "Total Price by Month",
               data: chartData,
-              backgroundColor: Array(12).fill("#f87575"),
-              borderColor: Array(12).fill("#ffffff"),
+              backgroundColor: backgroundColors, // Use generated colors for background
+              borderColor: Array(12).fill("#ffffff"), // Keep the border color as white
               borderWidth: 5,
             },
           ],
@@ -125,7 +141,7 @@ const HalfPieChart: React.FC<ChartProps> = ({ userId }) => {
   }
 
   return (
-    <div style={{ height: "200px", width: "100%" }} className="my-4">
+    <div style={{ height: "150px", width: "100%" }} className="my-4">
       <Doughnut data={data} options={options} />
     </div>
   );

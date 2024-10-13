@@ -15,7 +15,9 @@ import { useCart } from "@components/Admin/Cartcontext";
 import { useTranslation } from "react-i18next";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { CloseCircleOutlined } from "@ant-design/icons";
-const TabContentOrder = dynamic(() => import("@components/Admin/order/TabContentOrder"));
+const TabContentOrder = dynamic(
+  () => import("@components/Admin/order/TabContentOrder")
+);
 
 export default function adminOrder({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
@@ -210,7 +212,6 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     [currentPage, pageSize, activeTabKey, triggerOrder]
   );
 
-  
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
@@ -255,7 +256,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
           axios.get(`/api/adminOrder`, {
             params: {
               q: query,
-              type: 'Normal',
+              type: "Normal",
               userId: session.user.id,
               role: session.user.role,
               page: currentPage,
@@ -263,7 +264,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
             },
           }),
         ]);
-      
+
         // Process the response from `/api/adminInvoice`
         const invoiceOrderDataWithKeys = invoiceResponse.data.orders.map(
           (order: any, index: number) => ({
@@ -274,44 +275,43 @@ export default function adminOrder({ params }: { params: { id: number } }) {
         setInvoiceData(invoiceOrderDataWithKeys);
         setInvoiceTotal(invoiceResponse.data.total);
         setTotal(invoiceResponse.data.total);
-      
-        const orderDataWithKeys = orderResponse.data.orders.map((order: any, index: number) => {
-          // Initialize a variable to store the calculated subTotal for each order
-          let calculatedSubTotal = 0;
-        
-          // Iterate through each item in the order
-          order.items.forEach((item: any) => {
-            if (item.year === null) {
-              // If the item has no year
-              const yearDiscount = (item.price * item.discount) / 100;
-              calculatedSubTotal += item.price - yearDiscount
-            } else {
-              // If the item has a year, calculate the discount and subtract it from the subTotal
-              calculatedSubTotal += item.discountPrice
-            }
-          });
-          // Return the order with the new subTotal and a unique key
-          return {
-            ...order,
-            calculatedSubTotal: calculatedSubTotal, // Add the calculated subTotal to each order
-            key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
-          };
-        });
+
+        const orderDataWithKeys = orderResponse.data.orders.map(
+          (order: any, index: number) => {
+            // Initialize a variable to store the calculated subTotal for each order
+            let calculatedSubTotal = 0;
+
+            // Iterate through each item in the order
+            order.items.forEach((item: any) => {
+              if (item.year === null) {
+                // If the item has no year
+                const yearDiscount = (item.price * item.discount) / 100;
+                calculatedSubTotal += item.price - yearDiscount;
+              } else {
+                // If the item has a year, calculate the discount and subtract it from the subTotal
+                calculatedSubTotal += item.discountPrice;
+              }
+            });
+            // Return the order with the new subTotal and a unique key
+            return {
+              ...order,
+              calculatedSubTotal: calculatedSubTotal, // Add the calculated subTotal to each order
+              key: index + 1 + (currentPage - 1) * pageSize, // Ensure unique keys across pages
+            };
+          }
+        );
         setOrderData(orderDataWithKeys);
         setOrderTotal(orderResponse.data.total);
         setTotal(orderResponse.data.total);
-      
       } catch (error: any) {
         toastError(error);
       } finally {
         setLoadPage(false);
       }
-     
     } else {
       console.warn(t("User ID is undefined. Cannot fetch orders"));
     }
   }
-
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -325,44 +325,85 @@ export default function adminOrder({ params }: { params: { id: number } }) {
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
-  const fetchInvoices = async () => {
+
+  const syncAndProcessInvoices = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchInvoices`);
-      // setTriggerOrder(!triggerOrder)
-      // toastSuccess(t("Sync invoice successfully"));
+      toastSuccess(
+        t("The data synchronization will take a moment, please check back later")
+      );
+
+      setIsSyncing(true);
+      localStorage.setItem("isSyncing", "true");
+
+      const { data } = await axios.post(`/api/fetchHistory`);
+      
+      const jobId = data.jobId;
+      localStorage.setItem("jobId", jobId);
+
+      const checkStatus = setInterval(async () => {
+        try {
+          const { data } = await axios.get(`/api/fetchHistory`, {
+            params: { jobId },
+          });
+        
+          if (data.status === "completed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          } else if (data.status === "failed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          }
+        } catch (error: any) {
+          clearInterval(checkStatus);
+          setIsSyncing(false);
+          localStorage.removeItem("isSyncing");
+          localStorage.removeItem("jobId");
+        }
+      }, 5000);
     } catch (error: any) {
-      toastError(error.message);
+      setIsSyncing(false);
+      localStorage.removeItem("isSyncing");
+      localStorage.removeItem("jobId");
     }
   };
 
-  const processInvoices = async () => {
-    try {
-      const { data } = await axios.post(`/api/fetchHistory`);
-      // toastSuccess(t("Processed invoices successfully"));
-    } catch (error: any) {
-      toastError(error.message);
+  useEffect(() => {
+    const storedJobId = localStorage.getItem("jobId");
+    const storedSyncState = localStorage.getItem("isSyncing");
+
+    if (storedJobId && storedSyncState === "true") {
+      setIsSyncing(true);
+
+      const checkStatus = setInterval(async () => {
+        try {
+          const { data } = await axios.get(`/api/fetchHistory`, {
+            params: { jobId: storedJobId }, // Use the jobId stored in localStorage
+          });
+
+          if (data.status === "completed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          } else if (data.status === "failed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          }
+        } catch (error: any) {
+          clearInterval(checkStatus);
+          setIsSyncing(false);
+          localStorage.removeItem("isSyncing");
+          localStorage.removeItem("jobId");
+        }
+      }, 5000);
     }
-  };
-  
-  const syncAndProcessInvoices = async () => {
-    try {
-      setIsSyncing(true); // Set loading state
-      // Step 1: Fetch Invoices
-      // await fetchInvoices(); // Wait until this is done
-  
-      // Step 2: Process Invoices
-      await processInvoices(); // Wait until this is done
-  
-      // Step 3: Toast Success
-      setTriggerOrder(!triggerOrder)
-      toastSuccess(t("Sync invoice successfully"));
-    } catch (error: any) {
-      // Handle error for both fetch and process steps
-      toastError(error.message);
-    } finally {
-      setIsSyncing(false); // Remove loading state
-    }
-  };
+  }, []);
 
   return (
     <div className="px-4">
@@ -372,7 +413,9 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       >
         <div className="text-lg pb-4 default-font">
           <div className="flex">
-            <p className="text-lg font-semibold pb-4 grow">{t("Normal Order")}</p>
+            <p className="text-lg font-semibold pb-4 grow">
+              {t("Normal Order")}
+            </p>
             <Input.Search
               placeholder={t("search")}
               size="middle"
@@ -389,27 +432,23 @@ export default function adminOrder({ params }: { params: { id: number } }) {
                 ) : null
               }
             />
-            {activeTabKey === "2" &&
-               <Button
-               className="bg-comp-red button-backend ml-4"
-               type="primary"
-               icon={<ArrowPathIcon className="w-4" />}
-               loading={isSyncing} // Add loading prop
-               onClick={async () => {
-                 setIsSyncing(true); // Start loading
-                 try {
-                   await syncAndProcessInvoices(); // Call the async function
-                 } catch (error: any) {
-                   toastError(error); // Handle the error
-                 } finally {
-                   setIsSyncing(false); // Stop loading after the request completes
-                 }
-               }}
-             >
-               {t("Sync")}
-             </Button>
-            }
-         
+            {activeTabKey === "2" && (
+              <Button
+                className="bg-comp-red button-backend ml-4"
+                type="primary"
+                icon={<ArrowPathIcon className="w-4" />}
+                loading={isSyncing} // Add loading prop
+                onClick={async () => {
+                  try {
+                    await syncAndProcessInvoices(); // Call the async function
+                  } catch (error: any) {
+                    toastError(error); // Handle the error
+                  }
+                }}
+              >
+                {t("Sync")}
+              </Button>
+            )}
           </div>
           <TabContentOrder
             columns={columns}
@@ -426,8 +465,6 @@ export default function adminOrder({ params }: { params: { id: number } }) {
             setActiveTabKey={setActiveTabKey}
           />
         </div>
-
-     
       </div>
     </div>
   );

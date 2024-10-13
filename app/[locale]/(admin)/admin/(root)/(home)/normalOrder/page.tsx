@@ -295,44 +295,82 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     }
   }
 
-  const fetchInvoices = async () => {
-    try {
-      const { data } = await axios.get(`/api/fetchInvoices`);
-      // setTriggerOrder(!triggerOrder)
-      // toastSuccess(t("Sync invoice successfully"));
-    } catch (error: any) {
-      toastError(error.message);
-    }
-  };
-
-  const processInvoices = async () => {
-    try {
-      const { data } = await axios.post(`/api/fetchHistory`);
-      // toastSuccess(t("Processed invoices successfully"));
-    } catch (error: any) {
-      toastError(error.message);
-    }
-  };
-
   const syncAndProcessInvoices = async () => {
     try {
-      setIsSyncing(true); // Set loading state
-      // Step 1: Fetch Invoices
-      await fetchInvoices(); // Wait until this is done
+      toastSuccess(
+        t("The data synchronization will take a moment, please check back later")
+      );
+      setIsSyncing(true);
+      localStorage.setItem("isSyncing", "true");
 
-      // Step 2: Process Invoices
-      await processInvoices(); // Wait until this is done
+      const { data } = await axios.post(`/api/fetchHistory`);
+      const jobId = data.jobId;
+      localStorage.setItem("jobId", jobId);
 
-      // Step 3: Toast Success
-      setTriggerData(!triggerData);
-      toastSuccess(t("Sync invoice successfully"));
+      const checkStatus = setInterval(async () => {
+        try {
+          const { data } = await axios.get(`/api/fetchHistory`, {
+            params: { jobId },
+          });
+         
+          if (data.status === "completed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          } else if (data.status === "failed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          }
+        } catch (error: any) {
+          clearInterval(checkStatus);
+          setIsSyncing(false);
+          localStorage.removeItem("isSyncing");
+          localStorage.removeItem("jobId");
+        }
+      }, 5000);
     } catch (error: any) {
-      // Handle error for both fetch and process steps
-      toastError(error.message);
-    } finally {
-      setIsSyncing(false); // Remove loading state
+      setIsSyncing(false);
+      localStorage.removeItem("isSyncing");
+      localStorage.removeItem("jobId");
     }
   };
+
+  useEffect(() => {
+    const storedJobId = localStorage.getItem("jobId");
+    const storedSyncState = localStorage.getItem("isSyncing");
+
+    if (storedJobId && storedSyncState === "true") {
+      setIsSyncing(true);
+
+      const checkStatus = setInterval(async () => {
+        try {
+          const { data } = await axios.get(`/api/fetchHistory`, {
+            params: { jobId: storedJobId }, // Use the jobId stored in localStorage
+          });
+
+          if (data.status === "completed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          } else if (data.status === "failed") {
+            clearInterval(checkStatus);
+            setIsSyncing(false);
+            localStorage.removeItem("isSyncing");
+            localStorage.removeItem("jobId");
+          }
+        } catch (error: any) {
+          clearInterval(checkStatus);
+          setIsSyncing(false);
+          localStorage.removeItem("isSyncing");
+          localStorage.removeItem("jobId");
+        }
+      }, 5000);
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -381,13 +419,10 @@ export default function normalOrder({ params }: { params: { id: number } }) {
                 icon={<ArrowPathIcon className="w-4" />}
                 loading={isSyncing} // Add loading prop
                 onClick={async () => {
-                  setIsSyncing(true); // Start loading
                   try {
                     await syncAndProcessInvoices(); // Call the async function
                   } catch (error: any) {
                     toastError(error); // Handle the error
-                  } finally {
-                    setIsSyncing(false); // Stop loading after the request completes
                   }
                 }}
               >

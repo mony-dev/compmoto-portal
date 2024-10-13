@@ -256,7 +256,7 @@ const Dashboard = () => {
             justifyContent: "space-between",
           }}
         >
-          <div>
+          {/* <div> */}
             <h1 className="gradient-text text-4xl font-semibold	default-font">
               {t("Hello")} {session?.user.name}
             </h1>
@@ -293,7 +293,7 @@ const Dashboard = () => {
                   ),
                 }}
               />
-            </div>
+            {/* </div> */}
             <p className="text-comp-grey pt-2 text-lg">
               {t("Here your order summary")}
             </p>

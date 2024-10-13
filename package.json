@@ -81,7 +81,9 @@
     "sharp": "^0.33.5",
     "slick-carousel": "^1.8.1",
     "styled-components": "^6.1.8",
+    "tinycolor2": "^1.6.0",
     "ts-node": "^10.9.2",
+    "uuidv4": "^6.2.13",
     "winston": "^3.14.2",
     "xml2js": "^0.6.2",
     "zod": "^3.22.4"
@@ -96,6 +98,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-slick": "^0.23.13",
+    "@types/tinycolor2": "^1.4.6",
     "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.19",
     "babel-plugin-macros": "^3.1.0",
@@ -105,6 +108,7 @@
     "postcss": "^8.4.38",
     "prisma": "^5.11.0",
     "tailwindcss": "^3.4.1",
+    "tailwindcss-debug-screens": "^2.2.1",
     "twin.macro": "^3.4.1",
     "typescript": "^5"
   }

@@ -139,6 +139,7 @@ export default function adminClaim({
   
     
     useEffect(() => {
+      console.log("aaaa", localStorage.getItem('jobId'));
       const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
       setI18nName(lastPart);
   

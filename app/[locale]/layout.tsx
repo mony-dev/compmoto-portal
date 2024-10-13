@@ -35,7 +35,7 @@ export default async function RootLayout({
       <Head>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <body className={`${inter.className} min-h-screen default-font`}>
+      <body className={`${inter.className} min-h-screen default-font debug-screens`}>
         <Layout children={children}/>
       </body>
     </html>
