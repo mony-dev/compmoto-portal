@@ -29,6 +29,7 @@ export async function GET(request: Request) {
         }
       ),
     ]);
+    console.error("get data:", productGroup);
     return NextResponse.json({ data: productGroup, total });
   } catch (error) {
     return NextResponse.json(error);
