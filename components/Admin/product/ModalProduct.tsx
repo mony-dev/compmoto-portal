@@ -200,13 +200,20 @@ const ModalProduct = ({
   useEffect(() => {
     const fetchCategoryOptions = async (category: string, setter: any) => {
       try {
-        const { data } = await axios.get(`/api/${toCamelCase(category)}`);
+        const { data } = await axios.get(`/api/${toCamelCase(category)}`, {
+          params: {
+            page: 1,
+            pageSize: 200,
+          },
+        });
        
         const options = data.data.map((item: any) => ({
           value: item.id,
           label: item.name,
         }));
         setter(options);
+
+
       } catch (error: any) {
         toastError(error.message);
       }

@@ -60,7 +60,7 @@ export async function PUT(request: Request) {
         for (const [index, item] of brand.items.entries()) {
           const newItem: any = {
             specialBonusId: id,
-            brandId: brand.brandId, // Link to the Brand
+            minisizeId: brand.minisizeId, // Link to the Brand
             totalPurchaseAmount: item.totalPurchaseAmount,
             cn: item.cn,
             incentivePoint: item.incentivePoint,

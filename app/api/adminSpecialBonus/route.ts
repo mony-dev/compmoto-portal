@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     // Create SpecialBonusItems for each brand and their items
     for (const brand of brands) {
-      const { brandId, minisizeId, color, items } = brand;
+      const { minisizeId, color, items } = brand;
 
       // Loop through items and create them with order (index + 1)
       items.forEach(async (item: any, index: number) => {
@@ -31,7 +31,6 @@ export async function POST(request: Request) {
             totalPurchaseAmount: item.totalPurchaseAmount,
             cn: item.cn,
             incentivePoint: item.incentivePoint,
-            brandId: brandId, // Link to the Brand
             minisizeId: minisizeId,
             order: index + 1, // Set order as index + 1
             color: color ?? '#1677ff'
