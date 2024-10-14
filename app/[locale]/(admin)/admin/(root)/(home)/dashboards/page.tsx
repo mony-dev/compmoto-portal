@@ -388,18 +388,18 @@ const Dashboard = () => {
                             className="pl-4 1xl:pl-1"
                             href={`/${locale}/admin/reward`}
                           >
-                            <p className="text-comp-red leading-4 default-font">
+                            <p className="text-comp-red leading-4 default-font text-sm">
                               {reward.name}
                             </p>
-                            <p className="text-base default-font font-semibold text-comp-red">
+                            <p className="text-sm default-font font-semibold text-comp-red">
                               {reward.point}
                               <span className="text-comp-red leading-4 font-normal pl-2">
                                 {t("Point")}
                               </span>
                             </p>
-                            <div className="text-comp-red leading-4 font-normal flex items-center">
+                            {/* <div className="text-comp-red leading-4 font-normal flex items-center">
                               <span className="text-xs">{reward.date}</span>
-                            </div>
+                            </div> */}
                           </Link>
                         </>
                       )
