@@ -93,8 +93,9 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           const stepsProgressIcon = document.querySelectorAll(
             ".total-step .ant-steps-progress-icon"
           );
-
+          console.log("stepsProgressIcon", stepsProgressIcon)
           stepsProgressIcon.forEach((icon) => {
+          console.log("icon", icon)
             icon.addEventListener("mouseenter", (event) => {
               const rect = (
                 event.target as HTMLElement

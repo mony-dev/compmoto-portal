@@ -92,7 +92,7 @@ export default function adminsRewardCategory({
           router.replace(`/${locale}/admin/adminRewardCategory`);
           toastSuccess(t("Category deleted successfully"));
         } catch (error: any) {
-          toastError(error.response.data.message);
+          toastError(t(error.response?.data?.message) || "An error occurred.");
         }
       },
     });

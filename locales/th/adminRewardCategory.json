@@ -33,5 +33,7 @@
     "Album": "อัลบั้มรูป",
     "Upload": "อัพโหลดรูป",
     "Edit Category": "แก้ไขหมวดหมู่",
-    "Are you sure you want to delete this album": "คุณแน่ใจว่าต้องการลบอัลบั้มนี้หรือไม่?"
+    "Are you sure you want to delete this album": "คุณแน่ใจว่าต้องการลบอัลบั้มนี้หรือไม่?",
+    "Cannot delete category because there are user redeem": "ไม่สามารถลบได้ หมวดหมู่นี้มีรางวัลที่ถูกแลกแล้ว"
+
 }

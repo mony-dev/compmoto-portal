@@ -57,6 +57,21 @@ export async function DELETE(
 ) {
   const id = params.id;
   try {
+    // Check if there are any associated user rewards that would block the deletion
+    const relatedUserRewards = await prisma.userReward.findMany({
+      where: {
+        rewardId: Number(id)
+      },
+    });
+
+    // If related UserReward entries exist, return an error
+    if (relatedUserRewards.length > 0) {
+      return NextResponse.json(
+        { message: "Cannot delete category because there are user redeem" },
+        { status: 500 }
+      );
+    }
+
     // Delete associated rewards first
     await prisma.reward.deleteMany({
       where: {
@@ -70,11 +85,11 @@ export async function DELETE(
         id: Number(id),
       },
     });
-    
+
     return NextResponse.json(deletedCate);
   } catch (error) {
     console.log("error", error);
-    return NextResponse.json(error);
+    return NextResponse.json({ message: "An error occurred during deletion." }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }

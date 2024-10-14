@@ -33,5 +33,6 @@
     "Search": "Search",
     "Album": "Album",
     "Upload": "Upload",
-    "Are you sure you want to delete this album": "Are you sure you want to delete this album?"
+    "Are you sure you want to delete this album": "Are you sure you want to delete this album?",
+    "Cannot delete category because there are user redeem": "Cannot delete category because there are user redeem"
 }
