@@ -318,6 +318,8 @@ export default function normalOrder({ params }: { params: { id: number } }) {
             setIsSyncing(false);
             localStorage.removeItem("isSyncing");
             localStorage.removeItem("jobId");
+            setTriggerData(!triggerData)
+
           } else if (data.status === "failed") {
             clearInterval(checkStatus);
             setIsSyncing(false);

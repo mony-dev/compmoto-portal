@@ -57,13 +57,23 @@ export async function DELETE(
 ) {
   const id = params.id;
   try {
+    // Delete associated rewards first
+    await prisma.reward.deleteMany({
+      where: {
+        rewardCategoryId: Number(id),
+      },
+    });
+
+    // Then delete the reward category
     const deletedCate = await prisma.rewardCategory.delete({
       where: {
         id: Number(id),
       },
     });
+    
     return NextResponse.json(deletedCate);
   } catch (error) {
+    console.log("error", error);
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();

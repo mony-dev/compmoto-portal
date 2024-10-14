@@ -20,12 +20,12 @@ import { useCart } from "@components/Admin/Cartcontext";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 export default function adminInvoice({ params }: { params: { id: number } }) {
+  const { t } = useTranslation();
   const [reData, setReData] = useState<DataType>();
   const locale = useCurrentLocale(i18nConfig);
-  const { t } = useTranslation();
   const pathname = usePathname();
-  const { setI18nName, setLoadPage, loadPage } = useCart();
-  const [searchText, setSearchText] = useState("");
+  const { setI18nName} = useCart();
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
@@ -92,10 +92,12 @@ export default function adminInvoice({ params }: { params: { id: number } }) {
     const parts = pathname.split("/");
     const lastPart = parts[parts.length - 2];
     setI18nName(lastPart);
-    setLoadPage(true);
+    setLoading(true);
     axios
       .get(`/api/invoice/${params.id}`)
       .then((response) => {
+        setLoading(false);
+
         const order = response.data;
         const normalOrder: DataType = {
           key: order.id,
@@ -114,7 +116,7 @@ export default function adminInvoice({ params }: { params: { id: number } }) {
             id: order.user.id,
             name: order.user.name,
             saleUser: {
-              custNo: order.user.saleUser.custNo,
+              custNo: order?.user?.saleUser?.custNo,
             },
           },
           items: order.items.map((item: any, index: number) => ({
@@ -150,8 +152,8 @@ export default function adminInvoice({ params }: { params: { id: number } }) {
             },
           })),
         };
+        console.log(normalOrder)
         setReData(normalOrder);
-        setLoadPage(false);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
@@ -270,7 +272,7 @@ export default function adminInvoice({ params }: { params: { id: number } }) {
     </div>,
   ];
 
-  if (loadPage || !t) {
+  if (loading || !t) {
     return <Loading />;
   }
 

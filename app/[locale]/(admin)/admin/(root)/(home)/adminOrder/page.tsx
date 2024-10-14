@@ -351,6 +351,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
             setIsSyncing(false);
             localStorage.removeItem("isSyncing");
             localStorage.removeItem("jobId");
+            setTriggerOrder(!triggerOrder)
           } else if (data.status === "failed") {
             clearInterval(checkStatus);
             setIsSyncing(false);
