@@ -153,7 +153,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
           );
         }
         setGroupedItems(mergedData);
-
+        setTimeout(() => {
         const stepsProgressIcon = document.querySelectorAll(
           ".special-step .ant-steps-progress-icon"
         );
@@ -202,6 +202,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
             setSumTotalBonus(0);
           });
         });
+      }, 5000);
       } catch (error) {
         console.error("Error fetching special bonus data:", error);
       } finally {

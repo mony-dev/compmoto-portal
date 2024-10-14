@@ -94,24 +94,26 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
             ".total-step .ant-steps-progress-icon"
           );
           console.log("stepsProgressIcon", stepsProgressIcon)
-          stepsProgressIcon.forEach((icon) => {
-          console.log("icon", icon)
-            icon.addEventListener("mouseenter", (event) => {
-              const rect = (
-                event.target as HTMLElement
-              ).getBoundingClientRect();
-              console.log(rect);
-              setTooltipPosition({
-                bottom: 215, // Adjust to position above the icon
-                left: rect.left - 340,
+          setTimeout(() => {
+            const stepsProgressIcon = document.querySelectorAll(
+              ".total-step .ant-steps-progress-icon"
+            );
+  
+            stepsProgressIcon.forEach((icon) => {
+              icon.addEventListener("mouseenter", (event) => {
+                const rect = (event.target as HTMLElement).getBoundingClientRect();
+                setTooltipPosition({
+                  bottom: 215, // Adjust to position above the icon
+                  left: rect.left - 340,
+                });
+                setIsHovered(true);
               });
-              setIsHovered(true);
+  
+              icon.addEventListener("mouseleave", () => {
+                setIsHovered(false);
+              });
             });
-
-            icon.addEventListener("mouseleave", () => {
-              setIsHovered(false);
-            });
-          });
+          }, 5000); // Adjust the timeout as needed
         }
       } catch (error) {
         console.error("Error fetching total purchase history:", error);
