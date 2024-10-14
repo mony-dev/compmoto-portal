@@ -152,7 +152,6 @@ export default function adminInvoice({ params }: { params: { id: number } }) {
             },
           })),
         };
-        console.log(normalOrder)
         setReData(normalOrder);
       })
       .catch((error) => {

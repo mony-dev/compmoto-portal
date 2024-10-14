@@ -34,8 +34,14 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
   const locale = useCurrentLocale(i18nConfig);
   const [loading, setLoading] = useState(false);
   const [sumCn, setSumCn] = useState(0);
+  const [sumTotal, setSumTotal] = useState(0);
 
   const { t } = useTranslation();
+  const [isHovered, setIsHovered] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({
+    bottom: 0,
+    left: 0,
+  });
 
   useEffect(() => {
     // Fetch total purchase history for the user
@@ -46,13 +52,15 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           `/api/totalPurchaseHistory?userId=${userId}`
         );
         const history = response.data.totalPurchaseHistory[0];
-        const sumCn = response.data.sumTotalAmount
-        setSumCn(sumCn)
+        const sumCn = response.data.sumTotalAmount;
+        setSumCn(sumCn);
+
         if (history) {
           setTotalPurchase(history);
+          const totalSum = history.totalSpend - sumCn || 0;
+          setSumTotal(totalSum);
           const purchaseItems = history.items;
           const userLevel = history.level;
-
           const stepsItems = purchaseItems.map(
             (item: {
               order: number;
@@ -81,6 +89,28 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
 
           setItems(stepsItems);
           setLevel(userLevel); // Set current level
+
+          const stepsProgressIcon = document.querySelectorAll(
+            ".total-step .ant-steps-progress-icon"
+          );
+
+          stepsProgressIcon.forEach((icon) => {
+            icon.addEventListener("mouseenter", (event) => {
+              const rect = (
+                event.target as HTMLElement
+              ).getBoundingClientRect();
+              console.log(rect);
+              setTooltipPosition({
+                bottom: 215, // Adjust to position above the icon
+                left: rect.left - 340,
+              });
+              setIsHovered(true);
+            });
+
+            icon.addEventListener("mouseleave", () => {
+              setIsHovered(false);
+            });
+          });
         }
       } catch (error) {
         console.error("Error fetching total purchase history:", error);
@@ -92,6 +122,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
     fetchTotalPurchaseHistory();
   }, [userId]);
 
+  
   // Find the latest order based on the 'order' field in items
   const latestOrder = totalPurchase?.items.reduce((prev, curr) => {
     return prev.order > curr.order ? prev : curr;
@@ -483,7 +514,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
                 >
                   ฿
                   {totalPurchase?.totalSpend
-                    ?(totalPurchase?.totalSpend - sumCn).toLocaleString()
+                    ? (totalPurchase?.totalSpend - sumCn).toLocaleString()
                     : 0}
                 </div>
                 <div
@@ -500,13 +531,45 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
               </div>
             </div>
           </div>
-          <div className="pt-4 total-step">
+          {/* <div className="pt-4 total-step">
             <Steps
               current={level} // Set current level from TotalPurchaseHistory
               percent={100}
               labelPlacement="vertical"
               items={items}
             />
+          </div> */}
+          <div className="pt-4 total-step">
+            <div className="wrap-position">
+              <div className="progress-wrapper">
+                <Steps
+                  current={level}
+                  percent={100}
+                  labelPlacement="vertical"
+                  items={items}
+                />
+
+                {isHovered && (
+                  <div
+                    className="sum-total-display"
+                    style={{
+                      position: "absolute",
+                      bottom: tooltipPosition.bottom,
+                      left: tooltipPosition.left,
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#dd2c37",
+                      color: "white",
+                      padding: "8px",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      zIndex: 10,
+                    }}
+                  >
+                    ฿{sumTotal.toLocaleString()}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </>
       )}

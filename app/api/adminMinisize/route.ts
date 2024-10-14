@@ -54,8 +54,6 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    console.log("data", data)
-
     const newMinisize = await prisma.minisize.create({
       data: {
         name: data.name,

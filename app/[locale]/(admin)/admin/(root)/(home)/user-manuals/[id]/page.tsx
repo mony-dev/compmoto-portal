@@ -44,7 +44,6 @@ const News = ({ params }: { params: { id: number } }) => {
   const [newsData, setNewsData] = useState<DataType>();
 
   useEffect(() => {
-    console.log("asdsd")
     const parts = pathname.split("/");
     const lastPart = parts[parts.length - 2];
     setI18nName(lastPart);
@@ -57,7 +56,6 @@ const News = ({ params }: { params: { id: number } }) => {
     const [newsResponse] = await Promise.all([
         axios.get(`/api/adminUserManual/${params.id}`),
     ]);
-    console.log(newsResponse)
     setNewsData(newsResponse.data);
     } catch (error) {
     console.error("Error fetching data: ", error);

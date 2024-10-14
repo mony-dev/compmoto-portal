@@ -26,6 +26,7 @@ interface SpecialBonusProps {
 }
 
 interface SpecialBonusItem {
+  total: number;
   order: number;
   cn: number;
   incentivePoint: number;
@@ -34,7 +35,6 @@ interface SpecialBonusItem {
   color: string;
   brand: Brand;
   minisize: Minisize;
-
 }
 
 interface SpecialBonusHistory {
@@ -47,12 +47,49 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
   const [groupedItems, setGroupedItems] = useState<{
     [minisizeId: number]: SpecialBonusItem[];
   }>({});
-  const [brandLevels, setBrandLevels] = useState<{ [minisizeId: number]: number }>(
-    {}
-  );
+  const [brandLevels, setBrandLevels] = useState<{
+    [minisizeId: number]: number;
+  }>({});
+
+  const [tooltipPositionBonus, setTooltipPositionBonus] = useState({
+    bottom: 0,
+    left: 0,
+  });
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
   const [loading, setLoading] = useState(false);
+  const [sumTotalBonus, setSumTotalBonus] = useState(0);
+  const [hoveredMinisizeId, setHoveredMinisizeId] = useState<number | null>(
+    null
+  );
+  const [hoveredOrder, setHoveredOrder] = useState<number | null>(null);
+
+  const addMinisizeIdToIcons = (icons: NodeListOf<Element>, spendData: any) => {
+    icons.forEach((icon, index) => {
+      const minisizeId = spendData[index]?.minisizeId;
+      const order = spendData[index]?.order + 1;
+      const total = spendData[index]?.total || 0;
+      if (minisizeId) {
+        (icon as HTMLElement).setAttribute(
+          "data-minisize-id",
+          minisizeId.toString()
+        );
+      }
+
+      if (order >= 0) {
+        (icon as HTMLElement).setAttribute(
+          "data-minisize-order",
+          order.toString()
+        );
+      }
+      if (total >= 0) {
+        (icon as HTMLElement).setAttribute(
+          "data-minisize-total",
+          total.toString()
+        );
+      }
+    });
+  };
 
   useEffect(() => {
     // Fetch special bonus history and items for the user
@@ -61,7 +98,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
       try {
         const response = await fetch("/api/specialBonus");
         const data = await response.json();
-        const specialBonusResponse = data.specialBonus
+        const specialBonusResponse = data.specialBonus;
         // Group items by minisizeId
         const groupedItemsByMinisize = specialBonusResponse.items.reduce(
           (
@@ -77,7 +114,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
           {}
         );
 
-        setGroupedItems(groupedItemsByMinisize);
+        // setGroupedItems(groupedItemsByMinisize);
 
         // Fetch the SpecialBonusHistory to get the totalSpend and determine the levels
         const historyResponse = await axios.get(
@@ -96,7 +133,75 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
           },
           {}
         );
+
         setBrandLevels(brandLevelMap);
+     
+        const mergedData = { ...groupedItemsByMinisize };
+        // Iterate through groupedItemsByMinisize and add the 'total' value
+        for (const minisizeId in mergedData) {
+          mergedData[minisizeId].forEach(
+            (item: { minisizeId: any; total: any }) => {
+              // Find the matching minisizeId in specialBonusHistory.totalSpend
+              const found = specialBonusHistory.totalSpend.find(
+                (historyItem: { minisizeId: any }) =>
+                  historyItem.minisizeId === item.minisizeId
+              );
+
+              // If found, set the 'total' value; if not, set 'total' to 0
+              item.total = found ? found.total : 0;
+            }
+          );
+        }
+        setGroupedItems(mergedData);
+
+        const stepsProgressIcon = document.querySelectorAll(
+          ".special-step .ant-steps-progress-icon"
+        );
+        const mergedTotals = Object.keys(groupedItemsByMinisize).map(
+          (minisizeId) => {
+            // Find matching minisizeId in specialBonusHistory.totalSpend
+            const found = specialBonusHistory.totalSpend.find(
+              (historyItem: { minisizeId: number; level: number }) =>
+                historyItem.minisizeId === Number(minisizeId)
+            );
+            // Return new object with minisizeId and total (or 0 if not found)
+            return {
+              minisizeId: Number(minisizeId),
+              order: found ? Number(found.level) : 0,
+              total: found ? found.total : 0,
+            };
+          }
+        );
+        const filter = mergedTotals.filter((item) => item.order !== 4);
+
+        addMinisizeIdToIcons(stepsProgressIcon, filter);
+
+        stepsProgressIcon.forEach((icon) => {
+          icon.addEventListener("mouseenter", (event) => {
+            const target = event.target as HTMLElement;
+            // Get the minisizeId from the data attribute
+            const minisizeId = target.getAttribute("data-minisize-id");
+            const order = target.getAttribute("data-minisize-order");
+            const total = target.getAttribute("data-minisize-total");
+
+            const rect = (
+              event.target as HTMLElement
+            ).getBoundingClientRect();
+            setTooltipPositionBonus({
+              bottom: 110,
+              left: rect.left,
+            });
+            setHoveredMinisizeId(Number(minisizeId));
+            setHoveredOrder(Number(order));
+            setSumTotalBonus(Number(total));
+          });
+
+          icon.addEventListener("mouseleave", () => {
+            setHoveredMinisizeId(null);
+            setHoveredOrder(null);
+            setSumTotalBonus(0);
+          });
+        });
       } catch (error) {
         console.error("Error fetching special bonus data:", error);
       } finally {
@@ -108,33 +213,60 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
   }, [userId]);
 
   // Render steps for each brand
-  const renderStepsForBrand = (minisizeId: number, items: SpecialBonusItem[]) => {
+  const renderStepsForBrand = (
+    minisizeId: number,
+    items: SpecialBonusItem[]
+  ) => {
     const userLevel = brandLevels[minisizeId] || 0;
-
-    // Use the color of the first item in the brand to style the steps
     const brandColor = items[0]?.color || "#1677ff"; // Default color if none is provided
     const imageProfile = items[0]?.minisize?.imageProfile;
     const brandName = items[0]?.minisize?.name || "";
     const stepsItems = items.map((item) => {
       return {
         title: "",
-        description:
-          userLevel >= item.order
-            ? renderActive(
-                item.cn,
-                item.incentivePoint,
-                item.totalPurchaseAmount,
-                brandColor
-              )
-            : renderInactive(
-                item.cn,
-                item.incentivePoint,
-                item.totalPurchaseAmount,
-                brandColor
-              ),
+        description: (
+          <div
+            className="progress-step-wrapper"
+            style={{ position: "relative" }}
+          >
+            {userLevel >= item.order
+              ? renderActive(
+                  item.cn,
+                  item.incentivePoint,
+                  item.totalPurchaseAmount,
+                  brandColor
+                )
+              : renderInactive(
+                  item.cn,
+                  item.incentivePoint,
+                  item.totalPurchaseAmount,
+                  brandColor
+                )}
+
+            {item.minisizeId === hoveredMinisizeId &&
+              item.order === hoveredOrder && (
+                <div
+                  className="sum-total-display-bonus"
+                  style={{
+                    position: "absolute",
+                    bottom: tooltipPositionBonus.bottom,
+                    right: '-50px',
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#dd2c37",
+                    color: "white",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    zIndex: 10,
+                  }}
+                >
+                  ฿{sumTotalBonus.toLocaleString()}
+                </div>
+              )} 
+          </div>
+        ),
       };
     });
-
     return (
       <div
         key={minisizeId}
@@ -144,7 +276,6 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
         <div className="flex items-center justify-center">
           {imageProfile && (
             <div className="minisize-image">
-              {/* <Image width={100} height={100} src={imageProfile} alt="brand" /> */}
               <Image
                 alt="brand"
                 width={100}
@@ -160,12 +291,16 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
           )}
         </div>
         <div className="col-span-5">
-          <Steps
-            current={userLevel}
-            percent={100}
-            labelPlacement="vertical"
-            items={stepsItems}
-          />
+          <div className="wrap-position">
+            <div className="progress-wrapper">
+              <Steps
+                current={userLevel}
+                percent={100}
+                labelPlacement="vertical"
+                items={stepsItems}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );

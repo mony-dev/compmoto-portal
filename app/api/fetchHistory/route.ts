@@ -45,14 +45,12 @@ export async function POST() {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const jobId = searchParams.get("jobId");
-  console.log("jobId", jobId)
   if (!jobId) {
     return NextResponse.json({ error: "Invalid or unknown job ID" }, { status: 400 });
   }
 
   // Lookup the job status based on jobId (this could be an in-memory store, a DB, etc.)
   let jobStatus = jobStatusMap[jobId]; // Retrieve from your job tracking logic
-  console.log("jobStatus", jobStatus)
 
   if (!jobStatus) {
     jobStatus = "completed"

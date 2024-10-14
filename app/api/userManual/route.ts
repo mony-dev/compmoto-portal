@@ -29,8 +29,6 @@ export async function GET(request: Request) {
           where: whereClause, // Apply the same filter to count the total results
         }),
       ]);
-  
-      console.log(userManuals);
       return NextResponse.json({ userManuals, total });
     } catch (error) {
       console.error("Error fetching data:", error);
