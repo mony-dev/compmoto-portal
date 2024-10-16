@@ -68,9 +68,7 @@ const ManualList: React.FC<ManualProps> = ({ type }) => {
   
           setTotal(response.total); // Set total items from API
           setCurrentPage((prevPage) => prevPage + 1); // Increment page after successful fetch
-        } else {
-          console.log("No more data to load");
-        }
+        } 
       } else {
         const { data: response } = await axios.get(`/api/news`, {
           params: {
@@ -96,9 +94,7 @@ const ManualList: React.FC<ManualProps> = ({ type }) => {
   
           setTotal(response.total); // Set total items from API
           setCurrentPage((prevPage) => prevPage + 1); // Increment page after successful fetch
-        } else {
-          console.log("No more data to load");
-        }
+        } 
       }
  
     } catch (error) {

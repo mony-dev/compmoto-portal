@@ -43,7 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       // Only set profile image if the session is available
       setProfileImage(session.user.image);
     }
-  }, [session, setProfileImage]);
+  }, []);
 
   if (status === "loading") {
     return <div>Loading...</div>; // or a loading spinner

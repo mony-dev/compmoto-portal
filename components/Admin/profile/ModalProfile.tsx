@@ -47,6 +47,7 @@ type Props = {
   setTriggerProfile: (value: boolean) => void;
   triggerProfile: boolean;
   title: string;
+  user: any;
 };
 
 const Hr = styled.hr`
@@ -59,6 +60,7 @@ const ModalProfile = ({
   setTriggerProfile,
   triggerProfile,
   title,
+  user,
 }: Props) => {
   const {
     handleSubmit,
@@ -80,11 +82,11 @@ const ModalProfile = ({
   const { profileImage, setProfileImage } = useCart();
 
   useEffect(() => {
-    if (session?.user) {
-      setValue("image", session?.user.image);
-      setImage(session?.user.image);
+    if (user && user.image) {
+      setImage(user.image); 
+      reset({ image: user.image }); 
     }
-  }, []);
+  }, [user, reset]);
 
   useEffect(() => {
     let effImage: any = "";

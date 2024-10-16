@@ -15,5 +15,6 @@
     "Amount cannot be zero": "กรุณาระบุจำนวนตั๋วแลกรางวัล",
     "Your point not enough": "คะแนนของคุณไม่เพียงพอ",
     "Redeem successfully": "แลกรางวัลสำเร็จ",
-    "Please login before redeem": "กรุณาเข้าสู่ระบบก่อนแลกรางวัล"
+    "Please login before redeem": "กรุณาเข้าสู่ระบบก่อนแลกรางวัล",
+    "Redeemed": "แลกแล้ว"
 }

@@ -211,7 +211,10 @@ const ModalProduct = ({
           value: item.id,
           label: item.name,
         }));
-        setter(options);
+
+        const updatedOption = [{value: null, label: t("No category")}, ...options]
+
+        setter(updatedOption);
 
 
       } catch (error: any) {

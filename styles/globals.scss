@@ -521,6 +521,10 @@ body {
   .dropdownToggle {
     cursor: pointer;
   }
+  
+  .ant-checkbox-wrapper {
+    padding-bottom: 4px!important;
+  }
 
   .dropdownToggle svg {
     transition: transform 0.3s ease;
@@ -884,6 +888,7 @@ body {
   border-color: #ffe8eb;
   background: #ffe8eb;
 }
+
   /* For WebKit browsers (Chrome, Safari, Edge) */
   .dropdown-filter .ant-dropdown-menu::-webkit-scrollbar {
     width: 8px; /* Width of the scrollbar */
@@ -1125,3 +1130,11 @@ body {
   }
 }
 
+:where(.css-dev-only-do-not-override-98ntnt).ant-dropdown .ant-dropdown-menu, :where(.css-dev-only-do-not-override-98ntnt).ant-dropdown-menu-submenu .ant-dropdown-menu {
+  max-height: 200px!important;
+  overflow-y: auto;
+}
+:where(.css-98ntnt).ant-dropdown .ant-dropdown-menu, :where(.css-98ntnt).ant-dropdown-menu-submenu .ant-dropdown-menu {
+  max-height: 200px!important;
+  overflow-y: auto;
+}

@@ -1,8 +1,6 @@
-"use client";
-
 import React, { useEffect, useState } from 'react';
 import { DownOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Menu, Checkbox } from 'antd';
+import { Button, Dropdown, Checkbox, MenuProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 interface Option {
@@ -24,80 +22,79 @@ interface DropdownFilterProps {
   onFilterChange: (selectedItems: SelectedItem[]) => void; 
 }
 
-const DropdownFilter: React.FC<DropdownFilterProps> = ({ items, buttonTitle, selectedItems, onFilterChange }) => {
+const DropdownFilter: React.FC<DropdownFilterProps> = ({
+  items,
+  buttonTitle,
+  selectedItems,
+  onFilterChange,
+}) => {
   const { t } = useTranslation();
   const [localSelectedItems, setLocalSelectedItems] = useState<SelectedItem[]>(
     selectedItems
   );
 
-    useEffect(() => {
-      setLocalSelectedItems(selectedItems); // Sync with parent when selectedItems change
-    }, [selectedItems]);
-    const isAllChecked = items.length > 0 && localSelectedItems.length === items.length;
+  useEffect(() => {
+    setLocalSelectedItems(selectedItems); // Sync with parent when selectedItems change
+  }, [selectedItems]);
 
-    const handleCheckboxChange = (key: number | string, label: string, type: string) => {
-      const selectedItem = { id: key, name: label, type: type };
-      const updatedItems = localSelectedItems.some((item) => item.id === key)
-        ? localSelectedItems.filter((item) => item.id !== key)
-        : [...localSelectedItems, selectedItem];
-  
-      setLocalSelectedItems(updatedItems);
-      onFilterChange(updatedItems);
-    };
+  const isAllChecked = items.length > 0 && localSelectedItems.length === items.length;
 
-  const handleAllChange = () => {
-    const updatedItems = isAllChecked ? [] : items.map((item) => ({
-      id: item.key,
-      name: item.label,
-      type: item.type,
-    }));
+  const handleCheckboxChange = (key: number | string, label: string, type: string) => {
+    const selectedItem = { id: key, name: label, type: type };
+    const updatedItems = localSelectedItems.some((item) => item.id === key)
+      ? localSelectedItems.filter((item) => item.id !== key)
+      : [...localSelectedItems, selectedItem];
 
     setLocalSelectedItems(updatedItems);
     onFilterChange(updatedItems);
   };
-  // Custom menu with checkboxes, including the "All" option
-  const menu = (
-    <div
-      style={{ 
-        padding: '10px', 
-        maxHeight: '200px', 
-        overflowY: 'auto', 
-        boxShadow: '0px 4px 16px 0px rgba(0, 0, 0, 0.08)',
-      }}
-      className='menu-filter'
-      onMouseLeave={(e) => {
-        // Close dropdown on mouse leave
-        (e.currentTarget as HTMLElement).parentElement?.blur();
-      }}
-    >
-      {/* "All" checkbox */}
-      <div key={-1}>
+
+  const handleAllChange = () => {
+    const updatedItems = isAllChecked
+      ? []
+      : items.map((item) => ({
+          id: item.key,
+          name: item.label,
+          type: item.type,
+        }));
+
+    setLocalSelectedItems(updatedItems);
+    onFilterChange(updatedItems);
+  };
+
+  // Ant Design's new menu structure (menu items)
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'all',
+      label: (
         <Checkbox checked={isAllChecked} onChange={handleAllChange}>
-          {t("all")}
+          {t('all')}
         </Checkbox>
-      </div>
-      {/* Individual items */}
-      {items.map((item) => (
-        <div key={item.key}>
-          <Checkbox
-            checked={localSelectedItems.some((i) => i.id === item.key)}
-            onChange={() => handleCheckboxChange(item.key, item.label, item.type)}
-          >
-            {item.label}
-          </Checkbox>
-        </div>
-      ))}
-    </div>
-  );
+      ),
+    },
+    ...items.map((item) => ({
+      key: item.key.toString(),
+      label: (
+        <Checkbox
+          checked={localSelectedItems.some((i) => i.id === item.key)}
+          onChange={() => handleCheckboxChange(item.key, item.label, item.type)}
+        >
+          {item.label}
+        </Checkbox>
+      ),
+    })),
+  ];
 
   return (
     <Dropdown
-      overlay={menu}
+      menu={{ items: menuItems }} // Use the `menu` prop here
       trigger={['click']}
       overlayClassName="dropdown-filter bg-white"
     >
       <Button className="w-full flex justify-between rounded-none">
-        <p className="default-font text-sm mb-0 font-semibold text-comp-red">{buttonTitle}</p>
+        <p className="default-font text-sm mb-0 font-semibold text-comp-red">
+          {buttonTitle}
+        </p>
         <DownOutlined />
       </Button>
     </Dropdown>

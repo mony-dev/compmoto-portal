@@ -468,7 +468,7 @@ const Reward = () => {
                     >
                       <div className="flex justify-center text-sm dedault-font">
                         <p className="pr-2 text-comp-natural-base default-font">
-                          {t("Expired")}
+                          {t("Redeemed")}
                         </p>{" "}
                       </div>
                     </Link>

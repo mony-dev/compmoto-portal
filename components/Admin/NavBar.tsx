@@ -99,16 +99,16 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
     }
   };
 
-  async function fetchUser() {
-    try {
-      const [userResponse] = await Promise.all([
-        axios.get(`/api/updateProfile/${userId}`),
-      ]);
-      setProfileImage(userResponse.data.image);
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-    }
-  }
+  // async function fetchUser() {
+  //   try {
+  //     // const { data } = await
+  //     const {data} = await axios.get(`/api/users/${userId}`);
+  //     console.log(data)
+  //     setProfileImage(data.image);
+  //   } catch (error) {
+  //     console.error("Error fetching data: ", error);
+  //   }
+  // }
 
   useEffect(() => {
     if (userData?.data?.CustPriceGroup) {
@@ -134,7 +134,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   useEffect(() => {
     if (userId) {
       fetchCartCount();
-      userData.role === "USER" && fetchUser();
+      // userData.role === "USER" && fetchUser();
     }
   }, [userId]);
 
@@ -266,13 +266,15 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                       </p>
                       <div className="flex space-x-2 pt-2">
                         {[...Array(starLevel)].map((_, index) => (
-                          <Image
-                            key={index}
-                            width={20}
-                            height={20}
-                            src={Star.src}
-                            alt="star"
-                          />
+                           <div key={index}>
+                            <Image
+                              key={index}
+                              width={20}
+                              height={20}
+                              src={Star.src}
+                              alt="star"
+                            />
+                          </div>
                         ))}
                       </div>
                     </div>

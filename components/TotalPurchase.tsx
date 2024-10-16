@@ -93,7 +93,6 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           const stepsProgressIcon = document.querySelectorAll(
             ".total-step .ant-steps-progress-icon"
           );
-          console.log("stepsProgressIcon", stepsProgressIcon)
           setTimeout(() => {
             const stepsProgressIcon = document.querySelectorAll(
               ".total-step .ant-steps-progress-icon"

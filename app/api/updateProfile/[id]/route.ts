@@ -36,12 +36,17 @@ export async function GET(
   { params }: { params: { id: number } }
 ) {
   const id = params.id; 
+
+  if (!id) {
+    return NextResponse.json({ });
+}
   try {
     const user = await prisma.user.findUnique({
       where: {
         id: Number(id),
       },
     });
+    console.log(user)
     return NextResponse.json(user);
   } catch (error) {
     return NextResponse.json(error);

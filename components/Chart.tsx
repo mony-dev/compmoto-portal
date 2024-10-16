@@ -261,11 +261,13 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
   const renderFilterTags = (
     selected: SelectedItem[],
     options: Option[],
-    type: string
+    type: string,
+    index: number
   ) => {
     if (selected.length === options.length) {
       return (
         <Tag
+          key={index}
           closable
           onClose={() => handleFilterChange([], type)}
           style={tagPlusStyle}
@@ -355,7 +357,7 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
 
             <div className="flex flex-wrap dropdown-tag pt-4">
               {allSelectedItems.map(({ selected, options, type }, index) =>
-                renderFilterTags(selected, options, type)
+                renderFilterTags(selected, options, type, index)
               )}
             </div>
           </div>
