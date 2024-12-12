@@ -109,7 +109,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
                 }
               className="rounded-lg"
               size="large"
-              placeholder={t("Email Address")}
+              placeholder={t("Cust No")}
             />
           </Form.Item>
           <Form.Item<FieldType>

@@ -4,9 +4,9 @@
   "member_login": "เข้าสู่ระบบสมาชิก",
   "password": "รหัสผ่าน",
   "please_change_password": "กรุณาเปลี่ยนรหัสผ่าน",
-  "please_input_your_email": "กรุณาใส่อีเมล์ของคุณ!",
+  "please_input_your_custNo": "กรุณาใส่หมายเลขลูกค้าของคุณ!",
   "please_input_your_password": "กรุณาใส่รหัสผ่านของคุณ!",
   "sign_in_successfully": "ลงชื่อเข้าใช้สำเร็จ",
-  "Login to your account": "ลงชื่อเข้าใช้บัญชีของคุณ"
-
+  "Login to your account": "ลงชื่อเข้าใช้บัญชีของคุณ",
+  "Cust No": "หมายเลขลูกค้า"
 }

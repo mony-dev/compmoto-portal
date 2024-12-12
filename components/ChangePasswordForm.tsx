@@ -13,7 +13,7 @@ const ChangePasswordForm = () => {
   const { t } = useTranslation();
 
   const onFinish = async (values: any) => {
-    let email = localStorage.getItem("email");
+    let custNo = localStorage.getItem("custNo");
     try {
       const response = await axios.put(
         "/api/change-password",
@@ -21,7 +21,7 @@ const ChangePasswordForm = () => {
           currentPassword: values.currentPassword,
           confirmPassword: values.confirmPassword,
           newPassword: values.newPassword,
-          email: email,
+          custNo: custNo,
         },
         {
           headers: {

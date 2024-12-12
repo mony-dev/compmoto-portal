@@ -8,13 +8,13 @@ export async function PUT(request: Request, response: Response) {
   // const { currentPassword, newPassword, email } = req.body;
   const data = await request.json();
 
-  const user = await prisma.user.findUnique({ where: { email: data.email } });
+  const user = await prisma.user.findUnique({ where: { custNo: data.custNo } });
 
   if (!user) {
     return NextResponse.json({ message: 'User not found' }, { status: 404 })
   }
 
-  const email = data.email
+  const custNo = data.custNo
   // // Check if the current password is correct
   const isPasswordValid = await bcrypt.compare(data.currentPassword, user.encryptedPassword);
   if (!isPasswordValid) {
@@ -30,7 +30,7 @@ export async function PUT(request: Request, response: Response) {
   // // Update the password in the database
   try {
     const updatedUser = await prisma.user.update({
-      where: { email },
+      where: { custNo },
       data: { encryptedPassword: hashedPassword, status: 'Active' },
     });
     return NextResponse.json({ message: 'Password updated successfully' }, { status: 200 })
