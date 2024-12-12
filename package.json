@@ -26,7 +26,9 @@
     "fetch-invoice": "node lib/web/utils/fetchInvoice.mjs",
     "fetch-history": "node lib/web/utils/fetchHistory.mjs",
     "fetch-total-purchase": "node lib/web/utils/fetchTotalPurchase.mjs",
-    "fetch-special-bonus": "node lib/web/utils/fetchSpecialBonus.mjs"
+    "fetch-special-bonus": "node lib/web/utils/fetchSpecialBonus.mjs",
+    "update-admin": "node lib/web/utils/updateAdmin.mjs"
+
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
