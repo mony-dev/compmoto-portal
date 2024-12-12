@@ -6,7 +6,7 @@ RUN apk add --no-cache g++ make py3-pip libc6-compat
 
 # Set the working directory
 WORKDIR /app
-
+RUN apk add --no-cache openssl
 # Copy package.json and yarn.lock to the container
 COPY package*.json yarn.lock ./
 
