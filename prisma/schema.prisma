@@ -40,7 +40,7 @@ model User {
   balanceLCY         Int?
   contactName        String?
   custPriceGroup     String?
-  custNo             String
+  custNo             String                @unique
   cn                 Float                 @default(0)
   cnBrand            Json?                  
   loyaltyPoint       Float                 @default(0)

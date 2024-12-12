@@ -44,7 +44,7 @@ export default function admins() {
     key: number;
     id: number;
     name: string;
-    email: string;
+    custNo: string;
     status: string;
     role: string;
   }
@@ -88,10 +88,10 @@ export default function admins() {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t('email'),
-      dataIndex: "email",
-      key: "email",
-      sorter: (a, b) => a.email.localeCompare(b.email),
+      title: t('custNo'),
+      dataIndex: "custNo",
+      key: "custNo",
+      sorter: (a, b) => a.custNo.localeCompare(b.custNo),
     },
     {
       title: t('role'),

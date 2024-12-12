@@ -13,10 +13,10 @@ export const yearSchema = z.object({
 });
 
 export const productSchema = z.object({
-  portalStock: z.number({
-    required_error: "Please enter portal stock",
-    invalid_type_error: "Portal stock must be a number",
-  }),
+  // portalStock: z.number({
+  //   required_error: "Please enter portal stock",
+  //   invalid_type_error: "Portal stock must be a number",
+  // }),
   promotionId: z.number().nullable().optional(),
   years: z.array(yearSchema).optional(),
   imageProducts: z.array(imageProductSchema).optional(),

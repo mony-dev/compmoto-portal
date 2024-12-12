@@ -503,7 +503,7 @@ const Product = () => {
     );
     const discount = selectedYearData ? selectedYearData.discount : 0;
 
-    if (product.portalStock > 0) {
+    if (product.navStock > 0) {
       addToCart(product, "Normal", discount);
     } else {
       addToCart(product, "Back", discount);
@@ -564,8 +564,8 @@ const Product = () => {
   );
 
   const getStatusValue = (record: DataType) => {
-    if (record.portalStock === 0) return 0; // Out of stock
-    if (record.portalStock > 100) return 2; // Available
+    if (record.navStock === 0) return 0; // Out of stock
+    if (record.navStock > 100) return 2; // Available
     return 1; // Limited stock
   };
 
@@ -719,35 +719,35 @@ const Product = () => {
       sortOrder: sortedInfo.columnKey === "action" ? sortedInfo.order : null,
       render: (_, record) => {
         const backgroundColor =
-          hoveredProduct === record.id && record.portalStock === 0
+          hoveredProduct === record.id && record.navStock === 0
             ? "#DD2C37"
-            : hoveredProduct === record.id && record.portalStock > 100
+            : hoveredProduct === record.id && record.navStock > 100
             ? "#1ba345"
             : hoveredProduct === record.id &&
-              record.portalStock <= 100 &&
-              record.portalStock > 0
+              record.navStock <= 100 &&
+              record.navStock > 0
             ? "#fec001"
-            : record.portalStock === 0
+            : record.navStock === 0
             ? "#FFE8EB"
-            : record.portalStock > 100
+            : record.navStock > 100
             ? "#D1EDDA"
-            : record.portalStock <= 100 && record.portalStock > 0
+            : record.navStock <= 100 && record.navStock > 0
             ? "#FFF2CC"
             : "#D1EDDA";
         const textColor =
-          hoveredProduct === record.id && record.portalStock === 0
+          hoveredProduct === record.id && record.navStock === 0
             ? "#FFFFFF"
-            : hoveredProduct === record.id && record.portalStock > 100
+            : hoveredProduct === record.id && record.navStock > 100
             ? "#FFFFFF"
             : hoveredProduct === record.id &&
-              record.portalStock <= 100 &&
-              record.portalStock > 0
+              record.navStock <= 100 &&
+              record.navStock > 0
             ? "#FFFFFF"
-            : record.portalStock === 0
+            : record.navStock === 0
             ? "#DD2C37"
-            : record.portalStock > 100
+            : record.navStock > 100
             ? "#1BA345"
-            : record.portalStock <= 100 && record.portalStock > 0
+            : record.navStock <= 100 && record.navStock > 0
             ? "#FEC001"
             : "#FEC001";
 
@@ -769,11 +769,11 @@ const Product = () => {
             onMouseLeave={() => setHoveredProduct(null)}
             onClick={() => handleStatusClick(record)}
           >
-            {record.portalStock === 0 ? (
+            {record.navStock === 0 ? (
               <ErrorIcon
                 color={hoveredProduct === record.id ? "#FFFFFF" : "#DD2C37"}
               />
-            ) : record.portalStock > 100 ? (
+            ) : record.navStock > 100 ? (
               <SuccessIcon
                 color={hoveredProduct === record.id ? "#FFFFFF" : "#1BA345"}
               />
@@ -783,9 +783,9 @@ const Product = () => {
               />
             )}
             <p className="text-sm default-font">
-              {record.portalStock === 0
+              {record.navStock === 0
                 ? t("Out of Stock")
-                : record.portalStock > 100
+                : record.navStock > 100
                 ? t("Available")
                 : t("Limited")}
             </p>

@@ -22,7 +22,7 @@ const handler = NextAuth({
   providers: [
     CredentialsProvider({
       credentials: {
-        email: { label: "Email", type: "text" },
+        custNo: { label: "custNo", type: "text" },
         password: { label: "Password", type: "password" },
       },
        // @ts-ignore: TypeScript error explanation or ticket reference
@@ -31,12 +31,12 @@ const handler = NextAuth({
 
         try {
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+            where: { custNo: credentials.custNo },
             include: { saleUser: true },
           });
 
           if (!user) {
-            throw new Error("No user found with this email");
+            throw new Error("No user found with this customer no");
           }
 
           const passwordCorrect = await compare(credentials.password, user.encryptedPassword);

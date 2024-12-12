@@ -30,7 +30,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
   const { t } = useTranslation();
 
   type FieldType = {
-    email?: string;
+    custNo?: string;
     password?: string;
     remember?: string;
   };
@@ -42,7 +42,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
       const ipAddress = ipResponse.data;
       const signInResult = await signIn("credentials", {
         redirect: false,
-        email: data.email,
+        custNo: data.custNo,
         password: data.password,
       });
 
@@ -52,7 +52,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
         const session = await getSession();
 
         if (session?.user.status === "Pending") {
-          localStorage.setItem("email", session.user.email);
+          localStorage.setItem("custNo", session.user.custNo);
           router.push(`/${params.locale}/admin/change-password`);
         } else {
           await axios.post(
@@ -92,12 +92,12 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
           requiredMark={"optional"}
         >
           <Form.Item<FieldType>
-            name="email"
+            name="custNo"
             className="mb-2 pb-6"
             rules={[
               {
                 required: true,
-                message: t("please_input_your_email"),
+                message: t("please_input_your_custNo"),
               },
             ]}
           >

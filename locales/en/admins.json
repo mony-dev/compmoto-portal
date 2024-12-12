@@ -39,5 +39,9 @@
   "this_action_cannot_be_undone": "This action cannot be undone.",
   "this_is_a_required_field": "This is a required field",
   "user_updated_successfully": "User updated successfully",
-  "yes": "Yes"
+  "yes": "Yes",
+  "custNo": "User No.",
+  "please_enter_a_sale_admin": "Please enter a Sale admin",
+  "please_enter_a_custNo": "Please enter a Sale User No."
+
 }

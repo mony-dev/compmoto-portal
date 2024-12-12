@@ -39,5 +39,9 @@
   "this_action_cannot_be_undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
   "this_is_a_required_field": "ช่องที่จำเป็นต้องกรอก",
   "user_updated_successfully": "อัปเดตผู้ใช้สำเร็จแล้ว",
-  "yes": "ใช่"
+  "yes": "ใช่",
+  "custNo": "หมายเลขผู้ใช้งาน",
+  "please_enter_a_sale_admin": "กรุณากรอกผู้ดูแลฝ่ายขาย",
+  "please_enter_a_custNo": "กรุณากรอกหมายเลขผู้ใช้งาน"
+
 }

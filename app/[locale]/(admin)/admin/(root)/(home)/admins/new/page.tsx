@@ -142,7 +142,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   label={t('sale_admin')}
                   required
                   tooltip={t('this_is_a_required_field')}
-                  help={errors.role && t('please_select_sale_admin')}
+                  help={errors.role && t('please_enter_a_sale_admin')}
                   validateStatus={errors.role ? "error" : ""}
                 >
                   <Controller
@@ -161,10 +161,10 @@ export default function Admin({ params }: { params: { id: number } }) {
               ) : (
                 <Form.Item
                   name="custNo"
-                  label={t('customer_no')}
+                  label={t('custNo')}
                   required
                   tooltip={t('this_is_a_required_field')}
-                  help={errors.role && t('please_enter_customer_no')}
+                  help={errors.role && t('please_enter_a_custNo')}
                   validateStatus={errors.role ? "error" : ""}
                 >
                   <Controller
@@ -174,7 +174,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                       <Input
                         {...field}
                         value={field.value || ""}
-                        placeholder={t('customer_no')}
+                        placeholder={t('custNo')}
                         size="large"
                       />
                     )}

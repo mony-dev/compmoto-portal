@@ -114,7 +114,7 @@ export default function Admin({ params }: { params: { id: number } }) {
       });
       router.replace(`/${locale}/admin/admins`);
 
-      toastSuccess("user_updated_successfully");
+      toastSuccess(t("user_updated_successfully"));
     } catch (error: any) {
       toastError(error.response.data.message);
     }
@@ -138,7 +138,7 @@ export default function Admin({ params }: { params: { id: number } }) {
       );
       router.replace(`/${locale}/admin/admins`);
 
-      toastSuccess("password_updated_successfully");
+      toastSuccess(t("password_updated_successfully"));
     } catch (error: any) {
       toastError(error.response.data.message);
     }
@@ -223,20 +223,24 @@ export default function Admin({ params }: { params: { id: number } }) {
                   )}
                 />
               </Form.Item>
-              {role == "SALE" && (
-                <Form.Item
+              {/* {role == "SALE" && ( */}
+              <Form.Item
+                name="custNo"
+                label={role == "SALE" ? t('sale_admin') : t('custNo')}
+                required
+                tooltip={t('this_is_a_required_field')}
+                help={errors.name && (role == "SALE" ? t('please_enter_a_sale_admin') : t('please_enter_a_sale_custNo'))}
+                validateStatus={errors.name ? "error" : ""}
+              >
+                <Controller
+                  control={control}
                   name="custNo"
-                  label={t('sale_admin')}
-                >
-                  <Controller
-                    control={control}
-                    name="custNo"
-                    render={({ field }) => (
-                      <Input {...field} value={field.value || ''} placeholder={t('sale_admin')} size="large" />
-                    )}
-                  />
-                </Form.Item>
-              )}
+                  render={({ field }) => (
+                    <Input {...field} value={field.value || ''} placeholder={role == "SALE" ? t('sale_admin') : t('custNo')} size="large" />
+                  )}
+                />
+              </Form.Item>
+              {/* )} */}
               <Form.Item className="flex justify-end">
                 <Button
                   type="primary"

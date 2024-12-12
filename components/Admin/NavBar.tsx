@@ -32,6 +32,7 @@ type NavBarProps = {
   isOpen: boolean;
   onToggle: () => void;
   userData: {
+    custNo: string;
     name: string;
     email: string;
     rewardPoint: number;
@@ -262,7 +263,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                         {userData?.name}
                       </p>
                       <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
-                        {userData?.email}
+                        {userData?.custNo}
                       </p>
                       <div className="flex space-x-2 pt-2">
                         {[...Array(starLevel)].map((_, index) => (

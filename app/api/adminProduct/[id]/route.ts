@@ -20,7 +20,7 @@ export async function PUT(
         id: Number(id),
       },
       data: {
-        portalStock: data.portalStock,
+        navStock: data.navStock,
         promotionId: data.promotionId,
         years: JSON.stringify(data.years),
         lv1Id: data.lv1Id,

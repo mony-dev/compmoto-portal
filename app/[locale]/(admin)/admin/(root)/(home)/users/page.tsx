@@ -149,12 +149,6 @@ export default function users() {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t('email'),
-      dataIndex: "email",
-      key: "email",
-      sorter: (a, b) => a.email.localeCompare(b.email),
-    },
-    {
       title: t('cust_no'),
       dataIndex: "custNo",
       key: "custNo",

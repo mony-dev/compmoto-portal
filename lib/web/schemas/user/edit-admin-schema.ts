@@ -7,7 +7,7 @@ export const editAdminSchema = z.object({
   name: z.string().nonempty("Name is required!"),
   role: RoleEnum,
   phoneNumber: z.string().nullable().optional(),
-  custNo: z.string(),
+  custNo: z.string().nonempty("Name is required!"),
 });
 
 export type EditAdminSchema = z.infer<typeof editAdminSchema>;

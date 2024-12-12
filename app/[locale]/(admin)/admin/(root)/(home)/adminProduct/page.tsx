@@ -196,9 +196,9 @@ export default function adminProduct({ params }: { params: { id: number } }) {
     },
     {
       title: t("stock"),
-      dataIndex: "portalStock",
-      key: "portalStock",
-      sorter: (a, b) => a.portalStock - b.portalStock,
+      dataIndex: "navStock",
+      key: "navStock",
+      sorter: (a, b) => a.navStock - b.navStock,
     },
     {
       title: t("action"),

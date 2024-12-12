@@ -179,7 +179,7 @@ const ModalProduct = ({
       if (product) {
         setEditProductData(product);
         // Set form values
-        setValue("portalStock", product.portalStock);
+        // setValue("portalStock", product.portalStock);
         setValue("promotionId", product.promotionId);
         setValue("lv1Id", product.lv1Id);
         setValue("lv2Id", product.lv2Id);
@@ -349,7 +349,7 @@ const ModalProduct = ({
               className="mt-2"
             />
           </div>
-          <div className="basis-1/2 pl-2">
+          {/* <div className="basis-1/2 pl-2">
             <Form.Item
               name="portalStock"
               label={t("portal stock")}
@@ -371,7 +371,7 @@ const ModalProduct = ({
                 )}
               />
             </Form.Item>
-          </div>
+          </div> */}
         </div>
         <h2 className="font-semibold">{t("property")}</h2>
         <hr className="my-2" />

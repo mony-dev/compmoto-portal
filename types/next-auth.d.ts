@@ -75,6 +75,7 @@ declare module "next-auth" {
       custPriceGroup: string;
       image: string;
       saleUserId: number;
+      custNo: string;
     } & DefaultSession["user"]
   }
 }
