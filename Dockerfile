@@ -2,7 +2,7 @@
 FROM node:18-alpine as base
 
 # Install necessary packages
-RUN apk add --no-cache g++ make py3-pip libc6-compat openssl
+RUN apk add --no-cache g++ make py3-pip libc6-compat openssl1.1-compat
 
 # Set the working directory
 WORKDIR /app
