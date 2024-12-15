@@ -1,8 +1,12 @@
 # Base stage
-FROM node:18-alpine as base
+FROM node:18-slim as base
 
 # Install necessary packages
-RUN apk add --no-cache g++ make py3-pip libc6-compat openssl openssl-dev
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3 \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /app
@@ -32,7 +36,10 @@ RUN npx prisma generate
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine as production
+FROM node:18-slim as production
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /app
