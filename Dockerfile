@@ -1,8 +1,8 @@
 # Base stage
-FROM node:18-alpine as base
+FROM node:18-slim as base
 
 # Install necessary packages
-RUN apk add --no-cache g++ make py3-pip libc6-compat openssl openssl-dev
+RUN apk add --no-cache g++ make py3-pip libc6-compat
 
 # Set the working directory
 WORKDIR /app
