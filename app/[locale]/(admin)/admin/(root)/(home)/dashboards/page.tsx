@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Skeleton } from "antd";
+import { Image, Skeleton, Tag } from "antd";
 import Star from "@public/images/star.png";
 import "@fancyapps/ui/dist/carousel/carousel.css";
 import { useSession } from "next-auth/react";
@@ -15,17 +15,17 @@ import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
-import { StarFilled } from "@ant-design/icons";
 import { Carousel as FancyCarousel } from "@fancyapps/ui";
 import { User } from "@prisma/client";
+import NewsCard from "@components/Admin/news/NewsCard";
 const Loading = dynamic(() => import("@components/Loading"));
-const ManualList = dynamic(() => import("@components/ManualList"));
+// const ManualList = dynamic(() => import("@components/ManualList"));
 
 const TotalPurchase = dynamic(() => import("@components/TotalPurchase"));
 const SpecialBonus = dynamic(() => import("@components/SpecialBonus"));
 const Chart = dynamic(() => import("@components/Chart"));
 const PromotionSlide = dynamic(() => import("@components/PromotionSlide"));
-const HalfPieChart = dynamic(() => import("@components/HalfPieChart"));
+// const HalfPieChart = dynamic(() => import("@components/HalfPieChart"));
 
 const Dashboard = () => {
   const locale = useCurrentLocale(i18nConfig);
@@ -41,6 +41,22 @@ const Dashboard = () => {
     file: string;
     date: string;
   }
+  interface RankDataType {
+    rank: number | string;
+  }
+  interface DataType {
+    id: number;
+    key: number;
+    name: string;
+    minisize: {
+      id: number;
+      name: string;
+    };
+    isActive: boolean;
+    coverImg: string;
+    content: string;
+    createdAt: string;
+  }
   const { data: session, status } = useSession();
   const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("");
@@ -55,6 +71,13 @@ const Dashboard = () => {
     useCart();
   const [loadReward, setLoadReward] = useState(false);
   const [userData, setUserData] = useState<User>();
+  const [loadNews, setLoadNews] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+  const [newsData, setNewsData] = useState<DataType[]>([]);
+  const [total, setTotal] = useState(0);
+  const [rank, setRank] = useState(null);
+  const [loadRank, setLoadRank] = useState(false);
 
   // Debounce function for search input
   const debouncedFetchData = useCallback(
@@ -62,9 +85,11 @@ const Dashboard = () => {
       setLoadPage(true);
       fetchData();
       fetchReward();
+      fetchNews(currentPage, pageSize);
+      fetchRank();
       setLoadPage(false);
     }, 500), // 500 ms debounce delay
-    []
+    [currentPage, pageSize]
   );
 
   useEffect(() => {
@@ -76,7 +101,21 @@ const Dashboard = () => {
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [triggerProfile]);
+  }, [triggerProfile, debouncedFetchData]);
+
+  async function fetchRank() {
+    setLoadRank(true);
+    try {
+      const [ranking] = await Promise.all([
+        axios.get(`/api/invoice/${session?.user.id}/ranking`)      
+        .then((response) => {
+          setRank(response.data.rank);
+        })
+      ]);
+    } catch (error) {
+      // console.error("Error fetching data: ", error);
+    } 
+  }
 
   async function fetchReward() {
     setLoadReward(true);
@@ -99,6 +138,57 @@ const Dashboard = () => {
       })
       .catch((error) => {});
   }
+
+  async function fetchNews(currentPage: number, pageSize: number) {
+    setLoadNews(true);
+    try {
+      const { data } = await axios.get(`/api/adminNews`, {
+        params: {
+          page: currentPage,
+          pageSize: pageSize,
+          isActive: true,
+        },
+      });
+
+      const newsDataWithKeys = await Promise.all(
+        data.news.map(async (news: DataType, index: number) => {
+          return {
+            ...news,
+            key: index + 1 + (currentPage - 1) * pageSize,
+          };
+        })
+      );
+
+      setNewsData(newsDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      // toastError(error);
+    } finally {
+      setLoadNews(false);
+    }
+  }
+
+  // async function fetchNews() {
+  //   setLoadNews(true);
+  //   axios
+  //     .get(`/api/news`)
+  //     .then((response) => {
+  //       const validLocale: "en" | "th" = locale === "th" ? "th" : "en";
+
+  //       const rewards = response.data.map((reward: RewardDataType) => {
+  //         return {
+  //           id: reward.id,
+  //           name: reward.name,
+  //           point: reward.point,
+  //           date: formatEndDate(reward.startDate, reward.endDate, validLocale),
+  //           image: reward.image,
+  //         };
+  //       });
+  //       setRewardData(rewards);
+  //       setLoadReward(false);
+  //     })
+  //     .catch((error) => {});
+  // }
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
@@ -186,180 +276,167 @@ const Dashboard = () => {
     <>
       <div className="px-4 grid grid-cols-6 gap-4">
         <div
-          className="mt-4 p-10 col-span-3 rounded-lg bg-white text-center"
-          style={{
-            boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)`,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
+          className="col-span-6 rounded-lg bg-white mt-2 mx-auto w-full"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          {/* <div> */}
-          <h1 className="gradient-text text-4xl font-semibold	default-font">
-            {t("Hello")} {session?.user.name}
-          </h1>
-          <div className="group-hover:blur-xs overflow-hidden pt-4 pb-2 profile-img">
-            <Image
-              className="transition duration-300 ease-in-out rounded-full"
-              alt="User profile"
-              width={100}
-              height={100}
-              src={profileImage ? profileImage : "error"}
-              onClick={showModal(true, session?.user.id)}
-              fallback="data:image/png;base64,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"
-              preview={{
-                visible: false, // Show preview based on index
+          <div className=" grid grid-cols-6">
+            <div className="col-span-2 mx-auto w-full">
+              <div className="flex justify-between gap-4 items-center px-8 border-r-2 border-[#E4E7EB] border-dashed mr-4 py-2">
+                <div className="group-hover:blur-xs overflow-hidden pt-4 pb-2 profile-img">
+                  <Image
+                    className="transition duration-300 ease-in-out rounded-full border border-[#DD2C37]"
+                    alt="User profile"
+                    width={100}
+                    height={100}
+                    src={profileImage ? profileImage : "error"}
+                    onClick={showModal(true, session?.user.id)}
+                    fallback="data:image/png;base64,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"
+                    preview={{
+                      visible: false, // Show preview based on index
 
-                mask: (
-                  <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="size-6 rounded-full"
-                      onClick={showModal(true, session?.user.id)}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                      />
-                    </svg>
-                  </>
-                ),
-              }}
-            />
-            {/* </div> */}
-            <p className="text-comp-grey pt-2 text-lg">
-              {t("Here your order summary")}
-            </p>
-
-            <div>
-              <HalfPieChart userId={session?.user.id} />
-            </div>
-          </div>
-
-          <div className="flex justify-between items-start">
-            <div className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
-              <p>{t("Ranking")}</p>
-              <div className="flex space-x-2 pt-2">
-                {[...Array(starLevel)].map((_, index) => (
-                  <div key={index}>
-                    <Image
-                      width={20}
-                      height={20}
-                      src={Star.src}
-                      alt="star"
-                      preview={false}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
-              <div>{t("lastest_login")} </div>
-              <div className="text-[#505050] font-semibold text-3xl">
-                {lastedLogin}
-              </div>
-            </div>
-            <div className="default-font text-base leading-5 pt-2 text-comp-natural-base grid">
-              {t("Your point")}
-              <span className="p-1 rounded">
-                <span className="text-comp-red font-semibold text-3xl	">
-                  {`${rewardPoint}`}
-                </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 col-span-3">
-          <div className="col-span-3 mx-auto w-full">
-            <div className="col-span-3 rounded mt-2 mx-auto w-full mb-2 py-1 flex items-center gap-4">
-              <Link
-                className="text-black default-font text-md font-semibold p-4 border border-[#fcd00d] bg-[#fcd00d] rounded-full hover:text-comp-red hover:bg-[#ffe572] hover:border-[#ffe572]"
-                href={`/${locale}/admin/reward`}
-              >
-                {t("claim a reward")} <StarFilled />
-              </Link>
-              <h1 className="grey-gradient-text text-4xl font-semibold	default-font">
-                {t("claim your reward here")}
-              </h1>
-            </div>
-            <div id="cardSlider" className="f-carousel pt-2">
-              <div className="f-carousel__viewport">
-                {Array.from(
-                  { length: Math.max(10, rewardData.length) },
-                  (_, index) => rewardData[index % rewardData.length]
-                ).map((reward, index) => (
-                  <figure
-                    key={index}
-                    className="f-carousel__slide py-4 rounded-2xl border hover:border-comp-red flex justify-start items-center bg-white hover:bg-comp-red-hover"
-                  >
-                    {loadReward ? (
-                      <>
-                        <div className="flex items-center">
-                          <Skeleton.Avatar
-                            active={loadReward}
-                            size="large"
-                            shape="circle"
-                          />
-                          <div>
-                            <Skeleton.Input active={loadReward} size="small" />
-                            <Skeleton.Input active={loadReward} size="small" />
-                            <Skeleton.Input active={loadReward} size="small" />
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      reward && (
+                      mask: (
                         <>
-                          <div className="flex">
-                            <Image
-                              className="w-full rounded-full py-1"
-                              alt={reward.name}
-                              width={60}
-                              height={"100%"}
-                              src={reward.image}
-                            />
-                          </div>
-                          <Link
-                            className="pl-4 1xl:pl-1"
-                            href={`/${locale}/admin/reward`}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className="size-6 rounded-full"
+                            onClick={showModal(true, session?.user.id)}
                           >
-                            <p className="text-comp-red leading-4 default-font text-sm">
-                              {reward.name}
-                            </p>
-                            <p className="text-sm default-font font-semibold text-comp-red">
-                              {reward.point}
-                              <span className="text-comp-red leading-4 font-normal pl-2">
-                                {t("Point")}
-                              </span>
-                            </p>
-                            {/* <div className="text-comp-red leading-4 font-normal flex items-center">
-                              <span className="text-xs">{reward.date}</span>
-                            </div> */}
-                          </Link>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                            />
+                          </svg>
                         </>
-                      )
-                    )}
-                  </figure>
-                ))}
+                      ),
+                    }}
+                  />
+                </div>
+                <div>
+                  <p className="mb-0 text-base text-black">
+                    {session?.user.name}{" "}
+                    <Tag bordered={false} color="gold">
+                      {t("Ranking No")} {rank}
+                    </Tag>
+                  </p>
+                  {/* <p className="mb-0 text-base text-black"><Tag bordered={false} color="red">
+                    Ranking No.1
+                  </Tag></p> */}
+                  <p className="mb-0 text-base text-black">
+                    Credit Limited : {session?.user.creditPoint || 0}
+                  </p>
+                  <p className="mb-0 text-base text-[#7A8699]">
+                    {" "}
+                    {t("Your point")}{" "}
+                    {/* <span className="bg-[#F4B9BC] text-black p-1 rounded-lg">
+                    {`${rewardPoint}`} {t("point")}
+                  </span> */}
+                    <Tag color="#F4B9BC">
+                      <div className="text-black">
+                        {`${rewardPoint}`} {t("point")}
+                      </div>
+                    </Tag>
+                  </p>
+                  <p className="mb-0 text-base text-[#7A8699]">
+                    {" "}
+                    {t("lastest_login")} : {lastedLogin}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-span-4">
+              <div className="col-span-3 mx-auto w-full py-2">
+                <div className="col-span-3 rounded mx-auto w-full py-1 flex items-center gap-4">
+                  <h1 className="text-xl font-semibold	default-font">
+                    {t("Reward")}
+                  </h1>
+                </div>
+                <div id="cardSlider" className="f-carousel pt-2">
+                  <div className="f-carousel__viewport">
+                    {Array.from(
+                      { length: Math.max(10, rewardData.length) },
+                      (_, index) => rewardData[index % rewardData.length]
+                    ).map((reward, index) => (
+                      <figure
+                        key={index}
+                        className="f-carousel__slide py-4 rounded-2xl border hover:border-comp-red flex justify-start items-center bg-white hover:bg-comp-red-hover"
+                      >
+                        {loadReward ? (
+                          <>
+                            <div className="flex items-center">
+                              <Skeleton.Avatar
+                                active={loadReward}
+                                size="large"
+                                shape="circle"
+                              />
+                              <div>
+                                <Skeleton.Input
+                                  active={loadReward}
+                                  size="small"
+                                />
+                                <Skeleton.Input
+                                  active={loadReward}
+                                  size="small"
+                                />
+                                <Skeleton.Input
+                                  active={loadReward}
+                                  size="small"
+                                />
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          reward && (
+                            <>
+                              <div className="flex">
+                                <Image
+                                  className="w-full rounded-full py-1"
+                                  alt={reward.name}
+                                  width={60}
+                                  height={"100%"}
+                                  src={reward.image}
+                                />
+                              </div>
+                              <Link
+                                className="pl-4 1xl:pl-1"
+                                href={`/${locale}/admin/reward`}
+                              >
+                                <p className="text-comp-red leading-4 default-font text-sm">
+                                  {reward.name}
+                                </p>
+                                <p className="text-sm default-font font-semibold text-comp-red">
+                                  {reward.point}
+                                  <span className="text-comp-red leading-4 font-normal pl-2">
+                                    {t("Point")}
+                                  </span>
+                                </p>
+                                {/* <div className="text-comp-red leading-4 font-normal flex items-center">
+                                <span className="text-xs">{reward.date}</span>
+                              </div> */}
+                              </Link>
+                            </>
+                          )
+                        )}
+                      </figure>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div
+
+          {/* <div
             className="col-span-3 rounded-lg bg-white mt-2 mx-auto w-full"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
           >
             <div>
               <ManualList type="news" />
             </div>
-          </div>
-        </div>
-        <div className="mt-4 py-4 col-span-6 rounded-lg">
-          <Chart userId={session?.user?.id} />
+          </div> */}
         </div>
         <div
           className="mt-4 p-4 col-span-6 rounded-lg bg-white"
@@ -379,6 +456,33 @@ const Dashboard = () => {
         >
           <PromotionSlide custPriceGroup={session?.user?.custPriceGroup} />
         </div>
+        <div className="mt-4 py-4 col-span-6 rounded-lg">
+          <Chart userId={session?.user?.id} />
+        </div>
+        {loadNews ? (
+          <div className="mt-4 py-4 col-span-6 rounded-lg text-center">
+            <Loading />
+          </div>
+        ) : (
+          <div className="mt-4 py-4 col-span-6 rounded-lg">
+            <div
+              className="mt-4 pb-4 rounded-lg bg-white col-span-2 p-4"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <h5 className="text-black default-font text-xl font-black pb-4">
+                {t("News")}
+              </h5>
+              <NewsCard
+                newsData={newsData}
+                total={total}
+                setCurrentPage={setCurrentPage}
+                currentPage={currentPage}
+                setPageSize={setPageSize}
+                pageSize={pageSize}
+              />
+            </div>
+          </div>
+        )}
       </div>
       <ModalProfile
         isModalVisible={isModalVisible}

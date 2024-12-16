@@ -250,7 +250,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
               </p>
             </div>
           </div>
-          <div
+          {/* <div
             className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
           >
@@ -262,7 +262,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
                 ฿{totalDiscount.toLocaleString()}
               </p>
             </div>
-          </div>
+          </div> */}
           <div
             className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
@@ -273,6 +273,23 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
               </p>
               <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
                 {totalBillCount} {t("items")}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
+            <div className="grid">
+              <p className="text-comp-natural-base default-font text-lg self-center">
+                {t("Growth rate")}
+              </p>
+              <p className="default-font text-3xl font-semibold pt-8 pb-4 text-[#41b264] text-center">
+                {+ 0} %
+              </p>
+              <p className="default-font text-comp-natural-base text-[#4C4C4C] text-end">
+                {t("Latest year")}
               </p>
             </div>
           </div>

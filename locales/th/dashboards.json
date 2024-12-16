@@ -29,6 +29,10 @@
     "Hello": "สวัสดี",
     "Here your order summary": "นี่คือยอดการสั่งซื้อของคุณ",
     "Ranking": "ระดับ",
-    "claim your reward here": "แลกรางวัลของคุณได้ที่นี่"
+    "claim your reward here": "แลกรางวัลของคุณได้ที่นี่",
+    "Ranking No": "อันดับที่",
+    "News": "ข่าว",
+    "Growth rate": "อัตราการเติบโต",
+    "Latest year": "ปีล่าสุด"
 
 }

@@ -93,7 +93,6 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     .get(`/api/order/${params.id}?type=Normal`)
     .then((response) => {
       const order = response.data;
-  
       // Mapping items and calculating the discount price
       const items = order.items.map((item: any, index: number) => ({
         key: index + 1,

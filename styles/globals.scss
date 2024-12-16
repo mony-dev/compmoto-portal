@@ -124,7 +124,7 @@ body {
 
 @media screen and (min-width: 640px) {
   #cardSlider {
-    --f-carousel-slide-width: calc(100% / 4);
+    --f-carousel-slide-width: calc(100% / 5);
     /* Ensure the carousel respects the grid layout */
     max-width: 100%; /* Keep within the column */
   }

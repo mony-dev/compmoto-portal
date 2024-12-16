@@ -43,6 +43,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
     lv3Id: number | null;
     image: string;
     imageProducts: any[];
+    madeToOrder: number;
   }
 
   interface ItemType {
@@ -145,6 +146,7 @@ export default function backOrder({ params }: { params: { id: number } }) {
               lv3Id: item.product.lv3Id,
               image: item.product.image,
               imageProducts: item.product.imageProducts,
+              madeToOrder: item.madeToOrder
             },
           })),
         };
@@ -193,6 +195,14 @@ export default function backOrder({ params }: { params: { id: number } }) {
       defaultSortOrder: "descend",
       sorter: (a, b) => a.amount.toString().localeCompare(b.amount.toString()),
       render: (_, record) => <p>{record.amount}</p>,
+    },
+    {
+      title:  t("Quantity Received"),
+      dataIndex: "madeToOrder",
+      key: "madeToOrder",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.product.madeToOrder.toString().localeCompare(b.product.madeToOrder.toString()),
+      render: (_, record) => <p>{record.product.madeToOrder}</p>,
     },
     {
       title: t("Unit price"),

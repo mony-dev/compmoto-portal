@@ -46,7 +46,6 @@ export async function GET(
         id: Number(id),
       },
     });
-    console.log(user)
     return NextResponse.json(user);
   } catch (error) {
     return NextResponse.json(error);
