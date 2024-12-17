@@ -156,9 +156,8 @@ export async function GET(
           const matchingLineItem = lineItems.find(
             (lineItem: { itemNo: string; madeToOrder: number }) =>
               lineItem.itemNo === orderItem.product.code &&
-              lineItem.madeToOrder === orderItem.amount
+              Number(lineItem.madeToOrder) === orderItem.amount
           );
-  
           if (matchingLineItem) {
             return null; // Exclude the item
           }
