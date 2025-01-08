@@ -78,6 +78,7 @@ const Dashboard = () => {
   const [total, setTotal] = useState(0);
   const [rank, setRank] = useState(null);
   const [loadRank, setLoadRank] = useState(false);
+  const [balance, setBalance] = useState(0);
 
   // Debounce function for search input
   const debouncedFetchData = useCallback(
@@ -236,6 +237,14 @@ const Dashboard = () => {
         setRewardPoint(reward);
       }
     }
+    if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
+      const credit = session?.user.data.CreditLimitLCY[0];
+      const balance = session?.user.data.BalanceDueLCY[0];
+      if (credit && balance) {
+        const result = Number(credit) - Number(balance)
+        result >=0 && setBalance(result);
+      }
+    }
 
     if (session?.user.latestUserLogCreatedAt) {
       const date = new Date(session?.user.latestUserLogCreatedAt);
@@ -246,7 +255,7 @@ const Dashboard = () => {
 
       const hours = date.getHours();
       const minutes = date.getMinutes();
-      const formattedDate = `${day}/${month}/${year}, ${hours}.${minutes}`;
+      const formattedDate = `${day}/${month}/${year}, ${hours}:${minutes}`;
       setLastedLogin(formattedDate);
     }
 
@@ -319,24 +328,20 @@ const Dashboard = () => {
                 <div>
                   <p className="mb-0 text-base text-black">
                     {session?.user.name}{" "}
-                    <Tag bordered={false} color="gold">
-                      {t("Ranking No")} {rank}
+                  </p>
+                  <p className="mb-0 text-base text-black">
+                    {t('Ranking total')} : <Tag bordered={false} color="gold">
+                      <span className="text-base default-font">{t("Ranking No")} {rank}</span>
                     </Tag>
                   </p>
-                  {/* <p className="mb-0 text-base text-black"><Tag bordered={false} color="red">
-                    Ranking No.1
-                  </Tag></p> */}
                   <p className="mb-0 text-base text-black">
-                    Credit Limited : {session?.user.creditPoint || 0}
+                    Credit Limited : {balance}
                   </p>
                   <p className="mb-0 text-base text-[#7A8699]">
                     {" "}
                     {t("Your point")}{" "}
-                    {/* <span className="bg-[#F4B9BC] text-black p-1 rounded-lg">
-                    {`${rewardPoint}`} {t("point")}
-                  </span> */}
                     <Tag color="#F4B9BC">
-                      <div className="text-black">
+                      <div className="text-black text-base">
                         {`${rewardPoint}`} {t("point")}
                       </div>
                     </Tag>
@@ -358,7 +363,7 @@ const Dashboard = () => {
                 <div id="cardSlider" className="f-carousel pt-2">
                   <div className="f-carousel__viewport">
                     {Array.from(
-                      { length: Math.max(10, rewardData.length) },
+                      { length: Math.max(rewardData.length, rewardData.length) },
                       (_, index) => rewardData[index % rewardData.length]
                     ).map((reward, index) => (
                       <figure

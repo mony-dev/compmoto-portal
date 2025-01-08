@@ -76,6 +76,7 @@ export default function adminProduct({ params }: { params: { id: number } }) {
   // Debounce function for search input
   const debouncedFetchData = useCallback(
     debounce(() => {
+      console.log("searchText", searchText)
       fetchData(searchText);
     }, 500), // 500 ms debounce delay
     [currentPage, pageSize]
