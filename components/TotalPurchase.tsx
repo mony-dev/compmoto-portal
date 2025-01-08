@@ -90,6 +90,35 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           setItems(stepsItems);
           setLevel(userLevel); // Set current level
 
+          if (userLevel < 6) {
+            const percent =
+              purchaseItems[userLevel].totalPurchaseAmount -
+              purchaseItems[userLevel - 1].totalPurchaseAmount;
+            const currentTotal =
+              purchaseItems[userLevel].totalPurchaseAmount - totalSum;
+            const cal = (currentTotal * 100) / percent;
+            const rest = 100 - cal;
+            const finishedSteps = document.querySelectorAll(
+              ".total-p .ant-steps-item-finish"
+            );
+            if (finishedSteps.length > 0) {
+              // Get the last finished step
+              const lastFinishedStep = finishedSteps[finishedSteps.length - 1];
+              const lastTail = lastFinishedStep.querySelector(
+                ".ant-steps-item-tail"
+              );
+              if (lastTail) {
+                // Add a unique class to lastTail
+                const parent = lastTail.parentElement;
+                if (parent) {
+                  parent.classList.add("last-tail-specific");
+                  const gradientStyle = `linear-gradient(90deg, rgb(221, 44, 55) 0%, rgb(252, 208, 13) ${rest}%, rgba(5, 5, 5, 0.06) ${cal}%)`;
+                  parent.style.setProperty("--dynamic-gradient", gradientStyle);
+                }
+              }
+            }
+          }
+
           const stepsProgressIcon = document.querySelectorAll(
             ".total-step .ant-steps-progress-icon"
           );
@@ -97,17 +126,19 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
             const stepsProgressIcon = document.querySelectorAll(
               ".total-step .ant-steps-progress-icon"
             );
-  
+
             stepsProgressIcon.forEach((icon) => {
               icon.addEventListener("mouseenter", (event) => {
-                const rect = (event.target as HTMLElement).getBoundingClientRect();
+                const rect = (
+                  event.target as HTMLElement
+                ).getBoundingClientRect();
                 setTooltipPosition({
                   bottom: 215, // Adjust to position above the icon
                   left: rect.left - 340,
                 });
                 setIsHovered(true);
               });
-  
+
               icon.addEventListener("mouseleave", () => {
                 setIsHovered(false);
               });
@@ -124,7 +155,6 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
     fetchTotalPurchaseHistory();
   }, [userId]);
 
-  
   // Find the latest order based on the 'order' field in items
   const latestOrder = totalPurchase?.items.reduce((prev, curr) => {
     return prev.order > curr.order ? prev : curr;
@@ -543,7 +573,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           </div> */}
           <div className="pt-4 total-step">
             <div className="wrap-position">
-              <div className="progress-wrapper">
+              <div className="progress-wrapper total-p">
                 <Steps
                   current={level}
                   percent={100}

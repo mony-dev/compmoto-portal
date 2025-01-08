@@ -50,7 +50,9 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
   const [brandLevels, setBrandLevels] = useState<{
     [minisizeId: number]: number;
   }>({});
-
+  const [brandTotal, setBrandTotal] = useState<{
+    [minisizeId: number]: number;
+  }>({});
   const [tooltipPositionBonus, setTooltipPositionBonus] = useState({
     bottom: 0,
     left: 0,
@@ -134,7 +136,18 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
           {}
         );
 
+        const brandTotallMap = specialBonusHistory.totalSpend.reduce(
+          (
+            acc: { [minisizeId: number]: number },
+            history: SpecialBonusHistory
+          ) => {
+            acc[history.minisizeId] = history.total;
+            return acc;
+          },
+          {}
+        );
         setBrandLevels(brandLevelMap);
+        setBrandTotal(brandTotallMap);
      
         const mergedData = { ...groupedItemsByMinisize };
         // Iterate through groupedItemsByMinisize and add the 'total' value
@@ -219,6 +232,8 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
     items: SpecialBonusItem[]
   ) => {
     const userLevel = brandLevels[minisizeId] || 0;
+    const brandTotalMap = brandTotal[minisizeId] || 0;
+
     const brandColor = items[0]?.color || "#1677ff"; // Default color if none is provided
     const imageProfile = items[0]?.minisize?.imageProfile;
     const brandName = items[0]?.minisize?.name || "";
@@ -266,8 +281,44 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
               )} 
           </div>
         ),
+        totalpurchaseamount: item.totalPurchaseAmount,
+        minisizeid: minisizeId
       };
     });
+
+    if (userLevel < 4 && userLevel != 0) {
+      let percent = 0
+      if (stepsItems[userLevel] && stepsItems[userLevel - 1]) {
+        percent =
+        stepsItems[userLevel].totalpurchaseamount -
+        stepsItems[userLevel - 1].totalpurchaseamount;
+      }
+       
+      const currentTotal =
+        stepsItems[userLevel].totalpurchaseamount - brandTotalMap;
+      const cal = (currentTotal * 100) / percent;
+      const rest = 100 - cal;
+
+      const finishedSteps = document.querySelectorAll(
+        `.total-s-${stepsItems[userLevel].minisizeid} .ant-steps-item-finish`
+      );
+      if (finishedSteps.length > 0) {
+        // Get the last finished step
+        const lastFinishedStep = finishedSteps[finishedSteps.length - 1];
+        const lastTail = lastFinishedStep.querySelector(
+          ".ant-steps-item-tail"
+        );
+        if (lastTail) {
+          // Add a unique class to lastTail
+          const parent = lastTail.parentElement;
+          if (parent) {
+            parent.classList.add("last-tail-specific");
+            const gradientStyle = `linear-gradient(90deg, ${brandColor} ${rest}%, rgba(5, 5, 5, 0.06) ${cal}%)`;
+            parent.style.setProperty("--dynamic-gradient-s", gradientStyle);
+          }
+        }
+      }
+    }
     return (
       <div
         key={minisizeId}
@@ -293,7 +344,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId }) => {
         </div>
         <div className="col-span-5">
           <div className="wrap-position">
-            <div className="progress-wrapper">
+            <div className={`progress-wrapper total-s-${minisizeId}`}>
               <Steps
                 current={userLevel}
                 percent={100}

@@ -32,6 +32,11 @@
     padding: 2px;
     border-radius: 32px;
   }
+  :where(.css-dev-only-do-not-override-98ntnt).ant-steps
+  .ant-steps-item-finish
+  > .last-tail-specific > .ant-steps-item-tail::after {
+    background: var(--dynamic-gradient-s); /* Fallback */
+  }
   :where(
       .css-dev-only-do-not-override-98ntnt
     ).ant-steps.ant-steps-label-vertical
