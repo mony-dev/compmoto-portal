@@ -91,6 +91,11 @@
   padding: 2px;
   border-radius: 32px;
 }
+:where(.css-98ntnt).ant-steps
+.ant-steps-item-finish
+> .last-tail-specific > .ant-steps-item-tail::after {
+  background: var(--dynamic-gradient-s); /* Fallback */
+}
 :where(
     .css-98ntnt
   ).ant-steps.ant-steps-label-vertical
