@@ -32,7 +32,8 @@ export async function POST(request: Request, { body }: { body: any }) {
     const message = `Web Portal : มีออเดอร์สั่งซื้อ จาก ${user?.custNo} \n ${link}`;
     
     const lineToken = process.env.LINE_ACCESS_TOKEN; 
-    await sendLineNotification(lineToken, message);
+    const lineUserId = process.env.LINE_USER_ID; 
+    lineToken && lineUserId && await sendLineNotification(lineToken, message, lineUserId);
 
     return NextResponse.json(createOrder);
   } catch (error) {
@@ -42,21 +43,44 @@ export async function POST(request: Request, { body }: { body: any }) {
   }
 }
 
-async function sendLineNotification(token: any, message: any) {
-  const response = await fetch('https://notify-api.line.me/api/notify', {
+// async function sendLineNotification(token: any, message: any) {
+//   const response = await fetch('https://notify-api.line.me/api/notify', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/x-www-form-urlencoded',
+//       'Authorization': `Bearer ${token}`,
+//     },
+//     body: new URLSearchParams({ message }),
+//   });
+
+//   if (!response.ok) {
+//     throw new Error('Failed to send LINE notification');
+//   }
+// }
+
+async function sendLineNotification(token: string, message: string, userId: string) {
+  const response = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: new URLSearchParams({ message }),
+    body: JSON.stringify({
+      to: userId, // LINE user ID
+      messages: [
+        {
+          type: 'text',
+          text: message,
+        },
+      ],
+    }),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to send LINE notification');
+    const error = await response.json();
+    throw new Error(`Failed to send LINE notification: ${error.message}`);
   }
 }
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get('q') || '';

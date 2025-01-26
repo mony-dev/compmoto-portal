@@ -79,6 +79,7 @@ const Dashboard = () => {
   const [rank, setRank] = useState(null);
   const [loadRank, setLoadRank] = useState(false);
   const [balance, setBalance] = useState(0);
+  const [mini, setMini] = useState<any[]>([]);
 
   // Debounce function for search input
   const debouncedFetchData = useCallback(
@@ -89,6 +90,7 @@ const Dashboard = () => {
       fetchNews(currentPage, pageSize);
       fetchRank();
       setLoadPage(false);
+      fetchMinisizeForSpecial();
     }, 500), // 500 ms debounce delay
     [currentPage, pageSize]
   );
@@ -103,6 +105,14 @@ const Dashboard = () => {
       debouncedFetchData.cancel();
     };
   }, [triggerProfile, debouncedFetchData]);
+
+  async function fetchMinisizeForSpecial() {
+    try {
+      const { data } = await axios.get(`/api/getMinisizeSpecialBonus`);
+      setMini(data.minisizes);
+    } catch (error: any) {
+    } 
+  }
 
   async function fetchRank() {
     setLoadRank(true);
@@ -122,7 +132,7 @@ const Dashboard = () => {
     setLoadReward(true);
     axios
       .get(`/api/reward`)
-      .then((response) => {
+      .then(async (response) => {
         const validLocale: "en" | "th" = locale === "th" ? "th" : "en";
 
         const rewards = response.data.map((reward: RewardDataType) => {
@@ -134,7 +144,7 @@ const Dashboard = () => {
             image: reward.image,
           };
         });
-        setRewardData(rewards);
+        await setRewardData(rewards);
         setLoadReward(false);
       })
       .catch((error) => {});
@@ -240,9 +250,12 @@ const Dashboard = () => {
     if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
       const credit = session?.user.data.CreditLimitLCY[0];
       const balance = session?.user.data.BalanceDueLCY[0];
+      console.log("credit", credit)
+      console.log("balance", balance)
       if (credit && balance) {
         const result = Number(credit) - Number(balance)
-        result >=0 && setBalance(result);
+        console.log("result", result)
+        result > 0 && setBalance(result);
       }
     }
 
@@ -360,10 +373,14 @@ const Dashboard = () => {
                     {t("Reward")}
                   </h1>
                 </div>
-                <div id="cardSlider" className="f-carousel pt-2">
+                {rewardData.length >= 5 ?  <div
+                  id="cardSlider"
+                  className="f-carousel pt-2"
+                >
                   <div className="f-carousel__viewport">
                     {Array.from(
-                      { length: Math.max(rewardData.length, rewardData.length) },
+                       { length: Math.max(10, rewardData.length) },
+                      // { length: rewardData.length > 5 ? Math.max(10, rewardData.length) : rewardData.length},
                       (_, index) => rewardData[index % rewardData.length]
                     ).map((reward, index) => (
                       <figure
@@ -429,7 +446,77 @@ const Dashboard = () => {
                       </figure>
                     ))}
                   </div>
-                </div>
+                </div> : rewardData.length >= 1 && rewardData.length < 5 ? <><div
+                    id="cardSlider"
+                    className="f-carousel pt-2"
+                  >
+                    <div className="f-carousel__viewport">
+                      {Array.from(
+                        { length: rewardData.length },
+                        // { length: rewardData.length > 5 ? Math.max(10, rewardData.length) : rewardData.length},
+                        (_, index) => rewardData[index % rewardData.length]
+                      ).map((reward, index) => (
+                        <figure
+                          key={index}
+                          className="f-carousel__slide py-4 rounded-2xl border hover:border-comp-red flex justify-start items-center bg-white hover:bg-comp-red-hover"
+                        >
+                          {loadReward ? (
+                            <>
+                              <div className="flex items-center">
+                                <Skeleton.Avatar
+                                  active={loadReward}
+                                  size="large"
+                                  shape="circle" />
+                                <div>
+                                  <Skeleton.Input
+                                    active={loadReward}
+                                    size="small" />
+                                  <Skeleton.Input
+                                    active={loadReward}
+                                    size="small" />
+                                  <Skeleton.Input
+                                    active={loadReward}
+                                    size="small" />
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            reward && (
+                              <>
+                                <div className="flex">
+                                  <Image
+                                    className="w-full rounded-full py-1"
+                                    alt={reward.name}
+                                    width={60}
+                                    height={"100%"}
+                                    src={reward.image} />
+                                </div>
+                                <Link
+                                  className="pl-4 1xl:pl-1"
+                                  href={`/${locale}/admin/reward`}
+                                >
+                                  <p className="text-comp-red leading-4 default-font text-sm">
+                                    {reward.name}
+                                  </p>
+                                  <p className="text-sm default-font font-semibold text-comp-red">
+                                    {reward.point}
+                                    <span className="text-comp-red leading-4 font-normal pl-2">
+                                      {t("Point")}
+                                    </span>
+                                  </p>
+                                  {/* <div className="text-comp-red leading-4 font-normal flex items-center">
+                        <span className="text-xs">{reward.date}</span>
+                      </div> */}
+                                </Link>
+                              </>
+                            )
+                          )}
+                        </figure>
+                      ))}
+                    </div>
+                  </div></> : ''}
+
+               
               </div>
             </div>
           </div>
@@ -453,7 +540,7 @@ const Dashboard = () => {
           className="mt-4 p-4 col-span-4 rounded-lg bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          <SpecialBonus userId={session?.user?.id} />
+          <SpecialBonus userId={session?.user?.id} mini={mini}/>
         </div>
         <div
           className="mt-4 p-4 col-span-2 rounded-lg bg-white"
