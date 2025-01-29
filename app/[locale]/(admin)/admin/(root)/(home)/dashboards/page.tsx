@@ -250,11 +250,8 @@ const Dashboard = () => {
     if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
       const credit = session?.user.data.CreditLimitLCY[0];
       const balance = session?.user.data.BalanceDueLCY[0];
-      console.log("credit", credit)
-      console.log("balance", balance)
       if (credit && balance) {
-        const result = Number(credit) - Number(balance)
-        console.log("result", result)
+        const result = Number(balance) - Number(credit) 
         result > 0 && setBalance(result);
       }
     }
@@ -348,7 +345,7 @@ const Dashboard = () => {
                     </Tag>
                   </p>
                   <p className="mb-0 text-base text-black">
-                    Credit Limited : {balance}
+                    Credit Limited : {balance.toLocaleString()}
                   </p>
                   <p className="mb-0 text-base text-[#7A8699]">
                     {" "}
