@@ -249,10 +249,14 @@ const Dashboard = () => {
     }
     if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
       const credit = session?.user.data.CreditLimitLCY[0];
-      const balance = session?.user.data.BalanceDueLCY[0];
-      if (credit && balance) {
-        const result = Number(balance) - Number(credit) 
-        result > 0 && setBalance(result);
+      const balanceCredit = session?.user.data.BalanceDueLCY[0];
+      if (credit && balanceCredit) {
+        let calResult = 0
+        const result = Number(credit) - Number(balanceCredit)
+        if (result > 0){
+          calResult = result
+        }
+        setBalance(calResult);
       }
     }
 

@@ -84,71 +84,74 @@ export async function GET(request: Request) {
       }),
     ]);
     if (type === 'Back') {
+      // Ensure we correctly resolve all promises before filtering
       const newOrders = await Promise.all(
         orders.map(async (order) => {
-          const soapRequest = await axios({
-            method: "get",
-            url: "http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration",
-            headers: {
-              SOAPACTION: "MasterSalesBlanket",
-              "Content-Type": "application/xml",
-              Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
-            },
-            data: `<?xml version="1.0" encoding="UTF-8"?>
-              <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
-                <soapenv:Header/>
-                <soapenv:Body>
-                  <wsc:MasterSalesBlanket>
-                      <wsc:p_gBlanketNo>${order.documentNo}</wsc:p_gBlanketNo>
-                      <wsc:p_oSales></wsc:p_oSales>
-                  </wsc:MasterSalesBlanket>
-                </soapenv:Body>
-              </soapenv:Envelope>`,
-          });
-      
-          const soapText = await parseStringPromise(soapRequest.data);
-      
-          const salesInfo =
-            soapText["Soap:Envelope"]["Soap:Body"][0]["MasterSalesBlanket_Result"][0][
-              "p_oSales"
-            ][0]["PT_SalesInfo"][0];
-      
-          const lineInfos = salesInfo["LineInfo"] || [];
-      
-          const lineItems = lineInfos.map((lineInfo: { [x: string]: any[]; }) => ({
-            itemNo: lineInfo["ItemNo"][0],
-            itemName: lineInfo["ItemName"][0],
-            qty: parseInt(lineInfo["Qty"][0], 10),
-            lineAmount: parseFloat(lineInfo["LineAmount"][0]),
-            lineDiscount: parseFloat(lineInfo["LineDiscount"][0]),
-            lineDiscountPc: parseFloat(lineInfo["LineDiscountPc"][0]),
-            lineAmtAfterDiscount: parseFloat(lineInfo["LineAmtAfterDiscount"][0]),
-            qtyToShip: parseInt(lineInfo["QtytoShip"][0], 10),
-            qtyShipped: parseInt(lineInfo["QtytoShiped"][0], 10),
-            madeToOrder: lineInfo["MadeToOrder"][0], // Convert to boolean
-          }));
-      
-          let conutItem = 0;
-          order.items.forEach((item) => {
-            const matchingLineItem = lineItems.find(
-              (lineItem: { itemNo: string; madeToOrder: any; }) =>
-                lineItem.itemNo === item.product.code &&
-                Number(lineItem.madeToOrder) === item.amount
-            );
-      
-            if (!matchingLineItem) {
-              conutItem += 1; // Increment count for non-matching items
-            }
-          });
-      
-          // Attach conutItem to the order for filtering purposes
-          return { ...order, conutItem };
+          try {
+            const soapRequest = await axios({
+              method: "get",
+              url: "http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration",
+              headers: {
+                SOAPACTION: "MasterSalesBlanket",
+                "Content-Type": "application/xml",
+                Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
+              },
+              data: `<?xml version="1.0" encoding="UTF-8"?>
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
+                  <soapenv:Header/>
+                  <soapenv:Body>
+                    <wsc:MasterSalesBlanket>
+                        <wsc:p_gBlanketNo>${order.documentNo}</wsc:p_gBlanketNo>
+                        <wsc:p_oSales></wsc:p_oSales>
+                    </wsc:MasterSalesBlanket>
+                  </soapenv:Body>
+                </soapenv:Envelope>`,
+            });
+
+            const soapText = await parseStringPromise(soapRequest.data);
+            const salesInfo =
+              soapText["Soap:Envelope"]["Soap:Body"][0]["MasterSalesBlanket_Result"][0][
+                "p_oSales"
+              ][0]["PT_SalesInfo"][0];
+
+            const lineInfos = salesInfo?.["LineInfo"] || [];
+            const lineItems = lineInfos.map((lineInfo: { [x: string]: any[] }) => ({
+              itemNo: lineInfo["ItemNo"][0],
+              itemName: lineInfo["ItemName"][0],
+              qty: parseInt(lineInfo["Qty"][0], 10),
+              lineAmount: parseFloat(lineInfo["LineAmount"][0]),
+              lineDiscount: parseFloat(lineInfo["LineDiscount"][0]),
+              lineDiscountPc: parseFloat(lineInfo["LineDiscountPc"][0]),
+              lineAmtAfterDiscount: parseFloat(lineInfo["LineAmtAfterDiscount"][0]),
+              qtyToShip: parseInt(lineInfo["QtytoShip"][0], 10),
+              qtyShipped: parseInt(lineInfo["QtytoShiped"][0], 10),
+              madeToOrder: lineInfo["MadeToOrder"][0],
+            }));
+
+            let conutItem = 0;
+            order.items.forEach((item) => {
+              const matchingLineItem = lineItems.find(
+                (lineItem: { itemNo: string; madeToOrder: any }) =>
+                  lineItem.itemNo === item.product.code &&
+                  Number(lineItem.madeToOrder) === item.amount
+              );
+
+              if (!matchingLineItem) {
+                conutItem += 1;
+              }
+            });
+
+            // ✅ Ensure the mapped function always resolves properly
+            return { ...order, conutItem };
+          } catch (error) {
+            return { ...order, conutItem: 0 }; // Return with default value to avoid breaking the flow
+          }
         })
       );
       const filteredOrders = newOrders.filter((order) => order.conutItem !== 0);
       return NextResponse.json({ orders: filteredOrders, total: filteredOrders.length });
     } else {
-      return NextResponse.json({ orders: orders, total });
+      return NextResponse.json({ orders, total });
     }
   } catch (error) {
     return NextResponse.json(error);
