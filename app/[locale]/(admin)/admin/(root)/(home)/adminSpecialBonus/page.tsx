@@ -403,7 +403,7 @@ export default function AdminSpecialBonus() {
                   size="middle"
                 />
               </Form.Item>
-              <Button
+              {/* <Button
                 className="bg-comp-red button-backend ml-4"
                 type="primary"
                 icon={<PowerIcon className="w-4" />}
@@ -411,7 +411,7 @@ export default function AdminSpecialBonus() {
                 onClick={handleReset}
               >
                 {t("Reset")}
-              </Button>
+              </Button> */}
             </div>
           </div>
           {brandFields.map((brandField, brandIndex) => (

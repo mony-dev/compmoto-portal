@@ -27,7 +27,8 @@
     "fetch-history": "node lib/web/utils/fetchHistory.mjs",
     "fetch-total-purchase": "node lib/web/utils/fetchTotalPurchase.mjs",
     "fetch-special-bonus": "node lib/web/utils/fetchSpecialBonus.mjs",
-    "update-admin": "node lib/web/utils/updateAdmin.mjs"
+    "update-admin": "node lib/web/utils/updateAdmin.mjs",
+    "fetch-reward-point": "node lib/web/utils/fetchRewardPoint.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",

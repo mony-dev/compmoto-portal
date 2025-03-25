@@ -54,6 +54,7 @@ model User {
   minisizes             Minisize[]  @relation("UserMinisizes")
   totalPurchaseHistories  TotalPurchaseHistory[]
   SpecialBonusHistories  SpecialBonusHistory[]
+  rewardPointHistories               RewardPointHistory[]
   claim               Claim[]
   memoCredit          MemoCredit[]
   @@index([id])
@@ -593,4 +594,33 @@ model MemoCredit {
   amountIncludingVAT  Int
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model RewardPoint {
+  id                  Int          @id @default(autoincrement())
+  month               Int
+  year                Int
+  resetDate           DateTime?
+  isFinalize          Boolean            
+  expenses            Int
+  point               Int
+  rewardPointHistories               RewardPointHistory[]
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model RewardPointHistory {
+  id                  Int          @id @default(autoincrement())
+  point               Int
+  incentivePoint      Int
+  loyaltyPoint        Int
+  usedPoint           Int
+  totalPoint          Int
+  totalSpend          Int
+  rewardPointId       Int
+  rewardPoint         RewardPoint   @relation(fields: [rewardPointId], references: [id])
+  userId              Int
+  user                User   @relation(fields: [userId], references: [id])
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }

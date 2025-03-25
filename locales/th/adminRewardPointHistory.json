@@ -1,0 +1,28 @@
+{
+    "Reward Points Settings": "ตั้งค่า Reward Point",
+    "year": "ปี",
+    "this_is_a_required_field": "ช่องที่จำเป็นต้องกรอก",
+    "month": "เดือน",
+    "Search a month": "เลือกเดือน",
+    "expenses": "ยอดสั่งซื้อ",
+    "baht": "บาท",
+    "point": "คะแนน",
+    "Update": "อัพเดต",
+    "are_you_sure_you_want_to_update_this_setting": "คุณแน่ใจใช่ไหมที่จะแก้ไขการตั้งค่านี้ ?",
+    "this_action_cannot_be_undone": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+    "ok": "ตกลง",
+    "cancel": "ยกเลิก",
+    "No setting available to update, Please contact developer.": "ไม่มีการตั้งค่าที่สามารถอัปเดตได้ กรุณาติดต่อผู้พัฒนา",
+    "Update successfully": "แก้ไขข้อมูลเรียบร้อยแล้ว",
+    "no": "ลำดับ",
+    "name": "ชื่อ",
+    "cust no": "หมายเลขลูกค้า",
+    "intensive point": "Intensive point",
+    "used point": "Used point",
+    "total spend": "ยอดใช้จ่าย",
+    "Click to edit": "คลิกเพื่อแก้ไข",
+    "Close": "ปิดยอด",
+    "are_you_sure_you_want_to_close_book": "คุณแน่ใจใช่ไหมที่จะปิดยอดเดือนปัจจุบัน ?"
+}
+
+    

@@ -4,6 +4,9 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request, { body }: { body: any }) {
   const data = await request.json();
+  const start = new Date();
+  const month = start.getUTCMonth() + 1; // Month as a number (1-12)
+  const year = start.getUTCFullYear();
   try {
     const createRedeem = await prisma.userReward.create({
       data: {
@@ -33,6 +36,24 @@ export async function POST(request: Request, { body }: { body: any }) {
         rewardPoint: newPoints,
       },
     });
+    // Find current rewardPoint
+    const currentRewardPoint = await prisma.rewardPoint.findFirst({
+      where: { month: month, year: year }
+    });
+    if (currentRewardPoint) {
+      // Find rewardPointHistory
+      const currentRewardPointHistory = await prisma.rewardPointHistory.findFirst({
+        where: { rewardPointId: currentRewardPoint.id, userId: Number(data.userId) }
+      });
+      // Update usedPoint
+      const updatedUsedPoint = await prisma.rewardPointHistory.update({
+        where: { id: currentRewardPointHistory?.id },
+        data: {
+          usedPoint: data.point,
+        },
+      });
+    }
+ 
     return NextResponse.json(createRedeem);
   } catch (error) {
     return NextResponse.json(error);

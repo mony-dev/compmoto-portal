@@ -304,6 +304,7 @@ export default function AdminTotalPurchase() {
                   picker="year"
                   disabledDate={true}
                 />
+                
               </Form.Item>
             </div>
             <div className="flex gap-2">
@@ -320,7 +321,7 @@ export default function AdminTotalPurchase() {
                   size="middle"
                 />
               </Form.Item>
-              <Button
+              {/* <Button
                 className="bg-comp-red button-backend ml-4"
                 type="primary"
                 icon={<PowerIcon className="w-4" />}
@@ -328,7 +329,7 @@ export default function AdminTotalPurchase() {
                 onClick={handleReset}
               >
                 {t("Reset")}
-              </Button>
+              </Button> */}
             </div>
           </div>
 
