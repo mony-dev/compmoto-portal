@@ -28,7 +28,8 @@
     "fetch-total-purchase": "node lib/web/utils/fetchTotalPurchase.mjs",
     "fetch-special-bonus": "node lib/web/utils/fetchSpecialBonus.mjs",
     "update-admin": "node lib/web/utils/updateAdmin.mjs",
-    "fetch-reward-point": "node lib/web/utils/fetchRewardPoint.mjs"
+    "fetch-reward-point": "node lib/web/utils/fetchRewardPoint.mjs",
+    "create-reward-point": "node lib/web/utils/createRewardPoint.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
