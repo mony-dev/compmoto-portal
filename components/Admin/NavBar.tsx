@@ -11,12 +11,7 @@ import axios from "@lib-services/axios";
 import Image from "next/image";
 
 import LogoComp from "./LogoCompmoto";
-import IconCompmoto from "./IconCompmoto";
 import LogoCOM from "../../public/images/comp_moto_logo.png";
-import SearchIcon from "../../public/images/logo/search.png";
-import BagIcon from "../../public/images/logo/bag.png";
-import NoticeIcon from "../../public/images/logo/notification.png";
-import AccountMock from "../../public/images/logo/account-mock.png";
 import Star from "@public/images/star.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
 import { number } from "zod";
