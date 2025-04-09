@@ -254,10 +254,11 @@ export default function Admin({ params }: { params: { id: number } }) {
                   render={({ field }) => (
                     <InputNumber
                       {...field}
-                      value={field.value || ""}
+                      value={field.value !== undefined && field.value !== null ? field.value : ""}
                       placeholder={t("point")}
                       size="large"
                       className="w-full"
+                      min={0}
                     />
                   )}
                 />

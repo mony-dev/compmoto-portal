@@ -61,7 +61,7 @@ export async function PUT(
   if (data.custNo) {
     dataBody.custNo = data.custNo;
   }
-  if (data.rewardPoint) {
+  if (data.rewardPoint || data.rewardPoint === 0) {
     dataBody.rewardPoint = data.rewardPoint;
   }
 
