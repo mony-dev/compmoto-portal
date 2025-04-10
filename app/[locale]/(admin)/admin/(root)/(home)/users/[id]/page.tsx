@@ -247,7 +247,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                   )}
                 />
               </Form.Item>
-              <Form.Item name="rewardPoint" label={t("point")}>
+              {/* <Form.Item name="rewardPoint" label={t("point")}>
                 <Controller
                   control={control}
                   name="rewardPoint"
@@ -262,7 +262,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                     />
                   )}
                 />
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item name="saleUserId" label={t("sale_admin")}>
                 <Controller
                   control={control}

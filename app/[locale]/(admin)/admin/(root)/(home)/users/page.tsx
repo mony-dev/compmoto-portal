@@ -44,6 +44,7 @@ export default function users() {
     status: string;
     role: string;
     custNo: string;
+    rewardPoint: number;
   }
 
   // Debounce function for search input
@@ -153,6 +154,12 @@ export default function users() {
       dataIndex: "custNo",
       key: "custNo",
       sorter: (a, b) => a.custNo.localeCompare(b.custNo),
+    },
+    {
+      title: t('point'),
+      dataIndex: "rewardPoint",
+      key: "rewardPoint",
+      sorter: (a, b) => b.rewardPoint - a.rewardPoint,
     },
     {
       title: t('role'),

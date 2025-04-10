@@ -279,7 +279,7 @@ export default function adminRewardPointHistory() {
             },
             body: JSON.stringify({
               id, // Pass the ID to identify the record
-              isFinalize: true,
+              isFinalize: false,
               resetDate: new Date()
             }),
           });
@@ -515,7 +515,7 @@ export default function adminRewardPointHistory() {
         </Form>
         <Divider className="mt-0"/>
         <div>
-          {!isFinalize && <div className="flex justify-end">
+          {isFinalize && <div className="flex justify-end">
             <Button
               className="bg-comp-red button-backend mb-6"
               type="primary"
