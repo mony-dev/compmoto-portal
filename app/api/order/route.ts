@@ -299,7 +299,7 @@ export async function GET(request: Request) {
           try {
             const soapRequest = await axios({
               method: "get",
-              url: "http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration",
+              url: process.env.NAV_URL,
               headers: {
                 SOAPACTION: "MasterSalesBlanket",
                 "Content-Type": "application/xml",

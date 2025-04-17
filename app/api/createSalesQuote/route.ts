@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post(
-      'http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration',
+      `${process.env.NAV_URL}`,
       soapRequest,
       {
         headers: {
