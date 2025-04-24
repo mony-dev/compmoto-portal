@@ -61,4 +61,5 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Start the Next.js application and the cron jobs
-CMD ["sh", "-c", "node ./lib/web/jobs/scheduleJobs.mjs & npm start"]
+# CMD ["sh", "-c", "node ./lib/web/jobs/scheduleJobs.mjs & npm start"]
+CMD ["npm", "start"]
