@@ -1,6 +1,6 @@
 services:
   app:
-    image: 306767070501.dkr.ecr.ap-southeast-2.amazonaws.com/compmoto-app
+    image: 306767070501.dkr.ecr.ap-southeast-2.amazonaws.com/compmoto-app:latest
     ports:
       - "3000:3000"
     env_file:
