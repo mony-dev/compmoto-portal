@@ -338,6 +338,7 @@ export default function adminOrder({ params }: { params: { id: number } }) {
       const { data } = await axios.post(`/api/fetchHistory`);
       
       const jobId = data.jobId;
+      
       localStorage.setItem("jobId", jobId);
 
       const checkStatus = setInterval(async () => {
