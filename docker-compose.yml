@@ -1,55 +1,59 @@
+version: '3.9'
+
 services:
   app:
     image: 306767070501.dkr.ecr.ap-southeast-2.amazonaws.com/compmoto-app:latest
     ports:
       - "3000:3000"
     env_file:
-      - .env # <--- เปลี่ยนเป็นไฟล์ env production ของคุณ
+      - .env
     environment:
       - TZ=Asia/Bangkok
+    depends_on:
+      - postgres
     volumes:
-      - logs_data:/app/logs   # ใช้สำหรับ log เท่านั้น (ถ้าต้องการ)
-    restart: always
+      - logs_data:/app/logs
     networks:
       - compmoto-net
+    restart: always
 
-  # postgres service ***ลบออกใน production ถ้าใช้ RDS***
-  # postgres: 
-  #   image: postgres:15-alpine
-  #   environment:
-  #     POSTGRES_DB: compmoto_dev
-  #     POSTGRES_USER: compmoto_dev
-  #     POSTGRES_PASSWORD: compmoto_dev
-  #     TZ: Asia/Bangkok
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-  #   networks:
-  #     - compmoto-net
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: compmoto_dev
+      POSTGRES_USER: compmoto_dev
+      POSTGRES_PASSWORD: compmoto_dev
+      TZ: Asia/Bangkok
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - compmoto-net
+    restart: always
 
   nginx:
     image: nginx:latest
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro 
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - app
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - compmoto-net
     environment:
       - TZ=Asia/Bangkok
     restart: always
 
+volumes:
+  logs_data:
+  postgres_data:
+
 networks:
   compmoto-net:
     driver: bridge
-
-volumes:
-  logs_data:
-  # postgres_data:   # ***ถ้าไม่มี postgres แล้ว ลบออกได้***
