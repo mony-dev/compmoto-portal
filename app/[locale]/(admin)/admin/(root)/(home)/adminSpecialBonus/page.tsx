@@ -27,7 +27,6 @@ import {
 } from "@lib-schemas/user/special-bonus-schema";
 import axios from "axios";
 import DatePickers from "@components/Admin/DatePickers";
-import { PowerIcon } from "@heroicons/react/24/outline";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
@@ -50,9 +49,6 @@ export default function AdminSpecialBonus() {
   const [monthOptions, setMonthOptions] = useState<Option[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string>(""); // Default to "All" (empty string)
 
-  const [brandOptions, setBrandOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
   const [minisizeOptions, setMinisizeOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -235,7 +231,7 @@ export default function AdminSpecialBonus() {
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [id]);
+  }, []);
 
   const onFinish: SubmitHandler<SpecialBonusSchema> = async (values) => {
     try {
