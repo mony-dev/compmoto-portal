@@ -15,8 +15,6 @@ import {
 import {
   Button,
   Form,
-  Input,
-  Space,
   Row,
   Col,
   InputNumber,
@@ -26,7 +24,7 @@ import {
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCart } from "@components/Admin/Cartcontext";
 import { usePathname, useRouter } from "next/navigation";
-import { CheckCircleIcon, PowerIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import DatePickers from "@components/Admin/DatePickers";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import i18nConfig from "../../../../../../../i18nConfig";
@@ -41,12 +39,11 @@ interface Option {
 export default function AdminTotalPurchase() {
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
-  const { setI18nName, setLoadPage, loadPage } = useCart();
+  const { setI18nName } = useCart();
   const pathname = usePathname();
   const [form] = Form.useForm();
   const [id, setId] = useState(0);
   const router = useRouter();
-  const Loading = dynamic(() => import("@components/Loading"));
   const [monthOptions, setMonthOptions] = useState<Option[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string>(""); // Default to "All" (empty string)
 
