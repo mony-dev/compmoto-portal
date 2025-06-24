@@ -172,7 +172,7 @@ export default function adminRewardPointHistory() {
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [id, currentPage, debouncedFetchData]);
+  }, [currentPage, debouncedFetchData]);
 
   const onFinish: SubmitHandler<RewardPointSchema> = async (values) => {
   // const handleSave = async () => {
@@ -382,13 +382,13 @@ export default function adminRewardPointHistory() {
       }
     },
     
-    {
-      title: t('used point'),
-      dataIndex: "usedPoint",
-      key: "usedPoint",
-      defaultSortOrder: "descend",
-      sorter: (a, b) => b.usedPoint - a.usedPoint,
-    },
+    // {
+    //   title: t('used point'),
+    //   dataIndex: "usedPoint",
+    //   key: "usedPoint",
+    //   defaultSortOrder: "descend",
+    //   sorter: (a, b) => b.usedPoint - a.usedPoint,
+    // },
     {
       title: t('total point'),
       dataIndex: "totalPoint",
