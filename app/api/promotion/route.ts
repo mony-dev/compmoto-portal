@@ -52,7 +52,7 @@ export async function GET(request: Request) {
           minisizeId: Number(data.minisizeId),
           image: data.image,
           productRedeem: data.productRedeem,
-          userGroup: data.userGroup
+          customerGroupId: Number(data.customerGroupId),
         }
       })
       return NextResponse.json(createPromotion);

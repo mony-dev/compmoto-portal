@@ -10,7 +10,12 @@ export async function GET(request: Request) {
   const page = 1;
   const pageSize = 50;
 
-  if (!userId || !specialBonusId) {
+  const user = await prisma.user.findUnique({
+    where: { id: Number(userId) },
+    select: { customerGroupId: true }
+  });
+
+  if (!userId || !specialBonusId || user === null) {
     return NextResponse.json(
       { error: "User ID and SpecialBonus ID are required" },
       { status: 400 }
@@ -34,7 +39,7 @@ export async function GET(request: Request) {
 
     // Fetch active special bonus along with its items and minisize brands
     const activeSpecialBonus = await prisma.specialBonus.findFirst({
-      where: { id: parseInt(specialBonusId), isActive: true },
+      where: { id: parseInt(specialBonusId), isActive: true, customerGroupId: user.customerGroupId },
       include: {
         items: {
           include: {

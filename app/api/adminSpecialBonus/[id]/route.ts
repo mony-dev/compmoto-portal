@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function PUT(request: Request) {
   try {
     const data = await request.json();
-    const { id, year, month, resetDate, isActive, brands } = data;
+    const { id, year, month, resetDate, isActive, name, customerGroupId } = data;
 
     // Check if ID is provided
     if (!id) {
@@ -30,11 +30,6 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: "Invalid resetDate provided" }, { status: 400 });
       }
     }
-    if (typeof isActive !== "undefined") {
-      updateData.isActive = isActive;
-    }
-
-
 
     // If there's nothing to update, return an error
     if (Object.keys(updateData).length === 0) {
@@ -44,40 +39,40 @@ export async function PUT(request: Request) {
     // Update SpecialBonus entry
     const specialBonus = await prisma.specialBonus.update({
       where: { id },
-      data: updateData,
+      data: {...updateData, isActive, name, customerGroupId },
     });
 
     // If brands are passed, update them
-    if (brands && brands.length > 0) {
-      // Delete existing SpecialBonusItem entries for the specialBonusId
-      await prisma.specialBonusItem.deleteMany({
-        where: { specialBonusId: id },
-      });
+    // if (brands && brands.length > 0) {
+    //   // Delete existing SpecialBonusItem entries for the specialBonusId
+    //   await prisma.specialBonusItem.deleteMany({
+    //     where: { specialBonusId: id },
+    //   });
 
-      // Create the updated SpecialBonusItem entries
-      const updatedItems = [];
-      for (const brand of brands) {
-        for (const [index, item] of brand.items.entries()) {
-          const newItem: any = {
-            specialBonusId: id,
-            minisizeId: brand.minisizeId, // Link to the Brand
-            totalPurchaseAmount: item.totalPurchaseAmount,
-            cn: item.cn,
-            incentivePoint: item.incentivePoint,
-            order: index + 1, // Provide the order value based on the array index
-          };
-          // Only add color if it exists
-          if (brand.color) {
-            newItem.color = brand.color;
-          }
+    //   // Create the updated SpecialBonusItem entries
+    //   const updatedItems = [];
+    //   for (const brand of brands) {
+    //     for (const [index, item] of brand.items.entries()) {
+    //       const newItem: any = {
+    //         specialBonusId: id,
+    //         minisizeId: brand.minisizeId, // Link to the Brand
+    //         totalPurchaseAmount: item.totalPurchaseAmount,
+    //         cn: item.cn,
+    //         incentivePoint: item.incentivePoint,
+    //         order: index + 1, // Provide the order value based on the array index
+    //       };
+    //       // Only add color if it exists
+    //       if (brand.color) {
+    //         newItem.color = brand.color;
+    //       }
       
-          updatedItems.push(newItem);
-        }
-      }
-      await prisma.specialBonusItem.createMany({
-        data: updatedItems,
-      });
-    }
+    //       updatedItems.push(newItem);
+    //     }
+    //   }
+    //   await prisma.specialBonusItem.createMany({
+    //     data: updatedItems,
+    //   });
+    // }
 
     return NextResponse.json({ specialBonus, message: "SpecialBonus updated successfully" });
   } catch (error) {

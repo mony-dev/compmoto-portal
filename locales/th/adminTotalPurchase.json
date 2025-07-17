@@ -22,6 +22,30 @@
     "Cancel": "ยกเลิก",
     "baht": "บาท",
     "point": "คะแนน",
-    "Search a month": "เลือกเดือน"
+    "Search a month": "เลือกเดือน",
+    "Total Purchase List": "รายการตั้งค่ายอดสั่งซื้อรวม",
+    "no": "ลำดับ",
+    "name": "ชื่อ",
+    "customerGroup": "ประเภทลูกค้า",
+    "monthYear": "เดือน/ปี",
+    "action": "การกระทำ",
+    "active": "แสดง",
+    "inactive": "ไม่แสดง",
+    "reset date": "วันที่รีเซต",
+    "Add Total Purchase": "สร้างยอดสั่งซื้อรวม",
+    "Edit Total Purchase": "แก้ไขยอดสั่งซื้อรวม",
+    "Total Purchase updated successfully": "แก้ไขยอดสั่งซื้อรวมแล้ว",
+    "Total Purchase created successfully": "สร้างยอดสั่งซื้อรวมแล้ว",
+    "this_is_a_required_field": "ช่องที่จำเป็นต้องกรอก",
+    "Select a Customer Group": "กรุณาเลือกประเภทลูกค้า",
+    "display": "การแสดงผล",
+    "Something went wrong": "มีบางอย่างผิดพลาด",
+    "Error": "ผิดพลาด",
+    "This customer group is already active Please select a different customer group or deactivate this one first": "ประเภทลูกค้านี้เปิดใช้งานอยู่แล้ว กรุณาเลือกประเภทลูกค้าอื่น หรือปิดการใช้งานกประเภทนี้ก่อน",
+    "all": "ทั้งหมด"
+
+
+
+
 
 }

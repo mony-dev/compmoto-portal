@@ -1,7 +1,16 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Form, Input, Button, Select, InputNumber, SelectProps, Tag } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  InputNumber,
+  SelectProps,
+  Tag,
+  Divider,
+} from "antd";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
@@ -23,6 +32,17 @@ import { useCart } from "@components/Admin/Cartcontext";
 import Loading from "@components/Loading";
 import { useTranslation } from "react-i18next";
 import debounce from "lodash.debounce";
+import DatePickers from "@components/Admin/DatePickers";
+import { SelectValue } from "antd/es/select";
+import {
+  searchPointSchema,
+  SearchPointSchema,
+} from "@lib-schemas/user/search-point-schema";
+
+interface Option {
+  label: string;
+  value: string;
+}
 
 export default function Admin({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
@@ -38,6 +58,18 @@ export default function Admin({ params }: { params: { id: number } }) {
   const { setI18nName } = useCart();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
+  const [formPoint] = Form.useForm();
+  const currentDate = new Date();
+
+  const [selectedMonth, setSelectedMonth] = useState<string>((currentDate.getMonth() + 1).toString()); // Default to "All" (empty string)
+  const [selectedYear, setSelectedYear] = useState<string>(currentDate.getFullYear().toString());
+  const [monthOptions, setMonthOptions] = useState<Option[]>([]);
+  const [thisMonth, setThisMonth] = useState<string>(
+    (currentDate.getMonth() + 1).toString()
+  );
+  const [thisYear, setThisYear] = useState<string>(
+    currentDate.getFullYear().toString()
+  );
 
   interface minisiseData {
     id: number;
@@ -65,10 +97,46 @@ export default function Admin({ params }: { params: { id: number } }) {
     resolver: zodResolver(editPasswordSchema),
   });
 
+  const { control: controlSearch, setValue: setSearchValue } =
+    useForm<SearchPointSchema>({
+      resolver: zodResolver(searchPointSchema),
+    });
+
+  const fetchMonth = async () => {
+    const months = [
+      { en: "January", th: "มกราคม", key: "1" },
+      { en: "February", th: "กุมภาพันธ์", key: "2" },
+      { en: "March", th: "มีนาคม", key: "3" },
+      { en: "April", th: "เมษายน", key: "4" },
+      { en: "May", th: "พฤษภาคม", key: "5" },
+      { en: "June", th: "มิถุนายน", key: "6" },
+      { en: "July", th: "กรกฎาคม", key: "7" },
+      { en: "August", th: "สิงหาคม", key: "8" },
+      { en: "September", th: "กันยายน", key: "9" },
+      { en: "October", th: "ตุลาคม", key: "10" },
+      { en: "November", th: "พฤศจิกายน", key: "11" },
+      { en: "December", th: "ธันวาคม", key: "12" },
+    ];
+    let month = [];
+    if (locale === "en") {
+      month = months.map((option) => ({
+        label: option.en,
+        value: option.key,
+      }));
+    } else {
+      month = months.map((option) => ({
+        label: option.th,
+        value: option.key,
+      }));
+    }
+    setMonthOptions(month);
+  };
+
   // Debounce function for search input
   const debouncedFetchData = useCallback(
     debounce(() => {
       fetchData();
+      fetchMonth();
     }, 500), // 500 ms debounce delay
     []
   );
@@ -92,7 +160,7 @@ export default function Admin({ params }: { params: { id: number } }) {
     try {
       const [userResponse, saleUsersResponse, minisizesResponse] =
         await Promise.all([
-          axios.get(`/api/users/${params.id}`),
+          axios.get(`/api/users/${params.id}?month=${selectedMonth}&year=${selectedYear}`),
           axios.get(`/api/users`, {
             params: {
               role: "SALE",
@@ -107,10 +175,10 @@ export default function Admin({ params }: { params: { id: number } }) {
             },
           }),
         ]);
-     // Ensure that minisizeIds are correctly set
-     const selectedMinisizeIds = userResponse.data.minisizes.map(
-      (minisize: minisiseData) => minisize.id
-    );
+      // Ensure that minisizeIds are correctly set
+      const selectedMinisizeIds = userResponse.data.minisizes.map(
+        (minisize: minisiseData) => minisize.id
+      );
 
       setUserData(userResponse.data);
       setSaleUsers(saleUsersResponse.data.users);
@@ -120,8 +188,12 @@ export default function Admin({ params }: { params: { id: number } }) {
       setValue("phoneNumber", userResponse.data.phoneNumber);
       setValue("rewardPoint", userResponse.data.rewardPoint);
       setValue("saleUserId", userResponse.data.saleUserId);
-      setValue("minisizeIds", selectedMinisizeIds); 
+      setValue("minisizeIds", selectedMinisizeIds);
+      setSearchValue("usedPoint", userResponse.data.usedPoint);
 
+      setSelectedMonth(thisMonth);
+      setSearchValue("month", thisMonth);
+      setSearchValue("year", thisYear);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data: ", error);
@@ -170,6 +242,37 @@ export default function Admin({ params }: { params: { id: number } }) {
       toastError(error.response.data.message);
     }
   };
+
+  const onSearchPoint = async (month: string, year: string) => {
+    try {
+      const response = await axios.get(`/api/users/${params.id}?month=${month}&year=${year}`);
+      const usedPoint = response.data.usedPoint || 0;
+      formPoint.setFieldsValue({ usedPoint });
+      setSearchValue("usedPoint", usedPoint);
+    } catch (error) {
+      console.error("Error fetching usedPoint:", error);
+      formPoint.setFieldsValue({ usedPoint: 0 });
+    }
+  };
+
+  const handleMonthChange = (value: SelectValue) => {
+    setSelectedMonth(value?.toString() || ""); // Update selected month, allowing for the "All" option (empty string)
+    if (value) {
+      setThisMonth(value?.toString());
+      setSearchValue("month", value.toString());
+      onSearchPoint(value.toString(), thisYear);
+    }
+  };
+
+  const handleYearChange = (value: SelectValue) => {
+    setSelectedYear(value?.toString() || ""); // Update selected month, allowing for the "All" option (empty string)
+    if (value) {
+      setThisYear(value?.toString());
+      setSearchValue("year", value.toString());
+      onSearchPoint(thisMonth, value.toString());
+    }
+  };
+
   return (
     <>
       <div className="px-4">
@@ -187,6 +290,73 @@ export default function Admin({ params }: { params: { id: number } }) {
             <ChevronRightIcon className="w-4 mx-4" />{" "}
             <p className="font-semibold">{t("edit_user")}</p>
           </div>
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex gap-2">
+              <p className="login100-form-title font-bold text-black mb-0">
+                {t("current_point")}
+              </p>
+              <p className="text-black font-bold">{userData?.rewardPoint}</p>
+            </div>
+            <div className="flex justify-between flex-col gap-2">
+              <Form
+                form={formPoint}
+                layout="horizontal"
+                labelWrap
+                onFinish={() => onSearchPoint}
+              >
+                <div className="flex justify-between flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-2 grid-row-2">
+                    <Form.Item name="year" label={t("year")}>
+                      <DatePickers
+                        placeholder={t("year")}
+                        name="year"
+                        control={controlSearch}
+                        size="middle"
+                        picker="year"
+                        onChange={handleYearChange}
+                      />
+                    </Form.Item>
+                    <Form.Item name="month" label={t("month")}>
+                      <Controller
+                        control={controlSearch} // control from useForm()
+                        name="month"
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            showSearch
+                            placeholder={t("Search a month")}
+                            value={selectedMonth} // Default to current month
+                            onChange={handleMonthChange} // Handle month change
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={monthOptions}
+                          />
+                        )}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="usedPoint"
+                      label={t("used_point")}
+                      className="col-span-1"
+                    >
+                      <Controller
+                        control={controlSearch}
+                        name="usedPoint"
+                        render={({ field }) => (
+                          <Input {...field} disabled size="large" />
+                        )}
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+              </Form>
+            </div>
+          </div>
+
+          <Divider style={{ borderColor: "#c3c3c3" }} />
           <div className="flex justify-between">
             <Form
               form={form}
@@ -301,10 +471,7 @@ export default function Admin({ params }: { params: { id: number } }) {
                           value={minisize.id}
                           label={minisize.name}
                         >
-                          <span>
-                            {minisize.name}
-                          </span>{" "}
-                          {/* Add random color */}
+                          <span>{minisize.name}</span> {/* Add random color */}
                         </Option>
                       ))}
                     </Select>
@@ -401,7 +568,7 @@ export default function Admin({ params }: { params: { id: number } }) {
     </>
   );
 }
-type TagRender = SelectProps['tagRender'];
+type TagRender = SelectProps["tagRender"];
 const tagRender: TagRender = (props) => {
   const { label, value, closable, onClose } = props;
   const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {

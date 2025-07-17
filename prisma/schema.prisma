@@ -57,6 +57,8 @@ model User {
   rewardPointHistories               RewardPointHistory[]
   claim               Claim[]
   memoCredit          MemoCredit[]
+  customerGroupId       Int?
+  customerGroup         CustomerGroup?   @relation(fields: [customerGroupId], references: [id])
   @@index([id])
   @@map("users")
 }
@@ -297,9 +299,11 @@ model Promotion {
   name          String
   amount        Float
   minisizeId    Int
-  userGroup     String
+  userGroup     String?
   productRedeem String
   minisize      Minisize @relation(fields: [minisizeId], references: [id])
+  customerGroupId    Int?
+  customerGroup      CustomerGroup? @relation(fields: [customerGroupId], references: [id])
   products      Product[]
   image           String
 }
@@ -450,10 +454,14 @@ model TotalPurchase {
   id                  Int          @id @default(autoincrement())
   month               Int
   year                Int
+  name                String       @default("")
   resetDate           DateTime
   isActive            Boolean            
+  customerGroupId  Int?
+  customerGroup   CustomerGroup?  @relation(fields: [customerGroupId], references: [id])
   items               TotalPurchaseItem[]
   totalPurchaseHistories TotalPurchaseHistory[]
+  rewardPoint RewardPoint[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
@@ -477,8 +485,12 @@ model SpecialBonus {
   year                Int
   resetDate           DateTime
   isActive            Boolean 
+  name                String       @default("")
+  customerGroupId  Int?
+  customerGroup   CustomerGroup?  @relation(fields: [customerGroupId], references: [id])
   items               SpecialBonusItem[]
   SpecialBonusHistories SpecialBonusHistory[]
+  rewardPoint RewardPoint[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }
@@ -604,6 +616,13 @@ model RewardPoint {
   isFinalize          Boolean            
   expenses            Int
   point               Int
+  name                String       @default("")
+  customerGroupId  Int?
+  customerGroup   CustomerGroup?  @relation(fields: [customerGroupId], references: [id])
+  totalPurchaseId     Int?
+  totalPurchase       TotalPurchase?   @relation(fields: [totalPurchaseId], references: [id])
+  specialBonusId     Int?
+  specialBonus       SpecialBonus?   @relation(fields: [specialBonusId], references: [id])
   rewardPointHistories               RewardPointHistory[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
@@ -621,6 +640,19 @@ model RewardPointHistory {
   rewardPoint         RewardPoint   @relation(fields: [rewardPointId], references: [id])
   userId              Int
   user                User   @relation(fields: [userId], references: [id])
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+}
+
+model CustomerGroup {
+  id                  Int          @id @default(autoincrement())
+  name                String
+  discount            Int          @default(0)
+  users               User[]
+  totalPurchase       TotalPurchase[]
+  specialBonus        SpecialBonus[]
+  rewardPoint         RewardPoint[]
+  promotion           Promotion[]
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
 }

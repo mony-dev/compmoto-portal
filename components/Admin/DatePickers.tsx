@@ -29,6 +29,7 @@ const disabledDate: RangePickerProps['disabledDate'] = (current) => {
       size={props.size}
       picker={props.picker}
       disabledDate={disabledDate}
+      disabled={props.disabled || false}
     />
       :
       
@@ -45,6 +46,7 @@ const disabledDate: RangePickerProps['disabledDate'] = (current) => {
         }}
         picker={props.picker}
         size={props.size}
+        disabled={props.disabled || false}
       />
       }
       

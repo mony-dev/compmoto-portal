@@ -99,7 +99,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
     async function fetchSpecialBonusData() {
       setLoading(true);
       try {
-        const response = await fetch("/api/specialBonus");
+        const response = await fetch(`/api/specialBonus?userId=${userId}`);
         const data = await response.json();
         const specialBonusResponse = data.specialBonus;
         // Group items by minisizeId

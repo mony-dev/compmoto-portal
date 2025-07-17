@@ -9,7 +9,12 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "1000");
 
-  if (!userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: Number(userId) },
+    select: { customerGroupId: true }
+  });
+
+  if (!userId || user === null) {
     return NextResponse.json({ error: "User ID is required" }, { status: 400 });
   }
 
@@ -20,7 +25,7 @@ export async function GET(request: Request) {
         where: {
           userId: parseInt(userId),
           totalPurchase: {
-            isActive: true,
+            isActive: true
           },
         },
         include: {
@@ -52,6 +57,7 @@ export async function GET(request: Request) {
       const totalPurchase = await prisma.totalPurchase.findMany({
         where: {
           isActive: true,
+          customerGroupId: user.customerGroupId
         },
         include: {
           items: {
@@ -117,6 +123,7 @@ export async function GET(request: Request) {
     const activePurchase = await prisma.totalPurchase.findFirst({
       where: {
         isActive: true,
+        customerGroupId: user.customerGroupId
       },
     });
 

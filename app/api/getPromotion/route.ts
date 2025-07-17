@@ -11,7 +11,7 @@ export async function GET(request: Request) {
         where: {
           isActive: true,
           minisizeId: Number(minisizeId),
-          userGroup: group
+          customerGroupId: Number(group) 
         },
       });
       return NextResponse.json(products);

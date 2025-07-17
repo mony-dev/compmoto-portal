@@ -45,6 +45,7 @@ export default function users() {
     role: string;
     custNo: string;
     rewardPoint: number;
+    usedPoint: number;
   }
 
   // Debounce function for search input
@@ -156,10 +157,16 @@ export default function users() {
       sorter: (a, b) => a.custNo.localeCompare(b.custNo),
     },
     {
-      title: t('point'),
+      title: t('current_point'),
       dataIndex: "rewardPoint",
       key: "rewardPoint",
       sorter: (a, b) => b.rewardPoint - a.rewardPoint,
+    },
+    {
+      title: t('used_point'),
+      dataIndex: "usedPoint",
+      key: "usedPoint",
+      sorter: (a, b) => b.usedPoint - a.usedPoint,
     },
     {
       title: t('role'),
@@ -194,7 +201,7 @@ export default function users() {
           onClick={() => router.push(`/${locale}/admin/users/${record.id}`)}
         >
           <PencilSquareIcon className="w-4 mr-0.5" />
-          <span>{t('edit')}</span>
+          <span>{t('view_and_edit')}</span>
         </p>
       ),
     },

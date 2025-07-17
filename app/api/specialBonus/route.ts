@@ -38,12 +38,25 @@ const prisma = new PrismaClient();
 // }
 
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get("userId") || "";
   try {
+    
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userId) },
+      select: { customerGroupId: true }
+    });
+
+    if (!userId || user === null) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
+
     // Fetch the first active SpecialBonus (or modify query to suit your requirements)
     const specialBonus = await prisma.specialBonus.findFirst({
       where: {
         isActive: true,
+        customerGroupId: user.customerGroupId
       },
       include: {
         items: {

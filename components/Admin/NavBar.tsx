@@ -4,24 +4,20 @@ import {
   UserCircleIcon,
   ArrowLeftOnRectangleIcon,
 } from "@heroicons/react/24/solid";
-import { signOut, useSession } from "next-auth/react";
-// import { useTranslation } from "../../lib/shared/translations/i18n-client";
+import { signOut } from "next-auth/react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import axios from "@lib-services/axios";
 import Image from "next/image";
+import { Tag } from 'antd';
 
 import LogoComp from "./LogoCompmoto";
 import LogoCOM from "../../public/images/comp_moto_logo.png";
-import Star from "@public/images/star.png";
 import { BLACK_BG_COLOR } from "@components/Colors";
-import { number } from "zod";
 import LanguageChanger from "@components/LanguageChanger";
 import { Badge } from "antd";
-import { Session } from "inspector";
 import { useCart } from "./Cartcontext";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../i18nConfig";
-import { profile } from "console";
 
 type NavBarProps = {
   isOpen: boolean;
@@ -34,6 +30,7 @@ type NavBarProps = {
     creditPoint: number;
     image: string;
     role: string;
+    customerGroupName: string;
     data: {
       CreditPoint: string[];
       RewardPoint: string[];
@@ -51,19 +48,8 @@ type NavBarItemProps = {
   color?: string;
 };
 
-type SettingJSON = {
-  id: number;
-  name: JSON;
-  reference: string;
-  value: boolean;
-  valueType: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [starLevel, setStarLevel] = useState(0);
   const [payment, setPayment] = useState("0");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { cartItemCount, setCartItemCount, profileImage, setProfileImage } =
@@ -95,28 +81,7 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
     }
   };
 
-  // async function fetchUser() {
-  //   try {
-  //     // const { data } = await
-  //     const {data} = await axios.get(`/api/users/${userId}`);
-  //     console.log(data)
-  //     setProfileImage(data.image);
-  //   } catch (error) {
-  //     console.error("Error fetching data: ", error);
-  //   }
-  // }
-
   useEffect(() => {
-    if (userData?.data?.CustPriceGroup) {
-      if (userData.data.CustPriceGroup.includes("3STARS")) {
-        setStarLevel(3);
-      } else if (userData.data.CustPriceGroup.includes("5STARS")) {
-        setStarLevel(5);
-      } else if (userData.data.CustPriceGroup.includes("7STARS")) {
-        setStarLevel(7);
-      }
-    }
-
     if (userData?.data?.PaymentTerms) {
       const payment = userData?.data?.PaymentTerms[0];
       if (payment) {
@@ -124,13 +89,11 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
         paymentTerm && setPayment(paymentTerm[0]);
       }
     }
-    // setProfileImage(userData.image)
   }, [userData]);
 
   useEffect(() => {
     if (userId) {
       fetchCartCount();
-      // userData.role === "USER" && fetchUser();
     }
   }, [userId]);
 
@@ -222,7 +185,6 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
                 
               )}
             </button>
-            {/* <DropDownMenu options={sidebarItems} qrCode={qrCodeImage} /> */}
             {isDropdownVisible && (
               <div
                 ref={dropdownRef}
@@ -255,24 +217,14 @@ const NavBar = ({ onToggle, isOpen, userData, userId }: NavBarProps) => {
 
                     <div className="ml-8 mr-4">
                       <p className="default-font text-base leading-5 text-black">
-                        {userData?.name}
+                        {userData?.name} 
                       </p>
                       <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
                         {userData?.custNo}
                       </p>
-                      <div className="flex space-x-2 pt-2">
-                        {[...Array(starLevel)].map((_, index) => (
-                           <div key={index}>
-                            <Image
-                              key={index}
-                              width={20}
-                              height={20}
-                              src={Star.src}
-                              alt="star"
-                            />
-                          </div>
-                        ))}
-                      </div>
+                      <p className="default-font text-base leading-5 pt-2 text-comp-natural-base">
+                        <Tag color="#FF535D">{userData.customerGroupName}</Tag>
+                      </p>
                     </div>
                   </div>
                   <div className="flex pt-6 justify-between pb-4">

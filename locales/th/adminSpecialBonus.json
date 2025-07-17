@@ -28,6 +28,26 @@
     "point": "คะแนน",
     "Select Color": "เลือกสี",
     "Search a month": "เลือกเดือน",
-    "Select Minisize": "เลือกมินิไซต์"
+    "Select Minisize": "เลือกมินิไซต์",
+    "Special Bonus List": "รายการคะแนนสะสมพิเศษ",
+    "no": "ลำดับ",
+    "name": "ชื่อ",
+    "customerGroup": "ประเภทลูกค้า",
+    "monthYear": "เดือน/ปี",
+    "action": "การกระทำ",
+    "active": "แสดง",
+    "inactive": "ไม่แสดง",
+    "reset date": "วันที่รีเซต",
+    "Add Special Bonus": "สร้างยอดสั่งซื้อรวม",
+    "Edit Special Bonus": "แก้ไขยอดสั่งซื้อรวม",
+    "Special Bonus updated successfully": "แก้ไขยอดสั่งซื้อรวมแล้ว",
+    "Special Bonus created successfully": "สร้างยอดสั่งซื้อรวมแล้ว",
+    "Select a Customer Group": "กรุณาเลือกประเภทลูกค้า",
+    "display": "การแสดงผล",
+    "Something went wrong": "มีบางอย่างผิดพลาด",
+    "Error": "ผิดพลาด",
+    "This customer group is already active Please select a different customer group or deactivate this one first": "ประเภทลูกค้านี้เปิดใช้งานอยู่แล้ว กรุณาเลือกประเภทลูกค้าอื่น หรือปิดการใช้งานกประเภทนี้ก่อน",
+    "all": "ทั้งหมด"
+
 
 }

@@ -7,7 +7,6 @@ import {
   Divider,
   Form,
   InputNumber,
-  InputNumberProps,
   Modal,
   Space,
   Tabs,
@@ -117,7 +116,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
   }>({});
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const discountRate = session?.user?.custPriceGroup === "5STARS" ? 5 : 7;
+  const discountRate = session?.user?.customerDiscount;
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const { t } = useTranslation();
   const [promotionText, setPromotionText] = useState<string[]>([]);
@@ -199,7 +198,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
   };
 
   const checkPromotion = () => {
-    if (!session?.user?.custPriceGroup) return;
+    if (!session?.user?.customerGroupId) return;
 
     // Initialize an object to group products by promotion
     const promotionGroups: {
@@ -218,7 +217,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
 
         // Check if the promotion belongs to the same user group and minisize
         if (
-          promotion.userGroup === session?.user?.custPriceGroup &&
+          promotion.customerGroupId === session?.user?.customerGroupId &&
           promotion.minisizeId === record.product.minisizeId
         ) {
           // Calculate the amount for the current product

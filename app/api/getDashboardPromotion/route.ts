@@ -9,7 +9,7 @@ export async function GET(request: Request) {
       const products = await prisma.promotion.findMany({
         where: {
           isActive: true,
-          userGroup: group
+          customerGroupId: Number(group)
         },
       });
       return NextResponse.json(products);

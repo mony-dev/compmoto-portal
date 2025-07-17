@@ -1,29 +1,62 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { startOfMonth, endOfMonth } from "date-fns";
+
 const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
   { params }: { params: { id: number } }
 ) {
-  const id = params.id; 
+  const { searchParams } = new URL(request.url);
+  const id = Number(params.id);
+  const month = searchParams.get("month");
+  const year = searchParams.get("year");
+
+  if (!month || !year) {
+    return NextResponse.json({ error: "Missing 'month' or 'year'" }, { status: 400 });
+  }
+
+  const startDate = startOfMonth(new Date(Number(year), Number(month) - 1));
+  const endDate = endOfMonth(new Date(Number(year), Number(month) - 1));
+
   try {
+    // Fetch the user and their minisizes
     const user = await prisma.user.findUnique({
+      where: { id },
+      include: { minisizes: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Sum used points this month
+    const usedPointAgg = await prisma.userReward.findMany({
       where: {
-        id: Number(id),
+        userId: id,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
       include: {
-        minisizes: true
+        reward: true,
       },
     });
-    return NextResponse.json(user);
+    const usedPoint = usedPointAgg.reduce((sum, r) => {
+      return sum + (r.reward.point * r.quantity);
+    }, 0);
+    // Return user + usedPoint
+    return NextResponse.json({ ...user, usedPoint });
   } catch (error) {
-    console.log(error)
+    console.error("Error fetching user:", error);
     return NextResponse.json(error);
   } finally {
     await prisma.$disconnect();
   }
 }
+
 type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN' | 'CLAIM' | 'SALE';
 
 interface dataBodyInterface {

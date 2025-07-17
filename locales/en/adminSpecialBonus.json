@@ -28,5 +28,25 @@
     "point": "Point",
     "Select Color": "Select Color",
     "Search a month": "Search a month",
-    "Select Minisize": "Select Minisize"
+    "Select Minisize": "Select Minisize",
+    "Special Bonus List": "Special Bonus List",
+    "no": "No",
+    "name": "Name",
+    "customerGroup": "Customer Group",
+    "monthYear": "Month/Year",
+    "action": "Action",
+    "active": "Active",
+    "inactive": "Inactive",
+    "reset date": "Reset Date",
+    "Add Special Bonus": "Add Special Bonus",
+    "Edit Special Bonus": "Edit Special Bonus",
+    "Special Bonus updated successfully": "Special Bonus updated successfully",
+    "Special Bonus created successfully": "Special Bonus created successfully",
+    "Select a Customer Group": "Select a Customer Group",
+    "display": "Display",
+    "Something went wrong": "Something went wrong",
+    "Error": "Error",
+    "This customer group is already active Please select a different customer group or deactivate this one first": "This customer group is already active. Please select a different customer group or deactivate this one first.",
+    "all": "All"
+    
 }

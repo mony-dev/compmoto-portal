@@ -31,7 +31,6 @@
     "fetch-reward-point": "node lib/web/utils/fetchRewardPoint.mjs",
     "create-reward-point": "node lib/web/utils/createRewardPoint.mjs",
     "update-point": "node lib/web/utils/updatePoint.mjs"
-
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
@@ -63,9 +62,10 @@
     "i18next": "^23.12.2",
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-resources-to-backend": "^1.2.1",
+    "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",
     "luxon": "^3.4.4",
-    "next": "14.1.4",
+    "next": "^14.2.30",
     "next-auth": "^4.24.7",
     "next-cloudinary": "^6.6.2",
     "next-i18n-router": "^5.5.1",
@@ -80,7 +80,7 @@
     "react-hook-form": "^7.51.1",
     "react-i18next": "^15.0.0",
     "react-infinite-scroll-component": "^6.1.0",
-    "react-quill": "^2.0.0",
+    "react-quill": "^0.0.2",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.5",
     "sass": "^1.72.0",
@@ -98,6 +98,7 @@
     "@emotion/babel-plugin": "^11.11.0",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/luxon": "^3.4.2",
     "@types/negotiator": "^0.6.3",
     "@types/node": "^20",

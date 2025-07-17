@@ -87,3 +87,36 @@ export async function GET(request: Request) {
     await prisma.$disconnect();
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const data = await request.json();
+
+    const month = new Date(data.month).getMonth() + 1; 
+    const year = new Date(data.year).getFullYear(); 
+
+    // Create TotalPurchase first
+    const rewardPoint = await prisma.rewardPoint.create({
+      data: {
+        month, // Save month as 1-12
+        year,  // Save year as 2024,
+        name: data.name,
+        customerGroupId: data.customerGroupId,
+        resetDate: new Date(data.resetDate), 
+        isFinalize: data.isFinalize, 
+        expenses: data.expenses,
+        point: data.point,
+        specialBonusId: data.specialBonusId,
+        totalPurchaseId: data.totalPurchaseId,
+
+      },
+    });
+
+    return NextResponse.json({ rewardPoint });
+  } catch (error) {
+    console.error("Error creating Reward Point:", error);
+    return NextResponse.json({ error: "An error occurred" });
+  } finally {
+    await prisma.$disconnect();
+  }
+}

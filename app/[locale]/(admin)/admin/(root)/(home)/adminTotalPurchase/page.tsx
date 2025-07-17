@@ -1,155 +1,149 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import dynamic from "next/dynamic";
+
 import {
-  useForm,
-  Controller,
-  SubmitHandler,
-  useFieldArray,
-} from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  totalPurchaseSchema,
-  TotalPurchaseSchema,
-} from "@lib-schemas/user/total-purchase-schema";
+  PencilSquareIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import { toastError, toastSuccess } from "@lib-utils/helper";
 import {
   Button,
-  Form,
-  Row,
-  Col,
-  InputNumber,
-  Modal,
+  CheckboxProps,
+  Input,
   Select,
+  Tag,
 } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { useCart } from "@components/Admin/Cartcontext";
-import { usePathname, useRouter } from "next/navigation";
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
-import DatePickers from "@components/Admin/DatePickers";
-import { toastError, toastSuccess } from "@lib-utils/helper";
+import { ColumnsType } from "antd/es/table";
+import axios from "axios";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
+import { useTranslation } from "react-i18next";
+import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
-import dynamic from "next/dynamic";
-import { SelectValue } from "antd/es/select";
-interface Option {
-  label: string;
-  value: string;
-}
-export default function AdminTotalPurchase() {
+import { CloseCircleOutlined } from "@ant-design/icons";
+import ModalTotalPurchase from "@components/Admin/totalPurchase/ModalTotalPurchase";
+const Loading = dynamic(() => import("@components/Loading"));
+const DataTable = dynamic(() => import("@components/Admin/Datatable"));
+
+export default function adminTotalPurchase() {
+  const { Option } = Select;
+
   const { t } = useTranslation();
-  const locale = useCurrentLocale(i18nConfig);
-  const { setI18nName } = useCart();
-  const pathname = usePathname();
-  const [form] = Form.useForm();
-  const [id, setId] = useState(0);
   const router = useRouter();
-  const [monthOptions, setMonthOptions] = useState<Option[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState<string>(""); // Default to "All" (empty string)
-
-  const defaultValues = {
-    year: "",
-    month: "",
-    resetDate: "",
-    isActive: true,
-    items: [
-      { totalPurchaseAmount: 0, cn: 0, incentivePoint: 0, loyaltyPoint: 0 },
-    ], // Ensure items start with one object
-  };
-
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    setValue,
-  } = useForm<TotalPurchaseSchema>({
-    defaultValues,
-    resolver: zodResolver(totalPurchaseSchema),
+  const [searchText, setSearchText] = useState(() => {
+    // Initialize searchText from query parameter 'q' or default to an empty string
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || "";
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPurchaseData, setTotalPurchaseData] = useState<DataType[]>([]);
+  const locale = useCurrentLocale(i18nConfig);
+  const { setI18nName, setLoadPage, loadPage } = useCart();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [filterStatus, setFilterStatus] = useState<"all" | "true" | "false">("all");
+ 
+  const [triggerTotalPurchase, setTriggerTotalPurchase] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [mode, setMode] = useState("ADD");
+  const [id, setId] = useState(0);
+  const [title, setTitle] = useState(t("Add Total Purchase"));
 
-  const { fields, append, remove, replace } = useFieldArray({
-    control, // Attach the field array to the form control
-    name: "items", // Specify which part of the form this array refers to
-  });
+  interface DataType {
+    key: number;
+    id: number;
+    name: string;
+    monthYear: string;
+    isActive: boolean;
+    resetDate: Date;
+    customerGroup: {
+      name: string;
+    };
+  }
 
-  const handleMonthChange = (value: SelectValue) => {
-    setSelectedMonth(value?.toString() || ""); // Update selected month, allowing for the "All" option (empty string)
-    value && setValue("month", value.toString());
-  };
-
-  const fetchMonth = async () => {
-    const months = [
-      { en: "January", th: "มกราคม", key: "1" },
-      { en: "February", th: "กุมภาพันธ์", key: "2" },
-      { en: "March", th: "มีนาคม", key: "3" },
-      { en: "April", th: "เมษายน", key: "4" },
-      { en: "May", th: "พฤษภาคม", key: "5" },
-      { en: "June", th: "มิถุนายน", key: "6" },
-      { en: "July", th: "กรกฎาคม", key: "7" },
-      { en: "August", th: "สิงหาคม", key: "8" },
-      { en: "September", th: "กันยายน", key: "9" },
-      { en: "October", th: "ตุลาคม", key: "10" },
-      { en: "November", th: "พฤศจิกายน", key: "11" },
-      { en: "December", th: "ธันวาคม", key: "12" },
-    ];
-    let month = [];
-    if (locale === "en") {
-      month = months.map((option) => ({
-        label: option.en,
-        value: option.key,
-      }));
-    } else {
-      month = months.map((option) => ({
-        label: option.th,
-        value: option.key,
-      }));
-    }
-    setMonthOptions(month);
-  };
-
-  const fetchActiveTotalPurchase = async () => {
-    try {
-      const response = await fetch("/api/adminTotalPurchase");
-      const data = await response.json();
-
-      if (data && data.totalPurchase) {
-        // Set the basic form values
-        setSelectedMonth(data.totalPurchase.month.toString());
-        setValue("month", data.totalPurchase.month.toString());
-        setValue("year", data.totalPurchase.year.toString());
-        setValue("resetDate", data.totalPurchase.resetDate);
-        setValue("isActive", data.totalPurchase.isActive);
-        setValue("items", data.totalPurchase.items);
-        setId(data.totalPurchase.id);
-        // Manually update the field array using replace
-        replace(
-          data.totalPurchase.items.map((item: any) => ({
-            totalPurchaseAmount: item.totalPurchaseAmount,
-            cn: item.cn,
-            incentivePoint: item.incentivePoint,
-            loyaltyPoint: item.loyaltyPoint,
-          }))
-        );
-      } else {
-        setValue("month", "");
-        setValue("year", "");
-        setValue("resetDate", "");
-        setValue("items", [
-          { totalPurchaseAmount: 0, cn: 0, incentivePoint: 0, loyaltyPoint: 0 },
-        ]);
-      }
-    } catch (error) {
-      console.error("Error fetching active TotalPurchase:", error);
-    }
-  };
+  const columns: ColumnsType<DataType> = [
+    {
+      title: t("no"),
+      dataIndex: "key",
+      key: "key",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => b.key - a.key,
+    },
+    {
+      title: t("name"),
+      dataIndex: "name",
+      key: "name",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: t("customerGroup"),
+      dataIndex: "customerGroup",
+      key: "customerGroup",
+      defaultSortOrder: "descend",
+      sorter: (a, b) =>
+        a.customerGroup.name.localeCompare(b.customerGroup.name),
+      render: (_, record) => <p>{record.customerGroup?.name}</p>,
+    },
+    {
+      title: t("monthYear"),
+      dataIndex: "monthYear",
+      key: "monthYear",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.monthYear.localeCompare(b.monthYear),
+    },
+    {
+      title: t("reset date"),
+      key: "resetDate",
+      dataIndex: "resetDate",
+      render: (dateString: string) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = String(date.getFullYear()).slice(-2); // 2025 → 25
+        return `${day}/${month}/${year}`;
+      },
+    },
+    {
+      title: t("status"),
+      key: "status",
+      dataIndex: "isActive",
+      sorter: (a: DataType, b: DataType) =>
+        Number(b.isActive) - Number(a.isActive),
+      render: (isActive: boolean) => (
+        <Tag color={isActive ? "green" : "grey"}>
+          {isActive ? t("active") : t("inactive")}
+        </Tag>
+      ),
+    },
+    {
+      title: t("action"),
+      key: "action",
+      render: (_, record) => (
+        <div className="flex">
+          <p
+            className="flex cursor-pointer hover:text-comp-blue-link pr-2"
+            onClick={showModal(true, record.id)}
+          >
+            <PencilSquareIcon className="w-4 mr-0.5" />
+            <span>{t("edit")}</span>
+          </p>
+        </div>
+      ),
+    },
+  ];
 
   // Debounce function for search input
   const debouncedFetchData = useCallback(
-    debounce(() => {
-      fetchActiveTotalPurchase();
-      fetchMonth();
+    debounce((query: string, status: "all" | "true" | "false") => {
+      fetchData(query, status);
     }, 500), // 500 ms debounce delay
-    []
+    [currentPage, pageSize]
   );
 
   useEffect(() => {
@@ -157,88 +151,99 @@ export default function AdminTotalPurchase() {
     setI18nName(lastPart);
 
     // Call the debounced fetch function
-    debouncedFetchData();
+    debouncedFetchData(searchText, filterStatus);
 
     // Cleanup debounce on unmount
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [id]);
+  }, [currentPage, debouncedFetchData, filterStatus, triggerTotalPurchase]);
 
-  const onFinish: SubmitHandler<TotalPurchaseSchema> = async (values) => {
+  useEffect(() => {
+    // Update the URL with the search query
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (searchText) {
+      queryParams.set("q", searchText);
+    } else {
+      queryParams.delete("q");
+    }
+    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+    // @ts-ignore: TypeScript error explanation or ticket reference
+    router.push(newUrl, undefined, { shallow: true });
+  }, [searchText]);
+
+  async function fetchData(query: string = "", status: "all" | "true" | "false" = filterStatus) {
+    setLoadPage(true);
     try {
-      if (id > 0) {
-        const response = await fetch(`/api/adminTotalPurchase/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id, // Pass the ID to identify the record
-            ...values, // Pass the form values
-          }),
-        });
-        const result = await response.json();
-        toastSuccess(t("Form updated successfully"));
-      } else {
-        const response = await fetch("/api/adminTotalPurchase", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        });
-        const result = await response.json();
-        toastSuccess(t("Form saved successfully"));
+      const params: any = {
+        q: query,
+        page: currentPage,
+        pageSize: pageSize,
+      };
+
+      if (status !== "all") {
+        params.isActive = status === "true";
       }
-    } catch (error) {
-      toastError(t("Error saving data"));
+  
+      const { data } = await axios.get(`/api/getListTotalPurchase`, { params });
+  
+
+      const totalPurchaseDataWithKeys = data.totalPurchases.map(
+        (totalPurchase: DataType, index: number) => ({
+          ...totalPurchase,
+          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+        })
+      );
+
+      setTotalPurchaseData(totalPurchaseDataWithKeys);
+      setTotal(data.total);
+    } catch (error: any) {
+      toastError(error);
+    } finally {
+      setLoadPage(false);
+    }
+  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    fetchData(value); // Trigger data fetch only on search
+  };
+  const handleClear = () => {
+    setSearchText(""); // Clear the input
+    fetchData(""); // Reset the list to show all data
+  };
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
     }
   };
 
-  const handleReset = async () => {
-    Modal.confirm({
-      title: t("are_you_sure_you_want_to_reset_this_setting"),
-      content: t("this_action_cannot_be_undone"),
-      okText: t("yes"),
-      okType: "danger",
-      cancelText: t("cancel"),
-      onOk: async () => {
-        try {
-          if (id < 0) {
-            // You need the ID to update the record
-            toastError(t("No setting available to reset"));
-            return;
-          }
-
-          // Send the PUT request to update isActive to false
-          const response = await fetch(`/api/adminTotalPurchase/${id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              id, // Pass the ID to identify the record
-              isActive: false, // Set isActive to false
-            }),
-          });
-
-          const result = await response.json();
-
-          if (response.ok) {
-            setId(0);
-            router.replace(`/${locale}/admin/adminTotalPurchase`);
-            toastSuccess(t("Reset successfully"));
-            // Optionally, refresh the form or update the UI after the status is updated
-          } else {
-            toastError(t("Error resetting status"));
-          }
-        } catch (error) {
-          toastError(t("Error resetting status"));
-        }
-      },
-    });
+  const onStatusChange = (value: "all" | "true" | "false") => {
+    setFilterStatus(value);
+    debouncedFetchData(searchText, value);
   };
+
+  function showModal(isShow: boolean, idTotalPurchase: number) {
+    return () => {
+      setIsModalVisible(isShow);
+      setId(idTotalPurchase);
+      if (idTotalPurchase === 0) {
+        setMode("ADD");
+        setTitle(t("Add Total Purchase"));
+      } else {
+        setMode("EDIT");
+        setTitle(t("Edit Total Purchase"));
+      }
+    };
+  }
+
+  if (loadPage || !t) {
+    return <Loading />;
+  }
 
   return (
     <div className="px-4">
@@ -248,227 +253,64 @@ export default function AdminTotalPurchase() {
       >
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold pb-4 grow default-font">
-            {t("total purchase setting")}
+            {t("Total Purchase List")}
           </p>
+          <div className="flex items-center">
+            <Select
+              value={filterStatus}
+              onChange={onStatusChange}
+              style={{ width: 140, marginRight: 12 }}
+            >
+              <Option value="all">{t("all")}</Option>
+              <Option value="true">{t("active")}</Option>
+              <Option value="false">{t("inactive")}</Option>
+            </Select>
+            <Input.Search
+              placeholder={t("search")}
+              size="middle"
+              style={{ width: "200px" }}
+              value={searchText}
+              onSearch={handleSearch}
+              onChange={handleInputChange}
+              suffix={
+                searchText ? (
+                  <CloseCircleOutlined
+                    onClick={handleClear}
+                    style={{ cursor: "pointer" }}
+                  />
+                ) : null
+              }
+            />
+            <Button
+              className="bg-comp-red button-backend ml-4"
+              type="primary"
+              icon={<PlusIcon className="w-4" />}
+              onClick={showModal(true, 0)}
+            >
+              {t("add")}
+            </Button>
+          </div>
         </div>
 
-        <Form
-          form={form}
-          onFinish={handleSubmit(onFinish)}
-          layout="horizontal"
-          labelWrap
-        >
-          {/* Year and Reset Date */}
-          <div className="flex justify-between gap-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Form.Item
-                name="month"
-                label={t("month")}
-                required
-                tooltip={t("this_is_a_required_field")}
-              >
-                <Controller
-                  control={control} // control from useForm()
-                  name="month"
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      showSearch
-                      placeholder={t("Search a month")}
-                      value={selectedMonth} // Default to current month
-                      onChange={handleMonthChange} // Handle month change
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={monthOptions}
-                    />
-                  )}
-                />
-              </Form.Item>
-              <Form.Item
-                name="year"
-                label={t("year")}
-                required
-                tooltip={t("this_is_a_required_field")}
-              >
-                <DatePickers
-                  placeholder={t("year")}
-                  name="year"
-                  control={control}
-                  size="middle"
-                  picker="year"
-                  disabledDate={true}
-                />
-                
-              </Form.Item>
-            </div>
-            <div className="flex gap-2">
-              <Form.Item
-                name="resetDate"
-                label={t("resetDate")}
-                required
-                tooltip={t("this_is_a_required_field")}
-              >
-                <DatePickers
-                  placeholder={t("Start Date")}
-                  name="resetDate"
-                  control={control}
-                  size="middle"
-                />
-              </Form.Item>
-              {/* <Button
-                className="bg-comp-red button-backend ml-4"
-                type="primary"
-                icon={<PowerIcon className="w-4" />}
-                disabled={!id}
-                onClick={handleReset}
-              >
-                {t("Reset")}
-              </Button> */}
-            </div>
-          </div>
-
-          {/* Header for dynamic fields */}
-          <Row
-            gutter={16}
-            className="mt-4 bg-[#ebebeb] py-4 font-medium"
-            style={{
-              borderTopRightRadius: "0.5rem",
-              borderTopLeftRadius: "0.5rem",
-            }}
-          >
-            <Col span={6}>
-              <p>{t("totalPurchaseAmount")}</p>
-            </Col>
-            <Col span={4}>
-              <p>{t("cn")}</p>
-            </Col>
-            <Col span={4}>
-              <p>{t("incentivePoint")}</p>
-            </Col>
-            <Col span={4}>
-              <p>{t("loyaltyPoint")}</p>
-            </Col>
-            <Col span={2}></Col> {/* Empty space for the remove icon */}
-          </Row>
-
-          {fields.map((field, index) => (
-            <Row
-              key={field.id}
-              gutter={16}
-              align="middle"
-              className="py-4 bg-[#f0f8ff]"
-            >
-              <Col span={6}>
-                <Controller
-                  name={`items.${index}.totalPurchaseAmount`}
-                  control={control}
-                  render={({ field }) => (
-                    <InputNumber
-                      {...field}
-                      placeholder={t("totalPurchaseAmount")}
-                      className="w-full"
-                      step={0.01}
-                      min={0}
-                      addonAfter={t("baht")}
-                    />
-                  )}
-                />
-              </Col>
-              <Col span={4}>
-                <Controller
-                  name={`items.${index}.cn`}
-                  control={control}
-                  render={({ field }) => (
-                    <InputNumber
-                      {...field}
-                      placeholder={t("cn")}
-                      className="w-full"
-                      step={0.01}
-                      min={0}
-                      addonAfter="%"
-                    />
-                  )}
-                />
-              </Col>
-              <Col span={4}>
-                <Controller
-                  name={`items.${index}.incentivePoint`}
-                  control={control}
-                  render={({ field }) => (
-                    <InputNumber
-                      {...field}
-                      placeholder={t("incentivePoint")}
-                      className="w-full"
-                      step={0.01}
-                      min={0}
-                      addonAfter={t("point")}
-                    />
-                  )}
-                />
-              </Col>
-              <Col span={4}>
-                <Controller
-                  name={`items.${index}.loyaltyPoint`}
-                  control={control}
-                  render={({ field }) => (
-                    <InputNumber
-                      {...field}
-                      placeholder={t("loyaltyPoint")}
-                      className="w-full"
-                      step={0.01}
-                      min={0}
-                      addonAfter={t("point")}
-                    />
-                  )}
-                />
-              </Col>
-              <Col span={2}>
-                <MinusCircleOutlined onClick={() => remove(index)} />
-              </Col>
-            </Row>
-          ))}
-
-          {/* Add Item Button */}
-          <div
-            style={{ display: "flex", justifyContent: "center", marginTop: 16 }}
-          >
-            {errors.items && (
-              <div className="text-red-500 mt-2 font-semibold">
-                {errors.items.message && t("At least one item is required")}
-              </div>
-            )}
-            <Button
-              type="dashed"
-              onClick={() =>
-                append([
-                  {
-                    totalPurchaseAmount: 0,
-                    cn: 0,
-                    incentivePoint: 0,
-                    loyaltyPoint: 0,
-                  },
-                ])
-              }
-              shape="circle"
-              icon={<PlusOutlined />}
-              size="large"
-            />
-          </div>
-
-          <Form.Item className="flex justify-end">
-            <Button
-              className="bg-comp-red button-backend"
-              type="primary"
-              htmlType="submit"
-              icon={<CheckCircleIcon className="w-4" />}
-            >
-              {t("submit")}
-            </Button>
-          </Form.Item>
-        </Form>
+        <DataTable
+          columns={columns}
+          data={totalPurchaseData}
+          total={total}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
+        <ModalTotalPurchase
+          isModalVisible={isModalVisible}
+          setIsModalVisible={setIsModalVisible}
+          setTriggerTotalPurchase={setTriggerTotalPurchase}
+          triggerTotalPurchase={triggerTotalPurchase}
+          {...(totalPurchaseData && { totalPurchaseData })}
+          mode={mode}
+          title={title}
+          id={id}
+          setId={setId}
+        />
       </div>
     </div>
   );

@@ -341,7 +341,8 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="mb-0 text-base text-black">
-                    {session?.user.name}{" "}
+                    {session?.user.name}
+                    <Tag color="#FF535D" className="ml-4">{session?.user?.customerGroupName}</Tag>
                   </p>
                   <p className="mb-0 text-base text-black">
                     {t('Ranking total')} : <Tag bordered={false} color="gold">
@@ -547,7 +548,7 @@ const Dashboard = () => {
           className="mt-4 p-4 col-span-2 rounded-lg bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          <PromotionSlide custPriceGroup={session?.user?.custPriceGroup} />
+          <PromotionSlide custPriceGroup={session?.user?.customerGroupId} />
         </div>
         <div className="mt-4 py-4 col-span-6 rounded-lg">
           <Chart userId={session?.user?.id} />

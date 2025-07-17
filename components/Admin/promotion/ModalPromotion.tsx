@@ -54,10 +54,10 @@ interface PromotionDataType {
   minisizeId: number;
   amount: number;
   productRedeem: string;
-  userGroup: string;
   startDate: string;
   endDate: string;
   image: string;
+  customerGroupId: number;
 }
 
 const Hr = styled.hr`
@@ -90,6 +90,9 @@ const ModalPromotion = ({
   const [minisizeOptions, setMinisizeOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const [customerGroupOptions, setCustomerGroupOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [editPromotionData, setEditPromotionData] =
     useState<PromotionDataType | null>(null);
 
@@ -97,26 +100,38 @@ const ModalPromotion = ({
   const locale = useCurrentLocale(i18nConfig);
   const [image, setImage] = useState<string | { url: string }[]>([]);
 
-  const dataOptions = [
-    { key: "5STARS", value: "5STARS" },
-    { key: "7STARS", value: "7STARS" },
-  ];
   const [size, setSize] = useState<SizeType>("middle");
-  useEffect(() => {
-    const fetchMinisizes = async () => {
-      try {
-        const response = await axios.get("/api/adminMinisize");
-        const minisizes = response.data.minisizes.map((minisize: any) => ({
-          value: minisize.id,
-          label: minisize.name,
-        }));
-        setMinisizeOptions(minisizes);
-      } catch (error: any) {
-        toastError(error.message);
-      }
-    };
 
+  const fetchMinisizes = async () => {
+    try {
+      const response = await axios.get("/api/adminMinisize");
+      const minisizes = response.data.minisizes.map((minisize: any) => ({
+        value: minisize.id,
+        label: minisize.name,
+      }));
+      setMinisizeOptions(minisizes);
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+
+  const fetchCustomerGroup = async () => {
+    try {
+      const response = await axios.get("/api/getListCustomerGroup");
+      const customerGroups = response.data.customerGroups.map((customerGroup: any) => ({
+        value: customerGroup.id,
+        label: customerGroup.name,
+      }));
+      setCustomerGroupOptions(customerGroups);
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+
+
+  useEffect(() => {
     fetchMinisizes();
+    fetchCustomerGroup();
   }, []);
 
   useEffect(() => {
@@ -131,10 +146,11 @@ const ModalPromotion = ({
       setValue("minisizeId", promotion.minisizeId);
       setValue("amount", promotion.amount);
       setValue("productRedeem", promotion.productRedeem);
-      setValue("userGroup", promotion.userGroup);
       setValue("startDate", promotion.startDate);
       setValue("endDate", promotion.endDate);
       setValue("image", promotion.image);
+      setValue("customerGroupId", promotion.customerGroupId);
+
       setImage(promotion?.image);
     } else {
       setImage("");
@@ -144,10 +160,10 @@ const ModalPromotion = ({
         minisizeId: undefined,
         amount: 0,
         productRedeem: "",
-        userGroup: "",
         startDate: "",
         endDate: "",
         image: "",
+        customerGroupId: undefined,
       });
     }
   }, [promotionData, id]);
@@ -169,9 +185,9 @@ const ModalPromotion = ({
       minisizeId: undefined,
       amount: 0,
       productRedeem: "",
-      userGroup: "",
       startDate: "",
       endDate: "",
+      customerGroupId: undefined,
     });
     setIsModalVisible(false);
     setId(0);
@@ -338,7 +354,7 @@ const ModalPromotion = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
+            {/* <Form.Item
               name="userGroup"
               label={t('User Group')}
               className="switch-backend basis-1/2"
@@ -361,6 +377,37 @@ const ModalPromotion = ({
                         .includes(input.toLowerCase())
                     }
                     options={dataOptions}
+                  />
+                )}
+              />
+            </Form.Item> */}
+            <Form.Item
+              name="customerGroupId"
+              label={t('User Group')}
+              className="switch-backend basis-1/2"
+              required
+              tooltip={t('this_is_a_required_field')}
+              help={errors.customerGroupId?.message}
+              validateStatus={errors.customerGroupId ? "error" : ""}
+            >
+              <Controller
+                control={control}
+                name="customerGroupId"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    showSearch
+                    placeholder={t("Select a user group")}
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={customerGroupOptions}
+                    //   onChange={(value) => {
+                    //     field.onChange(value);
+                    //     fetchProductCount(value);
+                    //   }}
                   />
                 )}
               />

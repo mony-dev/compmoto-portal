@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 import bcrypt from 'bcrypt'
 import { encrypt } from "@lib-shared/utils/encryption";
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -13,8 +14,11 @@ export async function GET(request: Request) {
   const pageSize = parseInt(searchParams.get("pageSize") || "15");
   const statusQuery = Object.values(UserStatus).find(status => status === q);
   const roleQuery = Object.values(Role).find(role => role === q);
+  const startDate = startOfMonth(new Date());
+  const endDate = endOfMonth(new Date());
+
   try {
-    const [users, total] = await Promise.all([
+    const [users, total, usedPoints] = await Promise.all([
       prisma.user.findMany({
         where: {
           role: {
@@ -23,13 +27,14 @@ export async function GET(request: Request) {
           OR: [
             { name: { contains: q } },
             { email: { contains: q } },
-            ...(roleQuery ? [{ role: { equals: roleQuery as Role } }] : []),
-            ...(statusQuery ? [{ status: { equals: statusQuery as UserStatus } }] : []),
+            ...(roleQuery ? [{ role: roleQuery }] : []),
+            ...(statusQuery ? [{ status: statusQuery }] : []),
           ],
         },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
+
       prisma.user.count({
         where: {
           role: {
@@ -38,15 +43,41 @@ export async function GET(request: Request) {
           OR: [
             { name: { contains: q } },
             { email: { contains: q } },
-            ...(roleQuery ? [{ role: { equals: roleQuery as Role } }] : []),
-            ...(statusQuery ? [{ status: { equals: statusQuery as UserStatus } }] : []),
+            ...(roleQuery ? [{ role: roleQuery }] : []),
+            ...(statusQuery ? [{ status: statusQuery }] : []),
           ],
         },
       }),
+
+      // Fetch used points this month grouped by userId
+      prisma.userReward.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        include: {
+          reward: true,
+        },
+      }),
     ]);
-    return NextResponse.json({ users: users, total });
+
+    // Map userId to usedPoint = reward.point * quantity
+    const usedPointMap: Record<number, number> = {};
+    usedPoints.forEach(record => {
+      const point = record.reward.point * record.quantity;
+      usedPointMap[record.userId] = (usedPointMap[record.userId] || 0) + point;
+    });
+
+    // Add usedPoint to each user
+    const usersWithUsedPoint = users.map(user => ({
+      ...user,
+      usedPoint: usedPointMap[user.id] || 0,
+    }));
+    return NextResponse.json({ users: usersWithUsedPoint, total });
   } catch (error) {
-    return NextResponse.json(error);
+    return NextResponse.json({ error });
   } finally {
     await prisma.$disconnect();
   }

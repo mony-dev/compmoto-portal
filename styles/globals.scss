@@ -1138,3 +1138,22 @@ body {
   max-height: 200px!important;
   overflow-y: auto;
 }
+
+.active-box{
+  border: 1px solid #ffafb9;
+  border-radius: 10px;
+  background-color: #ffe8eb;
+}
+
+:where(.css-dev-only-do-not-override-98ntnt).ant-alert-error {
+  background: #ffb2b2;
+  border: 1px solid #ffb2b2;
+  margin: -2rem;
+
+}
+
+:where(.css-98ntnt).ant-alert-error {
+  background: #ffb2b2;
+  border: 1px solid #ffb2b2;
+  margin: -2rem;
+}

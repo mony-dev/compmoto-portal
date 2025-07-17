@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     
-    const { year, month, resetDate, brands } = data;
+    const { year, month, resetDate, name, brands, customerGroupId, isActive } = data;
 
     // Create the SpecialBonus record
     const specialBonus = await prisma.specialBonus.create({
@@ -15,7 +15,9 @@ export async function POST(request: Request) {
         year: parseInt(year), // Ensure it's a number
         month: parseInt(month), // Ensure it's a number
         resetDate: new Date(resetDate), // Convert to Date object
-        isActive: true, // Defaults to true if not provided
+        name: name,
+        customerGroupId: customerGroupId,
+        isActive: isActive, 
       },
     });
 

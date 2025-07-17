@@ -415,21 +415,22 @@ export default function normalOrder({ params }: { params: { id: number } }) {
               }
             />
             {activeTabKey === "2" && (
-              <Button
-                className="bg-comp-red button-backend ml-4"
-                type="primary"
-                icon={<ArrowPathIcon className="w-4" />}
-                loading={isSyncing} // Add loading prop
-                onClick={async () => {
-                  try {
-                    await syncAndProcessInvoices(); // Call the async function
-                  } catch (error: any) {
-                    toastError(error); // Handle the error
-                  }
-                }}
-              >
-                {t("Sync")}
-              </Button>
+              // <Button
+              //   className="bg-comp-red button-backend ml-4"
+              //   type="primary"
+              //   icon={<ArrowPathIcon className="w-4" />}
+              //   loading={isSyncing} // Add loading prop
+              //   onClick={async () => {
+              //     try {
+              //       await syncAndProcessInvoices(); // Call the async function
+              //     } catch (error: any) {
+              //       toastError(error); // Handle the error
+              //     }
+              //   }}
+              // >
+              //   {t("Sync")}
+              // </Button>
+              ""
             )}
           </div>
           <TabContentOrder

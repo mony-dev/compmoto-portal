@@ -225,7 +225,7 @@ export default function SideBar({
       items: [
         { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `/${locale}/admin/adminTotalPurchase` },
         { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `/${locale}/admin/adminSpecialBonus` },
-        { title: "ตั้งค่า Reward Point", href: `/${locale}/admin/adminRewardPointHistory` },
+        { title: "ตั้งค่า Reward Point", href: `/${locale}/admin/adminRewardPoint` },
         // comment this menu 
         // { title: "รายการยอดสั่งซื้อรวม", href: `/${locale}/admin/totalPurchaseHistory` },
         // { title: "รายการโบนัสพิเศษ", href: `/${locale}/admin/specialBonusHistory` },

@@ -32,7 +32,10 @@ const handler = NextAuth({
         try {
           const user = await prisma.user.findUnique({
             where: { custNo: credentials.custNo },
-            include: { saleUser: true },
+            include: { 
+              saleUser: true,
+              customerGroup: true
+            },
           });
 
           if (!user) {
@@ -68,6 +71,7 @@ const handler = NextAuth({
         token.status = user.status;
         token.custPriceGroup = user.custPriceGroup;
         token.image = user.image;
+        token.customerGroupId = user.customerGroupId;
   
         // Fetch and add saleUserCustNo if necessary
         if (user.saleUserId) {
@@ -77,6 +81,20 @@ const handler = NextAuth({
             });
             if (saleUser) {
               token.saleUserCustNo = saleUser.custNo;
+            }
+          } catch (error) {
+            console.error("Error fetching saleUser:", error);
+          }
+        }
+        if (user.customerGroupId) {
+          try {
+            const customerGroup = await prisma.customerGroup.findUnique({
+              where: { id: user.customerGroupId },
+            });
+            if (customerGroup) {
+              token.customerDiscount = customerGroup.discount;
+              token.customerGroupName = customerGroup.name;
+
             }
           } catch (error) {
             console.error("Error fetching saleUser:", error);
@@ -97,6 +115,9 @@ const handler = NextAuth({
         custPriceGroup: token.custPriceGroup,
         image: token.image,
         saleUserCustNo: token.saleUserCustNo || null,
+        customerGroupId: token.customerGroupId,
+        customerDiscount: token.customerDiscount,
+        customerGroupName: token.customerGroupName
       };
   
       try {

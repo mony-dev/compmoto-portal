@@ -6,17 +6,18 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    // Assuming the data for month and year comes as a string (e.g., "2024-05" for month)
-    const month = new Date(data.month).getMonth() + 1; // Extracts the month as 1-12
-    const year = new Date(data.year).getFullYear(); // Extracts the year (e.g., 2024)
+    const month = new Date(data.month).getMonth() + 1; 
+    const year = new Date(data.year).getFullYear(); 
 
     // Create TotalPurchase first
     const totalPurchase = await prisma.totalPurchase.create({
       data: {
         month, // Save month as 1-12
-        year,  // Save year as 2024
-        resetDate: new Date(data.resetDate), // Ensure the resetDate is in Date format
-        isActive: data.isActive ?? true, // Defaults to true if not provided
+        year,  // Save year as 2024,
+        name: data.name,
+        customerGroupId: data.customerGroupId,
+        resetDate: new Date(data.resetDate), 
+        isActive: data.isActive, 
       },
     });
 

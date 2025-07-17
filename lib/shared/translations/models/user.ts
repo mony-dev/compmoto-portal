@@ -25,5 +25,6 @@ export interface User {
   saleUserId?: number;
   encryptedPasswordtext: any;
   image?: string;
+  customerGroupId: number;
 }
 

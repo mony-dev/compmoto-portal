@@ -10,7 +10,7 @@ interface Promotion {
   productRedeem: string;
 }
 
-const PromotionSlide: React.FC<{ custPriceGroup: string }> = ({
+const PromotionSlide: React.FC<{ custPriceGroup: number }> = ({
   custPriceGroup,
 }) => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);

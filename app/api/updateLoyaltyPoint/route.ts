@@ -15,10 +15,12 @@ export async function PUT(request: Request) {
       );
     }
 
+    const rewardPointIdNo = Number(rewardPointId)
+
     let record = await prisma.rewardPointHistory.findFirst({
       where: {
         userId,
-        rewardPointId,
+        rewardPointId: rewardPointIdNo,
       },
     });
 
@@ -37,6 +39,20 @@ export async function PUT(request: Request) {
       });
     }
 
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        rewardPoint: (currentUser.rewardPoint - record.loyaltyPoint) + loyaltyPoint,
+      },
+    });
     const updated = await prisma.rewardPointHistory.update({
       where: {
         id: record.id,

@@ -383,7 +383,7 @@ const Product = () => {
 
   const fetchPromotion = async (id: number, filters = {}) => {
     setLoadingPromo(true);
-    const group = session?.user.custPriceGroup;
+    const group = session?.user.customerGroupId;
     id &&
       axios
         .get(`/api/getPromotion?group=${group}&minisizeId=${id}`)

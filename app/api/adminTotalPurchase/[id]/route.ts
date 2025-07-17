@@ -7,7 +7,7 @@ export async function PUT(request: Request) {
   try {
     const data = await request.json();
 
-    const { id, month, year, resetDate, isActive, items } = data;
+    const { id, month, year, resetDate, isActive, name, customerGroupId, items } = data;
 
     if (!id) {
       return NextResponse.json({ error: "ID is required for updating" }, { status: 400 });
@@ -24,35 +24,35 @@ export async function PUT(request: Request) {
     if (resetDate) updateData.resetDate = new Date(resetDate);
 
     // Always update isActive if it's passed, including when it is set to false
-    if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+    // if (typeof isActive !== 'undefined') updateData.isActive = isActive;
 
     // Update TotalPurchase entry
     const totalPurchase = await prisma.totalPurchase.update({
       where: { id },
-      data: updateData, // Update only the fields that were passed
+      data: {...updateData, isActive, name, customerGroupId }, // Update only the fields that were passed
     });
 
     // If items are passed, update them
-    if (items && items.length > 0) {
-      // Delete existing items before adding new ones (if the structure changes)
-      await prisma.totalPurchaseItem.deleteMany({
-        where: { totalPurchaseId: id },
-      });
+    // if (items && items.length > 0) {
+    //   // Delete existing items before adding new ones (if the structure changes)
+    //   await prisma.totalPurchaseItem.deleteMany({
+    //     where: { totalPurchaseId: id },
+    //   });
 
-      // Add updated items (or new items)
-      const updatedItems = await prisma.totalPurchaseItem.createMany({
-        data: items.map((item: any, index: number) => ({
-          totalPurchaseId: id,
-          totalPurchaseAmount: item.totalPurchaseAmount,
-          cn: item.cn,
-          incentivePoint: item.incentivePoint,
-          loyaltyPoint: item.loyaltyPoint,
-          order: index + 1
-        })),
-      });
+    //   // Add updated items (or new items)
+    //   const updatedItems = await prisma.totalPurchaseItem.createMany({
+    //     data: items.map((item: any, index: number) => ({
+    //       totalPurchaseId: id,
+    //       totalPurchaseAmount: item.totalPurchaseAmount,
+    //       cn: item.cn,
+    //       incentivePoint: item.incentivePoint,
+    //       loyaltyPoint: item.loyaltyPoint,
+    //       order: index + 1
+    //     })),
+    //   });
 
-      return NextResponse.json({ totalPurchase, updatedItems });
-    }
+    //   return NextResponse.json({ totalPurchase, updatedItems });
+    // }
 
     return NextResponse.json({ totalPurchase });
   } catch (error) {

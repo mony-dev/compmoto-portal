@@ -15,12 +15,25 @@ const brandSpecialBonusSchema = z.object({
 });
 
 // Main SpecialBonus Schema
-export const specialBonusSchema = z.object({
-  year: z.string().nonempty({ message: "Year is required" }),
-  month: z.string().nonempty({ message: "Month is required" }),
-  resetDate: z.string().nonempty("Please select reset date"),
-  isActive: z.boolean().optional(),
+export const specialBonusSchema = (mode: "CREATE" | "EDIT") => z.object({
+  name: z.string().nonempty({ message: "Year is required" }),
+  year:
+    mode === "CREATE"
+      ? z.string().nonempty({ message: "Year is required" })
+      : z.string().optional(),
+  month:
+      mode === "CREATE"
+        ? z.string().nonempty({ message: "Month is required" })
+        : z.string().optional(),
+  resetDate:
+    mode === "CREATE"
+      ? z.string().nonempty("Please select reset date")
+      : z.string().optional(),
+  isActive: z.boolean().optional(), // Optional as it defaults to true on save
+  customerGroupId: z.number().nullable(),
   brands: z.array(brandSpecialBonusSchema).nonempty({ message: "At least one brand is required" }), // Multiple brands
 });
 
-export type SpecialBonusSchema = z.infer<typeof specialBonusSchema>;
+export type SpecialBonusSchema = z.infer<
+  ReturnType<typeof specialBonusSchema>
+>;

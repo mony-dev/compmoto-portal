@@ -8,10 +8,10 @@ interface dataBodyInterface {
     minisizeId: number;
     amount: number;
     productRedeem: string;
-    userGroup: string;
     startDate: string;
     endDate: string;
     image: string;
+    customerGroupId: number;
 }
 
 export async function PUT(
@@ -30,7 +30,8 @@ export async function PUT(
       minisizeId: Number(data.minisizeId),
       image: data.image,
       productRedeem: data.productRedeem,
-      userGroup: data.userGroup,
+      customerGroupId: Number(data.customerGroupId),
+
   };
 
   try {
