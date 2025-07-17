@@ -1,8 +1,38 @@
-# Production stage
-FROM node:18-slim as production
+# Base stage
+FROM node:18-alpine as base
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Install necessary packages
+RUN apk add --no-cache g++ make py3-pip libc6-compat
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and yarn.lock to the container
+COPY package*.json yarn.lock ./
+
+# Expose the application port
+EXPOSE 3000
+
+# Builder stage
+FROM base as builder
+
+# Set the working directory
+WORKDIR /app
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy all necessary files for the build process
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build the Next.js application
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine as production
 
 # Set the working directory
 WORKDIR /app
@@ -10,21 +40,25 @@ WORKDIR /app
 # Set NODE_ENV to production
 ENV NODE_ENV=production
 
-# Create a non-root user
-RUN addgroup --gid 1001 nodejs && \
-    adduser --uid 1001 --gid 1001 --disabled-password nextjs
-
-# Copy files from the builder stage
+# Copy only necessary files from the builder stage
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-# Set permissions
-RUN chown -R nextjs:nodejs /app
+# Create the .next/cache/images directory and set correct permissions
+RUN mkdir -p /app/.next/cache/images && \
+    chown -R 1001:1001 /app/.next
 
-# Switch to the non-root user
+# Create a non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 -G nodejs
+
+# Ensure the node_modules directory is accessible
+# RUN chown -R nextjs:nodejs /app/node_modules
+
+# Change to the non-root user
 USER nextjs
 
-# Start the Next.js application and the cron jobs
-CMD ["sh", "-c", "node ./lib/web/jobs/scheduleJobs.mjs & npm start"]
+# Start the Next.js application
+CMD ["npm", "start"]
