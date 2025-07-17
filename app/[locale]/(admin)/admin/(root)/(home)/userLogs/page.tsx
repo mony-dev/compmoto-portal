@@ -32,12 +32,13 @@ export default function userLogs() {
 
   interface DataLogType {
     key: number;
-    user: any;
+    user: {
+      email: string;
+      name: string;
+    };
     id: number;
     ipAddress: string;
     createdAt: DateTime;
-    userName: string;
-    userEmail: string;
   }
 
   const columns: ColumnsType<DataLogType> = [
@@ -59,14 +60,15 @@ export default function userLogs() {
       title: t("User Email"),
       dataIndex: "userEmail",
       key: "userEmail",
-      sorter: (a, b) => a.userEmail.length - b.userEmail.length, 
+      sorter: (a, b) => a.user?.email.localeCompare(b.user?.email), 
+      render: (_, record) => <p>{record.user.email}</p>,
     },
     {
       title: t("User name"),
       dataIndex: "userName",
       key: "userName",
-      sorter: (a, b) => a.userName.length - b.userName.length,
-    },
+      sorter: (a, b) => a.user?.name.localeCompare(b.user?.name), 
+      render: (_, record) => <p>{record.user.name}</p>,    },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
@@ -127,7 +129,6 @@ export default function userLogs() {
           key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
         })
       );
-
       setUserLogData(userDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
