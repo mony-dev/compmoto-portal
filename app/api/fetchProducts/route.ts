@@ -1,29 +1,23 @@
+import { NextResponse } from 'next/server';
+import path from 'path';
 import { exec } from 'child_process';
-import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
-const prisma = new PrismaClient();
-import path from 'path'
-import { promisify } from 'util'
+import { promisify } from 'util';
 
-const execPromise = promisify(exec)
+const execPromise = promisify(exec);
+
+async function runNode(scriptPath: string) {
+  const cmd = `"${process.execPath}" "${scriptPath}"`;
+  return execPromise(cmd, { maxBuffer: 10 * 1024 * 1024, timeout: 120000 });
+}
+
 export async function GET(request: Request) {
   try {
-    const fetchProduct = path.resolve(process.cwd(), 'lib/web/utils/fetchProducts.mjs')
-
-    const { stdout: hOut } = await execPromise(`node ${fetchProduct}`)
-    console.log("fetchProducts.mjs output:", hOut)
-
-
-    // exec('node lib/web/utils/fetchProducts.mjs', (error, stdout, stderr) => {
-    //     if (error) {
-    //       console.error(`exec error: ${error}`);
-    //       return NextResponse.json(error);
-    //     }
-    //   });
-    return NextResponse.json("200");
+    const fetchProduct = path.resolve(process.cwd(), 'lib/web/utils/fetchProducts.mjs');
+    const { stdout: hOut, stderr: hErr } = await runNode(fetchProduct);
+    console.log('fetchProducts.mjs output:', hOut);
+    if (hErr) console.error('fetchProducts.mjs error:', hErr);
+    return NextResponse.json({ message: 'fetchProduct executed successfully' });
   } catch (error) {
     return NextResponse.json(error);
-  } finally {
-    await prisma.$disconnect();
-  }
+  } 
 }

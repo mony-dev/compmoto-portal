@@ -1,16 +1,22 @@
-import { NextResponse } from "next/server";
-import { exec } from "child_process";
+import { NextResponse } from 'next/server';
+import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
+
+async function runNode(scriptPath: string) {
+  const cmd = `"${process.execPath}" "${scriptPath}"`;
+  return execPromise(cmd, { maxBuffer: 10 * 1024 * 1024, timeout: 120000 });
+}
+
 export async function POST() {
   try {
-
-    exec('node lib/web/utils/fetchCreditMemo.mjs', (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return NextResponse.json(error);
-      }
-    });
-    
-    return NextResponse.json({ message: "Processing completed" });
+    const fetchCreditMemo = path.resolve(process.cwd(), 'lib/web/utils/fetchCreditMemo.mjs');
+    const { stdout: hOut, stderr: hErr } = await runNode(fetchCreditMemo);
+    console.log('fetchCreditMemo.mjs output:', hOut);
+    if (hErr) console.error('fetchCreditMemo.mjs error:', hErr);
+    return NextResponse.json({ message: 'fetchCreditMemo executed successfully' });
   } catch (error) {
     console.error("Error processing invoices:", error);
     return NextResponse.json({ error: "Failed to process invoices" });
