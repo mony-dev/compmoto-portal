@@ -13,6 +13,10 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "1000");
   const isActive = searchParams.get("isActive"); // optional filter (e.g. "true" or "false")
+  const month = searchParams.get("month");
+  const year = searchParams.get("year");
+  const dateParam = searchParams.get("date");
+  const date = dateParam ? dateParam === "true" : false;
 
   try {
     const where: Prisma.TotalPurchaseWhereInput = {
@@ -24,6 +28,10 @@ export async function GET(request: Request) {
       }),
       ...(isActive !== null && isActive !== "all" && {
         isActive: isActive === "true",
+      }),
+      ...(date && month && year && {
+        month: Number(month),
+        year: Number(year),
       }),
     };
 
@@ -37,13 +45,13 @@ export async function GET(request: Request) {
           items: true,
         },
         orderBy: [
-          { year: 'desc' },
-          { month: 'desc' },
+          { year: "desc" },
+          { month: "desc" },
         ],
       }),
       prisma.totalPurchase.count({ where }),
     ]);
-    
+
     // Add monthYear field
     const transformed = totalPurchases.map((purchase) => ({
       ...purchase,
@@ -52,7 +60,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ totalPurchases: transformed, total });
   } catch (error) {
-    return NextResponse.json(error);
+    console.error(error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }

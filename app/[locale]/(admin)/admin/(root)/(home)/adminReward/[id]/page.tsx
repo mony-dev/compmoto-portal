@@ -23,7 +23,7 @@ const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 const ModalReward = dynamic(() => import("@components/Admin/category/ModalReward"));
 
-export default function adminsRewardCategory({
+export default function AdminsRewardCategory({
   params,
 }: {
   params: { id: number };

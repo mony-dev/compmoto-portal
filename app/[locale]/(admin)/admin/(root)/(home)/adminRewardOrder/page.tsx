@@ -10,27 +10,27 @@ import {
 import {
   Badge,
   Input,
+  Spin,
   Tabs,
   TabsProps,
 } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
-const Loading = dynamic(() => import("@components/Loading"));
+import { CloseCircleOutlined } from "@ant-design/icons";
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 const ModalVerify = dynamic(() => import("@components/Admin/RewardUser/ModalVerify"));
 
-export default function adminRewardOrder({
+export default function AdminRewardOrder({
   params,
 }: {
   params: { id: number };
 }) {
   const { t } = useTranslation();
   const {setI18nName, setLoadPage, loadPage} = useCart();
-  const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -45,6 +45,7 @@ export default function adminRewardOrder({
   const [incompleteCount, setIncompleteCount] = useState(0);
   const pathname = usePathname();
   const [activeTabKey, setActiveTabKey] = useState("1");
+  const searchParams = useSearchParams();
 
   interface RewardDataType {
     key: number;
@@ -188,12 +189,12 @@ export default function adminRewardOrder({
   //   fetchData();
   // }, [searchText, triggerReward, currentPage]);
 
-  const fetchData = async (isComplete: boolean) => {
+  const fetchData = async (isComplete: boolean, value: string) => {
     setLoadPage(true);
     try {
       const { data } = await axios.get(`/api/rewardUser`, {
         params: {
-          q: searchText,
+          q: value,
           page: currentPage,
           pageSize: pageSize,
           isComplete, // Pass the isComplete parameter based on the active tab
@@ -221,6 +222,7 @@ export default function adminRewardOrder({
       setLoadPage(false);
     }
   };
+
   function showModal(isShow: boolean, idCate: number) {
     return () => {
       setIsModalVisible(isShow);
@@ -230,16 +232,39 @@ export default function adminRewardOrder({
     };
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+    const tabVal = activeTabKey === "1" ? false : true
+    fetchData(tabVal, value); 
+  };
+  const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
+    setSearchText(""); // Clear the input
+    const tabVal = activeTabKey === "1" ? false : true
+
+    fetchData(tabVal, ""); // Reset the list to show all data
+  };
+
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
     // Fetch data based on the active tab
     if (activeTabKey === "1") {
-      fetchData(false); // Fetch incomplete data
+      fetchData(false, searchText); // Fetch incomplete data
     } else if (activeTabKey === "2") {
-      fetchData(true); // Fetch complete data
+      fetchData(true, searchText); // Fetch complete data
     }
-  }, [activeTabKey, searchText, currentPage, pageSize]);
+  }, [activeTabKey, currentPage, pageSize]);
 
   const onChange = (key: string) => {
     setActiveTabKey(key); // Update active tab state
@@ -254,21 +279,37 @@ export default function adminRewardOrder({
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold pb-4 grow default-font">{t("Reward List")}</p>
           <div className="flex">
-            <Input.Search
+          <Input.Search
               placeholder={t("Search")}
               size="middle"
-              onChange={(e) => setSearchText(e.target.value)}
               style={{ width: "200px", marginBottom: "20px" }}
+              value={searchText}
+              onSearch={handleSearch}
+              onChange={handleInputChange}
+              suffix={
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
+              }
             />
           </div>
         </div>
-        <Tabs
-          activeKey={activeTabKey}
-          items={items}
-          onChange={onChange}
-          className="redeem-tab"
-        />
-        
+        <Spin spinning={loadPage}>
+          <Tabs
+            activeKey={activeTabKey}
+            items={items}
+            onChange={onChange}
+            className="redeem-tab"
+          />
+        </Spin>
         <ModalVerify
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

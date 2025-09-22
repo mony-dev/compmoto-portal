@@ -34,5 +34,7 @@
   "used_point": "Used point",
   "view_and_edit": "view|edit",
   "year": "Year",
-  "month": "Month"
+  "month": "Month",
+  "custNo is already exist": "หมายเลขผู้ใช้งานนี้ซ้ำ กรุณากรอกใหม่อีกครั้ง",
+  "This user is already exist": "ผู้ดูแลระบบคนนี้ซ้ำ กรุณากรอกใหม่อีกครั้ง"
 }

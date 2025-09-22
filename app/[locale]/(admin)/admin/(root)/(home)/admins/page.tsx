@@ -7,27 +7,26 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Flex, Input, Modal, Space, Spin, Tag } from "antd";
+import { Button, Input, Modal, Space, Spin, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import { CloseCircleOutlined } from "@ant-design/icons";
-const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function admins() {
+export default function Admins() {
   const { t } = useTranslation();
   const router = useRouter();
   const [searchText, setSearchText] = useState(() => {
     // Initialize searchText from query parameter 'q' or default to an empty string
     const params = new URLSearchParams(window.location.search);
-    return params.get('q') || '';
+    return params.get("q") || "";
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -35,10 +34,9 @@ export default function admins() {
   const [userData, setUserData] = useState<DataType[]>([]);
   const [triggerUser, setTriggerUser] = useState(false);
   const locale = useCurrentLocale(i18nConfig);
-  const {setI18nName, setLoadPage, loadPage} = useCart();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
 
   interface DataType {
     key: number;
@@ -50,11 +48,11 @@ export default function admins() {
   }
   const deleteAdmin = (id: number) => {
     Modal.confirm({
-      title: t('are_you_sure_you_want_to_delete_this_admin'),
-      content: t('this_action_cannot_be_undone'),
-      okText: t('yes'),
+      title: t("are_you_sure_you_want_to_delete_this_admin"),
+      content: t("this_action_cannot_be_undone"),
+      okText: t("yes"),
       okType: "danger",
-      cancelText: t('cancel'),
+      cancelText: t("cancel"),
       onOk: async () => {
         try {
           const response = await axios.delete(`/api/users/${id}`, {
@@ -74,27 +72,27 @@ export default function admins() {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: t('no'),
+      title: t("no"),
       dataIndex: "key",
       key: "key",
       defaultSortOrder: "descend",
       sorter: (a, b) => b.key - a.key,
     },
     {
-      title: t('name'),
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t('custNo'),
+      title: t("custNo"),
       dataIndex: "custNo",
       key: "custNo",
       sorter: (a, b) => a.custNo.localeCompare(b.custNo),
     },
     {
-      title: t('role'),
+      title: t("role"),
       key: "role",
       dataIndex: "role",
       sorter: (a, b) => a.role.localeCompare(b.role),
@@ -112,13 +110,13 @@ export default function admins() {
       ),
     },
     {
-      title: t('status'),
+      title: t("status"),
       dataIndex: "status",
       key: "status",
       sorter: (a, b) => a.status.localeCompare(b.status),
     },
     {
-      title: t('action'),
+      title: t("action"),
       key: "action",
       render: (_, record) => (
         <div className="flex">
@@ -127,7 +125,7 @@ export default function admins() {
             onClick={() => router.push(`/${locale}/admin/admins/${record.id}`)}
           >
             <PencilSquareIcon className="w-4 mr-0.5" />
-            <span>{t('edit')}</span>
+            <span>{t("edit")}</span>
           </p>
           |
           <p
@@ -135,49 +133,35 @@ export default function admins() {
             onClick={() => deleteAdmin(record.id)}
           >
             <TrashIcon className="w-4 mr-0.5" />
-            <span>{t('delete')}</span>
+            <span>{t("delete")}</span>
           </p>
         </div>
       ),
     },
   ];
 
-    // Debounce function for search input
-    const debouncedFetchData = useCallback(
-      debounce(() => {
-        fetchData(searchText);
-        // fetchBrands();
-      }, 500), // 500 ms debounce delay
-      [currentPage, pageSize]
-    );
-    
-    useEffect(() => {
-      const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
-      setI18nName(lastPart);
-  
-      // Call the debounced fetch function
-      debouncedFetchData();
-  
-      // Cleanup debounce on unmount
-      return () => {
-        debouncedFetchData.cancel();
-      };
-    }, [currentPage, debouncedFetchData]);
-  
-    useEffect(() => {
-      // Update the URL with the search query
-      const queryParams = new URLSearchParams(searchParams.toString());
-      if (searchText) {
-        queryParams.set('q', searchText);
-      } else {
-        queryParams.delete('q');
-      }
-      const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-      // @ts-ignore: TypeScript error explanation or ticket reference
-      router.push(newUrl, undefined, { shallow: true });
-  
-    }, [searchText]);
-    
+  // Debounce function for search input
+  const debouncedFetchData = useCallback(
+    debounce(() => {
+      fetchData(searchText);
+      // fetchBrands();
+    }, 500), // 500 ms debounce delay
+    [currentPage, pageSize]
+  );
+
+  useEffect(() => {
+    const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
+    setI18nName(lastPart);
+
+    // Call the debounced fetch function
+    debouncedFetchData();
+
+    // Cleanup debounce on unmount
+    return () => {
+      debouncedFetchData.cancel();
+    };
+  }, [currentPage, debouncedFetchData]);
+
   async function fetchData(query: string = "") {
     setLoadPage(true);
     try {
@@ -212,9 +196,18 @@ export default function admins() {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value); 
   };
+
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
@@ -225,13 +218,6 @@ export default function admins() {
     }
   };
 
-  
-  if (loadPage || !t) {
-    return (
-      <Loading/>
-    );
-  }
-
   return (
     <div className="px-4">
       <div
@@ -239,22 +225,29 @@ export default function admins() {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow default-font">{t('staff_setting')}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">
+            {t("staff_setting")}
+          </p>
           <div className="flex">
-          <Input.Search
-              placeholder={t('search')}
+            <Input.Search
+              placeholder={t("search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
               }
             />
             <Button
@@ -263,20 +256,21 @@ export default function admins() {
               icon={<PlusIcon className="w-4" />}
               onClick={() => router.push(`/${locale}/admin/admins/new`)}
             >
-              {t('add')}
+              {t("add")}
             </Button>
           </div>
         </div>
 
-
-        <DataTable
-          columns={columns}
-          data={userData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <Spin spinning={loadPage}>
+          <DataTable
+            columns={columns}
+            data={userData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </Spin>
       </div>
     </div>
   );

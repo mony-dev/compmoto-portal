@@ -42,6 +42,9 @@
   "yes": "Yes",
   "custNo": "User No.",
   "please_enter_a_sale_admin": "Please enter a Sale admin",
-  "please_enter_a_custNo": "Please enter a Sale User No."
+  "please_enter_a_custNo": "Please enter a Sale User No.",
+  "User created successfully": "User created successfully",
+  "custNo is already exist": "custNo is already exist",
+  "This user is already exist": "This user is already exist"
 
 }

@@ -12,8 +12,10 @@ export async function GET(
   const id = Number(params.id);
   const month = searchParams.get("month");
   const year = searchParams.get("year");
+  const dateParam = searchParams.get("date");
+  const date = dateParam ? dateParam === "true" : false;
 
-  if (!month || !year) {
+  if (date && (!month || !year)) {
     return NextResponse.json({ error: "Missing 'month' or 'year'" }, { status: 400 });
   }
 
@@ -44,6 +46,7 @@ export async function GET(
         reward: true,
       },
     });
+
     const usedPoint = usedPointAgg.reduce((sum, r) => {
       return sum + (r.reward.point * r.quantity);
     }, 0);
@@ -111,11 +114,21 @@ export async function PUT(
         minisizes: true, // Include minisizes in the response if needed
       },
     });
-
-    return NextResponse.json(updatedUser);
-  } catch (error) {
-    console.error("Error updating user:", error);
-    return NextResponse.json(error);
+    return NextResponse.json(updatedUser, { status: 201 });
+  } catch (err: any) {
+    if (err?.code === "P2002") {
+      if (Array.isArray(err?.meta?.target) && err.meta.target.includes("custNo")) {
+        return NextResponse.json(
+          { message: "custNo is already exist" },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json(
+        { message: "This user is already exist" },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json(err);
   } finally {
     await prisma.$disconnect();
   }

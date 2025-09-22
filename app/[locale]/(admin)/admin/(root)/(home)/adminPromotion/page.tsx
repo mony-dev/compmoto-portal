@@ -8,7 +8,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { formatDate, toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Form, Input, Modal, Switch } from "antd";
+import { Button, Form, Input, Modal, Spin, Switch } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -18,14 +18,12 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
-
-const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 const ModalPromotion = dynamic(
   () => import("@components/Admin/promotion/ModalPromotion")
 );
 
-export default function adminPromotion({ params }: { params: { id: number } }) {
+export default function AdminPromotion({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
 
   const router = useRouter();
@@ -68,7 +66,7 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
       content: t("This action cannot be undone"),
       okText: t("yes"),
       okType: "danger",
-      cancelText: t("cencel"),
+      cancelText: t("cancel"),
       onOk: async () => {
         try {
           const response = await axios.delete(`/api/promotion/${id}`, {
@@ -180,20 +178,6 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
     };
   }, [currentPage, debouncedFetchData, triggerPromotion]);
 
-  useEffect(() => {
-    // Update the URL with the search query
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set('q', searchText);
-    } else {
-      queryParams.delete('q');
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-
-  }, [searchText]);
-
   async function fetchData(query: string = "") {
     setLoadPage(true);
     try {
@@ -222,7 +206,6 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
     }
   }
 
-
   function showModal(isShow: boolean, idPromotion: number) {
     return () => {
       setIsModalVisible(isShow);
@@ -243,9 +226,17 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value); 
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
@@ -256,9 +247,7 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
       setPageSize(pageSize);
     }
   };
-  if (loadPage || !t) {
-    return <Loading />;
-  }
+
   return (
     <div className="px-4">
       <div
@@ -280,12 +269,17 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
               }
             />
             <Button
@@ -298,14 +292,16 @@ export default function adminPromotion({ params }: { params: { id: number } }) {
             </Button>
           </div>
         </div>
-        <DataTable
-          columns={columns}
-          data={promotionData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <Spin spinning={loadPage}>
+          <DataTable
+            columns={columns}
+            data={promotionData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </Spin>
         <ModalPromotion
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

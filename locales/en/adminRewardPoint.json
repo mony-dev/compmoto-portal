@@ -32,6 +32,8 @@
     "This customer group is no total purchase Please select a different customer group or create total purchase for this customer group": "This customer group is no total purchase, Please select a different customer group or create total purchase for this customer group.",
     "This customer group is no special bonus Please select a different customer group or create special bonus for this customer group": "This customer group is no special bonus, Please select a different customer group or create special bonus for this customer group.",
     "This customer group is no total purchase and special bonus Please select a different customer group or create total purchase and special bonus for this customer group": "This customer group is no total purchase and special bonus, Please select a different customer group or create total purchase and special bonus for this customer group.",
-    "history": "history"
-
+    "history": "history",
+    "search": "Search",
+    "add": "Add",
+    "edit": "Edit"
 }

@@ -42,6 +42,9 @@
   "yes": "ใช่",
   "custNo": "หมายเลขผู้ใช้งาน",
   "please_enter_a_sale_admin": "กรุณากรอกผู้ดูแลฝ่ายขาย",
-  "please_enter_a_custNo": "กรุณากรอกหมายเลขผู้ใช้งาน"
+  "please_enter_a_custNo": "กรุณากรอกหมายเลขผู้ใช้งาน",
+  "User created successfully": "สร้างผู้ใช้งานระบบเรียบร้อยแล้ว",
+  "custNo is already exist": "หมายเลขผู้ใช้งานนี้ซ้ำ กรุณากรอกใหม่อีกครั้ง",
+  "This user is already exist": "ผู้ดูแลระบบคนนี้ซ้ำ กรุณากรอกใหม่อีกครั้ง"
 
 }

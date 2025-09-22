@@ -1132,12 +1132,17 @@ const Product = () => {
             onSearch={handleSearch}
             onChange={handleInputChange}
             suffix={
-              searchText ? (
-                <CloseCircleOutlined
-                  onClick={handleClear}
-                  style={{ cursor: "pointer" }}
-                />
-              ) : null
+              <CloseCircleOutlined
+                onMouseDown={(e) => e.preventDefault()} 
+                onClick={handleClear}
+                style={{
+                  cursor: searchText ? "pointer" : "default",
+                  opacity: searchText ? 1 : 0,        
+                  pointerEvents: searchText ? "auto" : "none", 
+                  transition: "opacity 120ms ease",
+                }}
+                tabIndex={-1} 
+              />
             }
           />
           <p className="text-comp-text-filter default-font text-sm">

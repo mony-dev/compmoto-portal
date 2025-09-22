@@ -73,6 +73,7 @@ export async function PUT(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "15");
   const id = params.id; 
+  const q = searchParams.get('q') || '';
   
   try {
     const rewardPoint = await prisma.rewardPoint.findUnique({
@@ -84,7 +85,15 @@ export async function PUT(request: Request) {
       const allUsers = await prisma.user.findMany({
         where: {
           role: "USER",
-          customerGroupId: rewardPoint.customerGroupId
+          customerGroupId: rewardPoint.customerGroupId,
+          ...(q
+            ? {
+                OR: [
+                  { name: { contains: q, mode: "insensitive" } },
+                  { custNo: { contains: q, mode: "insensitive" } },
+                ],
+              }
+            : {}),
         },
       });
 

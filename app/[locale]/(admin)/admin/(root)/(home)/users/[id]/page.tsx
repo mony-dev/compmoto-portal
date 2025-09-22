@@ -10,6 +10,7 @@ import {
   SelectProps,
   Tag,
   Divider,
+  Spin,
 } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
@@ -61,8 +62,12 @@ export default function Admin({ params }: { params: { id: number } }) {
   const [formPoint] = Form.useForm();
   const currentDate = new Date();
 
-  const [selectedMonth, setSelectedMonth] = useState<string>((currentDate.getMonth() + 1).toString()); // Default to "All" (empty string)
-  const [selectedYear, setSelectedYear] = useState<string>(currentDate.getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    (currentDate.getMonth() + 1).toString()
+  ); // Default to "All" (empty string)
+  const [selectedYear, setSelectedYear] = useState<string>(
+    currentDate.getFullYear().toString()
+  );
   const [monthOptions, setMonthOptions] = useState<Option[]>([]);
   const [thisMonth, setThisMonth] = useState<string>(
     (currentDate.getMonth() + 1).toString()
@@ -160,7 +165,9 @@ export default function Admin({ params }: { params: { id: number } }) {
     try {
       const [userResponse, saleUsersResponse, minisizesResponse] =
         await Promise.all([
-          axios.get(`/api/users/${params.id}?month=${selectedMonth}&year=${selectedYear}`),
+          axios.get(
+            `/api/users/${params.id}?date=true&month=${selectedMonth}&year=${selectedYear}`
+          ),
           axios.get(`/api/users`, {
             params: {
               role: "SALE",
@@ -201,9 +208,6 @@ export default function Admin({ params }: { params: { id: number } }) {
     }
   }
 
-  if (loading || !t) {
-    return <Loading />;
-  }
   const onFinish: SubmitHandler<UserSchema> = async (values) => {
     try {
       const response = await axios.put(`/api/users/${params.id}`, values, {
@@ -215,7 +219,7 @@ export default function Admin({ params }: { params: { id: number } }) {
 
       toastSuccess("user_updated_successfully");
     } catch (error: any) {
-      toastError(error.response.data.message);
+      toastError(t(error.response.data.message));
     }
   };
 
@@ -245,7 +249,9 @@ export default function Admin({ params }: { params: { id: number } }) {
 
   const onSearchPoint = async (month: string, year: string) => {
     try {
-      const response = await axios.get(`/api/users/${params.id}?month=${month}&year=${year}`);
+      const response = await axios.get(
+        `/api/users/${params.id}?date=true&month=${month}&year=${year}`
+      );
       const usedPoint = response.data.usedPoint || 0;
       formPoint.setFieldsValue({ usedPoint });
       setSearchValue("usedPoint", usedPoint);
@@ -290,134 +296,136 @@ export default function Admin({ params }: { params: { id: number } }) {
             <ChevronRightIcon className="w-4 mx-4" />{" "}
             <p className="font-semibold">{t("edit_user")}</p>
           </div>
-          <div className="flex justify-between items-center mt-4">
-            <div className="flex gap-2">
-              <p className="login100-form-title font-bold text-black mb-0">
-                {t("current_point")}
-              </p>
-              <p className="text-black font-bold">{userData?.rewardPoint}</p>
-            </div>
-            <div className="flex justify-between flex-col gap-2">
-              <Form
-                form={formPoint}
-                layout="horizontal"
-                labelWrap
-                onFinish={() => onSearchPoint}
-              >
-                <div className="flex justify-between flex-col gap-2">
-                  <div className="grid grid-cols-2 gap-2 grid-row-2">
-                    <Form.Item name="year" label={t("year")}>
-                      <DatePickers
-                        placeholder={t("year")}
-                        name="year"
-                        control={controlSearch}
-                        size="middle"
-                        picker="year"
-                        onChange={handleYearChange}
-                      />
-                    </Form.Item>
-                    <Form.Item name="month" label={t("month")}>
-                      <Controller
-                        control={controlSearch} // control from useForm()
-                        name="month"
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            showSearch
-                            placeholder={t("Search a month")}
-                            value={selectedMonth} // Default to current month
-                            onChange={handleMonthChange} // Handle month change
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={monthOptions}
-                          />
-                        )}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      name="usedPoint"
-                      label={t("used_point")}
-                      className="col-span-1"
-                    >
-                      <Controller
-                        control={controlSearch}
+          <Spin spinning={loading || !t}>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex gap-2">
+                <p className="login100-form-title font-bold text-black mb-0">
+                  {t("current_point")}
+                </p>
+                <p className="text-black font-bold">{userData?.rewardPoint}</p>
+              </div>
+
+              <div className="flex justify-between flex-col gap-2">
+                <Form
+                  form={formPoint}
+                  layout="horizontal"
+                  labelWrap
+                  onFinish={() => onSearchPoint}
+                >
+                  <div className="flex justify-between flex-col gap-2">
+                    <div className="grid grid-cols-2 gap-2 grid-row-2">
+                      <Form.Item name="year" label={t("year")}>
+                        <DatePickers
+                          placeholder={t("year")}
+                          name="year"
+                          control={controlSearch}
+                          size="middle"
+                          picker="year"
+                          onChange={handleYearChange}
+                        />
+                      </Form.Item>
+                      <Form.Item name="month" label={t("month")}>
+                        <Controller
+                          control={controlSearch} // control from useForm()
+                          name="month"
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              showSearch
+                              placeholder={t("Search a month")}
+                              value={selectedMonth} // Default to current month
+                              onChange={handleMonthChange} // Handle month change
+                              filterOption={(input, option) =>
+                                (option?.label ?? "")
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
+                              options={monthOptions}
+                            />
+                          )}
+                        />
+                      </Form.Item>
+                      <Form.Item
                         name="usedPoint"
-                        render={({ field }) => (
-                          <Input {...field} disabled size="large" />
-                        )}
-                      />
-                    </Form.Item>
+                        label={t("used_point")}
+                        className="col-span-1"
+                      >
+                        <Controller
+                          control={controlSearch}
+                          name="usedPoint"
+                          render={({ field }) => (
+                            <Input {...field} disabled size="large" />
+                          )}
+                        />
+                      </Form.Item>
+                    </div>
                   </div>
-                </div>
-              </Form>
+                </Form>
+              </div>
             </div>
-          </div>
 
-          <Divider style={{ borderColor: "#c3c3c3" }} />
-          <div className="flex justify-between">
-            <Form
-              form={form}
-              name="user_form"
-              onFinish={handleSubmit(onFinish)}
-              layout="vertical"
-              className="grow pr-12"
-            >
-              <span className="login100-form-title font-bold text-black">
-                {t("edit_user")}
-              </span>
-              <Form.Item
-                name="email"
-                label={t("email")}
-                className="pt-4"
-                required
-                tooltip={t("this_is_a_required_field")}
-                help={errors.email && t("please_enter_a_valid_email")}
-                validateStatus={errors.email ? "error" : ""}
+            <Divider style={{ borderColor: "#c3c3c3" }} />
+            <div className="flex justify-between">
+              <Form
+                form={form}
+                name="user_form"
+                onFinish={handleSubmit(onFinish)}
+                layout="vertical"
+                className="grow pr-12"
               >
-                <Controller
-                  control={control}
+                <span className="login100-form-title font-bold text-black">
+                  {t("edit_user")}
+                </span>
+                <Form.Item
                   name="email"
-                  render={({ field }) => (
-                    <Input {...field} placeholder={t("email")} size="large" />
-                  )}
-                />
-              </Form.Item>
+                  label={t("email")}
+                  className="pt-4"
+                  required
+                  tooltip={t("this_is_a_required_field")}
+                  help={errors.email && t("please_enter_a_valid_email")}
+                  validateStatus={errors.email ? "error" : ""}
+                >
+                  <Controller
+                    control={control}
+                    name="email"
+                    render={({ field }) => (
+                      <Input {...field} placeholder={t("email")} size="large" />
+                    )}
+                  />
+                </Form.Item>
 
-              <Form.Item
-                name="name"
-                label={t("name")}
-                required
-                tooltip={t("this_is_a_required_field")}
-                help={errors.name && t("please_enter_a_name")}
-                validateStatus={errors.name ? "error" : ""}
-              >
-                <Controller
-                  control={control}
+                <Form.Item
                   name="name"
-                  render={({ field }) => (
-                    <Input {...field} placeholder="Name" size="large" />
-                  )}
-                />
-              </Form.Item>
+                  label={t("name")}
+                  required
+                  tooltip={t("this_is_a_required_field")}
+                  help={errors.name && t("please_enter_a_name")}
+                  validateStatus={errors.name ? "error" : ""}
+                >
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                      <Input {...field} placeholder="Name" size="large" />
+                    )}
+                  />
+                </Form.Item>
 
-              <Form.Item name="phoneNumber" label={t("phone_number")}>
-                <Controller
-                  control={control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={field.value || ""}
-                      placeholder={t("phone_number")}
-                      size="large"
-                    />
-                  )}
-                />
-              </Form.Item>
-              {/* <Form.Item name="rewardPoint" label={t("point")}>
+                <Form.Item name="phoneNumber" label={t("phone_number")}>
+                  <Controller
+                    control={control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder={t("phone_number")}
+                        size="large"
+                      />
+                    )}
+                  />
+                </Form.Item>
+                {/* <Form.Item name="rewardPoint" label={t("point")}>
                 <Controller
                   control={control}
                   name="rewardPoint"
@@ -433,136 +441,140 @@ export default function Admin({ params }: { params: { id: number } }) {
                   )}
                 />
               </Form.Item> */}
-              <Form.Item name="saleUserId" label={t("sale_admin")}>
-                <Controller
-                  control={control}
-                  name="saleUserId"
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      placeholder={t("select_a_sale_admin")}
-                      size="large"
-                    >
-                      {saleUsers.map((user) => (
-                        <Option key={user.id} value={user.id}>
-                          {user.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}
-                />
-              </Form.Item>
-              <Form.Item name="minisizeIds" label={t("select_minisizes")}>
-                <Controller
-                  control={control}
-                  name="minisizeIds"
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      mode="multiple"
-                      placeholder={t("select_minisizes")}
-                      size="large"
-                      optionLabelProp="label"
-                      tagRender={tagRender}
-                    >
-                      {minisizes.map((minisize: minisiseData) => (
-                        <Option
-                          key={minisize.id}
-                          value={minisize.id}
-                          label={minisize.name}
-                        >
-                          <span>{minisize.name}</span> {/* Add random color */}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}
-                />
-              </Form.Item>
-              <Form.Item className="flex justify-end">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="bg-comp-red button-backend"
-                >
-                  {t("submit")}
-                </Button>
-              </Form.Item>
-            </Form>
-            <Form
-              form={formPassword}
-              name="password_form"
-              onFinish={handleSubmitPassword(onFinishPassword)}
-              layout="vertical"
-              className="grow pr-12"
-            >
-              <span className="login100-form-title font-bold text-black">
-                {t("change_password")}
-              </span>
-              <div className="wrap-input100 pt-4">
-                <Form.Item<FieldType>
-                  label={t("password")}
-                  name="newPassword"
-                  help={
-                    errorsPassword.newPassword &&
-                    t("password_must_be_at_least_6_characters_long")
-                  }
-                  validateStatus={errorsPassword.newPassword ? "error" : ""}
-                >
+                <Form.Item name="saleUserId" label={t("sale_admin")}>
                   <Controller
-                    control={controlPassword}
+                    control={control}
+                    name="saleUserId"
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        placeholder={t("select_a_sale_admin")}
+                        size="large"
+                      >
+                        {saleUsers.map((user) => (
+                          <Option key={user.id} value={user.id}>
+                            {user.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                </Form.Item>
+                <Form.Item name="minisizeIds" label={t("select_minisizes")}>
+                  <Controller
+                    control={control}
+                    name="minisizeIds"
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        mode="multiple"
+                        placeholder={t("select_minisizes")}
+                        size="large"
+                        optionLabelProp="label"
+                        tagRender={tagRender}
+                      >
+                        {minisizes.map((minisize: minisiseData) => (
+                          <Option
+                            key={minisize.id}
+                            value={minisize.id}
+                            label={minisize.name}
+                          >
+                            <span>{minisize.name}</span>{" "}
+                            {/* Add random color */}
+                          </Option>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                </Form.Item>
+                <Form.Item className="flex justify-end">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="bg-comp-red button-backend"
+                  >
+                    {t("submit")}
+                  </Button>
+                </Form.Item>
+              </Form>
+              <Form
+                form={formPassword}
+                name="password_form"
+                onFinish={handleSubmitPassword(onFinishPassword)}
+                layout="vertical"
+                className="grow pr-12"
+              >
+                <span className="login100-form-title font-bold text-black">
+                  {t("change_password")}
+                </span>
+                <div className="wrap-input100 pt-4">
+                  <Form.Item<FieldType>
+                    label={t("password")}
                     name="newPassword"
-                    render={({ field }) => (
-                      <Input.Password
-                        {...field}
-                        prefix={
-                          <LockOutlined className="site-form-item-icon" />
-                        }
-                        type="password"
-                        placeholder={t("new_password")}
-                        size="large"
-                      />
-                    )}
-                  />
-                </Form.Item>
-              </div>
-              <div className="wrap-input100">
-                <Form.Item<FieldType>
-                  label={t("confirm_password")}
-                  name="confirmPassword"
-                  help={
-                    errorsPassword.confirmPassword &&
-                    t("passwords_do_not_match")
-                  }
-                  validateStatus={errorsPassword.confirmPassword ? "error" : ""}
-                >
-                  <Controller
-                    control={controlPassword}
+                    help={
+                      errorsPassword.newPassword &&
+                      t("password_must_be_at_least_6_characters_long")
+                    }
+                    validateStatus={errorsPassword.newPassword ? "error" : ""}
+                  >
+                    <Controller
+                      control={controlPassword}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <Input.Password
+                          {...field}
+                          prefix={
+                            <LockOutlined className="site-form-item-icon" />
+                          }
+                          type="password"
+                          placeholder={t("new_password")}
+                          size="large"
+                        />
+                      )}
+                    />
+                  </Form.Item>
+                </div>
+                <div className="wrap-input100">
+                  <Form.Item<FieldType>
+                    label={t("confirm_password")}
                     name="confirmPassword"
-                    render={({ field }) => (
-                      <Input.Password
-                        {...field}
-                        prefix={
-                          <LockOutlined className="site-form-item-icon" />
-                        }
-                        type="password"
-                        placeholder={t("confirm_password")}
-                        size="large"
-                      />
-                    )}
-                  />
+                    help={
+                      errorsPassword.confirmPassword &&
+                      t("passwords_do_not_match")
+                    }
+                    validateStatus={
+                      errorsPassword.confirmPassword ? "error" : ""
+                    }
+                  >
+                    <Controller
+                      control={controlPassword}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <Input.Password
+                          {...field}
+                          prefix={
+                            <LockOutlined className="site-form-item-icon" />
+                          }
+                          type="password"
+                          placeholder={t("confirm_password")}
+                          size="large"
+                        />
+                      )}
+                    />
+                  </Form.Item>
+                </div>
+                <Form.Item className="flex justify-end">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="bg-comp-red button-backend"
+                  >
+                    {t("submit")}
+                  </Button>
                 </Form.Item>
-              </div>
-              <Form.Item className="flex justify-end">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="bg-comp-red button-backend"
-                >
-                  {t("submit")}
-                </Button>
-              </Form.Item>
-            </Form>
-          </div>
+              </Form>
+            </div>
+          </Spin>
         </div>
       </div>
     </>

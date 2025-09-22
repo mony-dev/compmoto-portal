@@ -27,5 +27,7 @@
     "duration": "Duration",
     "View": "View",
     "enter_news_content": "Enter news content here ...",
-    "content": "Content"
+    "content": "Content",
+    "submit": "Submit",
+    "search": "Search"
 }

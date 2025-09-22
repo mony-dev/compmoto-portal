@@ -8,6 +8,7 @@ import {
 import {
   Badge,
   Input,
+  Spin,
   Tabs,
   TabsProps,
 } from "antd";
@@ -22,9 +23,9 @@ import { useSession } from "next-auth/react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
-const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
-export default function adminBackOrder({ params }: { params: { id: number } }) {
+
+export default function AdminBackOrder({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const { setI18nName, setLoadPage, loadPage } = useCart();
@@ -154,19 +155,6 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
     };
   }, [currentPage, debouncedFetchData]);
   
-  useEffect(() => {
-    // Update the URL with the search query
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set("q", searchText);
-    } else {
-      queryParams.delete("q");
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-  }, [searchText]);
-
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -261,16 +249,21 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value); 
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
 
-  if (loadPage || !t) {
-    return <Loading />;
-  }
   return (
     <div className="px-4">
       <div
@@ -281,29 +274,36 @@ export default function adminBackOrder({ params }: { params: { id: number } }) {
           <p className="text-lg font-semibold pb-4 grow default-font">{t('Back orders')}</p>
           <div className="flex">
           <Input.Search
-              placeholder={t("search")}
+              placeholder={t("Search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
               }
             />
           </div>
         </div>
-        <Tabs
-          defaultActiveKey="1"
-          items={items}
-          onChange={onChange}
-          className="redeem-tab"
-        />
+        <Spin spinning={loadPage}>
+          <Tabs
+            defaultActiveKey="1"
+            items={items}
+            onChange={onChange}
+            className="redeem-tab"
+          />
+        </Spin>
       </div>
     </div>
   );

@@ -9,8 +9,10 @@ import {
 import { toastError } from "@lib-utils/helper";
 import {
   Button,
+  Form,
   Input,
   Select,
+  Spin,
   Tag,
 } from "antd";
 import { ColumnsType } from "antd/es/table";
@@ -24,10 +26,22 @@ import { useCart } from "@components/Admin/Cartcontext";
 import debounce from "lodash.debounce";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import ModalRewardPoint from "@components/Admin/rewardPoint/ModalRewardPoint";
-const Loading = dynamic(() => import("@components/Loading"));
+import DatePickers from "@components/Admin/DatePickers";
+import { SelectValue } from "antd/es/select";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  searchDateSchema,
+  SearchDateSchema,
+} from "@lib-schemas/user/search-date-schema";
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function adminRewardPoint() {
+interface Option {
+  label: string;
+  value: string;
+}
+
+export default function AdminRewardPoint() {
   const { Option } = Select;
 
   const { t } = useTranslation();
@@ -53,6 +67,24 @@ export default function adminRewardPoint() {
   const [id, setId] = useState(0);
   const [title, setTitle] = useState(t("Add Reward Point"));
 
+  const [formSearchDate] = Form.useForm();
+
+  const currentDate = new Date();
+
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    (currentDate.getMonth() + 1).toString()
+  );
+  const [selectedYear, setSelectedYear] = useState<string>(
+    currentDate.getFullYear().toString()
+  );
+  const [monthOptions, setMonthOptions] = useState<Option[]>([]);
+  const [thisMonth, setThisMonth] = useState<string>(
+    (currentDate.getMonth() + 1).toString()
+  );
+  const [thisYear, setThisYear] = useState<string>(
+    currentDate.getFullYear().toString()
+  );
+  
   interface DataType {
     key: number;
     id: number;
@@ -168,10 +200,46 @@ export default function adminRewardPoint() {
     },
   ];
 
+  const { control: controlSearch, setValue: setSearchValue } =
+  useForm<SearchDateSchema>({
+    resolver: zodResolver(searchDateSchema),
+  });
+
+const fetchMonth = async () => {
+  const months = [
+    { en: "January", th: "มกราคม", key: "1" },
+    { en: "February", th: "กุมภาพันธ์", key: "2" },
+    { en: "March", th: "มีนาคม", key: "3" },
+    { en: "April", th: "เมษายน", key: "4" },
+    { en: "May", th: "พฤษภาคม", key: "5" },
+    { en: "June", th: "มิถุนายน", key: "6" },
+    { en: "July", th: "กรกฎาคม", key: "7" },
+    { en: "August", th: "สิงหาคม", key: "8" },
+    { en: "September", th: "กันยายน", key: "9" },
+    { en: "October", th: "ตุลาคม", key: "10" },
+    { en: "November", th: "พฤศจิกายน", key: "11" },
+    { en: "December", th: "ธันวาคม", key: "12" },
+  ];
+  let month = [];
+  if (locale === "en") {
+    month = months.map((option) => ({
+      label: option.en,
+      value: option.key,
+    }));
+  } else {
+    month = months.map((option) => ({
+      label: option.th,
+      value: option.key,
+    }));
+  }
+  setMonthOptions(month);
+};
+
   // Debounce function for search input
   const debouncedFetchData = useCallback(
-    debounce((query: string, status: "all" | "true" | "false") => {
-      fetchData(query, status);
+    debounce((query: string, status: "all" | "true" | "false", month: string, year: string) => {
+      fetchData(query, status, month, year);
+      fetchMonth();
     }, 500), // 500 ms debounce delay
     [currentPage, pageSize]
   );
@@ -181,7 +249,7 @@ export default function adminRewardPoint() {
     setI18nName(lastPart);
 
     // Call the debounced fetch function
-    debouncedFetchData(searchText, filterStatus);
+    debouncedFetchData(searchText, filterStatus, selectedMonth, selectedYear);
 
     // Cleanup debounce on unmount
     return () => {
@@ -189,20 +257,12 @@ export default function adminRewardPoint() {
     };
   }, [currentPage, debouncedFetchData, filterStatus, triggerRewardPoint]);
 
-  useEffect(() => {
-    // Update the URL with the search query
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set("q", searchText);
-    } else {
-      queryParams.delete("q");
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-  }, [searchText]);
-
-  async function fetchData(query: string = "", status: "all" | "true" | "false" = filterStatus) {
+  async function fetchData(
+    query: string = "", 
+    status: "all" | "true" | "false" = filterStatus,
+    month: string = thisMonth,
+    year: string = thisYear
+  ) {
     setLoadPage(true);
     try {
       const params: any = {
@@ -215,7 +275,7 @@ export default function adminRewardPoint() {
         params.isFinalize = status === "true";
       }
   
-      const { data } = await axios.get(`/api/getListRewardPoint`, { params });
+      const { data } = await axios.get(`/api/getListRewardPoint?date=true&month=${month}&year=${year}`, { params });
   
 
       const rewardPointDataWithKeys = data.rewardPoints.map(
@@ -224,7 +284,9 @@ export default function adminRewardPoint() {
           key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
         })
       );
-
+      setSelectedMonth(month);
+      setSearchValue("month", month);
+      setSearchValue("year", year);
       setRewardPointData(rewardPointDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
@@ -239,9 +301,16 @@ export default function adminRewardPoint() {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+    debouncedFetchData(value, filterStatus, selectedMonth, selectedYear);
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
@@ -254,7 +323,7 @@ export default function adminRewardPoint() {
 
   const onStatusChange = (value: "all" | "true" | "false") => {
     setFilterStatus(value);
-    debouncedFetchData(searchText, value);
+    debouncedFetchData(searchText, value, selectedMonth, selectedYear);
   };
 
   function showModal(isShow: boolean, idRewardPoint: number) {
@@ -271,9 +340,23 @@ export default function adminRewardPoint() {
     };
   }
 
-  if (loadPage || !t) {
-    return <Loading />;
-  }
+  const handleYearChange = (value: SelectValue) => {
+    setSelectedYear(value?.toString() || "");
+    if (value) {
+      setThisYear(value?.toString());
+      setSearchValue("year", value.toString());
+      fetchData(searchText, filterStatus, selectedMonth, value.toString())
+    }
+  };
+  const handleMonthChange = (value: SelectValue) => {
+    setSelectedMonth(value?.toString() || ""); // Update selected month, allowing for the "All" option (empty string)
+    if (value) {
+      setThisMonth(value?.toString());
+      setSearchValue("month", value.toString());
+      fetchData(searchText, filterStatus, value.toString(), selectedYear)
+
+    }
+  };
 
   return (
     <div className="px-4">
@@ -285,7 +368,7 @@ export default function adminRewardPoint() {
           <p className="text-lg font-semibold pb-4 grow default-font">
             {t("Reward Point List")}
           </p>
-          <div className="flex items-center">
+          <div className="flex gap-2">
             <Select
               value={filterStatus}
               onChange={onStatusChange}
@@ -295,6 +378,47 @@ export default function adminRewardPoint() {
               <Option value="true">{t("active")}</Option>
               <Option value="false">{t("inactive")}</Option>
             </Select>
+            <Form
+              form={formSearchDate}
+              layout="horizontal"
+              labelWrap
+            >
+              <div className="flex justify-between flex-col gap-2">
+                <div className="grid grid-cols-2 gap-2 grid-row-2">
+                  <Form.Item name="year" label={t("year")}>
+                    <DatePickers
+                      placeholder={t("year")}
+                      name="year"
+                      control={controlSearch}
+                      size="middle"
+                      picker="year"
+                      onChange={handleYearChange}
+                    />
+                  </Form.Item>
+                  <Form.Item name="month" label={t("month")}>
+                    <Controller
+                      control={controlSearch} // control from useForm()
+                      name="month"
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          showSearch
+                          placeholder={t("Search a month")}
+                          value={selectedMonth} // Default to current month
+                          onChange={handleMonthChange} // Handle month change
+                          filterOption={(input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          options={monthOptions}
+                        />
+                      )}
+                    />
+                  </Form.Item>
+                </div>
+              </div>
+            </Form>
             <Input.Search
               placeholder={t("search")}
               size="middle"
@@ -303,12 +427,17 @@ export default function adminRewardPoint() {
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,
+                    pointerEvents: searchText ? "auto" : "none",
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1}
+                />
               }
             />
             <Button
@@ -321,15 +450,16 @@ export default function adminRewardPoint() {
             </Button>
           </div>
         </div>
-
-        <DataTable
-          columns={columns}
-          data={rewardPointData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <Spin spinning={loadPage}>
+          <DataTable
+            columns={columns}
+            data={rewardPointData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </Spin>
         <ModalRewardPoint
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

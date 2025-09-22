@@ -83,28 +83,44 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST( request: Request,
-  { body }: {  body: any }) {
-  const data = await request.json();
+export async function POST(req: Request) {
+  const data = await req.json();
+
   try {
-    const hashedPassword = await bcrypt.hash(data.newPassword, 10)
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);
     const encrypted = encrypt(data.newPassword);
-    const createUser = await prisma.user.create({
+
+    const user = await prisma.user.create({
       data: {
         email: data.email,
         name: data.name,
         role: data.role,
         custNo: data.custNo,
         encryptedPassword: hashedPassword,
-        encryptedPasswordtext: encrypted
+        encryptedPasswordtext: encrypted,
+      },
+    });
+
+    return NextResponse.json(user, { status: 201 });
+  } catch (err: any) {
+    if (err?.code === "P2002") {
+      if (Array.isArray(err?.meta?.target) && err.meta.target.includes("custNo")) {
+        return NextResponse.json(
+          { message: "custNo is already exist" },
+          { status: 409 }
+        );
       }
-    })
-    
-    return NextResponse.json(createUser);
-  } catch (error) {
-    return NextResponse.json(error);
+      return NextResponse.json(
+        { message: "This user is already exist" },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }
 }
-

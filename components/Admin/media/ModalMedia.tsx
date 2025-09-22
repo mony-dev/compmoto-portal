@@ -173,7 +173,7 @@ const ModalMedia = ({
         resetForm();
         setTriggerMedia(!triggerMedia);
         setTriggerMe(!triggerMe);
-        toastSuccess(t("media_created_successfully"));
+        toastSuccess(t("Media_created_successfully"));
         router.replace(`/${locale}/admin/adminMedia`);
       } catch (error: any) {
         toastError(error.message);

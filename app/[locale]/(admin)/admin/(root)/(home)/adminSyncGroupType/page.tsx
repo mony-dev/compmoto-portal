@@ -4,7 +4,7 @@ import debounce from "lodash.debounce";
 import { ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Input, Tag } from "antd";
+import { Button, Input, Spin, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -13,8 +13,6 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
-
-const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
 interface DataType {
@@ -23,7 +21,7 @@ interface DataType {
   name: string;
 }
 
-export default function adminSyncGroupType({ params }: { params: { id: number } }) {
+export default function AdminSyncGroupType({ params }: { params: { id: number } }) {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { setI18nName, setLoadPage, loadPage } = useCart();
@@ -60,20 +58,6 @@ export default function adminSyncGroupType({ params }: { params: { id: number } 
       debouncedFetchData.cancel();
     };
   }, [currentPage, debouncedFetchData]);
-
-  useEffect(() => {
-    // Update the URL with the search query
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set('q', searchText);
-    } else {
-      queryParams.delete('q');
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-
-  }, [searchText]);
 
   async function fetchData(query: string = "") {
     setLoadPage(true);
@@ -126,9 +110,17 @@ export default function adminSyncGroupType({ params }: { params: { id: number } 
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value); 
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
@@ -160,11 +152,6 @@ export default function adminSyncGroupType({ params }: { params: { id: number } 
       toastError(error.message);
     } 
   };
-  
-
-  if (loadPage || !t) {
-    return <Loading />;
-  }
 
   return (
     <div className="px-4">
@@ -185,12 +172,17 @@ export default function adminSyncGroupType({ params }: { params: { id: number } 
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
               }
             />
             <Button
@@ -210,14 +202,16 @@ export default function adminSyncGroupType({ params }: { params: { id: number } 
             </Button>
           </div>
         </div>
-        <DataTable
-          columns={columns}
-          data={groupTypeData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <Spin spinning={loadPage}>
+          <DataTable
+            columns={columns}
+            data={groupTypeData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </Spin>
       </div>
     </div>
   );

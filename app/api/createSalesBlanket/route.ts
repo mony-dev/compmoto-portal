@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
         </wsc:CreateSalesBlanket>
       </soapenv:Body>
     </soapenv:Envelope>`;
+    console.log(soapRequest)
 
     const response = await axios.post(
       `${process.env.NAV_URL}`,
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
         },
       }
     );
+    console.log(response)
 
     return NextResponse.json(response.data);
   } catch (error: any) {

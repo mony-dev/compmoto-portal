@@ -265,6 +265,7 @@ const ModalRewardPoint = ({
           }),
         });
         const result = await response.json();
+        setSelectedMonth("");
         resetForm();
         setTriggerRewardPoint(!triggerRewardPoint);
         setTriggerModal(!triggerModal);
@@ -280,6 +281,7 @@ const ModalRewardPoint = ({
             "Content-Type": "application/json",
           },
         });
+        setSelectedMonth("");
         resetForm();
         setTriggerRewardPoint(!triggerRewardPoint);
         setTriggerModal(!triggerModal);
@@ -340,7 +342,6 @@ const ModalRewardPoint = ({
             label={t("customerGroup")}
             className="switch-backend basis-1/2 col-span-2"
             required
-            tooltip={t("this_is_a_required_field")}
             help={errors.customerGroupId?.message}
             validateStatus={errors.customerGroupId ? "error" : ""}
           >
@@ -371,7 +372,6 @@ const ModalRewardPoint = ({
             name="resetDate"
             label={t("resetDate")}
             required={mode !== "EDIT"}
-            tooltip={t("this_is_a_required_field")}
             className="col-span-2"
           >
             <DatePickers
@@ -432,7 +432,6 @@ const ModalRewardPoint = ({
             className="col-span-2"
             name="totalPurchaseName"
             label={t("Total Purchase")}
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control}
@@ -451,7 +450,6 @@ const ModalRewardPoint = ({
             className="col-span-2"
             name="specialBonusName"
             label={t("Special Bonus")}
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control}
@@ -471,7 +469,6 @@ const ModalRewardPoint = ({
             name="name"
             label={t("name")}
             required
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control}
@@ -486,7 +483,6 @@ const ModalRewardPoint = ({
             name="month"
             label={t("month")}
             required
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control} // control from useForm()
@@ -513,7 +509,6 @@ const ModalRewardPoint = ({
             name="year"
             label={t("year")}
             required={mode !== "EDIT"}
-            tooltip={t("this_is_a_required_field")}
           >
             <DatePickers
               placeholder={t("year")}

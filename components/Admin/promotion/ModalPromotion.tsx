@@ -207,7 +207,7 @@ const ModalPromotion = ({
         resetForm();
         setTriggerPromotion(!triggerPromotion);
         setTriggerPro(!triggerPro);
-        toastSuccess("Promotion updated successfully");
+        toastSuccess(t("promotion_updated_successfully"));
         router.replace(`/${locale}/admin/adminPromotion`);
       } catch (error: any) {
         toastError(error.message);
@@ -222,7 +222,7 @@ const ModalPromotion = ({
         resetForm();
         setTriggerPromotion(!triggerPromotion);
         setTriggerPro(!triggerPro);
-        toastSuccess("Promotion created successfully");
+        toastSuccess(t("promotion_created_successfully"));
         router.replace(`/${locale}/admin/adminPromotion`);
       } catch (error: any) {
         toastError(error.message);

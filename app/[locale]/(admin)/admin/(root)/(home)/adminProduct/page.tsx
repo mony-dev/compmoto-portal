@@ -4,7 +4,7 @@ import debounce from "lodash.debounce";
 import { ArrowPathIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Input, Tag } from "antd";
+import { Button, Input, Spin, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -13,8 +13,6 @@ import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
-
-const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 const ModalProduct = dynamic(
   () => import("@components/Admin/product/ModalProduct")
@@ -52,13 +50,13 @@ interface DataType {
   lv3Name: string;
 }
 
-export default function adminProduct({ params }: { params: { id: number } }) {
+export default function AdminProduct({ params }: { params: { id: number } }) {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('q') || '';
+    return params.get("q") || "";
   });
   const router = useRouter();
   const [productData, setProductData] = useState<DataType[]>([]);
@@ -80,7 +78,7 @@ export default function adminProduct({ params }: { params: { id: number } }) {
     }, 500), // 500 ms debounce delay
     [currentPage, pageSize]
   );
-    
+
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
@@ -93,20 +91,6 @@ export default function adminProduct({ params }: { params: { id: number } }) {
       debouncedFetchData.cancel();
     };
   }, [currentPage, debouncedFetchData, triggerProduct]);
-
-  useEffect(() => {
-    // Update the URL with the search query
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set('q', searchText);
-    } else {
-      queryParams.delete('q');
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-
-  }, [searchText]);
 
   async function fetchData(query: string = "") {
     setLoadPage(true);
@@ -129,7 +113,7 @@ export default function adminProduct({ params }: { params: { id: number } }) {
       setProductData(productDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       toastError(error);
     } finally {
       setLoadPage(false);
@@ -235,9 +219,17 @@ export default function adminProduct({ params }: { params: { id: number } }) {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value);
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
@@ -248,9 +240,6 @@ export default function adminProduct({ params }: { params: { id: number } }) {
       setPageSize(pageSize);
     }
   };
-  if (loadPage || !t) {
-    return <Loading />;
-  }
 
   return (
     <div className="px-4">
@@ -264,19 +253,24 @@ export default function adminProduct({ params }: { params: { id: number } }) {
           </div>
           <div className="flex">
             <Input.Search
-              placeholder={t('search')}
+              placeholder={t("search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,
+                    pointerEvents: searchText ? "auto" : "none",
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1}
+                />
               }
             />
             <Button
@@ -301,14 +295,16 @@ export default function adminProduct({ params }: { params: { id: number } }) {
             </Button>
           </div>
         </div>
-        <DataTable
-          columns={columns}
-          data={productData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <Spin spinning={loadPage}>
+          <DataTable
+            columns={columns}
+            data={productData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </Spin>
 
         <ModalProduct
           isModalVisible={isModalVisible}

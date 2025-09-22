@@ -353,6 +353,7 @@ const ModalSpecialBonus = ({
           }),
         });
         const result = await response.json();
+        setSelectedMonth("");
         resetForm();
         setTriggerSpecialBonus(!triggerSpecialBonus);
         setTriggerModal(!triggerModal);
@@ -368,6 +369,7 @@ const ModalSpecialBonus = ({
             "Content-Type": "application/json",
           },
         });
+        setSelectedMonth("");
         resetForm();
         setTriggerSpecialBonus(!triggerSpecialBonus);
         setTriggerModal(!triggerModal);
@@ -420,7 +422,6 @@ const ModalSpecialBonus = ({
             label={t("customerGroup")}
             className="switch-backend basis-1/2 col-span-2"
             required
-            tooltip={t("this_is_a_required_field")}
             help={errors.customerGroupId?.message}
             validateStatus={errors.customerGroupId ? "error" : ""}
           >
@@ -451,7 +452,6 @@ const ModalSpecialBonus = ({
             name="resetDate"
             label={t("resetDate")}
             required={mode !== "EDIT"}
-            tooltip={t("this_is_a_required_field")}
             className="col-span-2"
           >
             <DatePickers
@@ -467,7 +467,6 @@ const ModalSpecialBonus = ({
             name="name"
             label={t("name")}
             required
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control}
@@ -482,7 +481,6 @@ const ModalSpecialBonus = ({
             name="month"
             label={t("month")}
             required
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control} // control from useForm()
@@ -509,7 +507,6 @@ const ModalSpecialBonus = ({
             name="year"
             label={t("year")}
             required={mode !== "EDIT"}
-            tooltip={t("this_is_a_required_field")}
           >
             <DatePickers
               placeholder={t("year")}

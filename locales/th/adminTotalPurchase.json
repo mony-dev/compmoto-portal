@@ -42,10 +42,10 @@
     "Something went wrong": "มีบางอย่างผิดพลาด",
     "Error": "ผิดพลาด",
     "This customer group is already active Please select a different customer group or deactivate this one first": "ประเภทลูกค้านี้เปิดใช้งานอยู่แล้ว กรุณาเลือกประเภทลูกค้าอื่น หรือปิดการใช้งานกประเภทนี้ก่อน",
-    "all": "ทั้งหมด"
-
-
-
-
+    "all": "ทั้งหมด",
+    "search": "ค้นหา",
+    "add": "เพิ่ม",
+    "edit": "แก้ไข",
+    "submit": "ตกลง"
 
 }

@@ -47,6 +47,9 @@
     "Something went wrong": "Something went wrong",
     "Error": "Error",
     "This customer group is already active Please select a different customer group or deactivate this one first": "This customer group is already active. Please select a different customer group or deactivate this one first.",
-    "all": "All"
-    
+    "all": "All",
+    "search": "Search",
+    "add": "Add",
+    "edit": "Edit",
+    "Submit": "Submit"
 }

@@ -2,32 +2,37 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Button, Form, InputNumber, Tooltip } from "antd";
+import { Button, Form, Input, InputNumber, Spin, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useCart } from "@components/Admin/Cartcontext";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { toastError, toastSuccess } from "@lib-utils/helper";
 import i18nConfig from "../../../../../../../../i18nConfig";
 import { useCurrentLocale } from "next-i18n-router/client";
 import debounce from "lodash.debounce";
 import dynamic from "next/dynamic";
 import axios from "axios";
+import { CloseCircleOutlined } from "@ant-design/icons";
 
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function adminRewardPointHistory({ params }: { params: { id: number } }) {
+export default function AdminRewardPointHistory({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
   const locale = useCurrentLocale(i18nConfig);
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
-  const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState(() => {
+    // Initialize searchText from query parameter 'q' or default to an empty string
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || "";
+  });
   const [id, setId] = useState(0);
-  const Loading = dynamic(() => import("@components/Loading"));
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [historiesData, setHistoriesData] = useState<DataType[]>([]);
   const [editingRowKey, setEditingRowKey] = useState<number | null>(null);
+  const searchParams = useSearchParams();
 
   interface DataType {
     key: number;
@@ -42,10 +47,11 @@ export default function adminRewardPointHistory({ params }: { params: { id: numb
     totalSpend: number;
   }
 
-  const fetchRewardPoint = async () => {
+  const fetchRewardPoint = async (query: string = "") => {
     setLoadPage(true);
     try {
       const values: any = {
+        q: query,
         page: currentPage,
         pageSize: pageSize,
       };
@@ -90,8 +96,6 @@ export default function adminRewardPointHistory({ params }: { params: { id: numb
     };
   }, [currentPage, debouncedFetchData]);
 
-
-
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -99,12 +103,6 @@ export default function adminRewardPointHistory({ params }: { params: { id: numb
     }
   };
   
-  if (loadPage) {
-    return (
-      <Loading/>
-    );
-  }
-
   const handleLoyaltyPointUpdate = async (record: DataType, newValue: number) => {
     try {
       const response = await axios.put(
@@ -126,6 +124,27 @@ export default function adminRewardPointHistory({ params }: { params: { id: numb
     } catch (error) {
       toastError(t("Update failed"));
     }
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchRewardPoint(value); 
+  };
+
+  const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
+    setSearchText(""); // Clear the input
+    fetchRewardPoint(""); // Reset the list to show all data
   };
 
   const columns: ColumnsType<DataType> = [
@@ -231,8 +250,31 @@ export default function adminRewardPointHistory({ params }: { params: { id: numb
           <p className="text-lg font-semibold pb-4 grow default-font">
             {t("Reward Points Settings")}
           </p>
+          <div className="flex">
+            <Input.Search
+              placeholder={t("search")}
+              size="middle"
+              style={{ width: "200px", marginBottom: "20px" }}
+              value={searchText}
+              onSearch={handleSearch}
+              onChange={handleInputChange}
+              suffix={
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
+              }
+            />
+          </div>
         </div>
-        <div>
+        <Spin spinning={loadPage}>
           <DataTable
             columns={columns}
             data={historiesData}
@@ -241,7 +283,7 @@ export default function adminRewardPointHistory({ params }: { params: { id: numb
             pageSize={pageSize}
             onPageChange={handlePageChange}
           />
-        </div>
+        </Spin>
       </div>
     </div>
   );

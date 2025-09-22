@@ -1,14 +1,13 @@
 "use client";
 import dynamic from "next/dynamic";
 import {
-  ArrowPathIcon,
   PencilSquareIcon,
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import debounce from "lodash.debounce";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Input, Modal, Switch } from "antd";
+import { Button, Input, Modal, Spin, Switch } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -18,8 +17,6 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 import { CloseCircleOutlined } from "@ant-design/icons";
-
-const Loading = dynamic(() => import("@components/Loading"));
 const TabContent = dynamic(() => import("@components/TabContent"));
 const ModalMedia = dynamic(() => import("@components/Admin/media/ModalMedia"));
 
@@ -34,11 +31,7 @@ interface DataType {
   isActive: boolean;
   type: string;
 }
-enum MediaType {
-  Video,
-  Image,
-  File
-}
+
 export default function AdminMedia({ params }: { params: { id: number } }) {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
@@ -165,17 +158,17 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     };
   }, [currentPage, debouncedFetchData, triggerMedia, mediaType]);
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set("q", searchText);
-    } else {
-      queryParams.delete("q");
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-  }, [searchText]);
+  // useEffect(() => {
+  //   const queryParams = new URLSearchParams(searchParams.toString());
+  //   if (searchText) {
+  //     queryParams.set("q", searchText);
+  //   } else {
+  //     queryParams.delete("q");
+  //   }
+  //   const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+  //   // @ts-ignore: TypeScript error explanation or ticket reference
+  //   router.push(newUrl, undefined, { shallow: true });
+  // }, [searchText]);
 
   async function fetchData(type: string = "", query: string = "") {
     setLoadPage(true);
@@ -246,12 +239,20 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
     fetchData(mediaType, value);
   };
 
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText("");
-    fetchData(mediaType);
+    fetchData(mediaType, "");
   };
 
   const handleTabChange = (type: string) => {
@@ -276,12 +277,17 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,
+                    pointerEvents: searchText ? "auto" : "none",
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1}
+                />
               }
             />
             <Button
@@ -293,17 +299,19 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
               {t("add")}
             </Button>
           </div>
-          <TabContent
-            columns={columns}
-            data={mediaData}
-            setCurrentPage={setCurrentPage}
-            currentPage={currentPage}
-            setPageSize={setPageSize}
-            pageSize={pageSize}
-            onTabChange={handleTabChange}
-            activeKey={mediaType}
-            total={total}
-          />
+          <Spin spinning={loadPage}>
+            <TabContent
+              columns={columns}
+              data={mediaData}
+              setCurrentPage={setCurrentPage}
+              currentPage={currentPage}
+              setPageSize={setPageSize}
+              pageSize={pageSize}
+              onTabChange={handleTabChange}
+              activeKey={mediaType}
+              total={total}
+            />
+          </Spin>
         </div>
 
         <ModalMedia

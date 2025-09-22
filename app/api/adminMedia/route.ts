@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const q = searchParams.get("q") || "";
   const typeParam = searchParams.get("type") || "";
   const page = parseInt(searchParams.get("page") || "1");
-  const pageSize = parseInt(searchParams.get("pageSize") || "50");
+  const pageSize = parseInt(searchParams.get("pageSize") || "10");
   const isActiveParam = searchParams.get("isActive");
 
   const minisizeId = searchParams.get("minisizeId");

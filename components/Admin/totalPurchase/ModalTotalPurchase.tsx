@@ -286,25 +286,28 @@ const ModalTotalPurchase = ({
           }),
         });
         const result = await response.json();
+        setSelectedMonth("");
         resetForm();
         setTriggerTotalPurchase(!triggerTotalPurchase);
         setTriggerModal(!triggerModal);
-        toastSuccess("Total Purchase updated successfully");
+        toastSuccess(t("Total Purchase updated successfully"));
         router.replace(`/${locale}/admin/adminTotalPurchase`);
       } catch (error: any) {
         toastError(error.message);
       }
     } else {
       try {
+        console.log(values)
         const response = await axios.post(`/api/adminTotalPurchase`, values, {
           headers: {
             "Content-Type": "application/json",
           },
         });
+        setSelectedMonth("");
         resetForm();
         setTriggerTotalPurchase(!triggerTotalPurchase);
         setTriggerModal(!triggerModal);
-        toastSuccess("Total Purchase created successfully");
+        toastSuccess(t("Total Purchase created successfully"));
         router.replace(`/${locale}/admin/adminTotalPurchase`);
       } catch (error: any) {
         toastError(error.message);
@@ -354,7 +357,6 @@ const ModalTotalPurchase = ({
             label={t("customerGroup")}
             className="switch-backend basis-1/2 col-span-2"
             required
-            tooltip={t("this_is_a_required_field")}
             help={errors.customerGroupId?.message}
             validateStatus={errors.customerGroupId ? "error" : ""}
           >
@@ -385,7 +387,6 @@ const ModalTotalPurchase = ({
             name="resetDate"
             label={t("resetDate")}
             required={mode !== "EDIT"}
-            tooltip={t("this_is_a_required_field")}
             className="col-span-2"
           >
             <DatePickers
@@ -401,7 +402,6 @@ const ModalTotalPurchase = ({
             name="name"
             label={t("name")}
             required
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control}
@@ -416,7 +416,6 @@ const ModalTotalPurchase = ({
             name="month"
             label={t("month")}
             required
-            tooltip={t("this_is_a_required_field")}
           >
             <Controller
               control={control} // control from useForm()
@@ -443,7 +442,6 @@ const ModalTotalPurchase = ({
             name="year"
             label={t("year")}
             required={mode !== "EDIT"}
-            tooltip={t("this_is_a_required_field")}
           >
             <DatePickers
               placeholder={t("year")}

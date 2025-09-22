@@ -31,5 +31,8 @@
      "This customer group is no total purchase Please select a different customer group or create total purchase for this customer group": "ประเภทลูกค้านี้ไม่มีการตั้งค่ายอดสั่งซื้อรวม กรุณาเลือกประเภทลูกค้าอื่นหรือตั้งค่ายอดสั่งซื้อรวมสำหรับประเภทลูกค้านี้ก่อน",
     "This customer group is no special bonus Please select a different customer group or create special bonus for this customer group": "ประเภทลูกค้านี้ไม่มีการตั้งค่าโบนัสพิเศษ กรุณาเลือกประเภทลูกค้าอื่นหรือตั้งค่าโบนัสพิเศษสำหรับประเภทลูกค้านี้ก่อน",
     "This customer group is no total purchase and special bonus Please select a different customer group or create total purchase and special bonus for this customer group": "ประเภทลูกค้านี้ไม่มีการตั้งค่ายอดสั่งซื้อรวมและโบนัสพิเศษ กรุณาเลือกประเภทลูกค้าอื่นหรือตั้งค่ายอดสั่งซื้อและโบนัสพิเศษรวมสำหรับประเภทลูกค้านี้ก่อน",
-    "history": "ประวัติ"
+    "history": "ประวัติ",
+    "search": "ค้นหา",
+    "add": "เพิ่ม",
+    "edit": "แก้ไข"
 }

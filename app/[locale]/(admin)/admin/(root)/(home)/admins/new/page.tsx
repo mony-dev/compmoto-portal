@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { Form, Input, Button, Select } from "antd";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
@@ -11,7 +10,6 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { AdminSchema, adminSchema } from "@lib-schemas/user/admin-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { useSession } from "next-auth/react";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../../i18nConfig";
 import { useTranslation } from "react-i18next";
@@ -41,19 +39,25 @@ export default function Admin({ params }: { params: { id: number } }) {
   const role = watchRole("role");
 
   const onFinish: SubmitHandler<AdminSchema> = async (values) => {
-    const response = await axios
-      .post(`/api/users`, values, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        toastSuccess("User created successfully");
-        router.replace(`/${locale}/admin/admins`);
-      })
-      .catch((error) => {
-        toastError(error);
+    try {
+      await axios.post("/api/users", values, {
+        headers: { "Content-Type": "application/json" },
       });
+  
+      toastSuccess(t("User created successfully"));
+      router.replace(`/${locale}/admin/admins`);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const msg =
+          t(error.response?.data?.message) ||
+          `Create user failed (status ${error.response?.status ?? "N/A"})`;
+        console.log(error);
+        toastError(msg);
+        return;
+      }
+  
+      toastError("Unexpected error");
+    }
   };
 
   return (

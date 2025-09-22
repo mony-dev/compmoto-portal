@@ -10,7 +10,7 @@
     "Invoice": "Invoice",
     "User ID is undefined. Cannot fetch orders": "User ID is undefined. Cannot fetch orders.",
     "Normal Order": "Normal Order",
-    "Search": "Search",
+    "search": "Search",
     "Item Code": "Item Code",
     "Product": "Product",
     "qty": "QTY",

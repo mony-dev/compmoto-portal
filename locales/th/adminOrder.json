@@ -10,7 +10,7 @@
     "Invoice": "บิล",
     "User ID is undefined. Cannot fetch orders": "รหัสผู้ใช้ไม่ถูกกำหนด ไม่สามารถดึงข้อมูลคำสั่งซื้อได้",
     "Normal Order": "รายการสั่งซื้อทั่วไป",
-    "Search": "ค้นหา",
+    "search": "ค้นหา",
     "Item Code": "รหัสสินค้า",
     "Product": "สินค้า",
     "qty": "จำนวน",

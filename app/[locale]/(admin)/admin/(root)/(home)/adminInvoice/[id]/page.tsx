@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { useCart } from "@components/Admin/Cartcontext";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
-export default function adminInvoice({ params }: { params: { id: number } }) {
+export default function AdminInvoice({ params }: { params: { id: number } }) {
   const { t } = useTranslation();
   const [reData, setReData] = useState<DataType>();
   const locale = useCurrentLocale(i18nConfig);

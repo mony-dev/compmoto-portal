@@ -1,12 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
-import {
-  ArrowPathIcon,
-  PencilSquareIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowPathIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import debounce from "lodash.debounce";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import { Button, Input, Tag  } from "antd";
+import { Button, Input, Spin, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
@@ -19,15 +16,15 @@ import { CloseCircleOutlined } from "@ant-design/icons";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function users() {
+export default function Users() {
   const { t } = useTranslation();
-  const {setI18nName, setLoadPage, loadPage} = useCart();
+  const { setI18nName, setLoadPage, loadPage } = useCart();
   const router = useRouter();
   const locale = useCurrentLocale(i18nConfig);
   const [searchText, setSearchText] = useState(() => {
     // Initialize searchText from query parameter 'q' or default to an empty string
     const params = new URLSearchParams(window.location.search);
-    return params.get('q') || '';
+    return params.get("q") || "";
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -35,7 +32,7 @@ export default function users() {
   const [userData, setUserData] = useState<DataType[]>([]);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   interface DataType {
     key: number;
     id: number;
@@ -55,7 +52,7 @@ export default function users() {
     }, 500), // 500 ms debounce delay
     [currentPage, pageSize]
   );
-    
+
   useEffect(() => {
     const lastPart = pathname.substring(pathname.lastIndexOf("/") + 1);
     setI18nName(lastPart);
@@ -69,20 +66,6 @@ export default function users() {
     };
   }, [currentPage, debouncedFetchData]);
 
-  useEffect(() => {
-    // Update the URL with the search query
-    const queryParams = new URLSearchParams(searchParams.toString());
-    if (searchText) {
-      queryParams.set('q', searchText);
-    } else {
-      queryParams.delete('q');
-    }
-    const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-    // @ts-ignore: TypeScript error explanation or ticket reference
-    router.push(newUrl, undefined, { shallow: true });
-
-  }, [searchText]);
-  
   async function fetchData(query: string = "") {
     setLoadPage(true);
     try {
@@ -117,9 +100,17 @@ export default function users() {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData(value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value);
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData(""); // Reset the list to show all data
   };
@@ -129,47 +120,42 @@ export default function users() {
       setPageSize(pageSize);
     }
   };
-  if (loadPage || !t) {
-    return (
-      <Loading/>
-    );
-  }
 
   const columns: ColumnsType<DataType> = [
     {
-      title: t('no'),
+      title: t("no"),
       dataIndex: "key",
       key: "key",
       defaultSortOrder: "descend",
       sorter: (a, b) => b.key - a.key,
     },
     {
-      title: t('name'),
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       defaultSortOrder: "descend",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: t('cust_no'),
+      title: t("cust_no"),
       dataIndex: "custNo",
       key: "custNo",
       sorter: (a, b) => a.custNo.localeCompare(b.custNo),
     },
     {
-      title: t('current_point'),
+      title: t("current_point"),
       dataIndex: "rewardPoint",
       key: "rewardPoint",
       sorter: (a, b) => b.rewardPoint - a.rewardPoint,
     },
     {
-      title: t('used_point'),
+      title: t("used_point"),
       dataIndex: "usedPoint",
       key: "usedPoint",
       sorter: (a, b) => b.usedPoint - a.usedPoint,
     },
     {
-      title: t('role'),
+      title: t("role"),
       key: "role",
       dataIndex: "role",
       sorter: (a, b) => a.role.localeCompare(b.role),
@@ -187,13 +173,13 @@ export default function users() {
       ),
     },
     {
-      title: t('status'),
+      title: t("status"),
       dataIndex: "status",
       key: "status",
       sorter: (a, b) => a.status.localeCompare(b.status),
     },
     {
-      title: t('action'),
+      title: t("action"),
       key: "action",
       render: (_, record) => (
         <p
@@ -201,7 +187,7 @@ export default function users() {
           onClick={() => router.push(`/${locale}/admin/users/${record.id}`)}
         >
           <PencilSquareIcon className="w-4 mr-0.5" />
-          <span>{t('view_and_edit')}</span>
+          <span>{t("view_and_edit")}</span>
         </p>
       ),
     },
@@ -214,22 +200,29 @@ export default function users() {
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
         <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow default-font">{t('user_setting')}</p>
+          <p className="text-lg font-semibold pb-4 grow default-font">
+            {t("user_setting")}
+          </p>
           <div className="flex">
             <Input.Search
-              placeholder={t('search')}
+              placeholder={t("search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
               }
             />
             <Button
@@ -238,25 +231,27 @@ export default function users() {
               icon={<ArrowPathIcon className="w-4" />}
               onClick={async () => {
                 try {
-                  const response = await axios.get('/api/fetchUsers');
+                  const response = await axios.get("/api/fetchUsers");
                   toastSuccess("Sync user successfully");
                 } catch (error: any) {
                   toastError(error);
                 }
               }}
             >
-              {t('sync')}
+              {t("sync")}
             </Button>
           </div>
         </div>
-        <DataTable
-          columns={columns}
-          data={userData}
-          total={total}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-        />
+        <Spin spinning={loadPage}>
+          <DataTable
+            columns={columns}
+            data={userData}
+            total={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
+        </Spin>
       </div>
     </div>
   );

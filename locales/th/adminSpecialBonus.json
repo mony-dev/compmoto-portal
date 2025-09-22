@@ -38,16 +38,19 @@
     "active": "แสดง",
     "inactive": "ไม่แสดง",
     "reset date": "วันที่รีเซต",
-    "Add Special Bonus": "สร้างยอดสั่งซื้อรวม",
-    "Edit Special Bonus": "แก้ไขยอดสั่งซื้อรวม",
-    "Special Bonus updated successfully": "แก้ไขยอดสั่งซื้อรวมแล้ว",
-    "Special Bonus created successfully": "สร้างยอดสั่งซื้อรวมแล้ว",
+    "Add Special Bonus": "สร้างคะแนนสะสมพิเศษ",
+    "Edit Special Bonus": "แก้ไขคะแนนสะสมพิเศษ",
+    "Special Bonus updated successfully": "แก้ไขคะแนนสะสมพิเศษแล้ว",
+    "Special Bonus created successfully": "สร้างคะแนนสะสมพิเศษแล้ว",
     "Select a Customer Group": "กรุณาเลือกประเภทลูกค้า",
     "display": "การแสดงผล",
     "Something went wrong": "มีบางอย่างผิดพลาด",
     "Error": "ผิดพลาด",
     "This customer group is already active Please select a different customer group or deactivate this one first": "ประเภทลูกค้านี้เปิดใช้งานอยู่แล้ว กรุณาเลือกประเภทลูกค้าอื่น หรือปิดการใช้งานกประเภทนี้ก่อน",
-    "all": "ทั้งหมด"
-
+    "all": "ทั้งหมด",
+    "search": "ค้นหา",
+    "add": "เพิ่ม",
+    "edit": "แก้ไข",
+    "Submit": "ตกลง"
 
 }

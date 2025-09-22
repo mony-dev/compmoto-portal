@@ -1,8 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import {
-  CheckBadgeIcon,
-} from "@heroicons/react/24/outline";
+
 import {
   formatDate,
   toastError,
@@ -10,6 +8,7 @@ import {
 import {
   Badge,
   Input,
+  Spin,
   Tabs,
   TabsProps,
 } from "antd";
@@ -25,10 +24,9 @@ import { CloseCircleOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useCurrentLocale } from "next-i18n-router/client";
 import i18nConfig from "../../../../../../../i18nConfig";
-const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function adminClaim({
+export default function AdminClaim({
   params,
 }: {
   params: { id: number };
@@ -150,19 +148,6 @@ export default function adminClaim({
         debouncedFetchData.cancel();
       };
     }, [currentPage, debouncedFetchData]);
-  
-    useEffect(() => {
-      // Update the URL with the search query
-      const queryParams = new URLSearchParams(searchParams.toString());
-      if (searchText) {
-        queryParams.set("q", searchText);
-      } else {
-        queryParams.delete("q");
-      }
-      const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
-      // @ts-ignore: TypeScript error explanation or ticket reference
-      router.push(newUrl, undefined, { shallow: true });
-    }, [searchText]);
     
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -269,9 +254,17 @@ export default function adminClaim({
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    fetchData("", value); // Trigger data fetch only on search
+    const queryParams = new URLSearchParams(searchParams.toString());
+    if (value) queryParams.set("q", value);
+    else queryParams.delete("q");
+    const newUrl = `${pathname}?${queryParams.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+
+    fetchData(value); 
   };
   const handleClear = () => {
+    window.history.replaceState(null, "", `${pathname}`);
+    setCurrentPage(1);
     setSearchText(""); // Clear the input
     fetchData("", ""); // Reset the list to show all data
   };
@@ -280,10 +273,6 @@ export default function adminClaim({
     setActiveTabKey(key); // Update active tab state
     setCurrentPage(1);
   };
-
-  if (loading || !t) {
-    return <Loading />;
-  }
 
   return (
     <div className="px-4">
@@ -295,30 +284,36 @@ export default function adminClaim({
           <p className="text-lg font-semibold pb-4 grow default-font">{t("Claim List")}</p>
           <div className="flex">
           <Input.Search
-              placeholder={t("search")}
+              placeholder={t("Search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
               onSearch={handleSearch}
               onChange={handleInputChange}
               suffix={
-                searchText ? (
-                  <CloseCircleOutlined
-                    onClick={handleClear}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : null
+                <CloseCircleOutlined
+                  onMouseDown={(e) => e.preventDefault()} 
+                  onClick={handleClear}
+                  style={{
+                    cursor: searchText ? "pointer" : "default",
+                    opacity: searchText ? 1 : 0,        
+                    pointerEvents: searchText ? "auto" : "none", 
+                    transition: "opacity 120ms ease",
+                  }}
+                  tabIndex={-1} 
+                />
               }
             />
           </div>
         </div>
-        <Tabs
-          activeKey={activeTabKey}
-          items={items}
-          onChange={onChange}
-          className="redeem-tab"
-        />
-        
+        <Spin spinning={loadPage}>
+          <Tabs
+            activeKey={activeTabKey}
+            items={items}
+            onChange={onChange}
+            className="redeem-tab"
+          />
+        </Spin>
         {/* <ModalClaimVerify
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

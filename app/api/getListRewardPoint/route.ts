@@ -13,6 +13,10 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "1000");
   const isFinalize = searchParams.get("isFinalize"); // optional filter (e.g. "true" or "false")
+  const month = searchParams.get("month");
+  const year = searchParams.get("year");
+  const dateParam = searchParams.get("date");
+  const date = dateParam ? dateParam === "true" : false;
 
   try {
     const where: Prisma.RewardPointWhereInput = {
@@ -24,6 +28,10 @@ export async function GET(request: Request) {
       }),
       ...(isFinalize !== null && isFinalize !== "all" && {
         isFinalize: isFinalize === "true",
+      }),
+      ...(date && month && year && {
+        month: Number(month),
+        year: Number(year),
       }),
     };
 

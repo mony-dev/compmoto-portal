@@ -21,7 +21,7 @@ import { CloseCircleOutlined } from "@ant-design/icons";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function adminBrand() {
+export default function AdminBrand() {
   const { t } = useTranslation();
   const router = useRouter();
   const [searchText, setSearchText] = useState(() => {

@@ -304,7 +304,7 @@ const Dashboard = () => {
         >
           <div className=" grid grid-cols-6">
             <div className="col-span-2 mx-auto w-full">
-              <div className="flex justify-between gap-4 items-center px-8 border-r-2 border-[#E4E7EB] border-dashed mr-4 py-2">
+              <div className="flex gap-8 items-center px-8 border-r-2 border-[#E4E7EB] border-dashed mr-4 py-2">
                 <div className="group-hover:blur-xs overflow-hidden pt-4 pb-2 profile-img">
                   <Image
                     className="transition duration-300 ease-in-out rounded-full border border-[#DD2C37]"

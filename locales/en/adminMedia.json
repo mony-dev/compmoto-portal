@@ -20,6 +20,7 @@
     "add_media": "Add Media",
     "edit_media": "Edit Media",
     "Media_updated_successfully": "Media updated successfully",
+    "Media_created_successfully": "Media created successfully",
     "this_is_a_required_field": "This is a required field",
     "please_upload_file": "Please upload file",
     "select_a_minisize": "Select a minisize",
@@ -32,5 +33,6 @@
     "Download": "Download",
     "file": "File",
     "date": "DATE",
-    "size": "SIZE"
+    "size": "SIZE",
+    "submit": "Submit"
 }
