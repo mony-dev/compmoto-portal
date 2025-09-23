@@ -241,12 +241,12 @@ const Dashboard = () => {
       }
     }
 
-    if (session?.user?.data?.RewardPoint) {
-      const reward = session?.user?.rewardPoint;
-      if (reward) {
-        setRewardPoint(reward);
-      }
-    }
+    // if (session?.user?.data?.RewardPoint) {
+    //   const reward = session?.user?.rewardPoint;
+    //   if (reward) {
+    //     setRewardPoint(reward);
+    //   }
+    // }
     if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
       const credit = session?.user.data.CreditLimitLCY[0];
       const balanceCredit = session?.user.data.BalanceDueLCY[0];
@@ -278,6 +278,8 @@ const Dashboard = () => {
         axios.get(`/api/users/${session?.user.id}`),
       ]);
       setUserData(userResponse.data);
+      setRewardPoint(userResponse.data.rewardPoint);
+
       setProfileImage(userResponse.data.image);
     } catch (error) {
       // console.error("Error fetching data: ", error);
