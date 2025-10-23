@@ -59,8 +59,7 @@ export default function AdminsRewardCategory({
 
   interface DataType {
     key: number;
-    rewardCount: any;
-    rewards: any;
+    rewards: [];
     id: number;
     name: string;
     isActive: boolean;
@@ -119,71 +118,6 @@ export default function AdminsRewardCategory({
     });
   };
 
-  const columns: ColumnsType<DataType> = [
-    {
-      title: t('no'),
-      dataIndex: "key",
-      key: "key",
-      defaultSortOrder: "descend",
-      sorter: (a, b) => b.key - a.key,
-    },
-    {
-      title: t('Name'),
-      dataIndex: "name",
-      key: "name",
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (_, record) => (
-        <Link href={`/${locale}/admin/adminReward/${record.id}`}>{record.name}</Link>
-      ),
-    },
-    {
-      title: t('Show'),
-      key: "isActive",
-      dataIndex: "isActive",
-      sorter: (a: DataType, b: DataType) =>
-        Number(b.isActive) - Number(a.isActive),
-      render: (isActive: boolean) => (
-        <div className="switch-backend">
-          <Switch
-            checked={isActive}
-            checkedChildren={t("Active")}
-            unCheckedChildren={t("Inactive")}
-            disabled
-          />
-        </div>
-      ),
-    },
-    {
-      title: t('Product'),
-      dataIndex: "rewardCount",
-      key: "rewardCount",
-      sorter: (a, b) => a.rewardCount - b.rewardCount,
-    },
-    {
-      title: t("Action"),
-      key: "action",
-      render: (_, record) => (
-        <div className="flex">
-          <p
-            className="flex cursor-pointer hover:text-comp-blue-link pr-2"
-            onClick={showModal(true, record.id)}
-          >
-            <PencilSquareIcon className="w-4 mr-0.5" />
-            <span>{t("Edit")}</span>
-          </p>
-          |
-          <p
-            className="flex cursor-pointer hover:text-comp-blue-link pl-2"
-            onClick={() => deleteCategory(record.id)}
-          >
-            <TrashIcon className="w-4 mr-0.5" />
-            <span>{t("Delete")}</span>
-          </p>
-        </div>
-      ),
-    },
-  ];
 
     // Debounce function for search input
     const debouncedFetchData = useCallback(
@@ -231,6 +165,75 @@ export default function AdminsRewardCategory({
       setLoadPage(false);
     }
   }
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: t('no'),
+      dataIndex: "key",
+      key: "key",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => b.key - a.key,
+    },
+    {
+      title: t('Name'),
+      dataIndex: "name",
+      key: "name",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (_, record) => (
+        <Link href={`/${locale}/admin/adminReward/${record.id}`}>{record.name}</Link>
+      ),
+    },
+    {
+      title: t('Show'),
+      key: "isActive",
+      dataIndex: "isActive",
+      sorter: (a: DataType, b: DataType) =>
+        Number(b.isActive) - Number(a.isActive),
+      render: (isActive: boolean) => (
+        <div className="switch-backend">
+          <Switch
+            checked={isActive}
+            checkedChildren={t("Active")}
+            unCheckedChildren={t("Inactive")}
+            disabled
+          />
+        </div>
+      ),
+    },
+    {
+      title: t('Product'),
+      dataIndex: "rewardCount",
+      key: "rewardCount",
+      sorter: (a, b) => a.rewards.length - a.rewards.length,
+      render: (_, record) => (
+        record.rewards.length > 0 ? record.rewards.length : 0
+      ),
+    },
+    {
+      title: t("Action"),
+      key: "action",
+      render: (_, record) => (
+        <div className="flex">
+          <p
+            className="flex cursor-pointer hover:text-comp-blue-link pr-2"
+            onClick={showModal(true, record.id)}
+          >
+            <PencilSquareIcon className="w-4 mr-0.5" />
+            <span>{t("Edit")}</span>
+          </p>
+          |
+          <p
+            className="flex cursor-pointer hover:text-comp-blue-link pl-2"
+            onClick={() => deleteCategory(record.id)}
+          >
+            <TrashIcon className="w-4 mr-0.5" />
+            <span>{t("Delete")}</span>
+          </p>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     if (id > 0) {

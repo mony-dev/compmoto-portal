@@ -12,7 +12,7 @@ import {
   Radio,
   Checkbox,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { LockOutlined } from "@ant-design/icons";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -97,6 +97,9 @@ export default function Claim({ params }: { params: { id: number } }) {
   const [model, setModel] = useState<string | null>(null);
   const [size, setSize] = useState<string | null>(null);
 
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+
   const {
     handleSubmit,
     control,
@@ -122,34 +125,63 @@ export default function Claim({ params }: { params: { id: number } }) {
     });
   };
 
+  // const onFinish: SubmitHandler<ClaimSchema> = async (values) => {
+  //   if (image.length === 0) {
+  //     toastError(t("Image of the damage is required"));
+  //     return;
+  //   }
+  //   const imageClaims: ImageClaim[] = transformImageArray(image);
+  //   const response = await axios.post(
+  //     `/api/claim`,
+  //     {
+  //       images: imageClaims,
+  //       userId: session?.user.id,
+  //       ...values
+  //     },
+  //     {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   ).then((response) => {
+  //     toastSuccess("Claimed successfully");
+  //     router.replace(`/${locale}/admin/claims`);
+  //   })
+  //   .catch((error) => {
+  //     toastError(error);
+  //   });
+    
+  // };
+
   const onFinish: SubmitHandler<ClaimSchema> = async (values) => {
+    if (submittingRef.current) return;                 // hard guard
     if (image.length === 0) {
       toastError(t("Image of the damage is required"));
       return;
     }
-    const imageClaims: ImageClaim[] = transformImageArray(image);
-    const response = await axios.post(
-      `/api/claim`,
-      {
-        images: imageClaims,
-        userId: session?.user.id,
-        ...values
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    ).then((response) => {
+    submittingRef.current = true;
+    setSubmitting(true);
+  
+    try {
+      const imageClaims: ImageClaim[] = transformImageArray(image);
+      await axios.post(
+        "/api/claim",
+        { images: imageClaims, userId: session?.user.id, ...values },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": crypto.randomUUID(),   // see server step
+          },
+        }
+      );
       toastSuccess("Claimed successfully");
       router.replace(`/${locale}/admin/claims`);
-    })
-    .catch((error) => {
-      toastError(error);
-    });
-    
+    } catch (err: any) {
+      toastError(err?.response?.data?.message || err?.message || "Submit failed");
+      submittingRef.current = false;                  // unlock only on failure
+      setSubmitting(false);
+    }
   };
-
   const fetchProducts = async () => {
     try {
       const { data } = await axios.get("/api/getProductByUser", {
@@ -601,7 +633,9 @@ export default function Claim({ params }: { params: { id: number } }) {
                 type="primary"
                 htmlType="submit"
                 className="bg-[#0C8CE9] text-white default-font text-base p-4"
-                disabled={!isAccept}
+                disabled={!isAccept || submitting}
+                loading={submitting}
+                onClick={(e) => e.currentTarget.blur()}
               >
                 {t("accept")}
               </Button>

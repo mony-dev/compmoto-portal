@@ -20,6 +20,10 @@ export async function GET(request: Request) {
         include: {
           rewards: true
         },
+        orderBy: [
+          { createdAt: 'desc' }, 
+          { id: 'desc' },       
+        ],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),

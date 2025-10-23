@@ -143,9 +143,9 @@ const ModalPromotion = ({
       // Set form values
       setValue("name", promotion.name);
       setValue("isActive", promotion.isActive);
-      setValue("minisizeId", promotion.minisizeId);
-      setValue("amount", promotion.amount);
-      setValue("productRedeem", promotion.productRedeem);
+      // setValue("minisizeId", promotion.minisizeId);
+      // setValue("amount", promotion.amount);
+      // setValue("productRedeem", promotion.productRedeem);
       setValue("startDate", promotion.startDate);
       setValue("endDate", promotion.endDate);
       setValue("image", promotion.image);
@@ -157,9 +157,9 @@ const ModalPromotion = ({
       reset({
         name: "",
         isActive: true,
-        minisizeId: undefined,
-        amount: 0,
-        productRedeem: "",
+        // minisizeId: undefined,
+        // amount: 0,
+        // productRedeem: "",
         startDate: "",
         endDate: "",
         image: "",
@@ -182,9 +182,9 @@ const ModalPromotion = ({
     reset({
       name: "",
       isActive: true,
-      minisizeId: undefined,
-      amount: 0,
-      productRedeem: "",
+      // minisizeId: undefined,
+      // amount: 0,
+      // productRedeem: "",
       startDate: "",
       endDate: "",
       customerGroupId: undefined,
@@ -296,64 +296,6 @@ const ModalPromotion = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              name="minisizeId"
-              label="Minisize"
-              className="switch-backend basis-1/2"
-              required
-              tooltip={t('this_is_a_required_field')}
-              help={errors.minisizeId?.message}
-              validateStatus={errors.minisizeId ? "error" : ""}
-            >
-              <Controller
-                control={control}
-                name="minisizeId"
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    showSearch
-                    placeholder={t("Select a minisize")}
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={minisizeOptions}
-                    //   onChange={(value) => {
-                    //     field.onChange(value);
-                    //     fetchProductCount(value);
-                    //   }}
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="amount"
-              label={t("amount")}
-              className="switch-backend"
-              required
-              tooltip={t('this_is_a_required_field')}
-              help={errors.name?.message}
-              validateStatus={errors.name ? "error" : ""}
-            >
-              <Controller
-                control={control}
-                name="amount"
-                render={({ field }) => (
-                  <InputNumber
-                    {...field}
-                    placeholder={t("amount")}
-                    className="w-full"
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
             {/* <Form.Item
               name="userGroup"
               label={t('User Group')}
@@ -413,8 +355,67 @@ const ModalPromotion = ({
               />
             </Form.Item>
           </Col>
+          {/* <Col span={12}>
+            <Form.Item
+              name="minisizeId"
+              label="Minisize"
+              className="switch-backend basis-1/2"
+              required
+              tooltip={t('this_is_a_required_field')}
+              help={errors.minisizeId?.message}
+              validateStatus={errors.minisizeId ? "error" : ""}
+            >
+              <Controller
+                control={control}
+                name="minisizeId"
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    showSearch
+                    placeholder={t("Select a minisize")}
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={minisizeOptions}
+                    //   onChange={(value) => {
+                    //     field.onChange(value);
+                    //     fetchProductCount(value);
+                    //   }}
+                  />
+                )}
+              />
+            </Form.Item>
+          </Col> */}
         </Row>
-        <Form.Item
+        <Row gutter={16}>
+          {/* <Col span={12}>
+            <Form.Item
+              name="amount"
+              label={t("amount")}
+              className="switch-backend"
+              required
+              tooltip={t('this_is_a_required_field')}
+              help={errors.name?.message}
+              validateStatus={errors.name ? "error" : ""}
+            >
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field }) => (
+                  <InputNumber
+                    {...field}
+                    placeholder={t("amount")}
+                    className="w-full"
+                  />
+                )}
+              />
+            </Form.Item>
+          </Col> */}
+       
+        </Row>
+        {/* <Form.Item
           name="productRedeem"
           label={t('Product Redeem')}
           className="switch-backend basis-1/2"
@@ -430,7 +431,7 @@ const ModalPromotion = ({
               <Input {...field} placeholder={t('Product Redeem')} />
             )}
           />
-        </Form.Item>
+        </Form.Item> */}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item

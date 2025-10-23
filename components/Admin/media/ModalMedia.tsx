@@ -7,14 +7,13 @@ import {
   Modal,
   Switch,
   Select,
-  Checkbox,
   Radio,
   RadioChangeEvent,
 } from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -82,7 +81,8 @@ const ModalMedia = ({
   const [coverImg, setCoverImg] = useState<string | { url: string }[]>([]);
   const locale = useCurrentLocale(i18nConfig);
   const [type, setType] = useState<"File" | "Video" | "Image">("Video");
-
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const options = [
     { label: t("video"), value: "Video" },
     { label: t("image"), value: "Image" },
@@ -144,6 +144,9 @@ const ModalMedia = ({
   };
 
   const onSubmit: SubmitHandler<MediaSchema> = async (values) => {
+    if (submittingRef.current) return; 
+    submittingRef.current = true;
+    setSubmitting(true);
     if (mode === "EDIT" && editMediaData) {
       try {
         const response = await axios.put(
@@ -161,6 +164,8 @@ const ModalMedia = ({
         toastSuccess(t("Media_updated_successfully"));
         router.replace(`/${locale}/admin/adminMedia`);
       } catch (error: any) {
+        setSubmitting(false);
+        toastError(error.message);
         toastError(error.message);
       }
     } else {
@@ -176,6 +181,8 @@ const ModalMedia = ({
         toastSuccess(t("Media_created_successfully"));
         router.replace(`/${locale}/admin/adminMedia`);
       } catch (error: any) {
+        setSubmitting(false);
+        toastError(error.message);
         toastError(error.message);
       }
     }
@@ -369,6 +376,9 @@ const ModalMedia = ({
             type="primary"
             htmlType="submit"
             className="bg-comp-red button-backend"
+            disabled={submitting}
+            loading={submitting}
+            onClick={(e) => e.currentTarget.blur()}
           >
             {t("submit")}
           </Button>

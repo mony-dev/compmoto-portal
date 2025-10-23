@@ -37,6 +37,10 @@ export async function GET(request: Request) {
         include: {
           minisize: true,
         },
+        orderBy: [
+          { createdAt: 'desc' }, 
+          { id: 'desc' },       
+        ],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),

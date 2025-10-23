@@ -387,6 +387,14 @@ export default function invoice({ params }: { params: { id: number } }) {
                   </p>
                 </div>
               )}
+              {reData?.externalDocument && (
+                <div className="flex justify-between promotion-text pb-4">
+                  <p className="text-sm gotham-font text-[#919FAF]">{t("Promotion")}</p>
+                  <p className="text-sm default-font">
+                   {reData.externalDocument}
+                  </p>
+                </div>
+              )}
             </Card>
           </div>
         </div>

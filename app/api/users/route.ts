@@ -31,6 +31,10 @@ export async function GET(request: Request) {
             ...(statusQuery ? [{ status: statusQuery }] : []),
           ],
         },
+        orderBy: [
+          { createdAt: 'desc' }, 
+          { id: 'desc' },       
+        ],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
