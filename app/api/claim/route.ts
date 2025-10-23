@@ -145,6 +145,10 @@ export async function GET(request: Request) {
       prisma.claim.findMany({
         where: whereConditions,
         include: { product: true, user: true, images: true },
+        orderBy: [
+          { createdAt: 'desc' }, 
+          { id: 'desc' },       
+        ],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),

@@ -28,9 +28,7 @@ import BoxGrey from "../../public/images/logo/box-grey.png";
 import BoxRed from "../../public/images/logo/box-red.png";
 import BookGrey from "../../public/images/logo/book-grey.png";
 import BookRed from "../../public/images/logo/book-red.png";
-import { ArrowPathIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { useCurrentLocale } from "next-i18n-router/client";
-import i18nConfig from "../../i18nConfig";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useCart } from "./Cartcontext";
 
 type SideBarItemProps = {
@@ -76,7 +74,6 @@ export default function SideBar({
 }: SideBarProps) {
   const { data: session } = useSession();
   const [iconColor, setIconColor] = useState(false);
-  const [menuId, setMenuId] = useState("");
   const [openMenuId, setOpenMenuId] = useState("");
   const [locale, setLocale] = useState('');
   const toggleIconColor = (menu: string) => {
@@ -85,7 +82,6 @@ export default function SideBar({
     onToggle();
   };
   const pathname = usePathname();
-  const searchParam = useSearchParams();
   const sidebarItems: SideBarItemProps[] = [
     {
       title: "แดชบอร์ด",

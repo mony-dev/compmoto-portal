@@ -142,31 +142,31 @@ const Product = () => {
   const [loadingPromo, setLoadingPromo] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(false);
 
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true,
-        },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-    ],
-  };
+  // const sliderSettings = {
+  //   dots: true,
+  //   infinite: true,
+  //   speed: 500,
+  //   slidesToShow: 3,
+  //   slidesToScroll: 1,
+  //   responsive: [
+  //     {
+  //       breakpoint: 1024,
+  //       settings: {
+  //         slidesToShow: 2,
+  //         slidesToScroll: 1,
+  //         infinite: true,
+  //         dots: true,
+  //       },
+  //     },
+  //     {
+  //       breakpoint: 600,
+  //       settings: {
+  //         slidesToShow: 1,
+  //         slidesToScroll: 1,
+  //       },
+  //     },
+  //   ],
+  // };
   const handleSortChange = (value: string) => {
     // Handle sorting logic
     if (value === "descend" || value === "ascend") {
@@ -307,7 +307,7 @@ const Product = () => {
   const fetchProduct1 = async (
     name: string,
     filters = {} as SelectedFilters,
-    query?: string,
+    query?: string
   ) => {
     setBrandName(name);
     const simplifiedFilters = {
@@ -319,65 +319,69 @@ const Product = () => {
       pageSize: pageSize,
     };
     if (!query) {
-      query = ""
+      query = "";
     }
     const minisize = await axios.get(`/api/adminMinisize?q=${name}`);
     if (minisize) {
-      const miniId = minisize.data.minisizes[0].id
+      const miniId = minisize.data.minisizes[0].id;
       setLoadingProduct(true);
       axios
-      .get(
-        `/api/getProduct?q=${query}&sortBy=${sortBy}&minisizeId=${miniId}`,
-        {
-          params: simplifiedFilters,
-        }
-      )
-      .then((response) => {
-        const useProduct = response.data.products.map((product: DataType) => ({
-          key: product.id,
-          id: product.id,
-          code: product.code,
-          name: product.name,
-          brandId: product.brandId,
-          price: product.price,
-          navStock: product.navStock,
-          portalStock: product.portalStock,
-          minisizeId: product.minisizeId,
-          promotionId: product.promotionId,
-          updatedAt: product.updatedAt,
-          years: product.years ? JSON.parse(
-            product.years as unknown as string
-          ) as YearDataType[] : [],
-          lv1Id: product.lv1Id,
-          lv2Id: product.lv2Id,
-          lv3Id: product.lv3Id,
-          totalOrder: product.totalOrder,
-          brand: {
-            name: product?.brand?.name,
-          },
-          minisize: {
-            name: product?.minisize?.name,
-            lv1: product?.minisize?.lv1,
-            lv2: product?.minisize?.lv2,
-            lv3: product?.minisize?.lv3,
-          },
-          promotion: {
-            name: product?.promotion?.name,
-            id: product?.promotion?.id,
-          },
-          imageProducts: product?.imageProducts,
-          lv1Name: product.lv1Name,
-          lv2Name: product.lv2Name,
-          lv3Name: product.lv3Name,
-        }));
-        setProductData(useProduct);
-        setTotal(response.data.total);
-        setLoadingProduct(false);
-      })
-      .catch((error) => {
-        setLoadingProduct(false);
-        console.error("Error fetching data: ", error);
-      });
+        .get(
+          `/api/getProduct?q=${query}&sortBy=${sortBy}&minisizeId=${miniId}`,
+          {
+            params: simplifiedFilters,
+          }
+        )
+        .then((response) => {
+          const useProduct = response.data.products.map(
+            (product: DataType) => ({
+              key: product.id,
+              id: product.id,
+              code: product.code,
+              name: product.name,
+              brandId: product.brandId,
+              price: product.price,
+              navStock: product.navStock,
+              portalStock: product.portalStock,
+              minisizeId: product.minisizeId,
+              promotionId: product.promotionId,
+              updatedAt: product.updatedAt,
+              years: product.years
+                ? (JSON.parse(
+                    product.years as unknown as string
+                  ) as YearDataType[])
+                : [],
+              lv1Id: product.lv1Id,
+              lv2Id: product.lv2Id,
+              lv3Id: product.lv3Id,
+              totalOrder: product.totalOrder,
+              brand: {
+                name: product?.brand?.name,
+              },
+              minisize: {
+                name: product?.minisize?.name,
+                lv1: product?.minisize?.lv1,
+                lv2: product?.minisize?.lv2,
+                lv3: product?.minisize?.lv3,
+              },
+              promotion: {
+                name: product?.promotion?.name,
+                id: product?.promotion?.id,
+              },
+              imageProducts: product?.imageProducts,
+              lv1Name: product.lv1Name,
+              lv2Name: product.lv2Name,
+              lv3Name: product.lv3Name,
+            })
+          );
+          setProductData(useProduct);
+          setTotal(response.data.total);
+          setLoadingProduct(false);
+        })
+        .catch((error) => {
+          setLoadingProduct(false);
+          console.error("Error fetching data: ", error);
+        });
     }
   };
 
@@ -427,25 +431,23 @@ const Product = () => {
   useEffect(() => {
     const name = searchParams.get("name");
     if (name) {
-      fetchProduct1(name, selectedFilters, searchText)
+      fetchProduct1(name, selectedFilters, searchText);
       fetchMinisizeData(name);
     }
   }, [searchParams, selectedFilters, sortBy, currentPage]);
 
-  const handleFilterChange = (
-    filters: SelectedFilters, 
-  ) => {
+  const handleFilterChange = (filters: SelectedFilters) => {
     if (filters?.promotion?.id) {
       setHoveredPromotionId(Number(filters?.promotion?.id));
       setPromotionFilterId(Number(filters?.promotion?.id));
-    } 
-    
-    setSelectedFilters(filters); 
+    }
+
+    setSelectedFilters(filters);
 
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct1(name, filters, searchText); 
+      fetchProduct1(name, filters, searchText);
     }
 
     if (dataTableRef.current) {
@@ -498,15 +500,29 @@ const Product = () => {
   };
 
   const handleStatusClick = (product: DataType) => {
-    const selectedYearData = product.years.find(
-      (yearData) => yearData.year === selectedProductYear[product.id]
-    );
-    const discount = selectedYearData ? selectedYearData.discount : 0;
-
-    if (product.navStock > 0) {
-      addToCart(product, "Normal", discount);
+    console.log(product.years);
+    const yearData = product.years.filter((yearData) => yearData.isActive);
+    if (product.brand?.name === "PIRELLI" && yearData.length > 0) {
+      const selectedYearData = product.years.find(
+        (yearData) => yearData.year === selectedProductYear[product.id]
+      );
+      if (selectedYearData) {
+        const discount = selectedYearData ? selectedYearData.discount : 0;
+        if (product.navStock > 0) {
+          addToCart(product, "Normal", discount);
+        } else {
+          addToCart(product, "Back", discount);
+        }
+      } else {
+        toastError(t("Please select a year"));
+        return;
+      }
     } else {
-      addToCart(product, "Back", discount);
+      if (product.navStock > 0) {
+        addToCart(product, "Normal", 0);
+      } else {
+        addToCart(product, "Back", 0);
+      }
     }
   };
 
@@ -594,70 +610,71 @@ const Product = () => {
       key: "years",
       render: (years: YearDataType[], record) => (
         <div>
-          
-          {record.brand?.name === "PIRELLI" && years.filter((yearData) => yearData.isActive).map((yearData, index) => (
-            <Tooltip
-              placement="top"
-              title={`${yearData.discount}%`}
-              key={index}
-            >
-            
-              <Tag
-                color={
-                  yearData.isActive
-                    ? selectedProductYear[record.id] === yearData.year
-                      ? "#B8252E"
-                      : "red"
-                    : "#FFFFFF"
-                }
-                key={index}
-                style={{
-                  borderColor: yearData.isActive
-                    ? selectedProductYear[record.id] === yearData.year
-                      ? "#E4E7EB"
-                      : "#B8252E"
-                    : "#A6AEBB",
-                  cursor: yearData.isActive ? "pointer" : "default",
-                  color: yearData.isActive
-                    ? selectedProductYear[record.id] === yearData.year
-                      ? "#E4E7EB"
-                      : "#B8252E"
-                    : "#A6AEBB",
-                }}
-                onClick={() => {
-                  if (yearData.isActive) {
-                    setSelectedProductYear((prevSelected) => {
-                      // Check if the currently clicked year is the same as the selected year
-                      if (prevSelected[record.id] === yearData.year) {
-                        // If yes, remove the selection (unset)
-                        const updatedSelected = { ...prevSelected };
-                        delete updatedSelected[record.id]; // Remove the selected year for this product
-                        return updatedSelected;
-                      } else {
-                        // If not, set the new selection
-                        return {
-                          ...prevSelected,
-                          [record.id]: yearData.year,
-                        };
-                      }
-                    });
-                  }
-                }}
-              >
-                <span
-                  className={`gotham-font ${
-                    yearData.isActive
-                      ? selectedProductYear[record.id] === yearData.year
-                        ? "text-white font-semibold"
-                        : "text-[#B8252E] font-semibold"
-                      : "text-comp-gray-text font-normal"
-                  }`}
+          {record.brand?.name === "PIRELLI" &&
+            years
+              .filter((yearData) => yearData.isActive)
+              .map((yearData, index) => (
+                <Tooltip
+                  placement="top"
+                  title={`${yearData.discount}%`}
+                  key={index}
                 >
-                  {yearData.year.slice(-2)}
-                </span>
-              </Tag>
-            </Tooltip>
-          ))}
+                  <Tag
+                    color={
+                      yearData.isActive
+                        ? selectedProductYear[record.id] === yearData.year
+                          ? "#B8252E"
+                          : "red"
+                        : "#FFFFFF"
+                    }
+                    key={index}
+                    style={{
+                      borderColor: yearData.isActive
+                        ? selectedProductYear[record.id] === yearData.year
+                          ? "#E4E7EB"
+                          : "#B8252E"
+                        : "#A6AEBB",
+                      cursor: yearData.isActive ? "pointer" : "default",
+                      color: yearData.isActive
+                        ? selectedProductYear[record.id] === yearData.year
+                          ? "#E4E7EB"
+                          : "#B8252E"
+                        : "#A6AEBB",
+                    }}
+                    onClick={() => {
+                      if (yearData.isActive) {
+                        setSelectedProductYear((prevSelected) => {
+                          // Check if the currently clicked year is the same as the selected year
+                          if (prevSelected[record.id] === yearData.year) {
+                            // If yes, remove the selection (unset)
+                            const updatedSelected = { ...prevSelected };
+                            delete updatedSelected[record.id]; // Remove the selected year for this product
+                            return updatedSelected;
+                          } else {
+                            // If not, set the new selection
+                            return {
+                              ...prevSelected,
+                              [record.id]: yearData.year,
+                            };
+                          }
+                        });
+                      }
+                    }}
+                  >
+                    <span
+                      className={`gotham-font ${
+                        yearData.isActive
+                          ? selectedProductYear[record.id] === yearData.year
+                            ? "text-white font-semibold"
+                            : "text-[#B8252E] font-semibold"
+                          : "text-comp-gray-text font-normal"
+                      }`}
+                    >
+                      {yearData.year.slice(-2)}
+                    </span>
+                  </Tag>
+                </Tooltip>
+              ))}
         </div>
       ),
     },
@@ -811,7 +828,7 @@ const Product = () => {
     const name = query.get("name");
     setSearchText(value);
     if (name) {
-      fetchProduct1(name, selectedFilters, value); 
+      fetchProduct1(name, selectedFilters, value);
       fetchMinisizeData(name);
     }
   };
@@ -820,7 +837,7 @@ const Product = () => {
     const query = new URLSearchParams(window.location.search);
     const name = query.get("name");
     if (name) {
-      fetchProduct1(name, selectedFilters, ""); 
+      fetchProduct1(name, selectedFilters, "");
       fetchMinisizeData(name);
     }
   };
@@ -832,7 +849,7 @@ const Product = () => {
   return (
     <div className="px-4">
       <div className="px-4 pb rounded-lg">
-        <div className="promotion-card pb-4">
+        {/* <div className="promotion-card pb-4">
           {promotiondData.length > 3 ? (
             <Slider {...sliderSettings}>
               {promotiondData.map((promotion, index) => (
@@ -1059,7 +1076,7 @@ const Product = () => {
               ))}
             </div>
           )}
-        </div>
+        </div> */}
         <nav
           className="flex justify-between flex default-font text-white text-sm mt-4 nav-product"
           style={{
@@ -1133,15 +1150,15 @@ const Product = () => {
             onChange={handleInputChange}
             suffix={
               <CloseCircleOutlined
-                onMouseDown={(e) => e.preventDefault()} 
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={handleClear}
                 style={{
                   cursor: searchText ? "pointer" : "default",
-                  opacity: searchText ? 1 : 0,        
-                  pointerEvents: searchText ? "auto" : "none", 
+                  opacity: searchText ? 1 : 0,
+                  pointerEvents: searchText ? "auto" : "none",
                   transition: "opacity 120ms ease",
                 }}
-                tabIndex={-1} 
+                tabIndex={-1}
               />
             }
           />

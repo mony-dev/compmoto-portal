@@ -15,7 +15,7 @@ import { useCart } from "@components/Admin/Cartcontext";
 const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
-export default function normalOrder({ params }: { params: { id: number } }) {
+export default function NormalOrder({ params }: { params: { id: number } }) {
   const [reData, setReData] = useState<DataType>();
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
@@ -237,6 +237,14 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       ),
     },
     {
+      title: t("year"),
+      dataIndex: "year",
+      key: "year",
+      defaultSortOrder: "descend",
+      sorter: (a, b) => a.year.toString().localeCompare(b.year.toString()),
+      render: (_, record) => <p>{record.year ? record.year : '-'}</p>,
+    },
+    {
       title: t("Lot Discount"),
       dataIndex: "discount",
       key: "discount",
@@ -280,7 +288,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
   ];
 
   const actions: React.ReactNode[] = [
-    <div className="flex justify-between promotion-text p-6">
+    <div key="grandTotal" className="flex justify-between promotion-text p-6">
       <p className="text-sm default-font text-base text-black">
         {t("Grand Total")}
       </p>
@@ -334,8 +342,8 @@ export default function normalOrder({ params }: { params: { id: number } }) {
         className="py-8 px-8 rounded-lg flex flex-col bg-white"
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
-        <div className="grid grid-cols-4 gap-4 order-table">
-          <div className="col-span-3">
+        <div className="grid grid-cols-6 gap-4 order-table">
+          <div className="col-span-5">
             <div className="flex justify-between items-center pb-4">
               <div className="flex flex-col">
                 <p className="text-xl font-thin grow pb-1 default-font">
@@ -359,7 +367,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
               </div>
             )}
           </div>
-          <div className="col-span-1 col-start-4">
+          <div className="col-span-1 col-start-6">
             <Card
               title={t("You’re paying")}
               bordered={false}

@@ -297,11 +297,11 @@ model Promotion {
   updatedAt     DateTime @updatedAt
   isActive      Boolean
   name          String
-  amount        Float
-  minisizeId    Int
+  amount        Float?
   userGroup     String?
-  productRedeem String
-  minisize      Minisize @relation(fields: [minisizeId], references: [id])
+  productRedeem String?
+  minisizeId       Int?
+  minisize         Minisize? @relation(fields: [minisizeId], references: [id], onDelete: SetNull)
   customerGroupId    Int?
   customerGroup      CustomerGroup? @relation(fields: [customerGroupId], references: [id])
   products      Product[]

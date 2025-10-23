@@ -17,6 +17,10 @@ export async function GET(request: Request) {
               { productRedeem: { contains: q, mode: "insensitive" } },
             ],
           },
+          orderBy: [
+            { createdAt: 'desc' }, 
+            { id: 'desc' },       
+          ],
           skip: (page - 1) * pageSize,
           take: pageSize,
         }),

@@ -259,7 +259,7 @@ export default function AdminInvoice({ params }: { params: { id: number } }) {
   ];
 
   const actions: React.ReactNode[] = [
-    <div className="flex justify-between promotion-text p-6">
+    <div key={1} className="flex justify-between promotion-text p-6">
       <p className="text-sm gotham-font text-base text-black">{t("Grand Total")}</p>
       <p className="text-xl font-semibold	text-black default-font">
         ฿
@@ -396,6 +396,14 @@ export default function AdminInvoice({ params }: { params: { id: number } }) {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
+                  </p>
+                </div>
+              )}
+              {reData?.externalDocument && (
+                <div className="flex justify-between promotion-text pb-4">
+                  <p className="text-sm gotham-font text-[#919FAF]">{t("Promotion")}</p>
+                  <p className="text-sm default-font">
+                   {reData.externalDocument}
                   </p>
                 </div>
               )}

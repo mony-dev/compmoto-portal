@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         subTotal: subTotal,
         totalAmount: totalQty, // Add the calculated total quantity here
         groupDiscount: user.customerGroup?.discount ?? 0,
-        externalDocument: ""
+        externalDocument: data.description,
       },
     });
 

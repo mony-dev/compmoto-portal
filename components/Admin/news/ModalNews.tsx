@@ -6,7 +6,7 @@ import { Button, Form, Input, Modal, Switch, Select } from "antd";
 import axios from "axios";
 import { useCurrentLocale } from "next-i18n-router/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -70,6 +70,9 @@ const ModalNews = ({
   const [coverImg, setCoverImg] = useState<string | { url: string }[]>([]);
   const locale = useCurrentLocale(i18nConfig);
 
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  
   useEffect(() => {
     const news = newsData.find((item: { id: number }) => item.id === id);
     if (news && mode === "EDIT") {
@@ -117,6 +120,9 @@ const ModalNews = ({
   };
 
   const onSubmit: SubmitHandler<NewsSchema> = async (values) => {
+    if (submittingRef.current) return;  
+    submittingRef.current = true;
+    setSubmitting(true);
     if (mode === "EDIT" && editNewsData) {
       try {
         const response = await axios.put(
@@ -134,6 +140,8 @@ const ModalNews = ({
         toastSuccess(t("News_updated_successfully"));
         router.replace(`/${locale}/admin/adminNews`);
       } catch (error: any) {
+        submittingRef.current = false;                
+        setSubmitting(false);
         toastError(error.message);
       }
     } else {
@@ -151,6 +159,8 @@ const ModalNews = ({
         toastSuccess(t("news_created_successfully"));
         router.replace(`/${locale}/admin/adminNews`);
       } catch (error: any) {
+        submittingRef.current = false;                
+        setSubmitting(false);
         toastError(error.message);
       }
     }
@@ -298,6 +308,9 @@ const ModalNews = ({
             type="primary"
             htmlType="submit"
             className="bg-comp-red button-backend"
+            disabled={submitting}
+            loading={submitting}
+            onClick={(e) => e.currentTarget.blur()}
           >
             {t("submit")}
           </Button>

@@ -141,7 +141,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       const yearToUse = selectedProductYear[record.id]; // Use the latest state here
       newTotalAmount += amount;
       newTotalPrice += calculateTotalPrice(record, amount, yearToUse);
-      checkPromotion();
+      // checkPromotion();
     });
     
     setTotalAmount(newTotalAmount);
@@ -274,7 +274,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     recalculateTotals(
       cartData.filter((item) => selectedItems.includes(item.id))
     );
-    checkPromotion();
+    // checkPromotion();
   };
 
   const handleDecrement = (name: string, record: CartDataType) => {
@@ -295,7 +295,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
         recalculateTotals(
           cartData.filter((item) => selectedItems.includes(item.id))
         );
-        checkPromotion();
+        // checkPromotion();
       }
     }
   };
@@ -325,7 +325,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
         updateItem(record, currentValue, totalPrice);
         updatePriceDisplay(record.id, totalPrice, originalPrice);
         recalculateTotals(cartData.filter((item) => selectedItems.includes(item.id)));
-        checkPromotion();
+        // checkPromotion();
       }
     }
   };
@@ -419,13 +419,13 @@ const Cart = ({ params }: { params: { id: number } }) => {
         if (currentSelectedYear === yearData.year) {
           // If yes, remove the selection (unset)
           const updatedYearSelection = { ...prevSelectedProductYear };
-          delete updatedYearSelection[record.id]; // Remove the selected year for this product
+          // delete updatedYearSelection[record.id]; // Remove the selected year for this product
           // Update the total and original price for this specific product using the new year
-          const amount = getValues(`amount_${record.id}`) || 0;
-          const totalPrice = record.product.price * amount
-          const originalPrice = calculateOriginalPrice(record, amount);
-          updatePriceDisplay(record.id, totalPrice, originalPrice);
-          updateItem(record, amount, totalPrice, null);
+          // const amount = getValues(`amount_${record.id}`) || 0;
+          // const totalPrice = record.product.price * amount
+          // const originalPrice = calculateOriginalPrice(record, amount);
+          // updatePriceDisplay(record.id, totalPrice, originalPrice);
+          // updateItem(record, amount, totalPrice, null);
           return updatedYearSelection;
         } else {
           // If not, set the new selection

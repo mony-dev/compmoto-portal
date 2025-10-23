@@ -81,7 +81,7 @@ const Media = () => {
       fetchMinisizeData(name);
       //fetchPromotion(name);
     }
-  }, [session]);
+  }, [pathname, session, setI18nName]);
 
   const isActive = pathname.includes("admin/media");
 
@@ -332,10 +332,19 @@ const Media = () => {
         </div>
         <div className="media-radio">
           <Radio.Group
-            defaultValue="Video"
+            // defaultValue="Video"
+            // buttonStyle="solid"
+            // onChange={changeTab}
+            // className="default-font"
+
+            value={type}                 // controlled
             buttonStyle="solid"
-            onChange={changeTab}
+            onChange={(e) => {
+              if (loading) return;       // extra guard (keyboard/events)
+              changeTab(e);
+            }}
             className="default-font"
+            disabled={loading}           // <-- disables all radios while loading
           >
             <Radio.Button value="Video">
               <span className="default-font">{t("Video")}</span>

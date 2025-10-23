@@ -13,16 +13,29 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
   const [isMobileOpened, setIsMobileOpened] = useState(false);
   const [minisizeItems, setMinisizeItems] = useState<{ name: string }[]>([]);
-  const { setProfileImage } = useCart();
+  const { setProfileImage, setUserId } = useCart();
 
   const toggleMobileMenu = () => {
     setIsMobileOpened((opened) => !opened);
+  };
+  const getUserId = () => {
+    setUserId(session?.user.id);
+    return session?.user.id;
   };
 
   useEffect(() => {
     const fetchMinisizeItems = async () => {
       try {
-        const response = await axios.get("/api/minisizeMenu/");
+        if (session) {
+          await setProfileImage(session.user.image);
+        }
+        const userId = getUserId();
+        // const response = await axios.get("/api/minisizeMenu/");
+        const response  = await axios.get(`/api/minisizeMenu`, {
+          params: {
+            userId: userId
+          },
+        });
         const data = response.data.data;
         const minisize = data.map((mini: any, index: number) => ({
           key: index + 1,
@@ -38,12 +51,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     fetchMinisizeItems();
   }, []); // Fetch minisize items on initial mount
 
-  useEffect(() => {
-    if (session) {
-      // Only set profile image if the session is available
-      setProfileImage(session.user.image);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (session) {
+  //     // Only set profile image if the session is available
+  //     setProfileImage(session.user.image);
+  //     setUserId(session.user.id);
+  //   }
+  // }, []);
 
   if (status === "loading") {
     return <div>Loading...</div>; // or a loading spinner
