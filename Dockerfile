@@ -1,8 +1,8 @@
 # Base stage
 FROM node:18-alpine as base
 
-# Install necessary packages
-RUN apk add --no-cache g++ make py3-pip libc6-compat
+# Install necessary packages (รวม openssl ด้วย)
+RUN apk add --no-cache g++ make py3-pip libc6-compat openssl
 
 # Set the working directory
 WORKDIR /app
@@ -34,7 +34,13 @@ RUN npm run build
 # Production stage
 FROM node:18-alpine as production
 
+# ติดตั้ง openssl ใน production stage ด้วย
+RUN apk add --no-cache openssl
+
+# Set the working directory
 WORKDIR /app
+
+# Set NODE_ENV to production
 ENV NODE_ENV=production
 
 # Copy only necessary files from the builder stage
@@ -50,6 +56,8 @@ RUN addgroup -g 1001 -S nodejs \
   && mkdir -p /app/.next/cache/images \
   && chown -R nextjs:nodejs /app
 
+# Change to the non-root user
 USER nextjs
 
+# Start the Next.js application
 CMD ["npm", "start"]
