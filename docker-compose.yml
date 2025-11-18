@@ -5,18 +5,16 @@ services:
       context: ./
       dockerfile: Dockerfile
     volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-      - logs_data:/app/logs # Use Docker volume for logs
+      - logs_data:/app/logs
     ports:
-      - "3000:3000" 
+      - "3000:3000"
     networks:
       - compmoto-net
     env_file:
-      - .env
+      - .env.staging
     environment:
       - TZ=Asia/Bangkok 
+
   postgres: 
     image: postgres:15-alpine
     environment:
@@ -30,6 +28,7 @@ services:
       - "5432:5432"
     networks:
       - compmoto-net
+
   nginx:
     image: nginx:latest
     build:
@@ -46,9 +45,11 @@ services:
       - compmoto-net
     environment:
       - TZ=Asia/Bangkok
+
 networks:
   compmoto-net:
     driver: bridge
+
 volumes:
   postgres_data:
   logs_data:
