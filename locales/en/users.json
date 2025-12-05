@@ -35,6 +35,7 @@
   "view_and_edit": "view|edit",
   "year": "Year",
   "month": "Month",
-  "custNo is already exist": "หมายเลขผู้ใช้งานนี้ซ้ำ กรุณากรอกใหม่อีกครั้ง",
-  "This user is already exist": "ผู้ดูแลระบบคนนี้ซ้ำ กรุณากรอกใหม่อีกครั้ง"
+  "custNo is already exist": "CustNo is already exist",
+  "This user is already exist": "This user is already exist",
+  "Sync user successfully": "Sync user successfully"
 }
