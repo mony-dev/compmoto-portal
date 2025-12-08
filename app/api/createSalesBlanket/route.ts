@@ -1,76 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { decrypt } from '@lib-shared/utils/encryption';
-import axios from 'axios';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import axios from "axios";
+
 const prisma = new PrismaClient();
 
-export async function POST(req: NextRequest) {
-  const { id, customerNo, orderItems } = await req.json();
+const NAV_URL = process.env.NAV_URL;
+const COMPANY_ID = process.env.COMPANY_ID;
+const NAV_BASIC_AUTH = process.env.NAV_BASIC_AUTH; // เช่น "Basic xxxxx"
 
+if (!NAV_URL) throw new Error("Missing NAV_URL");
+if (!COMPANY_ID) throw new Error("Missing COMPANY_ID");
+if (!NAV_BASIC_AUTH) throw new Error("Missing NAV_BASIC_AUTH");
+
+export async function POST(req: NextRequest) {
   try {
-    // Fetch the user from the database using Prisma
-    const user = await prisma.user.findUnique({
-      where: { id: Number(id) },
-      include: { saleUser: true }, // Include the related saleUser
+    const { customerNo, orderItems } = await req.json();
+
+    if (!customerNo || !orderItems) {
+      return NextResponse.json(
+        { message: "customerNo & orderItems are required" },
+        { status: 400 }
+      );
+    }
+
+    // สร้าง blanketLines ตาม format ใหม่
+    const blanketLines = orderItems.map((item: any) => ({
+      itemNo: item.itemNo,
+      qty: item.qty,
+      unitPrice: item.unitPrice,
+      blanketRemainQty: item.qty,
+    }));
+
+    const payload = {
+      customerNo,
+      paymentMethod: "TRANFER",
+      blanketLines,
+    };
+
+    const url = `${NAV_URL}/companies(${COMPANY_ID})/api_CreateSalesBlankets`;
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: NAV_BASIC_AUTH,
+      },
     });
 
-    if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
-    }
-
-    if (!user.saleUser || !user.saleUser?.encryptedPasswordtext) {
-      return NextResponse.json({ message: 'Sale user not found' }, { status: 404 });
-    }
-   
-    // Decrypt the password stored in the `encryptedPlaintext` column
-    const decryptedPassword = decrypt(user.saleUser?.encryptedPasswordtext);
-    // Use the decrypted password for your API call
-    const authString = Buffer.from(`${user.saleUser.email}:${decryptedPassword}`).toString('base64');
-    const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
-    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
-      <soapenv:Header/>
-      <soapenv:Body>
-        <wsc:CreateSalesBlanket>
-          <wsc:p_oSales>
-            <PT_SalesHdr>
-              <CustomerNo>${customerNo}</CustomerNo>
-              <PaymentMethod>TRANFER</PaymentMethod>
-              ${orderItems
-                .map(
-                  (item: { itemNo: string; qty: number; unitPrice: number }) => `
-              <PT_SalesLine>
-                <ItemNo>${item.itemNo}</ItemNo>
-                <Qty>${item.qty}</Qty>
-                <UnitPrice>${item.unitPrice}</UnitPrice>
-                <BlanketRemainQty>${item.qty}</BlanketRemainQty>    
-              </PT_SalesLine>`
-                )
-                .join('')}
-            </PT_SalesHdr>
-          </wsc:p_oSales>
-        </wsc:CreateSalesBlanket>
-      </soapenv:Body>
-    </soapenv:Envelope>`;
-    console.log(soapRequest)
-
-    const response = await axios.post(
-      `${process.env.NAV_URL}`,
-      soapRequest,
-      {
-        headers: {
-          SOAPACTION: 'CreateSalesBlanket',
-          'Content-Type': 'application/xml',
-          Authorization: `Basic ${authString}`,
-        },
-      }
-    );
-    console.log(response)
+    console.log("✅ NAV Response:", response.data);
 
     return NextResponse.json(response.data);
   } catch (error: any) {
+    console.error("CreateSalesBlanket Error:", error?.response?.data || error);
     return NextResponse.json(
-      { message: 'Failed to create BO', error: error.message },
+      { message: "Failed to create blanket order", error: error?.message },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }

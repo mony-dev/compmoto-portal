@@ -25,14 +25,14 @@ const handler = NextAuth({
         custNo: { label: "custNo", type: "text" },
         password: { label: "Password", type: "password" },
       },
-       // @ts-ignore: TypeScript error explanation or ticket reference
+      // @ts-ignore: TypeScript error explanation or ticket reference
       async authorize(credentials, req) {
         if (!credentials) return null;
 
         try {
           const user = await prisma.user.findUnique({
             where: { custNo: credentials.custNo },
-            include: { 
+            include: {
               saleUser: true,
               customerGroup: true
             },
@@ -72,7 +72,7 @@ const handler = NextAuth({
         token.custPriceGroup = user.custPriceGroup;
         token.image = user.image;
         token.customerGroupId = user.customerGroupId;
-  
+
         // Fetch and add saleUserCustNo if necessary
         if (user.saleUserId) {
           try {
@@ -101,7 +101,7 @@ const handler = NextAuth({
           }
         }
       }
-  
+
       return token;
     },
     async session({ session, token }) {
@@ -119,55 +119,50 @@ const handler = NextAuth({
         customerDiscount: token.customerDiscount,
         customerGroupName: token.customerGroupName
       };
-  
+
       try {
         // Fetch the latest userLog entry for this user
         const userLog = await prisma.userLog.findFirst({
           where: { userId: Number(token.id) },
           orderBy: { createdAt: "desc" },
         });
-  
+
         if (userLog) {
           session.user.latestUserLogCreatedAt = userLog.createdAt;
         }
-  
+
         if (token.custNo) {
           // Fetch additional data from external API
-          const response = await fetch("http://49.0.64.73:9147/BC200/WS/Comp%20Test/Codeunit/WSIntegration", {
-            method: "POST",
+          const NAV_URL = process.env.NAV_URL!;
+          const NAV_BASIC_AUTH = process.env.NAV_BASIC_AUTH!;
+          const COMPANY_ID = process.env.COMPANY_ID!;
+        
+          const filter = encodeURIComponent(`CustNo eq '${token.custNo}'`);
+          const url = `${NAV_URL}/companies(${COMPANY_ID})/api_MasterCustomerDetails?$filter=${filter}`;
+          const response = await fetch(url, {
+            method: "GET",
             headers: {
-              SOAPACTION: "MasterCustomerDetail",
-              "Content-Type": "application/xml",
-              Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
+              "Content-Type": "application/json",
+              Authorization: `${NAV_BASIC_AUTH}`, 
             },
-            body: `<?xml version="1.0" encoding="UTF-8"?>
-              <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
-                <soapenv:Header/>
-                <soapenv:Body>
-                  <wsc:MasterCustomerDetail>
-                    <wsc:p_gCustomer>${token.custNo}</wsc:p_gCustomer>
-                    <wsc:p_oCustomers></wsc:p_oCustomers>
-                  </wsc:MasterCustomerDetail>
-                </soapenv:Body>
-              </soapenv:Envelope>`,
           });
-  
-          const xml = await response.text();
-  
-          xml2js.parseString(xml, (err, result) => {
-            if (err) {
-              console.error("XML parsing error:", err);
-              return;
+
+          if (!response.ok) {
+            console.error("NAV MasterCustomerDetails error:", response.status, await response.text());
+          } else {
+            const data = await response.json();
+
+            const customerInfo = data?.value?.[0] ?? null;
+
+            if (customerInfo) {
+              session.user.data = customerInfo;
             }
-  
-            const customerInfo = result["Soap:Envelope"]["Soap:Body"][0]["MasterCustomerDetail_Result"][0]["p_oCustomers"][0]["PT_CustomerInfo"][0];
-            session.user.data = customerInfo;
-          });
+          }
         }
       } catch (error) {
         console.error("Session callback error:", error);
       }
-  
+
       return session;
     },
   },

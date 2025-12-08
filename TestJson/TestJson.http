@@ -1,0 +1,129 @@
+# XTH : http://xtricate.ddns.net:25048/BC200AU/api/compmoto/pos/v2.0/companies(e568c1d1-b486-ed11-aec0-4c34888385b9)/Api_MasterProductList?$filter=ItemCategoryCode eq 'PROFENDER'
+# Comp :
+# Content-Type: application/json
+# Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiRVhURVJOQUxfU1lTVEVNIiwiYXBwIjoiTkFWIiwiaWF0IjoxNzUwOTMwNzA5LCJleHAiOjE3ODI0NjY3MDl9.dKj7i8tIJIctrrpzZS7jS31rSlFYAknzj0YVwnZnrXM
+//if you don't want filter delete the line with $filter
+@baseUrl = http://xtricate.ddns.net:25048/BC200AU/api/compmoto/pos/v2.0
+@companyId = e568c1d1-b486-ed11-aec0-4c34888385b9
+@filter = ItemCategoryCode eq 'PROFENDER'
+#1. MasterProductList
+GET {{baseUrl}}/companies({{companyId}})/api_MasterProductLists?$filter={{filter}}
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#2.MasterSalesBlanket
+#Api_MasterSalesBlanket
+#lineInfos
+#&$filter=SalesNo eq 'COM-SB2301-0068'
+GET {{baseUrl}}/companies({{companyId}})/api_MasterSalesBlankets?$top=1&$expand=lineInfos&$filter=SalesNo eq 'COM-SB2301-0068'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+//
+
+#3.MasterCustomerList
+GET {{baseUrl}}/companies({{companyId}})/api_MasterCustomerLists?$top=10
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#4.Api_MasterCustomerDetail
+GET {{baseUrl}}/companies({{companyId}})/api_MasterCustomerDetails?$filter=CustNo eq 'A-00001'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#5.Api_MasterItemByLot
+GET {{baseUrl}}/companies({{companyId}})/api_MasterItemByLots?$filter=ItemNo eq '21331'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#6.Api_MasterPostedCreditMemoList
+GET {{baseUrl}}/companies({{companyId}})/api_MasterPostedCreditMemoLists?$filter=SalesNo eq 'CS04-CN25-00000002'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#7.Api_MasterSalesInvoice
+GET {{baseUrl}}/companies({{companyId}})/api_MasterSalesInvoices?$expand=api_MasterSalesInvoiceLines&$filter=SalesNo eq 'CS03-SS25-0000002'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#8.50139.Api_ReportSalesInvoiceDetail [POST]
+#Microsoft.NAV.PopulateData
+POST http://xtricate.ddns.net:25048/BC200AU/api/compmoto/pos/v2.0/companies(e568c1d1-b486-ed11-aec0-4c34888385b9)/api_ReportSalesInvoiceFilters
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+{
+    "StartDateFilter": "2025-01-01",
+    "EndDateFilter": "2025-12-31",
+    "CustNo": "",
+    "InvoiceNo": ""
+}
+
+#8.50139.Api_ReportSalesInvoiceDetail [GET]
+GET http://xtricate.ddns.net:25048/BC200AU/api/compmoto/pos/v2.0/companies(e568c1d1-b486-ed11-aec0-4c34888385b9)/api_ReportSalesInvoiceDetails
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+# ... other headers
+
+#9. สร้าง Sales Quote พร้อม Lines
+POST {{baseUrl}}/companies({{companyId}})/api_CreateSalesQuotes
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+{
+  "customerNo": "D-00010",
+  "paymentMethod": "TRANFER",
+  "externalDoc": "EXT-001",
+  "lines": [
+    {
+      "itemNo": "23168",
+      "qty": 2,
+      "unitPrice": 1000,
+      "lineDiscountP": 5,
+      "lineTyreP": 0,
+      "tyreYear": "2025"
+    },
+    {
+      "itemNo": "23171",
+      "qty": 4,
+      "unitPrice": 800,
+      "lineDiscountP": 0,
+      "lineTyreP": 0,
+      "tyreYear": "2025"
+    }
+  ]
+}
+
+GET {{baseUrl}}/companies({{companyId}})/api_CreateSalesQuotes?$expand=lines&$filter=quoteNo eq 'COM-SQ2301-0216'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+#10. สร้าง Sales Blanket พร้อม Lines
+# สร้าง Sales Blanket Order พร้อม Lines
+POST {{baseUrl}}/companies({{companyId}})/api_CreateSalesBlankets
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=
+
+{
+  "customerNo": "D-00010",
+  "paymentMethod": "TRANFER",
+  "blanketLines": [
+    {
+      "itemNo": "23168",
+      "qty": 100,
+      "unitPrice": 1000,
+      "blanketRemainQty": 100
+    },
+    {
+      "itemNo": "23171",
+      "qty": 200,
+      "unitPrice": 800,
+      "blanketRemainQty": 200
+    }
+  ]
+}
+
+GET {{baseUrl}}/companies({{companyId}})/api_CreateSalesBlankets?$expand=blanketLines&$filter=blanketNo eq 'COM-SB2006-0089'
+Content-Type: application/json
+Authorization: Basic YWRtaW46UEBzc3cwcmQ=

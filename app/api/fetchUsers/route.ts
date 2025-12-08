@@ -1,20 +1,25 @@
-import { exec } from 'child_process';
-import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
-const prisma = new PrismaClient();
+import { NextResponse } from 'next/server';
+import { syncNavCustomersIncremental } from '@lib/server/services/navCustomerSync';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    exec('node lib/web/utils/fetchUsers.mjs', (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return NextResponse.json(error);
-        }
-      });
-    return NextResponse.json("200");
+    const result = await syncNavCustomersIncremental();
+
+    return NextResponse.json(
+      {
+        status: 'ok',
+        insertedCount: result.insertedCount,
+      },
+      { status: 200 },
+    );
   } catch (error) {
-    return NextResponse.json(error);
-  } finally {
-    await prisma.$disconnect();
+    console.error('fetchUsers API error:', error);
+    return NextResponse.json(
+      {
+        status: 'error',
+        message: 'sync failed',
+      },
+      { status: 500 },
+    );
   }
 }

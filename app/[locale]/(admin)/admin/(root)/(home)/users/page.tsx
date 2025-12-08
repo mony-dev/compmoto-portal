@@ -13,7 +13,7 @@ import i18nConfig from "../../../../../../../i18nConfig";
 import { useCart } from "@components/Admin/Cartcontext";
 import { useTranslation } from "react-i18next";
 import { CloseCircleOutlined } from "@ant-design/icons";
-const Loading = dynamic(() => import("@components/Loading"));
+// const Loading = dynamic(() => import("@components/Loading"));
 const DataTable = dynamic(() => import("@components/Admin/Datatable"));
 
 export default function Users() {
@@ -32,6 +32,7 @@ export default function Users() {
   const [userData, setUserData] = useState<DataType[]>([]);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isSyncing, setIsSyncing] = useState(false);
 
   interface DataType {
     key: number;
@@ -66,8 +67,16 @@ export default function Users() {
     };
   }, [currentPage, debouncedFetchData]);
 
-  async function fetchData(query: string = "") {
-    setLoadPage(true);
+  async function fetchData(
+    query: string = "",
+    options?: { withLoading?: boolean }
+  ) {
+    const withLoading = options?.withLoading ?? true;
+
+    if (withLoading) {
+      setLoadPage(true);
+    }
+
     try {
       const roles = "USER";
       const { data } = await axios.get(`/api/users`, {
@@ -82,7 +91,7 @@ export default function Users() {
       const userDataWithKeys = data.users.map(
         (user: DataType, index: number) => ({
           ...user,
-          key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
+          key: index + 1 + (currentPage - 1) * pageSize,
         })
       );
 
@@ -91,7 +100,9 @@ export default function Users() {
     } catch (error: any) {
       toastError(error);
     } finally {
-      setLoadPage(false);
+      if (withLoading) {
+        setLoadPage(false);
+      }
     }
   }
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,15 +224,15 @@ export default function Users() {
               onChange={handleInputChange}
               suffix={
                 <CloseCircleOutlined
-                  onMouseDown={(e) => e.preventDefault()} 
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleClear}
                   style={{
                     cursor: searchText ? "pointer" : "default",
-                    opacity: searchText ? 1 : 0,        
-                    pointerEvents: searchText ? "auto" : "none", 
+                    opacity: searchText ? 1 : 0,
+                    pointerEvents: searchText ? "auto" : "none",
                     transition: "opacity 120ms ease",
                   }}
-                  tabIndex={-1} 
+                  tabIndex={-1}
                 />
               }
             />
@@ -229,12 +240,21 @@ export default function Users() {
               className="bg-comp-red button-backend ml-4"
               type="primary"
               icon={<ArrowPathIcon className="w-4" />}
+              loading={isSyncing}
               onClick={async () => {
                 try {
-                  const response = await axios.get("/api/fetchUsers");
-                  toastSuccess("Sync user successfully");
+                  setIsSyncing(true);
+                  setLoadPage(true);
+
+                  await axios.get("/api/fetchUsers");
+                  await fetchData(searchText, { withLoading: false });
+
+                  toastSuccess(t("Sync user successfully"));
                 } catch (error: any) {
                   toastError(error);
+                } finally {
+                  setIsSyncing(false);
+                  setLoadPage(false);
                 }
               }}
             >

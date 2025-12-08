@@ -1,160 +1,167 @@
-import { OrderType, PrismaClient } from "@prisma/client";
+import { OrderType, PrismaClient, Prisma } from "@prisma/client";
 import axios from "axios";
 import { NextResponse } from "next/server";
-import { parseStringPromise } from "xml2js";
+
 const prisma = new PrismaClient();
+
+const NAV_URL = process.env.NAV_URL;         
+const COMPANY_ID = process.env.COMPANY_ID;   
+const NAV_BASIC_AUTH = process.env.NAV_BASIC_AUTH; 
+
+if (!NAV_URL) throw new Error("Missing NAV_URL in env");
+if (!COMPANY_ID) throw new Error("Missing COMPANY_ID in env");
+if (!NAV_BASIC_AUTH) throw new Error("Missing NAV_BASIC_AUTH in env");
+
+type OrderWithRelations = Prisma.OrderGetPayload<{
+  include: {
+    user: { include: { saleUser: true } };
+    items: { include: { product: true } };
+  };
+}>;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const q = searchParams.get('q') || '';
-  const type = searchParams.get('type') || '';
-  const userId = searchParams.get('userId') || '';
-  const userRole = searchParams.get('role') || '';
-  const page = parseInt(searchParams.get("page") || "1");
-  const pageSize = parseInt(searchParams.get("pageSize") || "1000");
+  const q = searchParams.get("q") || "";
+  const type = searchParams.get("type") || "";
+  const userId = searchParams.get("userId") || "";
+  const userRole = searchParams.get("role") || "";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || "1000", 10);
+
   if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "User ID is required" },
+      { status: 400 }
+    );
   }
 
-  const startOfYear = new Date(new Date().getFullYear(), 0, 1); 
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1);
   const endOfYear = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59, 999);
 
   try {
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where: {
-          type: type ? (type as OrderType) : undefined,
-          OR: q ? [
-            {
-              documentNo: {
-                contains: q, 
-                mode: 'insensitive', 
+    const whereBase: Prisma.OrderWhereInput = {
+      type: type ? (type as OrderType) : undefined,
+      createdAt: {
+        gte: startOfYear,
+        lt: endOfYear,
+      },
+      ...(q
+        ? {
+            OR: [
+              {
+                documentNo: {
+                  contains: q,
+                  mode: "insensitive",
+                },
               },
-            }
-          ] : undefined,
-          createdAt: {
-            gte: startOfYear,
-            lt: endOfYear,
-          },
-          ...(userRole === 'SALE' && {
-            user: {
-              saleUserId: parseInt(userId),
-            }
-          }),
-        },
-        include: {
-          user: {
-              include: {
-                saleUser: true,
-              },
-          },
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      prisma.order.count({
-        where: {
-          type: type ? (type as OrderType) : undefined,
-          OR: q ? [
-            {
-              documentNo: {
-                contains: q, 
-                mode: 'insensitive', 
-              },
-            }
-          ] : undefined,
-          createdAt: {
-            gte: startOfYear,
-            lt: endOfYear,
-          },
-          ...(userRole === 'SALE' && {
-            user: {
-              saleUserId: parseInt(userId),
-            }
-          }),
-        },
-      }),
-    ]);
-    if (type === 'Back') {
-      // Ensure we correctly resolve all promises before filtering
-      const newOrders = await Promise.all(
-        orders.map(async (order) => {
-          try {
-            const soapRequest = await axios({
-              method: "get",
-              url: process.env.NAV_URL,
-              headers: {
-                SOAPACTION: "MasterSalesBlanket",
-                "Content-Type": "application/xml",
-                Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
-              },
-              data: `<?xml version="1.0" encoding="UTF-8"?>
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
-                  <soapenv:Header/>
-                  <soapenv:Body>
-                    <wsc:MasterSalesBlanket>
-                        <wsc:p_gBlanketNo>${order.documentNo}</wsc:p_gBlanketNo>
-                        <wsc:p_oSales></wsc:p_oSales>
-                    </wsc:MasterSalesBlanket>
-                  </soapenv:Body>
-                </soapenv:Envelope>`,
-            });
-
-            const soapText = await parseStringPromise(soapRequest.data);
-            const salesInfo =
-              soapText["Soap:Envelope"]["Soap:Body"][0]["MasterSalesBlanket_Result"][0][
-                "p_oSales"
-              ][0]["PT_SalesInfo"][0];
-
-            const lineInfos = salesInfo?.["LineInfo"] || [];
-            const lineItems = lineInfos.map((lineInfo: { [x: string]: any[] }) => ({
-              itemNo: lineInfo["ItemNo"][0],
-              itemName: lineInfo["ItemName"][0],
-              qty: parseInt(lineInfo["Qty"][0], 10),
-              lineAmount: parseFloat(lineInfo["LineAmount"][0]),
-              lineDiscount: parseFloat(lineInfo["LineDiscount"][0]),
-              lineDiscountPc: parseFloat(lineInfo["LineDiscountPc"][0]),
-              lineAmtAfterDiscount: parseFloat(lineInfo["LineAmtAfterDiscount"][0]),
-              qtyToShip: parseInt(lineInfo["QtytoShip"][0], 10),
-              qtyShipped: parseInt(lineInfo["QtytoShiped"][0], 10),
-              madeToOrder: lineInfo["MadeToOrder"][0],
-            }));
-
-            let conutItem = 0;
-            order.items.forEach((item) => {
-              const matchingLineItem = lineItems.find(
-                (lineItem: { itemNo: string; madeToOrder: any }) =>
-                  lineItem.itemNo === item.product.code &&
-                  Number(lineItem.madeToOrder) === item.amount
-              );
-
-              if (!matchingLineItem) {
-                conutItem += 1;
-              }
-            });
-
-            // ✅ Ensure the mapped function always resolves properly
-            return { ...order, conutItem };
-          } catch (error) {
-            return { ...order, conutItem: 0 }; // Return with default value to avoid breaking the flow
+            ],
           }
-        })
-      );
-      const filteredOrders = newOrders.filter((order) => order.conutItem !== 0);
-      return NextResponse.json({ orders: filteredOrders, total: filteredOrders.length });
-    } else {
+        : {}),
+      ...(userRole === "SALE"
+        ? {
+            user: {
+              saleUserId: parseInt(userId, 10),
+            },
+          }
+        : {}),
+    };
+
+    // แยก findMany กับ count เพื่อให้ TS infer type ชัด
+    const orders: OrderWithRelations[] = await prisma.order.findMany({
+      where: whereBase,
+      include: {
+        user: {
+          include: {
+            saleUser: true,
+          },
+        },
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const total = await prisma.order.count({
+      where: whereBase,
+    });
+
+    if (type !== "Back") {
       return NextResponse.json({ orders, total });
     }
+
+    // ---------- type === 'Back' ----------
+    const newOrders = await Promise.all(
+      orders.map(async (order) => {
+        try {
+          const filter = encodeURIComponent(
+            `SalesNo eq '${order.documentNo}'`
+          );
+
+          const url = `${NAV_URL}/companies(${COMPANY_ID})/api_MasterSalesBlankets?$top=1&$expand=lineInfos&$filter=${filter}`;
+
+          const navRes = await axios.get(url, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: NAV_BASIC_AUTH,
+            },
+          });
+
+          const navValues = navRes.data?.value ?? [];
+          if (!navValues.length) {
+            return { ...order, conutItem: 0 };
+          }
+
+          const salesInfo = navValues[0];
+          const lineInfos: any[] = Array.isArray(salesInfo.lineInfos)
+            ? salesInfo.lineInfos
+            : [];
+
+          const lineItems = lineInfos.map((lineInfo) => ({
+            itemNo: lineInfo.ItemNo as string,
+            madeToOrder: Number(lineInfo.MadeToOrder ?? 0),
+          }));
+
+          let conutItem = 0;
+
+          order.items.forEach((item) => {
+            const matchingLineItem = lineItems.find(
+              (li) =>
+                li.itemNo === item.product.code &&
+                li.madeToOrder === item.amount
+            );
+
+            if (!matchingLineItem) {
+              conutItem += 1;
+            }
+          });
+
+          return { ...order, conutItem };
+        } catch (error) {
+          console.error(
+            `Error fetching NAV blanket for order ${order.documentNo}:`,
+            error
+          );
+          return { ...order, conutItem: 0 };
+        }
+      })
+    );
+
+    const filteredOrders = newOrders.filter((order) => order.conutItem !== 0);
+
+    return NextResponse.json({
+      orders: filteredOrders,
+      total: filteredOrders.length,
+    });
   } catch (error) {
-    return NextResponse.json(error);
+    console.error("Error in GET /orders:", error);
+    return NextResponse.json({ error }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }

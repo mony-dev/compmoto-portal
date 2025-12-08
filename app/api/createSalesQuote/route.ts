@@ -1,56 +1,62 @@
-import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+import { NextRequest, NextResponse } from "next/server";
+import axios from "axios";
+
+const NAV_URL = process.env.NAV_URL;
+const COMPANY_ID = process.env.COMPANY_ID;
+const NAV_BASIC_AUTH = process.env.NAV_BASIC_AUTH; 
+
+if (!NAV_URL) throw new Error("Missing NAV_URL");
+if (!COMPANY_ID) throw new Error("Missing COMPANY_ID");
+if (!NAV_BASIC_AUTH) throw new Error("Missing NAV_BASIC_AUTH");
 
 export async function POST(req: NextRequest) {
-  const { customerNo, externalDoc, createBy, orderItems } = await req.json();
-  const soapRequest = `<?xml version="1.0" encoding="UTF-8"?>
-    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
-      <soapenv:Header/>
-      <soapenv:Body>
-        <wsc:CreateSalesQuote>
-          <wsc:p_oSales>
-            <PT_SalesHdr xmlns="urn:microsoft-dynamics-nav/xmlports/x50056">
-              <CustomerNo>${customerNo}</CustomerNo>
-              <PaymentMethod>TRANFER</PaymentMethod>
-              <ExternalDoc>${externalDoc}</ExternalDoc>
-              <CreateBy>${createBy}</CreateBy>
-              ${orderItems
-                .map(
-                  (item: { itemNo: string, qty: number, year: number, unitPrice: number, lineDiscount: number, tyreDiscount: number }) => `
-              <PT_SalesLine>
-                <ItemNo>${item.itemNo}</ItemNo>
-                <Qty>${item.qty}</Qty>
-                <UnitPrice>${item.unitPrice}</UnitPrice>
-                <LineDiscountP>${item.lineDiscount}</LineDiscountP>
-                <LineTyreP>${item.tyreDiscount}</LineTyreP>
-                <TyreYear>${item.year ?? 0}</TyreYear>
-
-              </PT_SalesLine>`
-                )
-                .join('')}
-            </PT_SalesHdr>
-          </wsc:p_oSales>
-        </wsc:CreateSalesQuote>
-      </soapenv:Body>
-    </soapenv:Envelope>`;
-
   try {
-    const response = await axios.post(
-      `${process.env.NAV_URL}`,
-      soapRequest,
-      {
-        headers: {
-          SOAPACTION: 'CreateSalesQuote',
-          'Content-Type': 'application/xml',
-          Authorization: 'Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq',
-        },
-      }
-    );
+    const { customerNo, paymentMethod, externalDoc, createBy, orderItems } =
+      await req.json();
+
+    if (!customerNo || !orderItems) {
+      return NextResponse.json(
+        { message: "customerNo & orderItems are required" },
+        { status: 400 }
+      );
+    }
+
+    // สร้าง payload ตามฟอร์แมตใหม่
+    const payload = {
+      customerNo,
+      paymentMethod: paymentMethod || "TRANFER",
+      externalDoc: externalDoc || "",
+      createBy: createBy || "",
+      lines: orderItems.map((item: any) => ({
+        itemNo: item.itemNo,
+        qty: item.qty,
+        unitPrice: item.unitPrice,
+        lineDiscountP: item.lineDiscount,
+        lineTyreP: item.tyreDiscount,
+        tyreYear: String(item.year ?? "0"),
+      })),
+    };
+
+    const url = `${NAV_URL}/companies(${COMPANY_ID})/api_CreateSalesQuotes`;
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: NAV_BASIC_AUTH,
+      },
+    });
+
+    console.log("NAV Response:", response.data);
 
     return NextResponse.json(response.data);
   } catch (error: any) {
+    console.error("CreateSalesQuote Error:", error?.response?.data || error);
+
     return NextResponse.json(
-      { message: 'Failed to create sales quote', error: error.message },
+      {
+        message: "Failed to create sales quote",
+        error: error?.response?.data || error?.message,
+      },
       { status: 500 }
     );
   }
