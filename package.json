@@ -31,7 +31,6 @@
     "create-reward-point": "node lib/web/utils/createRewardPoint.mjs",
     "update-point": "node lib/web/utils/updatePoint.mjs",
     "update-customer-group": "node lib/web/utils/updateCustomerGroup.mjs"
-
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
@@ -82,7 +81,7 @@
     "react-hook-form": "^7.51.1",
     "react-i18next": "^15.0.0",
     "react-infinite-scroll-component": "^6.1.0",
-    "react-quill": "^0.0.2",
+    "react-quill": "^2.0.0",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.5",
     "sass": "^1.72.0",
