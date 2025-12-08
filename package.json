@@ -10,7 +10,6 @@
     "seed-dev": "ts-node seeds/seed-dev.ts",
     "seed-prod": "ts-node seeds/seed-prod.ts",
     "db-reset-seed": "npx prisma migrate reset && npm run seed-dev",
-    "fetch-users": "node lib/web/utils/fetchUsers.mjs",
     "fetch-admin": "node lib/web/utils/fetchAdmin.mjs",
     "fetch-brands": "node lib/web/utils/fetchBrands.mjs",
     "fetch-com-rate": "node lib/web/utils/fetchComrates.mjs",
@@ -30,7 +29,9 @@
     "update-admin": "node lib/web/utils/updateAdmin.mjs",
     "fetch-reward-point": "node lib/web/utils/fetchRewardPoint.mjs",
     "create-reward-point": "node lib/web/utils/createRewardPoint.mjs",
-    "update-point": "node lib/web/utils/updatePoint.mjs"
+    "update-point": "node lib/web/utils/updatePoint.mjs",
+    "update-customer-group": "node lib/web/utils/updateCustomerGroup.mjs"
+
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
@@ -81,7 +82,7 @@
     "react-hook-form": "^7.51.1",
     "react-i18next": "^15.0.0",
     "react-infinite-scroll-component": "^6.1.0",
-    "react-quill": "^2.0.0",
+    "react-quill": "^0.0.2",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.5",
     "sass": "^1.72.0",
@@ -110,8 +111,8 @@
     "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.19",
     "babel-plugin-macros": "^3.1.0",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.4",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.0.7",
     "i18nexus-cli": "^3.4.0",
     "postcss": "^8.4.38",
     "prisma": "^5.11.0",

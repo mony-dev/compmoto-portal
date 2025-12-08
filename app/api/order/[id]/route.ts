@@ -1,9 +1,29 @@
 import { NextResponse } from "next/server";
 import { OrderType, PrismaClient } from "@prisma/client";
 import axios from "axios";
-import { parseStringPromise } from "xml2js";
+
+interface NavLineItem {
+  itemNo: string;
+  itemName: string;
+  qty: number;
+  lineAmount: number;
+  lineDiscount: number;
+  lineDiscountPc: number;
+  lineAmtAfterDiscount: number;
+  qtyToShip: number;
+  qtyShipped: number;
+  madeToOrder: number;
+}
 
 const prisma = new PrismaClient();
+
+const NAV_URL = process.env.NAV_URL;
+const COMPANY_ID = process.env.COMPANY_ID;
+const NAV_BASIC_AUTH = process.env.NAV_BASIC_AUTH;
+
+if (!NAV_URL) throw new Error("Missing NAV_URL");
+if (!COMPANY_ID) throw new Error("Missing COMPANY_ID");
+if (!NAV_BASIC_AUTH) throw new Error("Missing NAV_BASIC_AUTH");
 
 interface dataBodyInterface {
   documentNo: string;
@@ -70,10 +90,7 @@ export async function PUT(
 //   }
 // }
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: number } }
-) {
+export async function GET(request: Request, { params }: { params: { id: number } }) {
   const { searchParams } = new URL(request.url);
   const id = params.id;
   const type = searchParams.get("type") || "";
@@ -93,99 +110,90 @@ export async function GET(
         items: {
           include: {
             product: {
-              include: { imageProducts: true} ,
-            }
+              include: { imageProducts: true },
+            },
           },
         },
       },
     });
 
-    if (type === 'Normal') {
-      return NextResponse.json(order);
-    } else {
-
-      if (!order) {
-        return NextResponse.json({ error: "Order not found" }, { status: 404 });
-      }
-  
-      const soapRequest = await axios({
-        method: "get",
-        url: process.env.NAV_URL,
-        headers: {
-          SOAPACTION: "MasterSalesBlanket",
-          "Content-Type": "application/xml",
-          Authorization: "Basic QURNMDFAY21jLmNvbTpDb21wbW90bzkq",
-        },
-        data: `<?xml version="1.0" encoding="UTF-8"?>
-          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsc="urn:microsoft-dynamics-schemas/codeunit/WSIntegration">
-            <soapenv:Header/>
-            <soapenv:Body>
-              <wsc:MasterSalesBlanket>
-                  <wsc:p_gBlanketNo>${order.documentNo}</wsc:p_gBlanketNo>
-                  <wsc:p_oSales></wsc:p_oSales>
-              </wsc:MasterSalesBlanket>
-            </soapenv:Body>
-          </soapenv:Envelope>`,
-      });
-  
-      const soapText = await parseStringPromise(soapRequest.data);
-  
-      const salesInfo =
-        soapText["Soap:Envelope"]["Soap:Body"][0]["MasterSalesBlanket_Result"][0][
-          "p_oSales"
-        ][0]["PT_SalesInfo"][0];
-  
-      const lineInfos = salesInfo["LineInfo"] || [];
-  
-      const lineItems = lineInfos.map((lineInfo: { [x: string]: string[] }) => ({
-        itemNo: lineInfo["ItemNo"][0],
-        itemName: lineInfo["ItemName"][0],
-        qty: parseInt(lineInfo["Qty"][0], 10),
-        lineAmount: parseFloat(lineInfo["LineAmount"][0]),
-        lineDiscount: parseFloat(lineInfo["LineDiscount"][0]),
-        lineDiscountPc: parseFloat(lineInfo["LineDiscountPc"][0]),
-        lineAmtAfterDiscount: parseFloat(lineInfo["LineAmtAfterDiscount"][0]),
-        qtyToShip: parseInt(lineInfo["QtytoShip"][0], 10),
-        qtyShipped: parseInt(lineInfo["QtytoShiped"][0], 10),
-        madeToOrder: lineInfo["MadeToOrder"][0], // Convert to boolean
-      }));
-  
-      // Filter the items from the order and attach `madeToOrder` from SOAP response
-      const filteredItems = order.items
-        .map((orderItem) => {
-          const matchingLineItem = lineItems.find(
-            (lineItem: { itemNo: string; madeToOrder: number }) =>
-              lineItem.itemNo === orderItem.product.code &&
-              Number(lineItem.madeToOrder) === orderItem.amount
-          );
-          if (matchingLineItem) {
-            return null; // Exclude the item
-          }
-  
-          // Include the item and attach `madeToOrder`
-          const correspondingLineItem = lineItems.find(
-            (lineItem: { itemNo: string; }) => lineItem.itemNo === orderItem.product.code
-          );
-  
-          return {
-            ...orderItem,
-            madeToOrder: correspondingLineItem
-              ? parseInt(correspondingLineItem.madeToOrder)
-              : 0, // Include madeToOrder from the matching SOAP line item
-          };
-        })
-        .filter((item) => item !== null); // Remove excluded items
-  
-      // Construct a new order object with filtered items
-      const filteredOrder = {
-        ...order,
-        items: filteredItems,
-      };
-  
-      return NextResponse.json(filteredOrder);
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
+
+    // ถ้า Normal ไม่ต้องคุยกับ NAV
+    if (type === "Normal") {
+      return NextResponse.json(order);
+    }
+
+    const filter = encodeURIComponent(`SalesNo eq '${order.documentNo}'`);
+    const url =
+      `${NAV_URL}/companies(${COMPANY_ID})/api_MasterSalesBlankets?$top=1&$expand=lineInfos&$filter=${filter}`;
+
+    const navRes = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: NAV_BASIC_AUTH,
+      },
+    });
+
+    const values = navRes.data?.value ?? [];
+    if (!values.length) {
+      return NextResponse.json({ error: "NAV blanket data not found" }, { status: 404 });
+    }
+
+    const navInfo = values[0];
+    const lineInfos = Array.isArray(navInfo.lineInfos) ? navInfo.lineInfos : [];
+
+    const navItems: NavLineItem[] = lineInfos.map((row: any) => ({
+      itemNo: row.ItemNo,
+      itemName: row.ItemName,
+      qty: Number(row.Qty ?? 0),
+      lineAmount: Number(row.LineAmount ?? 0),
+      lineDiscount: Number(row.LineDiscount ?? 0),
+      lineDiscountPc: Number(row.LineDiscountPc ?? 0),
+      lineAmtAfterDiscount: Number(row.LineAmtAfterDiscount ?? 0),
+      qtyToShip: Number(row.QtytoShip ?? 0),
+      qtyShipped: Number(row.QtytoShiped ?? 0),
+      madeToOrder: Number(row.MadeToOrder ?? 0),
+    }));
+    // ---------------------------
+    // Filter เฉพาะรายการที่ไม่ match NAV
+    // ---------------------------
+    const filteredItems = order.items
+      .map((item) => {
+        // ไอเท็มที่ match ทั้ง itemNo และ madeToOrder
+        const matched = navItems.find(
+          (nav: NavLineItem) =>
+            nav.itemNo === item.product.code &&
+            nav.madeToOrder === item.amount
+        );
+
+        if (matched) return null;
+
+        // หา madeToOrder เผื่อโชว์ใน UI
+        const navMatchItem = navItems.find(
+          (nav: NavLineItem) => nav.itemNo === item.product.code
+        );
+        return {
+          ...item,
+          madeToOrder: navMatchItem ? navMatchItem.madeToOrder : 0,
+        };
+      })
+      .filter(Boolean);
+
+    const finalOrder = {
+      ...order,
+      items: filteredItems,
+    };
+
+    return NextResponse.json(finalOrder);
   } catch (error) {
-    return NextResponse.json(error);
+    console.error("GET BackOrder error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", detail: error },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

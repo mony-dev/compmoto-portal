@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 
 const NAV_URL = process.env.NAV_URL!;
 const NAV_BASIC_AUTH = process.env.NAV_BASIC_AUTH!;
+const COMPANY_ID = process.env.COMPANY_ID!;
 
 export async function syncNavCustomersIncremental(): Promise<{ insertedCount: number }> {
   const pageSize = 100;
@@ -21,7 +22,7 @@ export async function syncNavCustomersIncremental(): Promise<{ insertedCount: nu
   const hashedPassword = await bcrypt.hash('password', 10); 
 
   while (true) {
-    const url = `${NAV_URL}?$top=${pageSize}&$skip=${skip}`;
+    const url = `${NAV_URL}/companies(${COMPANY_ID})/api_MasterCustomerLists?$top=${pageSize}&$skip=${skip}`;
 
     const response = await axios.get(url, {
       headers: {
