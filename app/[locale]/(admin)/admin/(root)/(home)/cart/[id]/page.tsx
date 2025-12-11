@@ -27,7 +27,6 @@ import { Image } from "antd";
 import NoImage from "@public/images/no_img_cart.png";
 import { Controller, useForm } from "react-hook-form";
 import { useCart } from "@components/Admin/Cartcontext";
-import xml2js from 'xml2js';
 
 type CheckoutProps = {
   totalAmount: number;
@@ -76,8 +75,8 @@ interface CartDataType {
       minisize: {
         id: number;
         name: string;
-      }
-    }
+      };
+    };
   };
 }
 
@@ -120,30 +119,29 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const { t } = useTranslation();
   const [promotionText, setPromotionText] = useState<string[]>([]);
-  const {setI18nName, cartItemCount, setCartItemCount} = useCart();
+  const { setI18nName, cartItemCount, setCartItemCount } = useCart();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
-  
   useEffect(() => {
     const parts = pathname.split("/");
     const lastPart = parts[parts.length - 2];
     setI18nName(lastPart);
   }, []);
-  
+
   const recalculateTotals = (selectedRows: CartDataType[] = []) => {
     let newTotalAmount = 0;
     let newTotalPrice = 0;
 
     selectedRows.forEach((record) => {
       const amount = getValues(`amount_${record.id}`) || 0;
-      record.amount = amount
+      record.amount = amount;
       const yearToUse = selectedProductYear[record.id]; // Use the latest state here
       newTotalAmount += amount;
       newTotalPrice += calculateTotalPrice(record, amount, yearToUse);
       // checkPromotion();
     });
-    
+
     setTotalAmount(newTotalAmount);
     setTotalPrice(newTotalPrice);
   };
@@ -161,8 +159,10 @@ const Cart = ({ params }: { params: { id: number } }) => {
         (year) => year.year === yearToUse
       );
       //check minisize
-      const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
-      let yearDiscountOrGroup = 0
+      const minisizeExists = userMinisize.some(
+        (item) => item.id === record.product.minisizeId
+      );
+      let yearDiscountOrGroup = 0;
       if (yearToUse && minisizeExists) {
         if (yearData && yearData.isActive) {
           yearDiscountOrGroup = yearData.discount || 0;
@@ -177,17 +177,18 @@ const Cart = ({ params }: { params: { id: number } }) => {
         totalPrice -= (totalPrice * yearDiscountOrGroup) / 100;
       }
       record.product.discount = yearDiscountOrGroup;
-    } 
-    else {
-        //unselect year case
-       //check minisize
-       const minisizeExists = userMinisize.some((item) => item.id === record.product.minisizeId);
-       if (minisizeExists) {
+    } else {
+      //unselect year case
+      //check minisize
+      const minisizeExists = userMinisize.some(
+        (item) => item.id === record.product.minisizeId
+      );
+      if (minisizeExists) {
         // If no year is selected but minisize exists, apply the default discount rate
         record.product.discount = discountRate;
         totalPrice = record.product.price * amount;
+      }
     }
-  }
 
     return totalPrice;
   };
@@ -251,10 +252,10 @@ const Cart = ({ params }: { params: { id: number } }) => {
   };
   const handleIncrement = (name: string, record: CartDataType) => {
     const currentValue = getValues(`amount_${record.id}`) || 0;
-   
+
     const newValue = currentValue + 1;
     setValue(name, newValue);
-    if (newValue >=  record.product.navStock && record.type !== "Back") {
+    if (newValue >= record.product.navStock && record.type !== "Back") {
       Modal.warning({
         title: t("You cannot place an order that exceeds our available stock"),
         content: t("Please check the quantity and place your order again"),
@@ -262,7 +263,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
         okType: "danger",
         cancelText: t("Cancel"),
       });
-      setValue(name,  record.product.navStock);
+      setValue(name, record.product.navStock);
     }
 
     // Update the total price
@@ -300,21 +301,26 @@ const Cart = ({ params }: { params: { id: number } }) => {
     }
   };
 
- 
-  const handleInputAmount = (name: string, record: CartDataType, newValue: number) => {
+  const handleInputAmount = (
+    name: string,
+    record: CartDataType,
+    newValue: number
+  ) => {
     // Use the passed newValue instead of fetching it from getValues
-    const currentValue = newValue || 0;  
+    const currentValue = newValue || 0;
     if (currentValue > 0) {
       setValue(name, currentValue);
-      if (newValue >=  record.product.navStock && record.type !== "Back") {
+      if (newValue >= record.product.navStock && record.type !== "Back") {
         Modal.warning({
-          title: t("You cannot place an order that exceeds our available stock"),
+          title: t(
+            "You cannot place an order that exceeds our available stock"
+          ),
           content: t("Please check the quantity and place your order again"),
           okText: false,
           okType: "danger",
           cancelText: t("Cancel"),
         });
-        setValue(name,  record.product.navStock);
+        setValue(name, record.product.navStock);
       }
       if (currentValue === 0) {
         removeItem(record); // Call removeItem if the new value is 0
@@ -324,7 +330,9 @@ const Cart = ({ params }: { params: { id: number } }) => {
         const originalPrice = calculateOriginalPrice(record, currentValue);
         updateItem(record, currentValue, totalPrice);
         updatePriceDisplay(record.id, totalPrice, originalPrice);
-        recalculateTotals(cartData.filter((item) => selectedItems.includes(item.id)));
+        recalculateTotals(
+          cartData.filter((item) => selectedItems.includes(item.id))
+        );
         // checkPromotion();
       }
     }
@@ -355,19 +363,24 @@ const Cart = ({ params }: { params: { id: number } }) => {
     });
   };
 
-  const updateItem = async (record: CartDataType, newValue: number, totalPrice: number, year?: string | null) => {
+  const updateItem = async (
+    record: CartDataType,
+    newValue: number,
+    totalPrice: number,
+    year?: string | null
+  ) => {
     try {
       const response = await axios.put(
-        `/api/cart/${record.id}`, 
+        `/api/cart/${record.id}`,
         {
           amount: newValue, // Sending `amount` in the request body
           price: totalPrice, // If `price` is also needed, otherwise remove
-          year: year
+          year: year,
         },
         {
           headers: {
             "Content-Type": "application/json",
-          }
+          },
         }
       );
     } catch (error: any) {
@@ -381,7 +394,6 @@ const Cart = ({ params }: { params: { id: number } }) => {
     );
   }, [selectedProductYear, selectedItems]);
 
-  
   const updatePriceDisplay = (
     productId: number,
     totalPrice: number,
@@ -414,7 +426,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     if (yearData.isActive) {
       setSelectedProductYear((prevSelectedProductYear) => {
         const currentSelectedYear = prevSelectedProductYear[record.id];
-  
+
         // Check if the currently clicked year is the same as the selected year
         if (currentSelectedYear === yearData.year) {
           // If yes, remove the selection (unset)
@@ -433,15 +445,15 @@ const Cart = ({ params }: { params: { id: number } }) => {
             ...prevSelectedProductYear,
             [record.id]: yearData.year,
           };
-  
+
           // Update the total and original price for this specific product using the new year
           const amount = getValues(`amount_${record.id}`) || 0;
           const totalPrice = calculateTotalPrice(record, amount, yearData.year);
           const originalPrice = calculateOriginalPrice(record, amount);
-  
+
           updatePriceDisplay(record.id, totalPrice, originalPrice);
           updateItem(record, amount, totalPrice, yearData.year);
-  
+
           return updatedYearSelection;
         }
       });
@@ -463,9 +475,9 @@ const Cart = ({ params }: { params: { id: number } }) => {
     {
       title: (
         <p>
-          {t('All')}
+          {t("All")}
           <span className="count-items">
-            ({triggerCart ? backCount : normalCount} {t('items')} )
+            ({triggerCart ? backCount : normalCount} {t("items")} )
           </span>
         </p>
       ),
@@ -520,20 +532,27 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 { minimumFractionDigits: 2, maximumFractionDigits: 2 }
               )}
             </p>
-            {(selectedProductYear[record.id] && selectedYearData?.isActive && userMinisize.some((item) => item.id === record.product.minisizeId))  && (
-              <div
-                className={
-                  "line-through text-xs text-comp-gray-text original-price"
-                }
-                data-id={record.id}
-              >
-                ฿
-                {calculateOriginalPrice(record, getValues(`amount_${record.id}`) || 0).toLocaleString(
-                  "en-US",
-                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                )}
-              </div>
-            )}
+            {selectedProductYear[record.id] &&
+              selectedYearData?.isActive &&
+              userMinisize.some(
+                (item) => item.id === record.product.minisizeId
+              ) && (
+                <div
+                  className={
+                    "line-through text-xs text-comp-gray-text original-price"
+                  }
+                  data-id={record.id}
+                >
+                  ฿
+                  {calculateOriginalPrice(
+                    record,
+                    getValues(`amount_${record.id}`) || 0
+                  ).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
+              )}
           </>
         );
       },
@@ -544,12 +563,20 @@ const Cart = ({ params }: { params: { id: number } }) => {
       key: "years",
       render: (_, record) => (
         <div className="flex items-center force-bottom">
-          <p className="default-font text-sm text-text-gray-hover pr-2 ">{t('Year')}</p>
+          <p className="default-font text-sm text-text-gray-hover pr-2 ">
+            {t("Year")}
+          </p>
           <div>
             {record.product.years.map((yearData: any, index: number) => (
               <Tooltip
                 placement="top"
-                title={userMinisize.some((item) => item.id === record.product.minisizeId) ? `${yearData.discount}%` : '0%'}
+                title={
+                  userMinisize.some(
+                    (item) => item.id === record.product.minisizeId
+                  )
+                    ? `${yearData.discount}%`
+                    : "0%"
+                }
                 key={index}
               >
                 <Tag
@@ -638,7 +665,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                 fillOpacity="0.3"
               />
             </svg>
-            <p className="text-[#a2a2a2] text-xs pl-1">{('Delete')}</p>
+            <p className="text-[#a2a2a2] text-xs pl-1">{"Delete"}</p>
           </div>
           <Form
             key={record.id}
@@ -673,8 +700,14 @@ const Cart = ({ params }: { params: { id: number } }) => {
                         disabled={false}
                         className="w-full text-lg"
                         value={getValues(`amount_${record.id}`)}
-                        onChange={(value) => handleInputAmount(`amount_${record.id}`, record, value)}  // Pass the new value here
-                        />
+                        onChange={(value) =>
+                          handleInputAmount(
+                            `amount_${record.id}`,
+                            record,
+                            value
+                          )
+                        } // Pass the new value here
+                      />
 
                       <Button
                         className="plus-icon-cart"
@@ -725,18 +758,18 @@ const Cart = ({ params }: { params: { id: number } }) => {
             },
             imageProduct: item.product.imageProducts,
             promotion: item.product.promotion,
-          }
+          },
         }));
-  
+
         const userMinisize = response.data.user.minisizes.map((mini: any) => ({
           key: mini.id,
           id: mini.id,
-          name: mini.name
+          name: mini.name,
         }));
-  
+
         setUserMinisize(userMinisize);
         setCartData(useCart);
-  
+
         // Calculate counts
         const normal = useCart.filter(
           (cart: { type: string; item: any }) => cart.type === "Normal"
@@ -744,19 +777,20 @@ const Cart = ({ params }: { params: { id: number } }) => {
         const back = useCart.filter(
           (cart: { type: string; item: any }) => cart.type === "Back"
         ).length;
-  
+
         setNormalCount(normal);
         setBackCount(back);
-  
+
         // Initialize defaultSelectedYears with correct logic
         const defaultSelectedYears: { [key: number]: string | null } = {};
         useCart.forEach((cartItem: CartDataType) => {
           if (cartItem.year) {
             // Check if cartItem.year is a valid active year
             const isYearValid = cartItem.product.years.some(
-              (year: YearDataType) => year.year === cartItem.year && year.isActive
+              (year: YearDataType) =>
+                year.year === cartItem.year && year.isActive
             );
-  
+
             if (isYearValid) {
               // Use cartItem.year if it's valid and active
               defaultSelectedYears[cartItem.id] = cartItem.year;
@@ -768,19 +802,18 @@ const Cart = ({ params }: { params: { id: number } }) => {
             // cartItem.year is null, so we set it to null (no selection)
             defaultSelectedYears[cartItem.id] = null;
           }
-  
+
           setValue(`amount_${cartItem.id}`, cartItem.amount);
         });
-  
+
         // Set the initial selected years state
         setSelectedProductYear(defaultSelectedYears);
-  
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
   }, [reloadItem]);
-  
+
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -791,7 +824,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           offset={[10, 1]}
           overflowCount={99}
         >
-          <p>{t('Normal Order')}</p>
+          <p>{t("Normal Order")}</p>
         </Badge>
       ),
       children: (
@@ -827,7 +860,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           offset={[10, 1]}
           overflowCount={99}
         >
-          <p>{t('Back Order')}</p>
+          <p>{t("Back Order")}</p>
         </Badge>
       ),
       children: (
@@ -896,7 +929,8 @@ const Cart = ({ params }: { params: { id: number } }) => {
           />
         </svg>
         <p className="default-font text-2xl text-black pl-2">
-          {t('Shopping')} <span className="default-font font-bold	">{t('Cart')}</span>
+          {t("Shopping")}{" "}
+          <span className="default-font font-bold	">{t("Cart")}</span>
         </p>
       </div>
       <div>
@@ -925,21 +959,20 @@ const Checkout: React.FC<CheckoutProps> = ({
   promotionText,
 }) => {
   const { t } = useTranslation();
- 
+
   const selectedCartItems = cartData.filter((item: any) =>
     selectedItems.includes(item.id)
   );
 
   const sumTotal = selectedCartItems.reduce((acc: any, item: any) => {
-    const itemTotal =
-      (item.product.price * item.amount);
-    return acc += itemTotal;
+    const itemTotal = item.product.price * item.amount;
+    return (acc += itemTotal);
   }, 0);
-   // Calculate the total discount for all selected items
-   const calDiscount = selectedCartItems.reduce((acc: any, item: any) => {
+  // Calculate the total discount for all selected items
+  const calDiscount = selectedCartItems.reduce((acc: any, item: any) => {
     const productDiscount = item.product.discount || 0;
     const itemDiscount =
-      (item.product.price * item.amount) * (productDiscount / 100);
+      item.product.price * item.amount * (productDiscount / 100);
     return acc + itemDiscount;
   }, 0);
   const afterDiscount = sumTotal - calDiscount;
@@ -983,11 +1016,17 @@ const Checkout: React.FC<CheckoutProps> = ({
           "Content-Type": "application/json",
         },
       });
-  
+
       const orderItemsData = selectedCartItems.map(
         (item: {
           amount: number;
-          product: { years: any[]; id: any; code: string; discount: number; price: number };
+          product: {
+            years: any[];
+            id: any;
+            code: string;
+            discount: number;
+            price: number;
+          };
           id: string | number;
           type: any;
         }) => {
@@ -1002,13 +1041,13 @@ const Checkout: React.FC<CheckoutProps> = ({
             amount: item.amount,
             type: item.type,
             price: calculateOriginalPrice(item, item.amount),
-            unitPrice:  item.product.price,
+            unitPrice: item.product.price,
             year: selectedYearData?.year
               ? parseInt(selectedYearData.year)
               : null,
             discount: item.product.discount,
             discountPrice: item.product.discount
-              ? calculateTotalPrice(item, item.amount) 
+              ? calculateTotalPrice(item, item.amount)
               : calculateOriginalPrice(item, item.amount),
           };
         }
@@ -1022,64 +1061,49 @@ const Checkout: React.FC<CheckoutProps> = ({
           },
         }
       );
-  
-     // Determine whether to call createSalesQuote or CreateSalesBlanket
-     const soapResponse =
-     selectedCartItems[0].type === "Normal"
-       ? await createSalesQuote(
-           session.user.custNo,
-           joinedString,
-           session.user.saleUserCustNo || "",
-           orderItemsData.map((item: OrderItem) => ({
-             itemNo: item.code,
-             qty: item.amount,
-             year: item.year,
-             unitPrice: item.unitPrice,
-             lineDiscount: !item.year ? item.discount : 0,
-             tyreDiscount: item.year ? item.discount : 0
-           }))
-         )
-       : await createSalesBlanket(
-           session.user.id,
-           session.user.custNo,
-           joinedString,
-           session.user.saleUserCustNo || "",
-           orderItemsData.map((item: OrderItem) => ({
-             itemNo: item.code,
-             qty: item.amount,
-             unitPrice: item.unitPrice,
-             BlanketRemainQty: getValues(`amount_${item.cartId}`),
-           }))
-         );
+      const documentNo =
+        selectedCartItems[0].type === "Normal"
+          ? await createSalesQuote(
+              session.user.custNo,
+              joinedString,
+              session.user.saleUserCustNo || "",
+              orderItemsData.map((item: OrderItem) => ({
+                itemNo: item.code,
+                qty: item.amount,
+                year: item.year,
+                unitPrice: item.unitPrice,
+                lineDiscount: !item.year ? item.discount : 0,
+                tyreDiscount: item.year ? item.discount : 0,
+              }))
+            )
+          : await createSalesBlanket(
+              session.user.id,
+              session.user.custNo,
+              joinedString,
+              session.user.saleUserCustNo || "",
+              orderItemsData.map((item: OrderItem) => ({
+                itemNo: item.code,
+                qty: item.amount,
+                unitPrice: item.unitPrice,
+                blanketRemainQty: getValues(`amount_${item.cartId}`),
+              }))
+            );
 
-      if (soapResponse) {
-        const parsedResponse = await xml2js.parseStringPromise(soapResponse, {
-          explicitArray: false,
+      if (documentNo) {
+        await axios.put(`/api/order/${createdOrder.id}`, {
+          documentNo,
         });
-  
-        const returnValue = selectedCartItems[0].type === "Normal" ? parsedResponse['Soap:Envelope']['Soap:Body']
-        .CreateSalesQuote_Result.return_value: parsedResponse['Soap:Envelope']['Soap:Body']
-        .CreateSalesBlanket_Result.return_value;
-       
-  
-        if (returnValue) {
-          // Update the order with the return_value as documentNo
-          await axios.put(`/api/order/${createdOrder.id}`, {
-            documentNo: returnValue,
-          });
-  
-          toastSuccess(t("Order placed successfully"));
-          setCartItemCount(cartItemCount - res.data.count);
-          if (selectedCartItems[0].type === "Normal") {
-            router.replace(`/${locale}/admin/normalOrder`);
-          } else {
-            router.replace(`/${locale}/admin/backOrder`);
-          }
+
+        toastSuccess(t("Order placed successfully"));
+        setCartItemCount(cartItemCount - res.data.count);
+
+        if (selectedCartItems[0].type === "Normal") {
+          router.replace(`/${locale}/admin/normalOrder`);
         } else {
-          toastError(t("Failed to create order"));
+          router.replace(`/${locale}/admin/backOrder`);
         }
       } else {
-        toastError(t("Failed to create order"));
+        toastError(t("Failed to create order (no documentNo returned)"));
       }
     } catch (error: any) {
       toastError(error.message);
@@ -1087,76 +1111,95 @@ const Checkout: React.FC<CheckoutProps> = ({
       setIsProcessing(false); // End the spinner or enable the button
     }
   };
-  
-  
 
-  const createSalesQuote = async (
-    customerNo: string,
-    externalDoc: string,
-    createBy: string,
-    orderItems: {
-      itemNo: string;
-      qty: number;
-      unitPrice: number;
-      year: number;
-      lineDiscount: number;
-      tyreDiscount: number;
-    }[]
-  ) => {
-    const response = await fetch('/api/createSalesQuote', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        customerNo,
-        externalDoc,
-        createBy,
-        orderItems,
-      }),
-    });
-  
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || t('Failed to create sales quote'));
-    }
-  
-    const data = await response.json();
-    return data;
-  };
-  const createSalesBlanket = async (
-    id: number,
-    customerNo: string,
-    externalDoc: string,
-    createBy: string,
-    orderItems: {
-      itemNo: string;
-      qty: number;
-      unitPrice: number;
-      BlanketRemainQty: number;
-    }[]
-  ) => {
-    const response = await fetch('/api/createSalesBlanket', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id,
-        customerNo,
-        externalDoc,
-        createBy,
-        orderItems,
-      }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || t('Failed to create sales blanket order'));
-    }
-  
-    const data = await response.json();
-    return data;
-  };
+const createSalesQuote = async (
+  customerNo: string,
+  externalDoc: string,
+  createBy: string,
+  orderItems: {
+    itemNo: string;
+    qty: number;
+    unitPrice: number;
+    year: number | null;
+    lineDiscount: number;
+    tyreDiscount: number;
+  }[]
+): Promise<string> => {
+  const response = await fetch("/api/createSalesQuote", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      customerNo,
+      externalDoc,
+      createBy,
+      orderItems,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || t("Failed to create sales quote"));
+  }
+
+  const data = await response.json();
+  console.log("CreateSalesQuote NAV data:", data);
+
+  const documentNo: string | undefined = data.quoteNo;
+
+  if (!documentNo) {
+    throw new Error("NAV response does not contain quoteNo");
+  }
+
+  return documentNo;
+};
+
+const createSalesBlanket = async (
+  id: number,
+  customerNo: string,
+  externalDoc: string,
+  createBy: string,
+  orderItems: {
+    itemNo: string;
+    qty: number;
+    unitPrice: number;
+    blanketRemainQty: number;
+  }[]
+): Promise<string> => {
+  const response = await fetch("/api/createSalesBlanket", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+      customerNo,
+      externalDoc,
+      createBy,
+      orderItems,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(
+      errorData.message || t("Failed to create sales blanket order")
+    );
+  }
+
+  const data = await response.json();
+  console.log("CreateSalesBlanket NAV data:", data);
+
+  const documentNo: string | undefined = data.blanketNo;
+
+  if (!documentNo) {
+    throw new Error("NAV response does not contain blanketNo");
+  }
+
+  return documentNo;
+};
+
   return (
     <div className="bg-white row-end-2 row-span-1 p-4 rounded-lg checkout-box">
       <p className="default-font text-black text-base pt-4 font-medium">
@@ -1166,7 +1209,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       {promotionText && promotionText.length > 0 && (
         <>
           <div className="flex justify-between promotion-text">
-            <p className="text-sm default-font">{t('Promotion')}</p>
+            <p className="text-sm default-font">{t("Promotion")}</p>
             <p className="text-sm default-font">{promotionText.join(", ")}</p>
           </div>
           <Divider />
@@ -1174,9 +1217,9 @@ const Checkout: React.FC<CheckoutProps> = ({
       )}
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm default-font">{t('Sub Total')}</p>
+          <p className="text-sm default-font">{t("Sub Total")}</p>
           <p className="text-xs text-text-gray-hover sub-amount default-font">
-            ({totalAmount} {t('items')})
+            ({totalAmount} {t("items")})
           </p>
         </div>
         <div className="text-base font-base sub-total">
@@ -1190,7 +1233,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <Divider />
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm default-font"> {t('Discount')}</p>
+          <p className="text-sm default-font"> {t("Discount")}</p>
           {/* <p className="text-xs text-comp-red sub-discount">({subDiscount}%)</p> */}
         </div>
         <div className="text-base font-base text-comp-red cal-discount">
@@ -1204,7 +1247,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       <Divider />
       <div className="flex justify-between">
         <div>
-          <p className="default-font">{t('Total')}</p>
+          <p className="default-font">{t("Total")}</p>
         </div>
         <div className="text-base font-medium after-discount">
           ฿
@@ -1223,7 +1266,9 @@ const Checkout: React.FC<CheckoutProps> = ({
             loading={isProcessing}
             className="default-font bg-comp-red-price button-backend w-full mt-4 p-6 flex justify-between text-base font-medium"
           >
-            <p className="text-white font-medium default-font">{t('Checkout')}</p>
+            <p className="text-white font-medium default-font">
+              {t("Checkout")}
+            </p>
             <p className="after-discount text-white font-medium">
               ฿
               {afterDiscount.toLocaleString("en-US", {
