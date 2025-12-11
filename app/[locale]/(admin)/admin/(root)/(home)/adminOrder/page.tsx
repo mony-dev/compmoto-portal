@@ -54,6 +54,7 @@ export default function AdminOrder({ params }: { params: { id: number } }) {
     subTotal: number;
     totalPrice: number;
     createdAt: string;
+    date: string;
     calculatedSubTotal: number;
     user: {
       custNo: string;
@@ -183,9 +184,9 @@ export default function AdminOrder({ params }: { params: { id: number } }) {
       title: t("date"),
       dataIndex: "date",
       key: "date",
-      render: (_, record) => <p>{formatDate(record.createdAt)}</p>,
+      render: (_, record) => <p>{formatDate(record.date)}</p>,
       sorter: (a, b) =>
-        formatDate(a.createdAt).localeCompare(formatDate(b.createdAt)),
+        formatDate(a.date).localeCompare(formatDate(b.date)),
     },
     {
       title: t("Total"),

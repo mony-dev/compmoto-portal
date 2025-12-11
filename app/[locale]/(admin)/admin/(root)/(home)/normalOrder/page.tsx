@@ -57,6 +57,7 @@ export default function normalOrder({ params }: { params: { id: number } }) {
     totalPrice: number;
     calculatedSubTotal: number;
     createdAt: string;
+    date: string;
     user: {
       custNo: string;
       id: number;
@@ -168,9 +169,9 @@ export default function normalOrder({ params }: { params: { id: number } }) {
       title: t("date"),
       dataIndex: "date",
       key: "date",
-      render: (_, record) => <p>{formatDate(record.createdAt)}</p>,
+      render: (_, record) => <p>{formatDate(record.date)}</p>,
       sorter: (a, b) =>
-        formatDate(a.createdAt).localeCompare(formatDate(b.createdAt)),
+        formatDate(a.date).localeCompare(formatDate(b.date)),
     },
     {
       title: t("Total"),
