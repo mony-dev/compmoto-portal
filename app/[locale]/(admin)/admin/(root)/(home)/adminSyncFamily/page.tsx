@@ -131,9 +131,12 @@ export default function AdminSyncFamily({ params }: { params: { id: number } }) 
       setPageSize(pageSize);
     }
   };
+
   const fetchFamily = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchFamily`);
+      
+      const { data } = await axios.post(`/api/fetchFamily`);
+      return data;
     } catch (error: any) {
       toastError(error.message);
     }
@@ -141,18 +144,19 @@ export default function AdminSyncFamily({ params }: { params: { id: number } }) 
 
   const sync = async () => {
     try {
-      setIsSyncing(true); 
-      await fetchFamily();
-      setTimeout(async () => {
-        await fetchData(); // Fetch the latest data after a short delay
-        setIsSyncing(false); 
-        toastSuccess(t("Sync data successfully"));
-      }, 3000);
+      setIsSyncing(true);
+
+      await fetchFamily(); // POST → enqueue
+
+      toastSuccess(t("Sync data successfully"));
+      setIsSyncing(false);
+
+      // worker จะทำงานเองตามคิว
     } catch (error: any) {
-      toastError(error.message);
-    } 
+      setIsSyncing(false);
+      toastError(error?.message || String(error));
+    }
   };
-  
   return (
     <div className="px-4">
       <div

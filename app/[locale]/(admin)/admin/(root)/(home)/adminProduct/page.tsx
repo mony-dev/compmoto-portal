@@ -279,15 +279,15 @@ export default function AdminProduct({ params }: { params: { id: number } }) {
               icon={<ArrowPathIcon className="w-4" />}
               loading={isSyncing} // Add loading prop
               onClick={async () => {
-                setIsSyncing(true); // Set loading to true when the button is clicked
+                setIsSyncing(true);
                 try {
-                  const response = await axios.get("/api/fetchProducts");
-                  toastSuccess(t("Sync product successfully"));
+                  await axios.post("/api/fetchProducts"); 
+                  toastSuccess(t("Sync product successfully")); 
                   setTriggerProduct(!triggerProduct);
                 } catch (error: any) {
                   toastError(error);
                 } finally {
-                  setIsSyncing(false); // Set loading to false after the request completes
+                  setIsSyncing(false);
                 }
               }}
             >

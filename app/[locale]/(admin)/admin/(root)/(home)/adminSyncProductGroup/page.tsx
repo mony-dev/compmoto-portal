@@ -130,9 +130,12 @@ export default function AdminSyncProductGroup({ params }: { params: { id: number
       setPageSize(pageSize);
     }
   };
+  
   const fetchProductGroup = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchProductGroup`);
+      
+      const { data } = await axios.post(`/api/fetchProductGroup`);
+      return data;
     } catch (error: any) {
       toastError(error.message);
     }
@@ -140,18 +143,20 @@ export default function AdminSyncProductGroup({ params }: { params: { id: number
 
   const sync = async () => {
     try {
-      setIsSyncing(true); 
-      await fetchProductGroup();
-      setTimeout(async () => {
-        await fetchData(); // Fetch the latest data after a short delay
-        setIsSyncing(false); 
-        toastSuccess(t("Sync data successfully"));
-      }, 3000);
+      setIsSyncing(true);
+
+      await fetchProductGroup(); // POST → enqueue
+
+      toastSuccess(t("Sync data successfully"));
+      setIsSyncing(false);
+
+      // worker จะทำงานเองตามคิว
     } catch (error: any) {
-      toastError(error.message);
-    } 
+      setIsSyncing(false);
+      toastError(error?.message || String(error));
+    }
   };
-  
+
   return (
     <div className="px-4">
       <div

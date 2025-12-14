@@ -523,6 +523,7 @@ model TotalPurchaseHistory {
   totalSpend          Float
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  @@unique([userId, totalPurchaseId], name: "userId_totalPurchaseId")
 }
 
 model SpecialBonusHistory {
@@ -536,6 +537,7 @@ model SpecialBonusHistory {
   totalSpend          Json
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  @@unique([userId, specialBonusId], name: "userId_specialBonusId")
 }
 
 enum ConditionType {
@@ -642,6 +644,7 @@ model RewardPointHistory {
   user                User   @relation(fields: [userId], references: [id])
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  @@unique([userId, rewardPointId], name: "userId_rewardPointId")
 }
 
 model CustomerGroup {

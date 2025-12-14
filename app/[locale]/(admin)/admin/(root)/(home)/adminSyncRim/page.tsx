@@ -131,9 +131,12 @@ export default function AdminSyncRim({ params }: { params: { id: number } }) {
       setPageSize(pageSize);
     }
   };
+
   const fetchRim = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchRim`);
+      
+      const { data } = await axios.post(`/api/fetchRim`);
+      return data;
     } catch (error: any) {
       toastError(error.message);
     }
@@ -141,16 +144,18 @@ export default function AdminSyncRim({ params }: { params: { id: number } }) {
 
   const sync = async () => {
     try {
-      setIsSyncing(true); 
-      await fetchRim();
-      setTimeout(async () => {
-        await fetchData(); // Fetch the latest data after a short delay
-        setIsSyncing(false); 
-        toastSuccess(t("Sync data successfully"));
-      }, 3000);
+      setIsSyncing(true);
+
+      await fetchRim(); // POST → enqueue
+
+      toastSuccess(t("Sync data successfully"));
+      setIsSyncing(false);
+
+      // worker จะทำงานเองตามคิว
     } catch (error: any) {
-      toastError(error.message);
-    } 
+      setIsSyncing(false);
+      toastError(error?.message || String(error));
+    }
   };
 
   return (

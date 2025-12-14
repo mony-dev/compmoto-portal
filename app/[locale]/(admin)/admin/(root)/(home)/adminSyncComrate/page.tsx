@@ -21,13 +21,17 @@ interface DataType {
   name: string;
 }
 
-export default function AdminSyncComrate({ params }: { params: { id: number } }) {
+export default function AdminSyncComrate({
+  params,
+}: {
+  params: { id: number };
+}) {
   const locale = useCurrentLocale(i18nConfig);
   const { t } = useTranslation();
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const [searchText, setSearchText] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('q') || '';
+    return params.get("q") || "";
   });
   const router = useRouter();
   const [comrateData, setComrateData] = useState<DataType[]>([]);
@@ -80,7 +84,7 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
       setComrateData(comrateDataWithKeys);
       setTotal(data.total);
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       toastError(error);
     } finally {
       setLoadPage(false);
@@ -116,7 +120,7 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
     const newUrl = `${pathname}?${queryParams.toString()}`;
     window.history.replaceState(null, "", newUrl);
 
-    fetchData(value); 
+    fetchData(value);
   };
   const handleClear = () => {
     window.history.replaceState(null, "", `${pathname}`);
@@ -133,7 +137,9 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
   };
   const fetchComrate = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchComrate`);
+      
+      const { data } = await axios.post(`/api/fetchComrate`);
+      return data;
     } catch (error: any) {
       toastError(error.message);
     }
@@ -141,18 +147,19 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
 
   const sync = async () => {
     try {
-      setIsSyncing(true); 
-      await fetchComrate();
-      setTimeout(async () => {
-        await fetchData(); // Fetch the latest data after a short delay
-        setIsSyncing(false); 
-        toastSuccess(t("Sync data successfully"));
-      }, 3000);
-    } catch (error: any) {
-      toastError(error.message);
-    } 
-  };
+      setIsSyncing(true);
 
+      await fetchComrate(); // POST → enqueue
+
+      toastSuccess(t("Sync data successfully"));
+      setIsSyncing(false);
+
+      // worker จะทำงานเองตามคิว
+    } catch (error: any) {
+      setIsSyncing(false);
+      toastError(error?.message || String(error));
+    }
+  };
   return (
     <div className="px-4">
       <div
@@ -165,7 +172,7 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
           </div>
           <div className="flex">
             <Input.Search
-              placeholder={t('search')}
+              placeholder={t("search")}
               size="middle"
               style={{ width: "200px", marginBottom: "20px" }}
               value={searchText}
@@ -173,15 +180,15 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
               onChange={handleInputChange}
               suffix={
                 <CloseCircleOutlined
-                  onMouseDown={(e) => e.preventDefault()} 
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleClear}
                   style={{
                     cursor: searchText ? "pointer" : "default",
-                    opacity: searchText ? 1 : 0,        
-                    pointerEvents: searchText ? "auto" : "none", 
+                    opacity: searchText ? 1 : 0,
+                    pointerEvents: searchText ? "auto" : "none",
                     transition: "opacity 120ms ease",
                   }}
-                  tabIndex={-1} 
+                  tabIndex={-1}
                 />
               }
             />
@@ -189,13 +196,13 @@ export default function AdminSyncComrate({ params }: { params: { id: number } })
               className="bg-comp-red button-backend ml-4"
               type="primary"
               icon={<ArrowPathIcon className="w-4" />}
-              loading={isSyncing} 
+              loading={isSyncing}
               onClick={async () => {
                 try {
-                    await sync(); 
-                  } catch (error: any) {
-                    toastError(error); 
-                  } 
+                  await sync();
+                } catch (error: any) {
+                  toastError(error);
+                }
               }}
             >
               {t("Sync")}

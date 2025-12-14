@@ -1,5 +1,5 @@
 # Base stage
-FROM node:18-alpine as base
+FROM node:20-alpine as base
 
 # Install necessary packages (รวม openssl ด้วย)
 RUN apk add --no-cache g++ make py3-pip libc6-compat openssl
@@ -32,7 +32,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine as production
+FROM node:20-alpine as production
 
 # ติดตั้ง openssl ใน production stage ด้วย
 RUN apk add --no-cache openssl

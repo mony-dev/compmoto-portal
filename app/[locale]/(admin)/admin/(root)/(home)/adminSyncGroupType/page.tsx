@@ -131,9 +131,12 @@ export default function AdminSyncGroupType({ params }: { params: { id: number } 
       setPageSize(pageSize);
     }
   };
+
   const fetchGroupType = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchGroupType`);
+      
+      const { data } = await axios.post(`/api/fetchGroupType`);
+      return data;
     } catch (error: any) {
       toastError(error.message);
     }
@@ -141,18 +144,19 @@ export default function AdminSyncGroupType({ params }: { params: { id: number } 
 
   const sync = async () => {
     try {
-      setIsSyncing(true); 
-      await fetchGroupType();
-      setTimeout(async () => {
-        await fetchData(); // Fetch the latest data after a short delay
-        setIsSyncing(false); 
-        toastSuccess(t("Sync data successfully"));
-      }, 3000);
-    } catch (error: any) {
-      toastError(error.message);
-    } 
-  };
+      setIsSyncing(true);
 
+      await fetchGroupType(); // POST → enqueue
+
+      toastSuccess(t("Sync data successfully"));
+      setIsSyncing(false);
+
+      // worker จะทำงานเองตามคิว
+    } catch (error: any) {
+      setIsSyncing(false);
+      toastError(error?.message || String(error));
+    }
+  };
   return (
     <div className="px-4">
       <div

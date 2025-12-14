@@ -131,10 +131,12 @@ export default function AdminSyncBrand({ params }: { params: { id: number } }) {
       setPageSize(pageSize);
     }
   };
-
+  
   const fetchBrand = async () => {
     try {
-      const { data } = await axios.get(`/api/fetchBrands`);
+      
+      const { data } = await axios.post(`/api/fetchBrands`);
+      return data;
     } catch (error: any) {
       toastError(error.message);
     }
@@ -142,18 +144,20 @@ export default function AdminSyncBrand({ params }: { params: { id: number } }) {
 
   const sync = async () => {
     try {
-      setIsSyncing(true); 
-      await fetchBrand();
-      setTimeout(async () => {
-        await fetchData(); // Fetch the latest data after a short delay
-        setIsSyncing(false); 
-        toastSuccess(t("Sync data successfully"));
-      }, 3000);
+      setIsSyncing(true);
+
+      await fetchBrand(); // POST → enqueue
+
+      toastSuccess(t("Sync data successfully"));
+      setIsSyncing(false);
+
+      // worker จะทำงานเองตามคิว
     } catch (error: any) {
-      toastError(error.message);
-    } 
+      setIsSyncing(false);
+      toastError(error?.message || String(error));
+    }
   };
-  
+
   return (
     <div className="px-4">
       <div
