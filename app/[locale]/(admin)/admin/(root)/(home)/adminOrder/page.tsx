@@ -367,39 +367,40 @@ export default function AdminOrder({ params }: { params: { id: number } }) {
   //   }
   // };
 
-  useEffect(() => {
-    const storedJobId = localStorage.getItem("jobId");
-    const storedSyncState = localStorage.getItem("isSyncing");
+  // cloese fetchHistory
+  // useEffect(() => {
+  //   const storedJobId = localStorage.getItem("jobId");
+  //   const storedSyncState = localStorage.getItem("isSyncing");
 
-    if (storedJobId && storedSyncState === "true") {
-      setIsSyncing(true);
+  //   if (storedJobId && storedSyncState === "true") {
+  //     setIsSyncing(true);
 
-      const checkStatus = setInterval(async () => {
-        try {
-          const { data } = await axios.get(`/api/fetchHistory`, {
-            params: { jobId: storedJobId }, // Use the jobId stored in localStorage
-          });
+  //     const checkStatus = setInterval(async () => {
+  //       try {
+  //         const { data } = await axios.get(`/api/fetchHistory`, {
+  //           params: { jobId: storedJobId }, // Use the jobId stored in localStorage
+  //         });
 
-          if (data.status === "completed") {
-            clearInterval(checkStatus);
-            setIsSyncing(false);
-            localStorage.removeItem("isSyncing");
-            localStorage.removeItem("jobId");
-          } else if (data.status === "failed") {
-            clearInterval(checkStatus);
-            setIsSyncing(false);
-            localStorage.removeItem("isSyncing");
-            localStorage.removeItem("jobId");
-          }
-        } catch (error: any) {
-          clearInterval(checkStatus);
-          setIsSyncing(false);
-          localStorage.removeItem("isSyncing");
-          localStorage.removeItem("jobId");
-        }
-      }, 5000);
-    }
-  }, []);
+  //         if (data.status === "completed") {
+  //           clearInterval(checkStatus);
+  //           setIsSyncing(false);
+  //           localStorage.removeItem("isSyncing");
+  //           localStorage.removeItem("jobId");
+  //         } else if (data.status === "failed") {
+  //           clearInterval(checkStatus);
+  //           setIsSyncing(false);
+  //           localStorage.removeItem("isSyncing");
+  //           localStorage.removeItem("jobId");
+  //         }
+  //       } catch (error: any) {
+  //         clearInterval(checkStatus);
+  //         setIsSyncing(false);
+  //         localStorage.removeItem("isSyncing");
+  //         localStorage.removeItem("jobId");
+  //       }
+  //     }, 5000);
+  //   }
+  // }, []);
 
   return (
     <div className="px-4">
