@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const STATUS_PATH = path.join(process.cwd(), "tmp", "sync-status.json");
-const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
 function nowISO() {
   return new Date().toISOString();
@@ -52,7 +52,7 @@ export async function autoEnqueueInvoiceBundle() {
   const now = Date.now();
 
   // ยังไม่ครบ 2 ชม. -> ไม่ทำอะไร
-  if (last && now - last < TWO_HOURS_MS) return { changed: false };
+  if (last && now - last < SIX_HOURS_MS) return { changed: false };
 
   const queue = ensureArray(status.queue);
   const jobsToAdd = ["invoice", "history", "creditMemo"];
