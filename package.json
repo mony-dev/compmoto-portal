@@ -21,7 +21,6 @@
     "fetch-products": "node lib/web/utils/fetchProducts.mjs",
     "update-products": "node lib/web/utils/updateProductImg.mjs",
     "update-lot": "node lib/web/utils/updateLot.mjs",
-    "fetch-memo": "node lib/web/utils/fetchCreditMemo.mjs",
     "fetch-invoice": "node lib/web/utils/fetchInvoice.mjs",
     "fetch-history": "node lib/web/utils/fetchHistory.mjs",
     "fetch-total-purchase": "node lib/web/utils/fetchTotalPurchase.mjs",

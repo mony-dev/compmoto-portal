@@ -55,7 +55,7 @@ export async function autoEnqueueInvoiceBundle() {
   if (last && now - last < SIX_HOURS_MS) return { changed: false };
 
   const queue = ensureArray(status.queue);
-  const jobsToAdd = ["invoice", "history", "creditMemo"];
+  const jobsToAdd = ["invoice", "history"];
 
   // กันซ้ำ: ถ้ามีอยู่แล้วในคิวก็ไม่เพิ่มซ้ำ
   const nextQueue = [...queue];

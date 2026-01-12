@@ -1020,6 +1020,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       const orderItemsData = selectedCartItems.map(
         (item: {
           amount: number;
+          madeToOrder: number;
           product: {
             years: any[];
             id: any;
@@ -1039,6 +1040,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             productId: item.product.id,
             code: item.product.code,
             amount: item.amount,
+            madeToOrder: 0,
             type: item.type,
             price: calculateOriginalPrice(item, item.amount),
             unitPrice: item.product.price,

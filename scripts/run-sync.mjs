@@ -11,7 +11,6 @@ const STATUS_PATH = path.join(process.cwd(), "tmp", "sync-status.json");
 const JOBS = {
   invoice: "node lib/web/utils/fetchInvoice.mjs",
   history: "node lib/web/utils/fetchHistory.mjs",
-  creditMemo: "node lib/web/utils/fetchCreditMemo.mjs",
   brands: "node lib/web/utils/fetchBrands.mjs",
   comrates: "node lib/web/utils/fetchComrates.mjs",
   family: "node lib/web/utils/fetchFamily.mjs",

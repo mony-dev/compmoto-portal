@@ -108,7 +108,7 @@ export async function POST() {
   const current = await readStatus();
 
   const requestId = randomUUID();
-  const jobsToQueue = ["invoice", "history", "creditMemo"]; // ✅ 3 งานหลัก
+  const jobsToQueue = ["invoice", "history"]; 
 
   const next: SyncStatusFile = {
     ...current,

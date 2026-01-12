@@ -236,7 +236,7 @@ export default function Users() {
                 />
               }
             />
-            <Button
+            {/* <Button
               className="bg-comp-red button-backend ml-4"
               type="primary"
               icon={<ArrowPathIcon className="w-4" />}
@@ -259,7 +259,7 @@ export default function Users() {
               }}
             >
               {t("sync")}
-            </Button>
+            </Button> */}
           </div>
         </div>
         <Spin spinning={loadPage}>
