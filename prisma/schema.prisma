@@ -371,7 +371,7 @@ model OrderItem {
   productId  Int
   product   Product  @relation(fields: [productId], references: [id])
   amount     Int
-  madeToOrder Int
+  madeToOrder Int    @default(0)
   type       String
   price      Float
   year       Int?
