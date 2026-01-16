@@ -166,27 +166,29 @@ export async function POST(request: NextRequest) {
     const groupTypeId = await upsertByName("groupType", cleanName(body.GroupType));
     const productGroupId = await upsertByName("productGroup", cleanName(body.ProductGroup));
 
-    // ถ้า product ของคุณบังคับว่าต้องมี brand เสมอ (เหมือนเดิม)
     if (!brandId) {
       return NextResponse.json({ message: "brandName is required" }, { status: 400 });
     }
 
-    // ---- 2) ถ้า showInPortal = false → ลบเหมือน logic เดิม ----
     if (!showInPortal) {
-      const existing = await prisma.product.findUnique({
-        where: { code },
-        select: { code: true },
-      });
-
-      if (existing) {
-        await prisma.product.delete({ where: { code } });
-      }
-
-      return NextResponse.json(
-        { message: "success", action: existing ? "deleted" : "noop", code },
-        { status: 200 },
-      );
+      return NextResponse.json({ message: "showInPortal must be true" }, { status: 400 });
     }
+    // ---- 2) ถ้า showInPortal = false → ลบเหมือน logic เดิม ----
+    // if (!showInPortal) {
+    //   const existing = await prisma.product.findUnique({
+    //     where: { code },
+    //     select: { code: true },
+    //   });
+
+    //   if (existing) {
+    //     await prisma.product.delete({ where: { code } });
+    //   }
+
+    //   return NextResponse.json(
+    //     { message: "success", action: existing ? "deleted" : "noop", code },
+    //     { status: 200 },
+    //   );
+    // }
 
     // ---- 3) upsert product ----
     // years default เหมือนเดิม (ถ้าคุณยังใช้ field years เป็น string)
@@ -247,10 +249,6 @@ export async function PATCH(request: NextRequest) {
   const tokenPayload = verifyToken(request);
   if (!tokenPayload) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (tokenPayload.role !== "EXTERNAL_SYSTEM" || tokenPayload.app !== "NAV") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
@@ -321,15 +319,9 @@ export async function PATCH(request: NextRequest) {
       updateData.showInPortal = Boolean(body.showInPortal);
     }
 
-    // master relations (เฉพาะที่ส่งมา)
-    if (brandId !== null) updateData.brandId = brandId;
-    if (sizeId !== null) updateData.sizeId = sizeId;
-    if (comRateId !== null) updateData.comRateId = comRateId;
-    if (rimId !== null) updateData.rimId = rimId;
-    if (familyId !== null) updateData.familyId = familyId;
-    if (groupTypeId !== null) updateData.groupTypeId = groupTypeId;
-    if (productGroupId !== null) updateData.productGroupId = productGroupId;
-
+    // master relations 
+    if (brandId !== null) updateData.brand = { connect: { id: brandId } };
+ 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { message: "No fields to update", code },
@@ -348,7 +340,7 @@ export async function PATCH(request: NextRequest) {
         navStock: true,
         portalStock: true,
         image: true,
-        brandId: true,
+        brand: { select: { id: true, name: true } },
       },
     });
 
