@@ -53,6 +53,7 @@ const SignInForm = ({ params }: { params: { locale: string } }) => {
 
         if (session?.user.status === "Pending") {
           localStorage.setItem("custNo", session.user.custNo);
+          localStorage.setItem("email", session.user.email);
           router.push(`/${params.locale}/admin/change-password`);
         } else {
           await axios.post(
