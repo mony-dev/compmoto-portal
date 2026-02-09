@@ -357,7 +357,7 @@ const ModalSpecialBonus = ({
         resetForm();
         setTriggerSpecialBonus(!triggerSpecialBonus);
         setTriggerModal(!triggerModal);
-        toastSuccess("Special Bonus updated successfully");
+        toastSuccess(t("Special Bonus updated successfully"));
         router.replace(`/${locale}/admin/adminSpecialBonus`);
       } catch (error: any) {
         toastError(error.message);
@@ -373,7 +373,7 @@ const ModalSpecialBonus = ({
         resetForm();
         setTriggerSpecialBonus(!triggerSpecialBonus);
         setTriggerModal(!triggerModal);
-        toastSuccess("Special Bonus created successfully");
+        toastSuccess(t("Special Bonus created successfully"));
         router.replace(`/${locale}/admin/adminSpecialBonus`);
       } catch (error: any) {
         toastError(error.message);

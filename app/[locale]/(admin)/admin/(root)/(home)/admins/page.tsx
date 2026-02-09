@@ -160,7 +160,7 @@ export default function Admins() {
     return () => {
       debouncedFetchData.cancel();
     };
-  }, [currentPage, debouncedFetchData]);
+  }, [currentPage, debouncedFetchData, triggerUser]);
 
   async function fetchData(query: string = "") {
     setLoadPage(true);

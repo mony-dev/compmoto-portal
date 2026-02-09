@@ -269,7 +269,7 @@ const ModalRewardPoint = ({
         resetForm();
         setTriggerRewardPoint(!triggerRewardPoint);
         setTriggerModal(!triggerModal);
-        toastSuccess("Reward Point updated successfully");
+        toastSuccess(t("Reward Point updated successfully"));
         router.replace(`/${locale}/admin/adminRewardPoint`);
       } catch (error: any) {
         toastError(error.message);
@@ -285,7 +285,7 @@ const ModalRewardPoint = ({
         resetForm();
         setTriggerRewardPoint(!triggerRewardPoint);
         setTriggerModal(!triggerModal);
-        toastSuccess("Reward Point created successfully");
+        toastSuccess(t("Reward Point created successfully"));
         router.replace(`/${locale}/admin/adminRewardPoint`);
       } catch (error: any) {
         toastError(error.message);
