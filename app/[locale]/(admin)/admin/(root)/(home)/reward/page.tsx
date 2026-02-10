@@ -82,7 +82,7 @@ const Reward = () => {
   const [rewardData, setRewardData] = useState<DataType[]>([]);
   const router = useRouter();
   const [rewardUserData, setRewardUserData] = useState<RewardUserDataType[]>(
-    []
+    [],
   );
   const [trigger, setTrigger] = useState(false);
   const pathname = usePathname();
@@ -93,7 +93,7 @@ const Reward = () => {
     debounce(() => {
       fetchData();
     }, 500), // 500 ms debounce delay
-    []
+    [],
   );
 
   useEffect(() => {
@@ -142,7 +142,7 @@ const Reward = () => {
         (reward: DataType) => ({
           ...reward,
           // date: formatDateRange(reward.startDate, reward.endDate),
-        })
+        }),
       );
       console.log(userRewardWithKeys);
       setRewardData(userRewardWithKeys);
@@ -186,7 +186,7 @@ const Reward = () => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         setTrigger((prev) => !prev);
         toastSuccess(t("Redeem successfully"));
@@ -239,7 +239,7 @@ const Reward = () => {
                   <h1 className="text-3xl default-font">{reward.name}</h1>
                 </Divider>
                 {reward.rewards ? (
-                  <div className="grid gap-x-8 gap-y-4 grid-cols-4 py-4 reward-card">
+                  <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 py-4 reward-card">
                     {reward?.rewards.map((item, index) => (
                       <Card
                         title={false}
@@ -387,7 +387,7 @@ const Reward = () => {
                           </svg>
 
                           <span className="pl-2 text-xs text-comp-natural-base">
-                            { formatDateRange(item.startDate, item.endDate)}
+                            {formatDateRange(item.startDate, item.endDate)}
                           </span>
                         </div>
                         <p className="default-font text-sm text-comp-natural-base pt-8 pb-4">
@@ -397,12 +397,12 @@ const Reward = () => {
                           key={reward.id}
                           name={`form_${reward.id}`}
                           onFinish={handleSubmit((data) =>
-                            onSubmit(data, item.id, item.point)
+                            onSubmit(data, item.id, item.point),
                           )}
                           layout="inline"
                           className="reward-modal"
                         >
-                          <Space>
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <Form.Item
                               name={`amount_${item.id}`}
                               label={false}
@@ -415,18 +415,19 @@ const Reward = () => {
                               validateStatus={
                                 errors[`amount_${item.id}`] ? "error" : ""
                               }
+                              className="mb-0"
                             >
                               <Controller
                                 control={control}
                                 name={`amount_${item.id}`}
                                 render={({ field }) => (
-                                  <div className="flex custom-input-number">
+                                  <div className="flex w-[160px] sm:w-[180px] custom-input-number">
                                     <InputNumber
                                       {...field}
                                       min={0}
-                                      step={1} // Set the step value to control increment/decrement
-                                      disabled={true} // Disable the input field
-                                      className="w-full"
+                                      step={1}
+                                      disabled
+                                      className="w-[80px]"
                                     />
                                     <Button
                                       className="bg-comp-disable-input border-none rounded-none minus-icon"
@@ -451,16 +452,16 @@ const Reward = () => {
                               />
                             </Form.Item>
 
-                            <Form.Item className="flex justify-end">
+                            <Form.Item className="mb-0">
                               <Button
                                 type="primary"
                                 htmlType="submit"
-                                className="bg-comp-red-reward button-backend default-font"
+                                className="bg-comp-red-reward button-backend default-font sm:w-auto"
                               >
                                 {t("Redeem")}
                               </Button>
                             </Form.Item>
-                          </Space>
+                          </div>
                         </Form>
                       </Card>
                     ))}
@@ -479,7 +480,7 @@ const Reward = () => {
           <h1 className="text-3xl default-font">{t("Reward Redemption")}</h1>
         </Divider>
         {rewardUserData.length > 0 ? (
-          <div className="grid gap-x-8 gap-y-4 grid-cols-4 py-4 redeem-card">
+          <div className="grid gap-x-8 gap-y-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 py-4 redeem-card">
             {rewardUserData.map((reward, index) => (
               <Card
                 title={false}

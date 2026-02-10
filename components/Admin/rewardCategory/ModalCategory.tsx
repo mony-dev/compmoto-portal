@@ -1,3 +1,4 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   categorySchema,
@@ -24,7 +25,6 @@ type Props = {
   mode: string;
   title: string;
 };
-const locale = useCurrentLocale(i18nConfig);
 
 const Hr = styled.hr`
   ${tw`bg-comp-gray-line mx-24`}
@@ -50,6 +50,7 @@ const ModalCategory = ({
   });
   const { t } = useTranslation();
   const [trigger, setTrigger] = useState(false);
+  const locale = useCurrentLocale(i18nConfig);
 
   useEffect(() => {
     if (mode === 'EDIT' && cateDate && cateDate.id > 0) {

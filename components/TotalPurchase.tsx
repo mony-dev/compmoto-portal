@@ -49,7 +49,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `/api/totalPurchaseHistory?userId=${userId}`
+          `/api/totalPurchaseHistory?userId=${userId}`,
         );
         const history = response.data.totalPurchaseHistory[0];
         const sumCn = response.data.sumTotalAmount;
@@ -76,15 +76,15 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
                       item.cn,
                       item.incentivePoint,
                       item.loyaltyPoint,
-                      item.totalPurchaseAmount
+                      item.totalPurchaseAmount,
                     )
                   : renderInactive(
                       item.cn,
                       item.incentivePoint,
                       item.loyaltyPoint,
-                      item.totalPurchaseAmount
+                      item.totalPurchaseAmount,
                     ), // Conditionally render active/inactive
-            })
+            }),
           );
 
           setItems(stepsItems);
@@ -99,13 +99,13 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
             const cal = (currentTotal * 100) / percent;
             const rest = 100 - cal;
             const finishedSteps = document.querySelectorAll(
-              ".total-p .ant-steps-item-finish"
+              ".total-p .ant-steps-item-finish",
             );
             if (finishedSteps.length > 0) {
               // Get the last finished step
               const lastFinishedStep = finishedSteps[finishedSteps.length - 1];
               const lastTail = lastFinishedStep.querySelector(
-                ".ant-steps-item-tail"
+                ".ant-steps-item-tail",
               );
               if (lastTail) {
                 // Add a unique class to lastTail
@@ -120,11 +120,11 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
           }
 
           const stepsProgressIcon = document.querySelectorAll(
-            ".total-step .ant-steps-progress-icon"
+            ".total-step .ant-steps-progress-icon",
           );
           setTimeout(() => {
             const stepsProgressIcon = document.querySelectorAll(
-              ".total-step .ant-steps-progress-icon"
+              ".total-step .ant-steps-progress-icon",
             );
 
             stepsProgressIcon.forEach((icon) => {
@@ -165,31 +165,33 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
     cn: number,
     incentivePoint: number,
     loyaltyPoint: number,
-    totalPurchaseAmount: number
+    totalPurchaseAmount: number,
   ) => (
     <Card
       title={
         <>
-          <div className="flex justify-center py-2  gap-2">
-            <p className="default-font text-xs text-comp-natural-base">
-              {locale === "en" ? "Total purchase" : "ยอดรวม"}
+          <div className="w-full flex flex-col items-center text-center">
+            <div className="flex items-center justify-center gap-2 py-2 w-full">
+              <p className="default-font text-xs text-comp-natural-base">
+                {locale === "en" ? "Total purchase" : "ยอดรวม"}
+              </p>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.99998 1.33337C4.32665 1.33337 1.33331 4.32671 1.33331 8.00004C1.33331 11.6734 4.32665 14.6667 7.99998 14.6667C11.6733 14.6667 14.6666 11.6734 14.6666 8.00004C14.6666 4.32671 11.6733 1.33337 7.99998 1.33337ZM11.1866 6.46671L7.40665 10.2467C7.31331 10.34 7.18665 10.3934 7.05331 10.3934C6.91998 10.3934 6.79331 10.34 6.69998 10.2467L4.81331 8.36004C4.61998 8.16671 4.61998 7.84671 4.81331 7.65337C5.00665 7.46004 5.32665 7.46004 5.51998 7.65337L7.05331 9.18671L10.48 5.76004C10.6733 5.56671 10.9933 5.56671 11.1866 5.76004C11.38 5.95337 11.38 6.26671 11.1866 6.46671Z"
+                  fill="#41B264"
+                />
+              </svg>
+            </div>
+            <p className="text-comp-red default-font text-xl py-2">
+              ฿{totalPurchaseAmount.toLocaleString()}
             </p>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.99998 1.33337C4.32665 1.33337 1.33331 4.32671 1.33331 8.00004C1.33331 11.6734 4.32665 14.6667 7.99998 14.6667C11.6733 14.6667 14.6666 11.6734 14.6666 8.00004C14.6666 4.32671 11.6733 1.33337 7.99998 1.33337ZM11.1866 6.46671L7.40665 10.2467C7.31331 10.34 7.18665 10.3934 7.05331 10.3934C6.91998 10.3934 6.79331 10.34 6.69998 10.2467L4.81331 8.36004C4.61998 8.16671 4.61998 7.84671 4.81331 7.65337C5.00665 7.46004 5.32665 7.46004 5.51998 7.65337L7.05331 9.18671L10.48 5.76004C10.6733 5.56671 10.9933 5.56671 11.1866 5.76004C11.38 5.95337 11.38 6.26671 11.1866 6.46671Z"
-                fill="#41B264"
-              />
-            </svg>
           </div>
-          <p className="text-comp-red default-font text-xl py-2">
-            ฿{totalPurchaseAmount.toLocaleString()}
-          </p>
         </>
       }
       bordered={true}
@@ -214,7 +216,7 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
     cn: number,
     incentivePoint: number,
     loyaltyPoint: number,
-    totalPurchaseAmount: number
+    totalPurchaseAmount: number,
   ) => (
     <Card
       title={
@@ -530,34 +532,39 @@ const TotalPurchase: React.FC<TotalPurchaseProps> = ({ userId }) => {
         <Skeleton active />
       ) : (
         <>
-          <div className="flex justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-black default-font text-xl font-black	">
               {t("total purchase")}
             </h1>
-            <div className="flex items-center gap-2">
-              <h2 className="gotham-book text-comp-red text-xl font-black">
+            <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:justify-end">
+              <h2 className="gotham-book text-comp-red text-xl font-black whitespace-nowrap">
                 {t("level")}
               </h2>
-              {levelIcon(level)}
-              <div className="flex text-center">
+
+              <div className="shrink-0">{levelIcon(level)}</div>
+
+              <div className="flex min-w-0 max-w-full text-center">
                 <div
-                  className="rounded-s-full text-sm	text-comp-red font-black bg-comp-red-hover p-2 level-items1"
+                  className="level-items1 truncate rounded-s-full text-xs sm:text-sm text-comp-red font-black bg-comp-red-hover px-3 py-2"
                   style={{ clipPath: `polygon(0 0, 100% 0, 80% 100%, 0 100%)` }}
+                  title={`${totalPurchase?.totalSpend ? (totalPurchase.totalSpend - sumCn).toLocaleString() : 0}`}
                 >
                   ฿
                   {totalPurchase?.totalSpend
-                    ? (totalPurchase?.totalSpend - sumCn).toLocaleString()
+                    ? (totalPurchase.totalSpend - sumCn).toLocaleString()
                     : 0}
                 </div>
+
                 <div
-                  className="rounded-e-full text-sm	bg-comp-red font-black text-white p-2 level-items2"
+                  className="level-items2 truncate rounded-e-full text-xs sm:text-sm bg-comp-red font-black text-white px-3 py-2"
                   style={{
                     clipPath: `polygon(20% 0, 100% 0, 100% 100%, 0 100%)`,
                   }}
+                  title={`${latestOrder?.totalPurchaseAmount ? latestOrder.totalPurchaseAmount.toLocaleString() : 0}`}
                 >
                   ฿
                   {latestOrder?.totalPurchaseAmount
-                    ? latestOrder?.totalPurchaseAmount.toLocaleString()
+                    ? latestOrder.totalPurchaseAmount.toLocaleString()
                     : 0}
                 </div>
               </div>

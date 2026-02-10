@@ -31,15 +31,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         }
         const userId = getUserId();
         // const response = await axios.get("/api/minisizeMenu/");
-        const response  = await axios.get(`/api/minisizeMenu`, {
+        const response = await axios.get(`/api/minisizeMenu`, {
           params: {
-            userId: userId
+            userId: userId,
           },
         });
         const data = response.data.data;
         const minisize = data.map((mini: any, index: number) => ({
           key: index + 1,
-          name: mini.name
+          name: mini.name,
         }));
         setMinisizeItems(Array.isArray(minisize) ? minisize : []); // Ensure it's an array
       } catch (error) {
@@ -65,16 +65,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <div className="grid grid-cols-6 grid-rows-auto bg-comp-gray-bg">
-        <div className="row-start-2 row-end-auto col-start-1 col-end-2">
-          <SideBar
-            isOpen={isMobileOpened}
-            onToggle={toggleMobileMenu}
-            role={session?.user.role}
-            minisizeItems={minisizeItems}
-          />
-        </div>
-        <div className="col-span-6 auto-rows-auto pb-6 bg-comp-gray-bg">
+      <div className="min-h-[100svh] bg-comp-gray-bg flex flex-col">
+        {/* Header: full width */}
+        <div className="shrink-0">
           <NavBar
             onToggle={toggleMobileMenu}
             isOpen={isMobileOpened}
@@ -82,11 +75,46 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             userId={session?.user.id}
           />
         </div>
-        <div className="border-none bg-comp-gray-bg col-span-5 row-span-6">
-          {children}
+
+        {/* Body: sidebar + content (under header) */}
+        <div className="flex-1 min-h-0 flex">
+          {/* Desktop sidebar */}
+          <aside className="hidden sm:block w-72 shrink-0">
+            <SideBar
+              isOpen={true}
+              onToggle={toggleMobileMenu}
+              role={session?.user.role}
+              minisizeItems={minisizeItems}
+            />
+          </aside>
+
+          {/* Main content */}
+          <main className="flex-1 min-w-0 min-h-0 px-4 sm:px-6 lg:px-8 py-4">
+            {children}
+          </main>
         </div>
-        <div className="col-span-6">
+
+        {/* Footer: full width */}
+        <div className="shrink-0">
           <Footer isOpen={isMobileOpened} />
+        </div>
+
+        {/* Mobile overlay */}
+        <div
+          className={`fixed inset-0 bg-black/40 z-20 sm:hidden transition-opacity ${
+            isMobileOpened ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={toggleMobileMenu}
+        />
+
+        {/* Mobile drawer sidebar */}
+        <div className="sm:hidden">
+          <SideBar
+            isOpen={isMobileOpened}
+            onToggle={toggleMobileMenu}
+            role={session?.user.role}
+            minisizeItems={minisizeItems}
+          />
         </div>
       </div>
     </>

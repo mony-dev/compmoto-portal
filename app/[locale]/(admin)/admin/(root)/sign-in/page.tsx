@@ -28,7 +28,6 @@ const SignIn = ({ params }: { params: { locale: string } }) => {
     setLoading(false);
   }, []);
 
-  
   const handleChange = (newLocale: string) => {
     const days = 30;
     const date = new Date();
@@ -38,10 +37,16 @@ const SignIn = ({ params }: { params: { locale: string } }) => {
 
     // Redirect to the new locale path
     let newPathname = currentPathname;
-    if (currentLocale === i18nConfig.defaultLocale && !i18nConfig.prefixDefault) {
-      newPathname = '/' + newLocale + currentPathname;
+    if (
+      currentLocale === i18nConfig.defaultLocale &&
+      !i18nConfig.prefixDefault
+    ) {
+      newPathname = "/" + newLocale + currentPathname;
     } else {
-      newPathname = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
+      newPathname = currentPathname.replace(
+        `/${currentLocale}`,
+        `/${newLocale}`,
+      );
     }
     // Add query parameters to newPathname if they exist
     const currentUrl = new URL(window.location.href);
@@ -51,84 +56,66 @@ const SignIn = ({ params }: { params: { locale: string } }) => {
       newPathname += queryParams;
     }
 
-  router.push(newPathname as any); // Using 'any' to bypass the type error
+    router.push(newPathname as any); // Using 'any' to bypass the type error
   };
-
 
   if (loading || !t) {
     return <Loading />;
   }
 
   return (
-    <div
-      className="h-screen w-full bg-cover bg-fixed bg-no-repeat bg-right relative bg-backgroundImage"
-      // style={{
-      //   backgroundImage: `url(${Background})`,
-      // }}
-    >
-      <div className="absolute top-8 right-10 text-sm z-30">
+    <div className="relative w-full bg-cover bg-fixed bg-no-repeat bg-right bg-backgroundImage min-h-[100svh]">
+      {/* Language switch */}
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-10 text-sm z-30 select-none">
         <span
           className={classNames("cursor-pointer mx-2", {
             "p-0.5 px-1 rounded-md text-white bg-comp-red": locale === "th",
           })}
-          // onClick={() => i18n.changeLanguage('th')}
-          onClick={() => handleChange('th')}
-
+          onClick={() => handleChange("th")}
         >
           TH
         </span>
         |
         <span
-          className={classNames("cursor-pointer  mx-2 ", {
+          className={classNames("cursor-pointer mx-2", {
             "p-0.5 px-1 rounded-md text-white bg-comp-red": locale === "en",
           })}
-          onClick={() => handleChange('en')}
+          onClick={() => handleChange("en")}
         >
           EN
         </span>
       </div>
 
-      <div className="flex flex-col justify-center items-center w-full h-screen ">
-        <div
-          className={classNames(
-            "w-[600px] h-[445px] m-auto rounded-[30px] pb-24 px-12 bg-white z-30 relative"
-            // { 'h-[545px]': currentPageAction?.name !== 'LOGIN' }
-          )}
-          style={{
-            boxShadow: "0px 25px 42px rgba(123, 103, 251, 0.2)",
-          }}
-        >
+      <div className="flex items-center justify-center w-full min-h-[100svh] px-4 py-10 sm:py-12">
+        <div className="relative w-full max-w-[600px]">
+          <div className="absolute inset-0 -rotate-12 rounded-[30px] bg-comp-red-hover z-0" />
+          <div className="absolute inset-0 rotate-12 rounded-[30px] bg-comp-red z-10" />
           <div
-            // hidden={currentPageAction?.name !== 'LOGIN'}
-            className="flex justify-center"
-            style={{ color: "#A8A8AF", textAlign: "center" }}
+            className="relative z-20 w-full
+                        rounded-[30px]
+                        bg-white
+                        px-6 sm:px-12
+                        pt-8 pb-10
+                        sm:min-h-[445px]
+                        lg:min-h-[445px]"
+            style={{ boxShadow: "0px 25px 42px rgba(123, 103, 251, 0.2)" }}
           >
+            <div
+              className="flex justify-center text-center"
+              style={{ color: "#A8A8AF" }}
+            >
               <Image
-                className="rounded-lg w-fit	h-4/5 animate-img"
-                width={100}
-                height={30}
-                src={LoginLogo.src}
-                alt={"compmoto-login"}
+                src={LoginLogo}
+                alt="compmoto-login"
+                priority
+                className="rounded-lg w-auto max-h-20 sm:max-h-24 md:max-h-28 animate-img"
               />
+            </div>
+            <div className="mt-6">
+              <SignInForm params={{ locale: params.locale }} />
+            </div>
           </div>
-          <SignInForm
-            params={{
-              locale: params.locale,
-            }}
-          />
         </div>
-        <div
-          className={classNames(
-            "absolute bg-comp-red-hover w-[600px] h-[445px] rounded-[30px] inset-auto -rotate-12 z-0"
-            // { 'h-[545px]': currentPageAction?.name !== 'LOGIN' }
-          )}
-        />
-        <div
-          className={classNames(
-            "absolute bg-comp-red w-[600px] h-[445px] rounded-[30px] inset-auto rotate-12 z-10"
-            // { 'h-[545px]': currentPageAction?.name !== 'LOGIN' }
-          )}
-        />
       </div>
     </div>
   );

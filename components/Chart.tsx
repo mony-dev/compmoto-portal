@@ -311,10 +311,10 @@ const Chart: React.FC<{ userId: string }> = ({ userId }) => {
         <>
           {" "}
           <div
-            className="mt-4 pb-4 rounded-lg bg-white col-span-2"
+            className="mt-4 pb-4 rounded-lg bg-white col-span-2 p-4"
             style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
           >
-            <div className="grid grid-cols-6 gap-1 chart-filter">
+           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 chart-filter">
               <DropdownFilter
                 items={brandItems}
                 buttonTitle={t("brands")}

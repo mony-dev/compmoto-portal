@@ -92,7 +92,7 @@ const Dashboard = () => {
       setLoadPage(false);
       fetchMinisizeForSpecial();
     }, 500), // 500 ms debounce delay
-    [currentPage, pageSize]
+    [currentPage, pageSize],
   );
 
   useEffect(() => {
@@ -110,22 +110,22 @@ const Dashboard = () => {
     try {
       const { data } = await axios.get(`/api/getMinisizeSpecialBonus`);
       setMini(data.minisizes);
-    } catch (error: any) {
-    } 
+    } catch (error: any) {}
   }
 
   async function fetchRank() {
     setLoadRank(true);
     try {
       const [ranking] = await Promise.all([
-        axios.get(`/api/invoice/${session?.user.id}/ranking`)      
-        .then((response) => {
-          setRank(response.data.rank);
-        })
+        axios
+          .get(`/api/invoice/${session?.user.id}/ranking`)
+          .then((response) => {
+            setRank(response.data.rank);
+          }),
       ]);
     } catch (error) {
       // console.error("Error fetching data: ", error);
-    } 
+    }
   }
 
   async function fetchReward() {
@@ -167,7 +167,7 @@ const Dashboard = () => {
             ...news,
             key: index + 1 + (currentPage - 1) * pageSize,
           };
-        })
+        }),
       );
 
       setNewsData(newsDataWithKeys);
@@ -251,10 +251,10 @@ const Dashboard = () => {
       const credit = session?.user.data.CreditLimitLCY[0];
       const balanceCredit = session?.user.data.BalanceDueLCY[0];
       if (credit && balanceCredit) {
-        let calResult = 0
-        const result = Number(credit) - Number(balanceCredit)
-        if (result > 0){
-          calResult = result
+        let calResult = 0;
+        const result = Number(credit) - Number(balanceCredit);
+        if (result > 0) {
+          calResult = result;
         }
         setBalance(calResult);
       }
@@ -304,10 +304,11 @@ const Dashboard = () => {
           className="col-span-6 rounded-lg bg-white mt-2 mx-auto w-full"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          <div className=" grid grid-cols-6">
-            <div className="col-span-2 mx-auto w-full">
-              <div className="flex gap-8 items-center px-8 border-r-2 border-[#E4E7EB] border-dashed mr-4 py-2">
-                <div className="group-hover:blur-xs overflow-hidden pt-4 pb-2 profile-img">
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+            {/* Profile */}
+            <div className="lg:col-span-2 w-full">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center px-4 sm:px-8 lg:border-r-2 lg:border-[#E4E7EB] lg:border-dashed lg:mr-4 py-2">
+                <div className="group-hover:blur-xs overflow-hidden pt-4 pb-2 profile-img self-center">
                   <Image
                     className="transition duration-300 ease-in-out rounded-full border border-[#DD2C37]"
                     alt="User profile"
@@ -344,11 +345,16 @@ const Dashboard = () => {
                 <div>
                   <p className="mb-0 text-base text-black">
                     {session?.user.name}
-                    <Tag color="#FF535D" className="ml-4">{session?.user?.customerGroupName}</Tag>
+                    <Tag color="#FF535D" className="ml-1">
+                      {session?.user?.customerGroupName}
+                    </Tag>
                   </p>
                   <p className="mb-0 text-base text-black">
-                    {t('Ranking total')} : <Tag bordered={false} color="gold">
-                      <span className="text-base default-font">{t("Ranking No")} {rank}</span>
+                    {t("Ranking total")} :{" "}
+                    <Tag bordered={false} color="gold">
+                      <span className="text-base default-font">
+                        {t("Ranking No")} {rank}
+                      </span>
                     </Tag>
                   </p>
                   <p className="mb-0 text-base text-black">
@@ -370,95 +376,21 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="col-span-4">
-              <div className="col-span-3 mx-auto w-full py-2">
+            {/* Reward */}
+             <div className="lg:col-span-4 w-full min-w-0">
+               <div className="w-full py-2 px-4 sm:px-8">
                 <div className="col-span-3 rounded mx-auto w-full py-1 flex items-center gap-4">
                   <h1 className="text-xl font-semibold	default-font">
                     {t("Reward")}
                   </h1>
                 </div>
-                {rewardData.length >= 5 ?  <div
-                  id="cardSlider"
-                  className="f-carousel pt-2"
-                >
-                  <div className="f-carousel__viewport">
-                    {Array.from(
-                       { length: Math.max(10, rewardData.length) },
-                      // { length: rewardData.length > 5 ? Math.max(10, rewardData.length) : rewardData.length},
-                      (_, index) => rewardData[index % rewardData.length]
-                    ).map((reward, index) => (
-                      <figure
-                        key={index}
-                        className="f-carousel__slide py-4 rounded-2xl border hover:border-comp-red flex justify-start items-center bg-white hover:bg-comp-red-hover"
-                      >
-                        {loadReward ? (
-                          <>
-                            <div className="flex items-center">
-                              <Skeleton.Avatar
-                                active={loadReward}
-                                size="large"
-                                shape="circle"
-                              />
-                              <div>
-                                <Skeleton.Input
-                                  active={loadReward}
-                                  size="small"
-                                />
-                                <Skeleton.Input
-                                  active={loadReward}
-                                  size="small"
-                                />
-                                <Skeleton.Input
-                                  active={loadReward}
-                                  size="small"
-                                />
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          reward && (
-                            <>
-                              <div className="flex">
-                                <Image
-                                  className="w-full rounded-full py-1"
-                                  alt={reward.name}
-                                  width={60}
-                                  height={"100%"}
-                                  src={reward.image}
-                                />
-                              </div>
-                              <Link
-                                className="pl-4 1xl:pl-1"
-                                href={`/${locale}/admin/reward`}
-                              >
-                                <p className="text-comp-red leading-4 default-font text-sm">
-                                  {reward.name}
-                                </p>
-                                <p className="text-sm default-font font-semibold text-comp-red">
-                                  {reward.point}
-                                  <span className="text-comp-red leading-4 font-normal pl-2">
-                                    {t("Point")}
-                                  </span>
-                                </p>
-                                {/* <div className="text-comp-red leading-4 font-normal flex items-center">
-                                <span className="text-xs">{reward.date}</span>
-                              </div> */}
-                              </Link>
-                            </>
-                          )
-                        )}
-                      </figure>
-                    ))}
-                  </div>
-                </div> : rewardData.length >= 1 && rewardData.length < 5 ? <><div
-                    id="cardSlider"
-                    className="f-carousel pt-2"
-                  >
+                {rewardData.length >= 5 ? (
+                  <div id="cardSlider" className="f-carousel pt-2">
                     <div className="f-carousel__viewport">
                       {Array.from(
-                        { length: rewardData.length },
+                        { length: Math.max(10, rewardData.length) },
                         // { length: rewardData.length > 5 ? Math.max(10, rewardData.length) : rewardData.length},
-                        (_, index) => rewardData[index % rewardData.length]
+                        (_, index) => rewardData[index % rewardData.length],
                       ).map((reward, index) => (
                         <figure
                           key={index}
@@ -470,17 +402,21 @@ const Dashboard = () => {
                                 <Skeleton.Avatar
                                   active={loadReward}
                                   size="large"
-                                  shape="circle" />
+                                  shape="circle"
+                                />
                                 <div>
                                   <Skeleton.Input
                                     active={loadReward}
-                                    size="small" />
+                                    size="small"
+                                  />
                                   <Skeleton.Input
                                     active={loadReward}
-                                    size="small" />
+                                    size="small"
+                                  />
                                   <Skeleton.Input
                                     active={loadReward}
-                                    size="small" />
+                                    size="small"
+                                  />
                                 </div>
                               </div>
                             </>
@@ -488,12 +424,15 @@ const Dashboard = () => {
                             reward && (
                               <>
                                 <div className="flex">
-                                  <Image
-                                    className="w-full rounded-full py-1"
-                                    alt={reward.name}
-                                    width={60}
-                                    height={"100%"}
-                                    src={reward.image} />
+                                  <div className="reward-avatar border border-[#DD2C37]">
+                                    <Image
+                                      className="w-full object-cover"
+                                      alt={reward.name}
+                                      width={60}
+                                      height={"100%"}
+                                      src={reward.image}
+                                    />
+                                  </div>
                                 </div>
                                 <Link
                                   className="pl-4 1xl:pl-1"
@@ -509,8 +448,8 @@ const Dashboard = () => {
                                     </span>
                                   </p>
                                   {/* <div className="text-comp-red leading-4 font-normal flex items-center">
-                        <span className="text-xs">{reward.date}</span>
-                      </div> */}
+                                <span className="text-xs">{reward.date}</span>
+                              </div> */}
                                 </Link>
                               </>
                             )
@@ -518,21 +457,89 @@ const Dashboard = () => {
                         </figure>
                       ))}
                     </div>
-                  </div></> : ''}
-
-               
+                  </div>
+                ) : rewardData.length >= 1 && rewardData.length < 5 ? (
+                  <>
+                    <div id="cardSlider" className="f-carousel pt-2">
+                      <div className="f-carousel__viewport">
+                        {Array.from(
+                          { length: rewardData.length },
+                          // { length: rewardData.length > 5 ? Math.max(10, rewardData.length) : rewardData.length},
+                          (_, index) => rewardData[index % rewardData.length],
+                        ).map((reward, index) => (
+                          <figure
+                            key={index}
+                            className="f-carousel__slide py-4 rounded-2xl border hover:border-comp-red flex justify-start items-center bg-white hover:bg-comp-red-hover"
+                          >
+                            {loadReward ? (
+                              <>
+                                <div className="flex items-center">
+                                  <Skeleton.Avatar
+                                    active={loadReward}
+                                    size="large"
+                                    shape="circle"
+                                  />
+                                  <div>
+                                    <Skeleton.Input
+                                      active={loadReward}
+                                      size="small"
+                                    />
+                                    <Skeleton.Input
+                                      active={loadReward}
+                                      size="small"
+                                    />
+                                    <Skeleton.Input
+                                      active={loadReward}
+                                      size="small"
+                                    />
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              reward && (
+                                <>
+                                  <div className="flex">
+                                    <div className="reward-avatar border border-[#DD2C37]">
+                                      <Image
+                                        className="w-full object-cover"
+                                        alt={reward.name}
+                                        width={60}
+                                        height={"100%"}
+                                        src={reward.image}
+                                      />
+                                    </div>
+                                  </div>
+                                  <Link
+                                    className="pl-4 1xl:pl-1"
+                                    href={`/${locale}/admin/reward`}
+                                  >
+                                    <p className="text-comp-red leading-4 default-font text-sm">
+                                      {reward.name}
+                                    </p>
+                                    <p className="text-sm default-font font-semibold text-comp-red">
+                                      {reward.point}
+                                      <span className="text-comp-red leading-4 font-normal pl-2">
+                                        {t("Point")}
+                                      </span>
+                                    </p>
+                                    {/* <div className="text-comp-red leading-4 font-normal flex items-center">
+                        <span className="text-xs">{reward.date}</span>
+                      </div> */}
+                                  </Link>
+                                </>
+                              )
+                            )}
+                          </figure>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           </div>
-
-          {/* <div
-            className="col-span-3 rounded-lg bg-white mt-2 mx-auto w-full"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <div>
-              <ManualList type="news" />
-            </div>
-          </div> */}
         </div>
         <div
           className="mt-4 p-4 col-span-6 rounded-lg bg-white"
@@ -540,16 +547,16 @@ const Dashboard = () => {
         >
           <TotalPurchase userId={session?.user?.id} />
         </div>
-        <div
-          className="mt-4 p-4 col-span-4 rounded-lg bg-white"
+       <div
+          className="mt-4 p-4 col-span-6 lg:col-span-4 rounded-lg bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          <SpecialBonus userId={session?.user?.id} mini={mini}/>
+          <SpecialBonus userId={session?.user?.id} mini={mini} />
         </div>
         <div
-          className="mt-4 p-4 col-span-2 rounded-lg bg-white"
-          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-        >
+            className="mt-4 p-4 col-span-6 lg:col-span-2 rounded-lg bg-white"
+            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+          >
           <PromotionSlide custPriceGroup={session?.user?.customerGroupId} />
         </div>
         <div className="mt-4 py-4 col-span-6 rounded-lg">
@@ -578,7 +585,7 @@ const Dashboard = () => {
               />
             </div>
           </div>
-        )}
+        )} 
       </div>
       <ModalProfile
         isModalVisible={isModalVisible}

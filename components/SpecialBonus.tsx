@@ -63,10 +63,10 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
   const [loading, setLoading] = useState(false);
   const [sumTotalBonus, setSumTotalBonus] = useState(0);
   const [hoveredMinisizeId, setHoveredMinisizeId] = useState<number | null>(
-    null
+    null,
   );
   const [hoveredOrder, setHoveredOrder] = useState<number | null>(null);
-
+  const [isMobile, setIsMobile] = useState(false);
   const addMinisizeIdToIcons = (icons: NodeListOf<Element>, spendData: any) => {
     icons.forEach((icon, index) => {
       const minisizeId = spendData[index]?.minisizeId;
@@ -75,24 +75,31 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
       if (minisizeId) {
         (icon as HTMLElement).setAttribute(
           "data-minisize-id",
-          minisizeId.toString()
+          minisizeId.toString(),
         );
       }
 
       if (order >= 0) {
         (icon as HTMLElement).setAttribute(
           "data-minisize-order",
-          order.toString()
+          order.toString(),
         );
       }
       if (total >= 0) {
         (icon as HTMLElement).setAttribute(
           "data-minisize-total",
-          total.toString()
+          total.toString(),
         );
       }
     });
   };
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     // Fetch special bonus history and items for the user
@@ -106,7 +113,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
         const groupedItemsByMinisize = specialBonusResponse.items.reduce(
           (
             acc: { [minisizeId: number]: SpecialBonusItem[] },
-            item: SpecialBonusItem
+            item: SpecialBonusItem,
           ) => {
             if (!acc[item.minisizeId]) {
               acc[item.minisizeId] = [];
@@ -114,14 +121,14 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
             acc[item.minisizeId].push(item);
             return acc;
           },
-          {}
+          {},
         );
 
         // setGroupedItems(groupedItemsByMinisize);
 
         // Fetch the SpecialBonusHistory to get the totalSpend and determine the levels
         const historyResponse = await axios.get(
-          `/api/specialBonusHistory?userId=${userId}&specialBonusId=${specialBonusResponse.id}`
+          `/api/specialBonusHistory?userId=${userId}&specialBonusId=${specialBonusResponse.id}`,
         );
 
         const specialBonusHistory = historyResponse.data.data;
@@ -132,39 +139,39 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
             acc[minisizeId] = 0;
             return acc;
           },
-          {}
+          {},
         );
 
         const defaultBrandTotallMap = { ...defaultBrandLevelMap };
 
         const brandLevelMap = (specialBonusHistory.totalSpend || []).reduce(
-          (acc: { [minisizeId: number]: number }, history: SpecialBonusHistory) => {
+          (
+            acc: { [minisizeId: number]: number },
+            history: SpecialBonusHistory,
+          ) => {
             acc[history.minisizeId] = history.level;
             return acc;
           },
-          mini.reduce(
-            (acc: { [minisizeId: number]: number }, minisize) => {
-              acc[minisize.id] = 0; // Initialize with 0 for minisize IDs from mini
-              return acc;
-            },
-            {}
-          )
+          mini.reduce((acc: { [minisizeId: number]: number }, minisize) => {
+            acc[minisize.id] = 0; // Initialize with 0 for minisize IDs from mini
+            return acc;
+          }, {}),
         );
-        
+
         const brandTotallMap = (specialBonusHistory.totalSpend || []).reduce(
-          (acc: { [minisizeId: number]: number }, history: SpecialBonusHistory) => {
+          (
+            acc: { [minisizeId: number]: number },
+            history: SpecialBonusHistory,
+          ) => {
             acc[history.minisizeId] = history.total;
             return acc;
           },
-          mini.reduce(
-            (acc: { [minisizeId: number]: number }, minisize) => {
-              acc[minisize.id] = 0; // Initialize with 0 for minisize IDs from mini
-              return acc;
-            },
-            {}
-          )
+          mini.reduce((acc: { [minisizeId: number]: number }, minisize) => {
+            acc[minisize.id] = 0; // Initialize with 0 for minisize IDs from mini
+            return acc;
+          }, {}),
         );
-        
+
         setBrandLevels(brandLevelMap);
         setBrandTotal(brandTotallMap);
 
@@ -176,37 +183,41 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
               // Find the matching minisizeId in specialBonusHistory.totalSpend
               const found = (specialBonusHistory.totalSpend || mini).find(
                 (historyItem: { minisizeId: any }) =>
-                  historyItem.minisizeId === item.minisizeId
+                  historyItem.minisizeId === item.minisizeId,
               );
 
               // If found, set the 'total' value; if not, set 'total' to 0
               item.total = found ? found.total : 0;
-            }
+            },
           );
         }
         setGroupedItems(mergedData);
         setTimeout(() => {
           const stepsProgressIcon = document.querySelectorAll(
-            ".special-step .ant-steps-progress-icon"
+            ".special-step .ant-steps-progress-icon",
           );
-          const mergedTotals = Object.keys(groupedItemsByMinisize).map((minisizeId) => {
-            // Check in totalSpend or fallback to mini
-            const found = (specialBonusHistory.totalSpend || []).find(
-              (historyItem: { minisizeId: number; level: number }) =>
-                historyItem.minisizeId === Number(minisizeId)
-            );
-          
-            // Fallback logic for minisizeId if not found in totalSpend
-            const miniFallback = mini.find((miniItem) => miniItem.id === Number(minisizeId));
-          
-            // Return new object with minisizeId and values
-            return {
-              minisizeId: Number(minisizeId),
-              order: found ? Number(found.level) : 0, // Use found level or 0
-              total: found ? found.total : 0, // Use found total or 0
-              ...(miniFallback && { fallbackName: miniFallback.name }), // Optional additional data from mini
-            };
-          });
+          const mergedTotals = Object.keys(groupedItemsByMinisize).map(
+            (minisizeId) => {
+              // Check in totalSpend or fallback to mini
+              const found = (specialBonusHistory.totalSpend || []).find(
+                (historyItem: { minisizeId: number; level: number }) =>
+                  historyItem.minisizeId === Number(minisizeId),
+              );
+
+              // Fallback logic for minisizeId if not found in totalSpend
+              const miniFallback = mini.find(
+                (miniItem) => miniItem.id === Number(minisizeId),
+              );
+
+              // Return new object with minisizeId and values
+              return {
+                minisizeId: Number(minisizeId),
+                order: found ? Number(found.level) : 0, // Use found level or 0
+                total: found ? found.total : 0, // Use found total or 0
+                ...(miniFallback && { fallbackName: miniFallback.name }), // Optional additional data from mini
+              };
+            },
+          );
           const filter = mergedTotals.filter((item) => item.order !== 4);
 
           addMinisizeIdToIcons(stepsProgressIcon, filter);
@@ -251,7 +262,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
   // Render steps for each brand
   const renderStepsForBrand = (
     minisizeId: number,
-    items: SpecialBonusItem[]
+    items: SpecialBonusItem[],
   ) => {
     const userLevel = brandLevels[minisizeId] || 0;
     const brandTotalMap = brandTotal[minisizeId] || 0;
@@ -272,13 +283,13 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
                   item.cn,
                   item.incentivePoint,
                   item.totalPurchaseAmount,
-                  brandColor
+                  brandColor,
                 )
               : renderInactive(
                   item.cn,
                   item.incentivePoint,
                   item.totalPurchaseAmount,
-                  brandColor
+                  brandColor,
                 )}
 
             {item.minisizeId === hoveredMinisizeId &&
@@ -322,7 +333,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
       const rest = 100 - cal;
 
       const finishedSteps = document.querySelectorAll(
-        `.total-s-${stepsItems[userLevel].minisizeid} .ant-steps-item-finish`
+        `.total-s-${stepsItems[userLevel].minisizeid} .ant-steps-item-finish`,
       );
       if (finishedSteps.length > 0) {
         // Get the last finished step
@@ -342,30 +353,32 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
     return (
       <div
         key={minisizeId}
-        className="mb-6 special-step grid grid-cols-6"
+        className="mb-6 special-step grid grid-cols-1 sm:grid-cols-6 gap-4"
         style={{ "--step-color": brandColor } as CSSProperties}
       >
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center sm:items-center sm:justify-center sm:col-span-1">
           {imageProfile && (
-            <div className="minisize-image">
-              <Image
-                alt="brand"
-                width={100}
-                height={50}
-                src={imageProfile ? imageProfile : "error"}
-                preview={false}
-                fallback="data:image/png;base64,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"
-              />
-              <p className="gotham-font text-comp-natural-base text-xs">
+            <div className="minisize-image w-full flex flex-col items-center">
+              <div className="w-24 h-16 sm:w-24 sm:h-16 overflow-hidden flex items-center justify-center">
+                <Image
+                  alt="brand"
+                  src={imageProfile ? imageProfile : "error"}
+                  preview={false}
+                  className="object-contain"
+                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                />
+              </div>
+              <p className="gotham-font text-comp-natural-base text-xs mt-2 text-center break-words">
                 {brandName}
               </p>
             </div>
           )}
         </div>
-        <div className="col-span-5">
+        <div className="sm:col-span-5">
           <div className="wrap-position">
             <div className={`progress-wrapper total-s-${minisizeId}`}>
               <Steps
+                direction={isMobile ? "vertical" : "horizontal"}
                 current={userLevel}
                 percent={100}
                 labelPlacement="vertical"
@@ -383,7 +396,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
     cn: number,
     incentivePoint: number,
     totalPurchaseAmount: number,
-    color: string
+    color: string,
   ) => (
     <Card
       title={
@@ -439,7 +452,7 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
     cn: number,
     incentivePoint: number,
     totalPurchaseAmount: number,
-    color: string
+    color: string,
   ) => (
     <Card
       bordered={true}
@@ -507,8 +520,8 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
             {Object.keys(groupedItems).map((minisizeId) =>
               renderStepsForBrand(
                 Number(minisizeId),
-                groupedItems[Number(minisizeId)]
-              )
+                groupedItems[Number(minisizeId)],
+              ),
             )}
           </div>
         </div>

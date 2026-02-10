@@ -1,4 +1,9 @@
 .total-step {
+
+
+  .ant-card-head {
+    text-align: center;
+  }
   @media screen and (max-width: 1625px) {
     :where(.css-dev-only-do-not-override-98ntnt).ant-card .ant-card-body {
       padding: 2px 4px !important;
@@ -54,8 +59,9 @@
   }
 
   :where(.css-dev-only-do-not-override-98ntnt).ant-steps
-  .ant-steps-item-finish
-  > .last-tail-specific > .ant-steps-item-tail::after {
+    .ant-steps-item-finish
+    > .last-tail-specific
+    > .ant-steps-item-tail::after {
     background: var(--dynamic-gradient); /* Fallback */
   }
   :where(
@@ -118,8 +124,9 @@
   }
 
   :where(.css-98ntnt).ant-steps
-  .ant-steps-item-finish
-  > .last-tail-specific > .ant-steps-item-tail::after {
+    .ant-steps-item-finish
+    > .last-tail-specific
+    > .ant-steps-item-tail::after {
     background: var(--dynamic-gradient); /* Fallback */
   }
   :where(.css-98ntnt).ant-steps.ant-steps-label-vertical
@@ -192,12 +199,11 @@
   .wrap-position {
     position: relative;
     .progress-wrapper {
-      position: relative; 
+      position: relative;
       display: flex;
       &:hover .sum-total-display {
         display: block;
       }
     }
   }
-
 }

@@ -9,7 +9,7 @@ import {
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useSearchParams  } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -75,11 +75,11 @@ export default function SideBar({
   const { data: session } = useSession();
   const [iconColor, setIconColor] = useState(false);
   const [openMenuId, setOpenMenuId] = useState("");
-  const [locale, setLocale] = useState('');
+  const [locale, setLocale] = useState("");
   const toggleIconColor = (menu: string) => {
     setIconColor(!iconColor);
     setOpenMenuId((prevMenuId) => (prevMenuId === menu ? "" : menu));
-    onToggle();
+    // onToggle();
   };
   const pathname = usePathname();
   const sidebarItems: SideBarItemProps[] = [
@@ -101,10 +101,12 @@ export default function SideBar({
       icon: (
         <Image src={openMenuId == "shopping" ? BagRed : BagGrey} alt="Cart" />
       ),
-      items: minisizeItems ? minisizeItems.map((item) => ({
-        title: item.name,
-        href: `/${locale}/admin/product?name=${item.name}`,
-      })) : [],
+      items: minisizeItems
+        ? minisizeItems.map((item) => ({
+            title: item.name,
+            href: `/${locale}/admin/product?name=${item.name}`,
+          }))
+        : [],
       id: "shopping",
       openMenuId: openMenuId,
       forRole: ["USER"],
@@ -141,7 +143,10 @@ export default function SideBar({
     {
       title: "เคลมสินค้า",
       icon:
-        openMenuId == "claims" || pathname == `/${locale}/admin/claims` || pathname == `/${locale}/admin/claim/new`  || pathname.includes("claim") ? (
+        openMenuId == "claims" ||
+        pathname == `/${locale}/admin/claims` ||
+        pathname == `/${locale}/admin/claim/new` ||
+        pathname.includes("claim") ? (
           <Image src={BoxRed} alt="claim" />
         ) : (
           <Image src={BoxGrey} alt="claim" />
@@ -170,7 +175,10 @@ export default function SideBar({
     {
       title: "จัดการผู้ใช้งาน",
       icon:
-        openMenuId == "adminUser" || pathname == `/${locale}/admin/admins` || pathname == `/${locale}/admin/users` || pathname == `/${locale}/admin/userLogs` ? (
+        openMenuId == "adminUser" ||
+        pathname == `/${locale}/admin/admins` ||
+        pathname == `/${locale}/admin/users` ||
+        pathname == `/${locale}/admin/userLogs` ? (
           <UserIcon className="size-6 text-comp-red" />
         ) : (
           <svg
@@ -219,13 +227,21 @@ export default function SideBar({
           </svg>
         ),
       items: [
-        { title: "ตั้งค่ายอดสั่งซื้อรวม", href: `/${locale}/admin/adminTotalPurchase` },
-        { title: "ตั้งค่าโบนัสคะแนนพิเศษ", href: `/${locale}/admin/adminSpecialBonus` },
-        { title: "ตั้งค่า Reward Point", href: `/${locale}/admin/adminRewardPoint` },
-        // comment this menu 
+        {
+          title: "ตั้งค่ายอดสั่งซื้อรวม",
+          href: `/${locale}/admin/adminTotalPurchase`,
+        },
+        {
+          title: "ตั้งค่าโบนัสคะแนนพิเศษ",
+          href: `/${locale}/admin/adminSpecialBonus`,
+        },
+        {
+          title: "ตั้งค่า Reward Point",
+          href: `/${locale}/admin/adminRewardPoint`,
+        },
+        // comment this menu
         // { title: "รายการยอดสั่งซื้อรวม", href: `/${locale}/admin/totalPurchaseHistory` },
         // { title: "รายการโบนัสพิเศษ", href: `/${locale}/admin/specialBonusHistory` },
-
       ],
       id: "adminDashboard",
       openMenuId: openMenuId,
@@ -276,7 +292,10 @@ export default function SideBar({
         { title: "Com Rate", href: `/${locale}/admin/adminSyncComrate` },
         { title: "Family", href: `/${locale}/admin/adminSyncFamily` },
         { title: "Group Type", href: `/${locale}/admin/adminSyncGroupType` },
-        { title: "Product Group", href: `/${locale}/admin/adminSyncProductGroup` },
+        {
+          title: "Product Group",
+          href: `/${locale}/admin/adminSyncProductGroup`,
+        },
         { title: "Rim", href: `/${locale}/admin/adminSyncRim` },
         { title: "Size", href: `/${locale}/admin/adminSyncSize` },
       ],
@@ -324,8 +343,11 @@ export default function SideBar({
       ),
       items: [
         { title: "รายการแลกรางวัล", href: `/${locale}/admin/adminRewardOrder` },
-        { title: "หมวดหมู่แลกรางวัล", href: `/${locale}/admin/adminRewardCategory` },
-               ],
+        {
+          title: "หมวดหมู่แลกรางวัล",
+          href: `/${locale}/admin/adminRewardCategory`,
+        },
+      ],
       id: "adminReward",
       openMenuId: openMenuId,
       forRole: ["ADMIN"],
@@ -334,7 +356,9 @@ export default function SideBar({
       title: "จัดการคู่มือการใช้งาน",
       icon: (
         <Image
-          src={pathname == `/${locale}/admin/adminUserManual` ? BookRed : BookGrey}
+          src={
+            pathname == `/${locale}/admin/adminUserManual` ? BookRed : BookGrey
+          }
           alt="Grid Red"
         />
       ),
@@ -347,10 +371,15 @@ export default function SideBar({
       title: "จัดการเคลมสินค้า",
       icon: (
         <Image
-          src={openMenuId == "adminClaim" || pathname == `/${locale}/admin/adminClaim` ? BoxRed : BoxGrey}
+          src={
+            openMenuId == "adminClaim" ||
+            pathname == `/${locale}/admin/adminClaim`
+              ? BoxRed
+              : BoxGrey
+          }
           alt="adminClaim"
         />
-      ), 
+      ),
       items: [
         { title: "รายการเคลมสินค้า", href: `/${locale}/admin/adminClaim` },
       ],
@@ -371,10 +400,13 @@ export default function SideBar({
     <>
       <aside
         id="default-sidebar"
-        className={`bg-comp-gray-bg overflow-x-auto h-screen w-full transition-transform z-10 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } sm:translate-x-0 flex flex-col justify-between`}
-        aria-label="Sidebar"
+        className={`bg-comp-gray-bg z-30 transition-transform duration-200
+    fixed sm:static inset-y-0 left-0
+    w-72 sm:w-full
+    h-[100svh] sm:h-full
+    overflow-hidden
+    ${isOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0"}
+  `}
       >
         <div className="overflow-y-auto font-bold hidden-scroll default-font">
           {sidebarItems.map(
@@ -390,7 +422,7 @@ export default function SideBar({
                     minisizeItems={minisizeItems}
                   />
                 </div>
-              )
+              ),
           )}
           <Hr />
         </div>
@@ -414,9 +446,9 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
   const pathname = usePathname();
   const searchParam = useSearchParams();
   const name = searchParam.get("name");
-  const {setLoadPage} = useCart();
+  const { setLoadPage } = useCart();
 
-  const isSelect = pathname.startsWith(href) || (href.includes(`name=${name}`));
+  const isSelect = pathname.startsWith(href) || href.includes(`name=${name}`);
   const btnClassWithLine = (isSelect: boolean) =>
     `relative flex w-full rounded-lg ${
       isSelect ? "text-comp-red" : "bg-comp-gray-bg text-comp-grey"
@@ -447,13 +479,19 @@ const SidebarLink: React.FC<SidebarLinkProps & SideBarToggleProps> = ({
 };
 
 const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (
-  props
+  props,
 ) => {
   const pathname = usePathname();
   const routeList = props.items ? props.items.map((item) => item.href) : [];
   const isCurrentRoute = routeList.some((path) => path === pathname);
   const isSelect = props.id === props.openMenuId;
-  
+
+  const closeDrawerOnMobile = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
+      props.onToggle();
+    }
+  };
+
   const setColor = (id: string) => {
     props.onToggleIconColor && props.onToggleIconColor(id);
   };
@@ -467,7 +505,8 @@ const SidebarItem: React.FC<SideBarItemProps & SideBarToggleProps> = (
         >
           <button
             className={btnClass(isSelect || props.href === pathname)}
-            onClick={props.onToggle}
+            // onClick={props.onToggle}
+            onClick={closeDrawerOnMobile}
           >
             <span className="flex justify-between items-center gap-2">
               <div className="w-6 h-6">{props.icon}</div>

@@ -149,18 +149,18 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const calculateTotalPrice = (
     record: CartDataType,
     amount: number,
-    selectedYear: string | null = null
+    selectedYear: string | null = null,
   ) => {
     let totalPrice = record.product.price * amount;
     // Use the passed `selectedYear` if available, otherwise fallback to state
     const yearToUse = selectedYear || selectedProductYear[record.id];
     if (yearToUse) {
       const yearData = record.product.years.find(
-        (year) => year.year === yearToUse
+        (year) => year.year === yearToUse,
       );
       //check minisize
       const minisizeExists = userMinisize.some(
-        (item) => item.id === record.product.minisizeId
+        (item) => item.id === record.product.minisizeId,
       );
       let yearDiscountOrGroup = 0;
       if (yearToUse && minisizeExists) {
@@ -181,7 +181,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       //unselect year case
       //check minisize
       const minisizeExists = userMinisize.some(
-        (item) => item.id === record.product.minisizeId
+        (item) => item.id === record.product.minisizeId,
       );
       if (minisizeExists) {
         // If no year is selected but minisize exists, apply the default discount rate
@@ -273,7 +273,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     updateItem(record, newValue, totalPrice);
     updatePriceDisplay(record.id, totalPrice, originalPrice);
     recalculateTotals(
-      cartData.filter((item) => selectedItems.includes(item.id))
+      cartData.filter((item) => selectedItems.includes(item.id)),
     );
     // checkPromotion();
   };
@@ -294,7 +294,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
         updateItem(record, newValue, totalPrice);
         updatePriceDisplay(record.id, totalPrice, originalPrice);
         recalculateTotals(
-          cartData.filter((item) => selectedItems.includes(item.id))
+          cartData.filter((item) => selectedItems.includes(item.id)),
         );
         // checkPromotion();
       }
@@ -304,7 +304,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
   const handleInputAmount = (
     name: string,
     record: CartDataType,
-    newValue: number
+    newValue: number,
   ) => {
     // Use the passed newValue instead of fetching it from getValues
     const currentValue = newValue || 0;
@@ -313,7 +313,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       if (newValue >= record.product.navStock && record.type !== "Back") {
         Modal.warning({
           title: t(
-            "You cannot place an order that exceeds our available stock"
+            "You cannot place an order that exceeds our available stock",
           ),
           content: t("Please check the quantity and place your order again"),
           okText: false,
@@ -331,7 +331,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
         updateItem(record, currentValue, totalPrice);
         updatePriceDisplay(record.id, totalPrice, originalPrice);
         recalculateTotals(
-          cartData.filter((item) => selectedItems.includes(item.id))
+          cartData.filter((item) => selectedItems.includes(item.id)),
         );
         // checkPromotion();
       }
@@ -367,7 +367,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     record: CartDataType,
     newValue: number,
     totalPrice: number,
-    year?: string | null
+    year?: string | null,
   ) => {
     try {
       const response = await axios.put(
@@ -381,7 +381,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
     } catch (error: any) {
       toastError(error.response.data.message);
@@ -390,17 +390,17 @@ const Cart = ({ params }: { params: { id: number } }) => {
   useEffect(() => {
     // Recalculate totals whenever selectedProductYear or selectedItems change
     recalculateTotals(
-      cartData.filter((item) => selectedItems.includes(item.id))
+      cartData.filter((item) => selectedItems.includes(item.id)),
     );
   }, [selectedProductYear, selectedItems]);
 
   const updatePriceDisplay = (
     productId: number,
     totalPrice: number,
-    originalPrice: number
+    originalPrice: number,
   ) => {
     const priceElement = document.querySelector(
-      `.total-price[data-id='${productId}']`
+      `.total-price[data-id='${productId}']`,
     );
     if (priceElement) {
       priceElement.textContent = `฿${totalPrice.toLocaleString("en-US", {
@@ -410,7 +410,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     }
 
     const originalElement = document.querySelector(
-      `.original-price[data-id='${productId}']`
+      `.original-price[data-id='${productId}']`,
     );
     if (originalElement) {
       originalElement.textContent = `฿${originalPrice.toLocaleString("en-US", {
@@ -421,7 +421,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
   };
   const handleYearClick = (
     yearData: { isActive: any; year: any },
-    record: CartDataType
+    record: CartDataType,
   ) => {
     if (yearData.isActive) {
       setSelectedProductYear((prevSelectedProductYear) => {
@@ -493,10 +493,10 @@ const Cart = ({ params }: { params: { id: number } }) => {
             record.product.image
               ? record.product.image
               : record.product.imageProduct
-              ? record.product.imageProduct[0]
-                ? record.product.imageProduct[0].url
+                ? record.product.imageProduct[0]
+                  ? record.product.imageProduct[0].url
+                  : NoImage.src
                 : NoImage.src
-              : NoImage.src
           }
         />
       ),
@@ -508,7 +508,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
       defaultSortOrder: "descend",
       render: (_, record) => {
         const selectedYearData = record.product.years.find(
-          (yearData) => yearData.year === selectedProductYear[record.id]
+          (yearData) => yearData.year === selectedProductYear[record.id],
         );
         return (
           <>
@@ -529,13 +529,13 @@ const Cart = ({ params }: { params: { id: number } }) => {
               ฿
               {calculateTotalPrice(record, record.amount).toLocaleString(
                 "en-US",
-                { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                { minimumFractionDigits: 2, maximumFractionDigits: 2 },
               )}
             </p>
             {selectedProductYear[record.id] &&
               selectedYearData?.isActive &&
               userMinisize.some(
-                (item) => item.id === record.product.minisizeId
+                (item) => item.id === record.product.minisizeId,
               ) && (
                 <div
                   className={
@@ -546,7 +546,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                   ฿
                   {calculateOriginalPrice(
                     record,
-                    getValues(`amount_${record.id}`) || 0
+                    getValues(`amount_${record.id}`) || 0,
                   ).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -562,17 +562,17 @@ const Cart = ({ params }: { params: { id: number } }) => {
       dataIndex: "years",
       key: "years",
       render: (_, record) => (
-        <div className="flex items-center force-bottom">
+        <div className="flex flex-wrap items-center gap-1 force-bottom">
           <p className="default-font text-sm text-text-gray-hover pr-2 ">
             {t("Year")}
           </p>
-          <div>
+          <div className="flex flex-wrap gap-1">
             {record.product.years.map((yearData: any, index: number) => (
               <Tooltip
                 placement="top"
                 title={
                   userMinisize.some(
-                    (item) => item.id === record.product.minisizeId
+                    (item) => item.id === record.product.minisizeId,
                   )
                     ? `${yearData.discount}%`
                     : "0%"
@@ -704,7 +704,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                           handleInputAmount(
                             `amount_${record.id}`,
                             record,
-                            value
+                            value,
                           )
                         } // Pass the new value here
                       />
@@ -749,7 +749,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
             code: item.product.code,
             discount: 0,
             years: JSON.parse(
-              item.product.years as unknown as string
+              item.product.years as unknown as string,
             ) as YearDataType[],
             image: item.product.image,
             brand: {
@@ -772,10 +772,10 @@ const Cart = ({ params }: { params: { id: number } }) => {
 
         // Calculate counts
         const normal = useCart.filter(
-          (cart: { type: string; item: any }) => cart.type === "Normal"
+          (cart: { type: string; item: any }) => cart.type === "Normal",
         ).length;
         const back = useCart.filter(
-          (cart: { type: string; item: any }) => cart.type === "Back"
+          (cart: { type: string; item: any }) => cart.type === "Back",
         ).length;
 
         setNormalCount(normal);
@@ -788,7 +788,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
             // Check if cartItem.year is a valid active year
             const isYearValid = cartItem.product.years.some(
               (year: YearDataType) =>
-                year.year === cartItem.year && year.isActive
+                year.year === cartItem.year && year.isActive,
             );
 
             if (isYearValid) {
@@ -828,26 +828,54 @@ const Cart = ({ params }: { params: { id: number } }) => {
         </Badge>
       ),
       children: (
-        <div className="grid grid-rows-2 grid-flow-col gap-4">
-          <div className="row-start-1 row-end-4">
-            <DatatableSelect
-              rowSelection={rowSelection}
-              columns={columns}
-              data={cartData.filter((cart) => cart.type === "Normal")}
+        // <div className="grid grid-rows-2 grid-flow-col gap-4">
+        //   <div className="row-start-1 row-end-4">
+        //     <DatatableSelect
+        //       rowSelection={rowSelection}
+        //       columns={columns}
+        //       data={cartData.filter((cart) => cart.type === "Normal")}
+        //     />
+        //   </div>
+        //   <Checkout
+        //     totalAmount={totalAmount}
+        //     totalPrice={totalPrice}
+        //     discountRate={discountRate}
+        //     cartData={cartData}
+        //     selectedItems={selectedItems}
+        //     selectedProductYear={selectedProductYear}
+        //     getValues={getValues}
+        //     calculateTotalPrice={calculateTotalPrice}
+        //     calculateOriginalPrice={calculateOriginalPrice}
+        //     promotionText={promotionText}
+        //   />
+        // </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Table */}
+          <div className="lg:col-span-8 min-w-0">
+            <div className="w-full overflow-x-auto">
+              <DatatableSelect
+                rowSelection={rowSelection}
+                columns={columns}
+                data={cartData.filter((cart) => cart.type === "Normal")}
+              />
+            </div>
+          </div>
+
+          {/* Checkout */}
+          <div className="lg:col-span-4 min-w-0">
+            <Checkout
+              totalAmount={totalAmount}
+              totalPrice={totalPrice}
+              discountRate={discountRate}
+              cartData={cartData}
+              selectedItems={selectedItems}
+              selectedProductYear={selectedProductYear}
+              getValues={getValues}
+              calculateTotalPrice={calculateTotalPrice}
+              calculateOriginalPrice={calculateOriginalPrice}
+              promotionText={promotionText}
             />
           </div>
-          <Checkout
-            totalAmount={totalAmount}
-            totalPrice={totalPrice}
-            discountRate={discountRate}
-            cartData={cartData}
-            selectedItems={selectedItems}
-            selectedProductYear={selectedProductYear}
-            getValues={getValues}
-            calculateTotalPrice={calculateTotalPrice}
-            calculateOriginalPrice={calculateOriginalPrice}
-            promotionText={promotionText}
-          />
         </div>
       ),
     },
@@ -864,26 +892,54 @@ const Cart = ({ params }: { params: { id: number } }) => {
         </Badge>
       ),
       children: (
-        <div className="grid grid-rows-2 grid-flow-col gap-4">
-          <div className="row-start-1 row-end-4">
-            <DatatableSelect
-              rowSelection={rowSelection}
-              columns={columns}
-              data={cartData.filter((cart) => cart.type === "Back")}
+        // <div className="grid grid-rows-2 grid-flow-col gap-4">
+        //   <div className="row-start-1 row-end-4">
+        //     <DatatableSelect
+        //       rowSelection={rowSelection}
+        //       columns={columns}
+        //       data={cartData.filter((cart) => cart.type === "Back")}
+        //     />
+        //   </div>
+        //   <Checkout
+        //     totalAmount={totalAmount}
+        //     totalPrice={totalPrice}
+        //     discountRate={discountRate}
+        //     cartData={cartData}
+        //     selectedItems={selectedItems}
+        //     selectedProductYear={selectedProductYear}
+        //     getValues={getValues}
+        //     calculateTotalPrice={calculateTotalPrice}
+        //     calculateOriginalPrice={calculateOriginalPrice}
+        //     promotionText={promotionText}
+        //   />
+        // </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Table */}
+          <div className="lg:col-span-8 min-w-0">
+            <div className="w-full overflow-x-auto">
+              <DatatableSelect
+                rowSelection={rowSelection}
+                columns={columns}
+                data={cartData.filter((cart) => cart.type === "Back")}
+              />
+            </div>
+          </div>
+
+          {/* Checkout */}
+          <div className="lg:col-span-4 min-w-0">
+            <Checkout
+              totalAmount={totalAmount}
+              totalPrice={totalPrice}
+              discountRate={discountRate}
+              cartData={cartData}
+              selectedItems={selectedItems}
+              selectedProductYear={selectedProductYear}
+              getValues={getValues}
+              calculateTotalPrice={calculateTotalPrice}
+              calculateOriginalPrice={calculateOriginalPrice}
+              promotionText={promotionText}
             />
           </div>
-          <Checkout
-            totalAmount={totalAmount}
-            totalPrice={totalPrice}
-            discountRate={discountRate}
-            cartData={cartData}
-            selectedItems={selectedItems}
-            selectedProductYear={selectedProductYear}
-            getValues={getValues}
-            calculateTotalPrice={calculateTotalPrice}
-            calculateOriginalPrice={calculateOriginalPrice}
-            promotionText={promotionText}
-          />
         </div>
       ),
     },
@@ -902,7 +958,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
     }
   };
   return (
-    <div className="px-4">
+    <div className="px-4 max-w-full overflow-x-hidden">
       <div className="flex">
         <svg
           width="28"
@@ -961,7 +1017,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   const { t } = useTranslation();
 
   const selectedCartItems = cartData.filter((item: any) =>
-    selectedItems.includes(item.id)
+    selectedItems.includes(item.id),
   );
 
   const sumTotal = selectedCartItems.reduce((acc: any, item: any) => {
@@ -988,7 +1044,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       return;
     }
     const selectedCartItems = cartData.filter((item: any) =>
-      selectedItems.includes(item.id)
+      selectedItems.includes(item.id),
     );
 
     if (selectedCartItems.length === 0) {
@@ -1032,7 +1088,7 @@ const Checkout: React.FC<CheckoutProps> = ({
           type: any;
         }) => {
           const selectedYearData = item.product.years.find(
-            (yearData) => yearData.year === selectedProductYear[item.id]
+            (yearData) => yearData.year === selectedProductYear[item.id],
           );
           return {
             cartId: item.id,
@@ -1052,7 +1108,7 @@ const Checkout: React.FC<CheckoutProps> = ({
               ? calculateTotalPrice(item, item.amount)
               : calculateOriginalPrice(item, item.amount),
           };
-        }
+        },
       );
       const res = await axios.post(
         "/api/orderItem",
@@ -1061,7 +1117,7 @@ const Checkout: React.FC<CheckoutProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const documentNo =
         selectedCartItems[0].type === "Normal"
@@ -1076,7 +1132,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                 unitPrice: item.unitPrice,
                 lineDiscount: !item.year ? item.discount : 0,
                 tyreDiscount: item.year ? item.discount : 0,
-              }))
+              })),
             )
           : await createSalesBlanket(
               session.user.id,
@@ -1088,7 +1144,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                 qty: item.amount,
                 unitPrice: item.unitPrice,
                 blanketRemainQty: getValues(`amount_${item.cartId}`),
-              }))
+              })),
             );
 
       if (documentNo) {
@@ -1114,93 +1170,93 @@ const Checkout: React.FC<CheckoutProps> = ({
     }
   };
 
-const createSalesQuote = async (
-  customerNo: string,
-  externalDoc: string,
-  createBy: string,
-  orderItems: {
-    itemNo: string;
-    qty: number;
-    unitPrice: number;
-    year: number | null;
-    lineDiscount: number;
-    tyreDiscount: number;
-  }[]
-): Promise<string> => {
-  const response = await fetch("/api/createSalesQuote", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      customerNo,
-      externalDoc,
-      createBy,
-      orderItems,
-    }),
-  });
+  const createSalesQuote = async (
+    customerNo: string,
+    externalDoc: string,
+    createBy: string,
+    orderItems: {
+      itemNo: string;
+      qty: number;
+      unitPrice: number;
+      year: number | null;
+      lineDiscount: number;
+      tyreDiscount: number;
+    }[],
+  ): Promise<string> => {
+    const response = await fetch("/api/createSalesQuote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        customerNo,
+        externalDoc,
+        createBy,
+        orderItems,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || t("Failed to create sales quote"));
-  }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || t("Failed to create sales quote"));
+    }
 
-  const data = await response.json();
-  console.log("CreateSalesQuote NAV data:", data);
+    const data = await response.json();
+    console.log("CreateSalesQuote NAV data:", data);
 
-  const documentNo: string | undefined = data.quoteNo;
+    const documentNo: string | undefined = data.quoteNo;
 
-  if (!documentNo) {
-    throw new Error("NAV response does not contain quoteNo");
-  }
+    if (!documentNo) {
+      throw new Error("NAV response does not contain quoteNo");
+    }
 
-  return documentNo;
-};
+    return documentNo;
+  };
 
-const createSalesBlanket = async (
-  id: number,
-  customerNo: string,
-  externalDoc: string,
-  createBy: string,
-  orderItems: {
-    itemNo: string;
-    qty: number;
-    unitPrice: number;
-    blanketRemainQty: number;
-  }[]
-): Promise<string> => {
-  const response = await fetch("/api/createSalesBlanket", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id,
-      customerNo,
-      externalDoc,
-      createBy,
-      orderItems,
-    }),
-  });
+  const createSalesBlanket = async (
+    id: number,
+    customerNo: string,
+    externalDoc: string,
+    createBy: string,
+    orderItems: {
+      itemNo: string;
+      qty: number;
+      unitPrice: number;
+      blanketRemainQty: number;
+    }[],
+  ): Promise<string> => {
+    const response = await fetch("/api/createSalesBlanket", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+        customerNo,
+        externalDoc,
+        createBy,
+        orderItems,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(
-      errorData.message || t("Failed to create sales blanket order")
-    );
-  }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || t("Failed to create sales blanket order"),
+      );
+    }
 
-  const data = await response.json();
-  console.log("CreateSalesBlanket NAV data:", data);
+    const data = await response.json();
+    console.log("CreateSalesBlanket NAV data:", data);
 
-  const documentNo: string | undefined = data.blanketNo;
+    const documentNo: string | undefined = data.blanketNo;
 
-  if (!documentNo) {
-    throw new Error("NAV response does not contain blanketNo");
-  }
+    if (!documentNo) {
+      throw new Error("NAV response does not contain blanketNo");
+    }
 
-  return documentNo;
-};
+    return documentNo;
+  };
 
   return (
     <div className="bg-white row-end-2 row-span-1 p-4 rounded-lg checkout-box">

@@ -31,7 +31,7 @@ ChartJS.register(
   LineElement,
   PointElement,
   Legend,
-  Tooltip
+  Tooltip,
 );
 
 interface InvoiceItem {
@@ -120,7 +120,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
             {
               userId,
               filters: selectedFilters,
-            }
+            },
           );
 
           // Process invoices data
@@ -149,7 +149,7 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
 
           // Prepare datasets for bar and line charts
           const barData = selectedMonths.map(
-            (month) => groupedData[month] || 0
+            (month) => groupedData[month] || 0,
           ); // Data for bar chart
           const lineData = [...barData]; // Data for line chart (same in this case)
 
@@ -188,15 +188,15 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
   // Calculate totals
   const totalPurchase = invoices.reduce(
     (sum, invoice) => sum + invoice.totalPrice,
-    0
+    0,
   );
   const totalAmount = invoices.reduce(
     (sum, invoice) => sum + invoice.totalAmount,
-    0
+    0,
   );
   const totalDiscount = invoices.reduce(
     (sum, invoice) => sum + (invoice.subTotal - invoice.totalPrice),
-    0
+    0,
   );
   const totalBillCount = invoices.length;
 
@@ -221,83 +221,97 @@ const MixedBarLineChart: React.FC<ChartProps> = ({
   return (
     <>
       {loading ? (
-        <><Skeleton active /><Skeleton active /><Skeleton active /></>
+        <>
+          <Skeleton active />
+          <Skeleton active />
+          <Skeleton active />
+        </>
       ) : (
-        <div className="grid grid-rows-4 grid-flow-col gap-4">
-          <div
-            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <div className="grid">
-              <p className="text-comp-natural-base default-font text-lg self-center">
-                {t("all total purchase")}
-              </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
-                ฿{totalPurchase.toLocaleString()}
-              </p>
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+          {/* Cards column */}
+          <div className="grid gap-4 grid-cols-1 lg:col-span-1">
+            <div
+              className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <div className="grid">
+                <p className="text-comp-natural-base default-font text-lg self-center">
+                  {t("all total purchase")}
+                </p>
+                <p className="default-font text-3xl font-semibold py-4 text-[#41b264] text-end">
+                  ฿{totalPurchase.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div
+              className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <div className="grid">
+                <p className="text-comp-natural-base default-font text-lg self-center">
+                  {t("all total amount")}
+                </p>
+                <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
+                  {totalAmount} {t("items")}
+                </p>
+              </div>
+            </div>
+            {/* <div
+              className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <div className="grid">
+                <p className="text-comp-natural-base default-font text-lg self-center">
+                  {t("all total discount")}
+                </p>
+                <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
+                  ฿{totalDiscount.toLocaleString()}
+                </p>
+              </div>
+            </div> */}
+            <div
+              className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <div className="grid">
+                <p className="text-comp-natural-base default-font text-lg self-center">
+                  {t("all total bill")}
+                </p>
+                <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
+                  {totalBillCount} {t("items")}
+                </p>
+              </div>
+            </div>
+            <div
+              className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <div className="grid">
+                <p className="text-comp-natural-base default-font text-lg self-center">
+                  {t("Growth rate")}
+                </p>
+                <p className="default-font text-3xl font-semibold pt-8 pb-4 text-[#41b264] text-center">
+                  {+0} %
+                </p>
+                <p className="default-font text-comp-natural-base text-[#4C4C4C] text-end">
+                  {t("Latest year")}
+                </p>
+              </div>
             </div>
           </div>
-          <div
-            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <div className="grid">
-              <p className="text-comp-natural-base default-font text-lg self-center">
-                {t("all total amount")}
-              </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
-                {totalAmount} {t("items")}
-              </p>
+          {/* Chart column */}
+          <div className="lg:col-span-2 mt-0 lg:mt-4">
+            <div
+              className="row-span-4 col-span-2 mt-4 p-6 rounded-lg bg-white"
+              style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            >
+              <Chart
+                type="bar"
+                data={chartData}
+                options={options}
+                className="w-full"
+              />
             </div>
-          </div>
-          {/* <div
-            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <div className="grid">
-              <p className="text-comp-natural-base default-font text-lg self-center">
-                {t("all total discount")}
-              </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
-                ฿{totalDiscount.toLocaleString()}
-              </p>
-            </div>
-          </div> */}
-          <div
-            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <div className="grid">
-              <p className="text-comp-natural-base default-font text-lg self-center">
-                {t("all total bill")}
-              </p>
-              <p className="default-font text-3xl font-semibold py-4 text-[#4C4C4C] text-end">
-                {totalBillCount} {t("items")}
-              </p>
-            </div>
-          </div>
-
-          <div
-            className="row-span-1 mt-4 p-4 rounded-lg bg-white place-content-center"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <div className="grid">
-              <p className="text-comp-natural-base default-font text-lg self-center">
-                {t("Growth rate")}
-              </p>
-              <p className="default-font text-3xl font-semibold pt-8 pb-4 text-[#41b264] text-center">
-                {+ 0} %
-              </p>
-              <p className="default-font text-comp-natural-base text-[#4C4C4C] text-end">
-                {t("Latest year")}
-              </p>
-            </div>
-          </div>
-          <div
-            className="row-span-4 col-span-2 mt-4 p-6 rounded-lg bg-white"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
-            <Chart type="bar" data={chartData} options={options} className="w-full"/>
           </div>
         </div>
       )}

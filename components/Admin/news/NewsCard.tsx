@@ -103,7 +103,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
   };
   return (
     <>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 justify-center md:justify-start">
         {newsData.map((news, index) => (
           <div key={news.key} className={``}>
             <Card
