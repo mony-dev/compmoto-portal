@@ -202,6 +202,7 @@ export default function AdminBrand() {
           total={total}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       </div>

@@ -321,6 +321,7 @@ export default function totalPurchaseHistory() {
           total={total}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       </div>

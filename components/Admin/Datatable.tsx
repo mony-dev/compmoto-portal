@@ -11,6 +11,7 @@ interface TableComponentProps<T> {
   pageSize: number;
   onPageChange: (page: number, pageSize?: number) => void;
   onChange?: TableProps<T>["onChange"]; 
+  scroll?: TableProps<T>["scroll"];
 }
 
 const DataTable: React.FC<TableComponentProps<any>> = ({
@@ -21,6 +22,7 @@ const DataTable: React.FC<TableComponentProps<any>> = ({
   pageSize,
   onPageChange,
   onChange, 
+  scroll,
 }) => {
   const customPagination = getCustomPagination(total, currentPage, pageSize, onPageChange);
   return (
@@ -28,7 +30,8 @@ const DataTable: React.FC<TableComponentProps<any>> = ({
       <Table
         columns={columns}
         dataSource={data}
-        className="w-full default-font"
+        className="w-full default-font custom-ant-table"
+        scroll={scroll}
         pagination={customPagination}
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         onChange={onChange}

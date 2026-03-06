@@ -60,6 +60,7 @@ const TabContent: React.FC<TableComponentProps<any>> = ({
           total={total}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       ),
@@ -74,6 +75,7 @@ const TabContent: React.FC<TableComponentProps<any>> = ({
           total={total}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       ),
@@ -88,6 +90,7 @@ const TabContent: React.FC<TableComponentProps<any>> = ({
           total={total}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       ),

@@ -1177,13 +1177,14 @@ const Product = () => {
             onChange={handleSortChange}
           />
         </div>
-        <div ref={dataTableRef}>
+        <div ref={dataTableRef} className="w-full overflow-x-auto">
           <DataTable
             columns={columns}
             data={productData}
             total={total}
             currentPage={currentPage}
             pageSize={pageSize}
+            scroll={{ x: "max-content" }}
             onPageChange={handlePageChange}
             onChange={handleTableChange}
           />

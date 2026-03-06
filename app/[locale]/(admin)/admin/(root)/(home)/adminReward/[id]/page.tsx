@@ -296,6 +296,7 @@ export default function AdminsRewardCategory({
           total={total}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
    

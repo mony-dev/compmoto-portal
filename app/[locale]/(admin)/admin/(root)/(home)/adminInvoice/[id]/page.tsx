@@ -335,6 +335,7 @@ export default function AdminInvoice({ params }: { params: { id: number } }) {
                 total={reData.items.length}
                 currentPage={currentPage}
                 pageSize={pageSize}
+                scroll={{ x: "max-content" }}
                 onPageChange={handlePageChange}
               />
             )}

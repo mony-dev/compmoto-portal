@@ -164,7 +164,7 @@ export default function AdminSyncBrand({ params }: { params: { id: number } }) {
         className="py-8 px-8 rounded-lg flex flex-col bg-white"
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
           <div className="text-lg pb-4 default-font flex">
             <p className="text-lg font-semibold pb-4 grow">{t("brand")}</p>
           </div>
@@ -214,6 +214,7 @@ export default function AdminSyncBrand({ params }: { params: { id: number } }) {
             total={total}
             currentPage={currentPage}
             pageSize={pageSize}
+            scroll={{ x: "max-content" }}
             onPageChange={handlePageChange}
           />
         </Spin>

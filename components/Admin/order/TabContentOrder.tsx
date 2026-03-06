@@ -87,6 +87,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
           total={orderTotal}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       ),
@@ -110,6 +111,7 @@ const TabContentOrder: React.FC<TableComponentProps<any>> = ({
           total={invoiceTotal}
           currentPage={currentPage}
           pageSize={pageSize}
+          scroll={{ x: "max-content" }}
           onPageChange={handlePageChange}
         />
       ),

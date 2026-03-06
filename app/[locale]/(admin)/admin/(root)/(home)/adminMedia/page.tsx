@@ -146,7 +146,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
     debounce((type: string) => {
       fetchData(type);
     }, 500),
-    [currentPage, pageSize, mediaType] // Make sure all dependencies are considered
+    [currentPage, pageSize, mediaType], // Make sure all dependencies are considered
   );
 
   useEffect(() => {
@@ -185,7 +185,7 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
         (mini: DataType, index: number) => ({
           ...mini,
           key: index + 1 + (currentPage - 1) * pageSize,
-        })
+        }),
       );
 
       setMediaData(mediaDataWithKeys);
@@ -263,55 +263,62 @@ export default function AdminMedia({ params }: { params: { id: number } }) {
   return (
     <div className="px-4">
       <div
-        className="py-8 px-8 rounded-lg flex flex-col bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        className="py-6 px-4 md:py-8 md:px-8 rounded-lg flex flex-col bg-white"
+        style={{ boxShadow: "0px 4px 16px 0px rgba(0, 0, 0, 0.08)" }}
       >
-        <div className="text-lg pb-4 default-font">
-          <div className="flex">
-            <p className="text-lg font-semibold pb-4 grow">{t("media")}</p>
-            <Input.Search
-              placeholder={t("search")}
-              size="middle"
-              style={{ width: "200px", marginBottom: "20px" }}
-              value={searchText}
-              onSearch={handleSearch}
-              onChange={handleInputChange}
-              suffix={
-                <CloseCircleOutlined
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={handleClear}
-                  style={{
-                    cursor: searchText ? "pointer" : "default",
-                    opacity: searchText ? 1 : 0,
-                    pointerEvents: searchText ? "auto" : "none",
-                    transition: "opacity 120ms ease",
-                  }}
-                  tabIndex={-1}
-                />
-              }
-            />
-            <Button
-              className="bg-comp-red button-backend ml-4"
-              type="primary"
-              icon={<PlusIcon className="w-4" />}
-              onClick={showModal(true, 0, "ADD")}
-            >
-              {t("add")}
-            </Button>
+        <div className="default-font">
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+            <p className="text-lg font-semibold m-0">{t("media")}</p>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <Input.Search
+                placeholder={t("search")}
+                size="middle"
+                className="w-full sm:w-[220px] md:w-[240px]"
+                value={searchText}
+                onSearch={handleSearch}
+                onChange={handleInputChange}
+                suffix={
+                  <CloseCircleOutlined
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleClear}
+                    style={{
+                      cursor: searchText ? "pointer" : "default",
+                      opacity: searchText ? 1 : 0,
+                      pointerEvents: searchText ? "auto" : "none",
+                      transition: "opacity 120ms ease",
+                    }}
+                    tabIndex={-1}
+                  />
+                }
+              />
+
+              <Button
+                className="bg-comp-red button-backend w-full sm:w-auto"
+                type="primary"
+                icon={<PlusIcon className="w-4" />}
+                onClick={showModal(true, 0, "ADD")}
+              >
+                {t("add")}
+              </Button>
+            </div>
           </div>
-          <Spin spinning={loadPage}>
-            <TabContent
-              columns={columns}
-              data={mediaData}
-              setCurrentPage={setCurrentPage}
-              currentPage={currentPage}
-              setPageSize={setPageSize}
-              pageSize={pageSize}
-              onTabChange={handleTabChange}
-              activeKey={mediaType}
-              total={total}
-            />
-          </Spin>
+
+          <div className="mt-4">
+            <Spin spinning={loadPage}>
+              <TabContent
+                columns={columns}
+                data={mediaData}
+                setCurrentPage={setCurrentPage}
+                currentPage={currentPage}
+                setPageSize={setPageSize}
+                pageSize={pageSize}
+                onTabChange={handleTabChange}
+                activeKey={mediaType}
+                total={total}
+              />
+            </Spin>
+          </div>
         </div>
 
         <ModalMedia

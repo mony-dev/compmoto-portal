@@ -296,6 +296,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
               total={total}
               currentPage={1}
               pageSize={pageSize}
+              scroll={{ x: "max-content" }}
               onPageChange={handlePageChange}
             />
           </div>

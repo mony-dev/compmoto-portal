@@ -1,19 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
 
-import {
-  PencilSquareIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { toastError, toastSuccess } from "@lib-utils/helper";
-import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Spin,
-  Tag,
-} from "antd";
+import { Button, Form, Input, Select, Spin, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -56,9 +46,11 @@ export default function AdminSpecialBonus() {
   const { setI18nName, setLoadPage, loadPage } = useCart();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [filterStatus, setFilterStatus] = useState<"all" | "true" | "false">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "true" | "false">(
+    "all",
+  );
   const locale = useCurrentLocale(i18nConfig);
- 
+
   const [triggerSpecialBonus, setTriggerSpecialBonus] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [mode, setMode] = useState("ADD");
@@ -70,20 +62,19 @@ export default function AdminSpecialBonus() {
   const currentDate = new Date();
 
   const [selectedMonth, setSelectedMonth] = useState<string>(
-    (currentDate.getMonth() + 1).toString()
+    (currentDate.getMonth() + 1).toString(),
   );
   const [selectedYear, setSelectedYear] = useState<string>(
-    currentDate.getFullYear().toString()
+    currentDate.getFullYear().toString(),
   );
   const [monthOptions, setMonthOptions] = useState<Option[]>([]);
   const [thisMonth, setThisMonth] = useState<string>(
-    (currentDate.getMonth() + 1).toString()
+    (currentDate.getMonth() + 1).toString(),
   );
   const [thisYear, setThisYear] = useState<string>(
-    currentDate.getFullYear().toString()
+    currentDate.getFullYear().toString(),
   );
 
-  
   interface DataType {
     key: number;
     id: number;
@@ -169,47 +160,55 @@ export default function AdminSpecialBonus() {
   ];
 
   const { control: controlSearch, setValue: setSearchValue } =
-  useForm<SearchDateSchema>({
-    resolver: zodResolver(searchDateSchema),
-  });
+    useForm<SearchDateSchema>({
+      resolver: zodResolver(searchDateSchema),
+    });
 
-const fetchMonth = async () => {
-  const months = [
-    { en: "January", th: "มกราคม", key: "1" },
-    { en: "February", th: "กุมภาพันธ์", key: "2" },
-    { en: "March", th: "มีนาคม", key: "3" },
-    { en: "April", th: "เมษายน", key: "4" },
-    { en: "May", th: "พฤษภาคม", key: "5" },
-    { en: "June", th: "มิถุนายน", key: "6" },
-    { en: "July", th: "กรกฎาคม", key: "7" },
-    { en: "August", th: "สิงหาคม", key: "8" },
-    { en: "September", th: "กันยายน", key: "9" },
-    { en: "October", th: "ตุลาคม", key: "10" },
-    { en: "November", th: "พฤศจิกายน", key: "11" },
-    { en: "December", th: "ธันวาคม", key: "12" },
-  ];
-  let month = [];
-  if (locale === "en") {
-    month = months.map((option) => ({
-      label: option.en,
-      value: option.key,
-    }));
-  } else {
-    month = months.map((option) => ({
-      label: option.th,
-      value: option.key,
-    }));
-  }
-  setMonthOptions(month);
-};
+  const fetchMonth = async () => {
+    const months = [
+      { en: "January", th: "มกราคม", key: "1" },
+      { en: "February", th: "กุมภาพันธ์", key: "2" },
+      { en: "March", th: "มีนาคม", key: "3" },
+      { en: "April", th: "เมษายน", key: "4" },
+      { en: "May", th: "พฤษภาคม", key: "5" },
+      { en: "June", th: "มิถุนายน", key: "6" },
+      { en: "July", th: "กรกฎาคม", key: "7" },
+      { en: "August", th: "สิงหาคม", key: "8" },
+      { en: "September", th: "กันยายน", key: "9" },
+      { en: "October", th: "ตุลาคม", key: "10" },
+      { en: "November", th: "พฤศจิกายน", key: "11" },
+      { en: "December", th: "ธันวาคม", key: "12" },
+    ];
+    let month = [];
+    if (locale === "en") {
+      month = months.map((option) => ({
+        label: option.en,
+        value: option.key,
+      }));
+    } else {
+      month = months.map((option) => ({
+        label: option.th,
+        value: option.key,
+      }));
+    }
+    setMonthOptions(month);
+  };
 
   // Debounce function for search input
   const debouncedFetchData = useCallback(
-    debounce((query: string, status: "all" | "true" | "false", month: string, year: string) => {
-      fetchData(query, status, month, year);
-      fetchMonth();
-    }, 500), // 500 ms debounce delay
-    [currentPage, pageSize]
+    debounce(
+      (
+        query: string,
+        status: "all" | "true" | "false",
+        month: string,
+        year: string,
+      ) => {
+        fetchData(query, status, month, year);
+        fetchMonth();
+      },
+      500,
+    ), // 500 ms debounce delay
+    [currentPage, pageSize],
   );
 
   useEffect(() => {
@@ -226,10 +225,11 @@ const fetchMonth = async () => {
   }, [currentPage, debouncedFetchData, filterStatus, triggerSpecialBonus]);
 
   async function fetchData(
-    query: string = "", 
+    query: string = "",
     status: "all" | "true" | "false" = filterStatus,
     month: string = thisMonth,
-    year: string = thisYear) {
+    year: string = thisYear,
+  ) {
     setLoadPage(true);
     try {
       const params: any = {
@@ -241,15 +241,17 @@ const fetchMonth = async () => {
       if (status !== "all") {
         params.isActive = status === "true";
       }
-  
-      const { data } = await axios.get(`/api/getListSpecialBonus?date=true&month=${month}&year=${year}`, { params });
-  
+
+      const { data } = await axios.get(
+        `/api/getListSpecialBonus?date=true&month=${month}&year=${year}`,
+        { params },
+      );
 
       const specialBonusDataWithKeys = data.specialBonuses.map(
         (specialBonus: DataType, index: number) => ({
           ...specialBonus,
           key: index + 1 + (currentPage - 1) * pageSize, // Ensuring unique keys across pages
-        })
+        }),
       );
       setSelectedMonth(month);
       setSearchValue("month", month);
@@ -311,7 +313,7 @@ const fetchMonth = async () => {
     if (value) {
       setThisYear(value?.toString());
       setSearchValue("year", value.toString());
-      fetchData(searchText, filterStatus, selectedMonth, value.toString())
+      fetchData(searchText, filterStatus, selectedMonth, value.toString());
     }
   };
   const handleMonthChange = (value: SelectValue) => {
@@ -319,94 +321,109 @@ const fetchMonth = async () => {
     if (value) {
       setThisMonth(value?.toString());
       setSearchValue("month", value.toString());
-      fetchData(searchText, filterStatus, value.toString(), selectedYear)
-
+      fetchData(searchText, filterStatus, value.toString(), selectedYear);
     }
   };
   return (
     <div className="px-4">
       <div
-        className="py-8 px-8 rounded-lg flex flex-col bg-white"
-        style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        className="py-6 px-4 md:py-8 md:px-8 rounded-lg flex flex-col bg-white"
+        style={{ boxShadow: "0px 4px 16px 0px rgba(0, 0, 0, 0.08)" }}
       >
-        <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold pb-4 grow default-font">
+        <div className="flex flex-col gap-4">
+          <p className="text-lg font-semibold default-font m-0">
             {t("Special Bonus List")}
           </p>
-          <div className="flex gap-2">
-            <Select
-              value={filterStatus}
-              onChange={onStatusChange}
-              style={{ width: 140, marginRight: 12 }}
-            >
-              <Option value="all">{t("all")}</Option>
-              <Option value="true">{t("active")}</Option>
-              <Option value="false">{t("inactive")}</Option>
-            </Select>
+
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-full sm:w-[180px] md:w-[160px]">
+              <Select
+                value={filterStatus}
+                onChange={onStatusChange}
+                className="w-full"
+              >
+                <Option value="all">{t("all")}</Option>
+                <Option value="true">{t("active")}</Option>
+                <Option value="false">{t("inactive")}</Option>
+              </Select>
+            </div>
+
             <Form
               form={formSearchDate}
-              layout="horizontal"
-              labelWrap
+              layout="vertical"
+              className="w-full lg:w-auto"
             >
-              <div className="flex justify-between flex-col gap-2">
-                <div className="grid grid-cols-2 gap-2 grid-row-2">
-                  <Form.Item name="year" label={t("year")}>
-                    <DatePickers
-                      placeholder={t("year")}
-                      name="year"
-                      control={controlSearch}
-                      size="middle"
-                      picker="year"
-                      onChange={handleYearChange}
-                    />
-                  </Form.Item>
-                  <Form.Item name="month" label={t("month")}>
-                    <Controller
-                      control={controlSearch} // control from useForm()
-                      name="month"
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          showSearch
-                          placeholder={t("Search a month")}
-                          value={selectedMonth} // Default to current month
-                          onChange={handleMonthChange} // Handle month change
-                          filterOption={(input, option) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase())
-                          }
-                          options={monthOptions}
-                        />
-                      )}
-                    />
-                  </Form.Item>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto">
+                <Form.Item
+                  name="year"
+                  label={t("year")}
+                  className="mb-0 w-full sm:w-[180px]"
+                >
+                  <DatePickers
+                    placeholder={t("year")}
+                    name="year"
+                    control={controlSearch}
+                    size="middle"
+                    picker="year"
+                    onChange={handleYearChange}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="month"
+                  label={t("month")}
+                  className="mb-0 w-full sm:w-[180px]"
+                >
+                  <Controller
+                    control={controlSearch}
+                    name="month"
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        showSearch
+                        placeholder={t("Search a month")}
+                        value={selectedMonth}
+                        onChange={handleMonthChange}
+                        className="w-full"
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={monthOptions}
+                      />
+                    )}
+                  />
+                </Form.Item>
               </div>
             </Form>
-            <Input.Search
-              placeholder={t("search")}
-              size="middle"
-              style={{ width: "200px" }}
-              value={searchText}
-              onSearch={handleSearch}
-              onChange={handleInputChange}
-              suffix={
-                <CloseCircleOutlined
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={handleClear}
-                  style={{
-                    cursor: searchText ? "pointer" : "default",
-                    opacity: searchText ? 1 : 0,
-                    pointerEvents: searchText ? "auto" : "none",
-                    transition: "opacity 120ms ease",
-                  }}
-                  tabIndex={-1}
-                />
-              }
-            />
+
+            <div className="w-full sm:w-[220px] md:w-[240px]">
+              <Input.Search
+                placeholder={t("search")}
+                size="middle"
+                className="w-full"
+                value={searchText}
+                onSearch={handleSearch}
+                onChange={handleInputChange}
+                suffix={
+                  <CloseCircleOutlined
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleClear}
+                    style={{
+                      cursor: searchText ? "pointer" : "default",
+                      opacity: searchText ? 1 : 0,
+                      pointerEvents: searchText ? "auto" : "none",
+                      transition: "opacity 120ms ease",
+                    }}
+                    tabIndex={-1}
+                  />
+                }
+              />
+            </div>
+
             <Button
-              className="bg-comp-red button-backend ml-4"
+              className="bg-comp-red button-backend w-full sm:w-auto sm:min-w-[120px]"
               type="primary"
               icon={<PlusIcon className="w-4" />}
               onClick={showModal(true, 0)}
@@ -415,16 +432,21 @@ const fetchMonth = async () => {
             </Button>
           </div>
         </div>
-        <Spin spinning={loadPage}>
-          <DataTable
-            columns={columns}
-            data={specialBonusData}
-            total={total}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-          />
-        </Spin>
+
+        <div className="mt-4">
+          <Spin spinning={loadPage}>
+            <DataTable
+              columns={columns}
+              data={specialBonusData}
+              total={total}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              scroll={{ x: "max-content" }}
+              onPageChange={handlePageChange}
+            />
+          </Spin>
+        </div>
+
         <ModalSpecialBonus
           isModalVisible={isModalVisible}
           setIsModalVisible={setIsModalVisible}

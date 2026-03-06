@@ -281,6 +281,7 @@ export default function AdminRewardPointHistory({ params }: { params: { id: numb
             total={total}
             currentPage={currentPage}
             pageSize={pageSize}
+            scroll={{ x: "max-content" }}
             onPageChange={handlePageChange}
           />
         </Spin>

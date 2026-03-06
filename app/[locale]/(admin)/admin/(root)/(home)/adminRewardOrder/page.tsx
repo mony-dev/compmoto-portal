@@ -159,6 +159,7 @@ export default function AdminRewardOrder({
         total={total}
         currentPage={currentPage}
         pageSize={pageSize}
+        scroll={{ x: "max-content" }}
         onPageChange={handlePageChange}
       />
       ),
@@ -177,6 +178,7 @@ export default function AdminRewardOrder({
         total={total}
         currentPage={currentPage}
         pageSize={pageSize}
+        scroll={{ x: "max-content" }}
         onPageChange={handlePageChange}
       />
       ),
@@ -276,7 +278,7 @@ export default function AdminRewardOrder({
         className="py-8 px-8 rounded-lg flex flex-col bg-white"
         style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
       >
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
           <p className="text-lg font-semibold pb-4 grow default-font">{t("Reward List")}</p>
           <div className="flex">
           <Input.Search

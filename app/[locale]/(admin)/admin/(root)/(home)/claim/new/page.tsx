@@ -79,7 +79,7 @@ export default function Claim({ params }: { params: { id: number } }) {
   const [form] = Form.useForm();
   const locale = useCurrentLocale(i18nConfig);
   const pathname = usePathname();
-  const { setI18nName} = useCart();
+  const { setI18nName } = useCart();
   const [products, setProducts] = useState<OptionSelect[]>([]);
 
   const [productDetails, setProductDetails] = useState<Product[]>([]);
@@ -90,7 +90,7 @@ export default function Claim({ params }: { params: { id: number } }) {
   const [pageSize] = useState(50); // Default page size
   const userId = session?.user.id;
   const [visiblePreviewIndex, setVisiblePreviewIndex] = useState<number | null>(
-    null
+    null,
   );
   const [brand, setBrand] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
@@ -115,8 +115,10 @@ export default function Claim({ params }: { params: { id: number } }) {
 
   const transformImageArray = (imageArray: any): ImageClaim[] => {
     return imageArray.map((item: any) => {
-      const isImage = ["jpg", "png", "jpeg"].some((ext) => item.url.includes(ext));
-  
+      const isImage = ["jpg", "png", "jpeg"].some((ext) =>
+        item.url.includes(ext),
+      );
+
       return {
         type: isImage ? ImageClaimType.Image : ImageClaimType.Video,
         role: ImageClaimRole.User, // Setting the role as user
@@ -150,18 +152,18 @@ export default function Claim({ params }: { params: { id: number } }) {
   //   .catch((error) => {
   //     toastError(error);
   //   });
-    
+
   // };
 
   const onFinish: SubmitHandler<ClaimSchema> = async (values) => {
-    if (submittingRef.current) return;                 // hard guard
+    if (submittingRef.current) return; // hard guard
     if (image.length === 0) {
       toastError(t("Image of the damage is required"));
       return;
     }
     submittingRef.current = true;
     setSubmitting(true);
-  
+
     try {
       const imageClaims: ImageClaim[] = transformImageArray(image);
       await axios.post(
@@ -170,15 +172,17 @@ export default function Claim({ params }: { params: { id: number } }) {
         {
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key": crypto.randomUUID(),   // see server step
+            "Idempotency-Key": crypto.randomUUID(), // see server step
           },
-        }
+        },
       );
       toastSuccess("Claimed successfully");
       router.replace(`/${locale}/admin/claims`);
     } catch (err: any) {
-      toastError(err?.response?.data?.message || err?.message || "Submit failed");
-      submittingRef.current = false;                  // unlock only on failure
+      toastError(
+        err?.response?.data?.message || err?.message || "Submit failed",
+      );
+      submittingRef.current = false; // unlock only on failure
       setSubmitting(false);
     }
   };
@@ -212,7 +216,7 @@ export default function Claim({ params }: { params: { id: number } }) {
   };
   const fetchProductDetail = (value: number) => {
     const product = productDetails.find(
-      (item: { id: number }) => item.id === value
+      (item: { id: number }) => item.id === value,
     );
     if (product && product.brand) {
       setBrand(product.brand.name);
@@ -252,315 +256,313 @@ export default function Claim({ params }: { params: { id: number } }) {
           form={form}
           name="claim_form"
           onFinish={handleSubmit(onFinish)}
-          layout="horizontal"
-          className="grow pr-12"
+          layout="vertical"
+          className="w-full"
         >
           <div
-            className="py-8 pl-8 rounded-lg flex flex-col bg-white"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            className="py-6 px-4 md:py-8 md:px-8 rounded-lg flex flex-col bg-white"
+            style={{ boxShadow: "0px 4px 16px 0px rgba(0, 0, 0, 0.08)" }}
           >
-            <div className="grid grid-cols-6 gap-4">
-              <div className="col-start-2 col-span-4">
-                <div className="text-lg pb-4 default-font flex gap-4">
-                  <svg
-                    width="50"
-                    height="50"
-                    viewBox="0 0 50 50"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M33.7295 4.1665H16.2712C8.68783 4.1665 4.16699 8.68734 4.16699 16.2707V33.7082C4.16699 41.3123 8.68783 45.8332 16.2712 45.8332H33.7087C41.292 45.8332 45.8128 41.3123 45.8128 33.729V16.2707C45.8337 8.68734 41.3128 4.1665 33.7295 4.1665ZM35.417 35.9373H14.5837C13.7295 35.9373 13.0212 35.229 13.0212 34.3748C13.0212 33.5207 13.7295 32.8123 14.5837 32.8123H35.417C36.2712 32.8123 36.9795 33.5207 36.9795 34.3748C36.9795 35.229 36.2712 35.9373 35.417 35.9373ZM35.417 26.5623H14.5837C13.7295 26.5623 13.0212 25.854 13.0212 24.9998C13.0212 24.1457 13.7295 23.4373 14.5837 23.4373H35.417C36.2712 23.4373 36.9795 24.1457 36.9795 24.9998C36.9795 25.854 36.2712 26.5623 35.417 26.5623ZM35.417 17.1873H14.5837C13.7295 17.1873 13.0212 16.479 13.0212 15.6248C13.0212 14.7707 13.7295 14.0623 14.5837 14.0623H35.417C36.2712 14.0623 36.9795 14.7707 36.9795 15.6248C36.9795 16.479 36.2712 17.1873 35.417 17.1873Z"
-                      fill="#292D32"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-xl	default-font font-semibold text-black">
-                      {t("product_details")}
-                    </p>
-                    <p className="default-font text-base text-[#919FAF]">
-                      {t("Please provide details of the damaged product")}
-                    </p>
-                  </div>
+            <div className="w-full max-w-5xl mx-auto">
+              <div className="text-lg pb-4 default-font flex flex-col sm:flex-row gap-4">
+                <svg
+                  width="50"
+                  height="50"
+                  viewBox="0 0 50 50"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="shrink-0"
+                >
+                  <path
+                    d="M33.7295 4.1665H16.2712C8.68783 4.1665 4.16699 8.68734 4.16699 16.2707V33.7082C4.16699 41.3123 8.68783 45.8332 16.2712 45.8332H33.7087C41.292 45.8332 45.8128 41.3123 45.8128 33.729V16.2707C45.8337 8.68734 41.3128 4.1665 33.7295 4.1665ZM35.417 35.9373H14.5837C13.7295 35.9373 13.0212 35.229 13.0212 34.3748C13.0212 33.5207 13.7295 32.8123 14.5837 32.8123H35.417C36.2712 32.8123 36.9795 33.5207 36.9795 34.3748C36.9795 35.229 36.2712 35.9373 35.417 35.9373ZM35.417 26.5623H14.5837C13.7295 26.5623 13.0212 25.854 13.0212 24.9998C13.0212 24.1457 13.7295 23.4373 14.5837 23.4373H35.417C36.2712 23.4373 36.9795 24.1457 36.9795 24.9998C36.9795 25.854 36.2712 26.5623 35.417 26.5623ZM35.417 17.1873H14.5837C13.7295 17.1873 13.0212 16.479 13.0212 15.6248C13.0212 14.7707 13.7295 14.0623 14.5837 14.0623H35.417C36.2712 14.0623 36.9795 14.7707 36.9795 15.6248C36.9795 16.479 36.2712 17.1873 35.417 17.1873Z"
+                    fill="#292D32"
+                  />
+                </svg>
+
+                <div>
+                  <p className="text-xl default-font font-semibold text-black m-0">
+                    {t("product_details")}
+                  </p>
+                  <p className="default-font text-base text-[#919FAF] m-0 mt-1">
+                    {t("Please provide details of the damaged product")}
+                  </p>
                 </div>
+              </div>
 
-                <Row gutter={[8, 8]} className="claim_form">
-                  <Col span={24}>
-                    <Form.Item
-                      name="productId"
-                      label={t("product")}
-                      className="switch-backend basis-1/2"
-                      hasFeedback
-                      required
-                      tooltip={t("this_is_a_required_field")}
-                      help={errors.productId && t("please_select_product")}
-                      validateStatus={errors.productId ? "error" : "success"}
-                    >
-                      <Controller
-                        control={control}
-                        name="productId"
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            showSearch
-                            placeholder={t("Select a product")}
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={products}
-                            size="large"
-                            onChange={(value) => {
-                              field.onChange(value);
-                              fetchProductDetail(value);
-                            }}
-                          />
-                        )}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={[16, 8]} className="claim_form">
-                  <Col span={3} className="disable-label">
-                    {" "}
-                    <label>{t("brand")}</label>
-                  </Col>
-                  <Col span={3} className="disable-input">
-                    <Input
-                      name="brand"
-                      value={brand ?? ""}
-                      disabled
-                      className="mt-2"
-                      size="large"
-                    />
-                  </Col>
-                  <Col span={3} className="disable-label">
-                    {" "}
-                    <label>{t("category")}</label>
-                  </Col>
-                  <Col span={3} className="disable-input">
-                    <Input
-                      name="category"
-                      value={category ?? ""}
-                      disabled
-                      className="mt-2"
-                      size="large"
-                    />
-                  </Col>
-                  <Col span={3} className="disable-label">
-                    {" "}
-                    <label>{t("model")}</label>
-                  </Col>
-                  <Col span={3} className="disable-input">
-                    <Input
-                      name="model"
-                      value={model ?? ""}
-                      disabled
-                      className="mt-2"
-                      size="large"
-                    />
-                  </Col>
-                  <Col span={3} className="disable-label">
-                    {" "}
-                    <label>{t("size")}</label>
-                  </Col>
-                  <Col span={3} className="disable-input">
-                    <Input
-                      name="size"
-                      value={size ?? ""}
-                      disabled
-                      className="mt-2"
-                      size="large"
-                    />
-                  </Col>
-                </Row>
-                <Row gutter={[16, 8]}>
-                  <Col span={24}>
-                    <hr className="my-8 hr-spacing"></hr>
-                  </Col>
-                </Row>
-
-                <Row gutter={[16, 8]}>
-                  <Col span={12} className="disable-label">
-                    <label className="default-font text-[#919FAF]">
-                      {t("condition")}
-                    </label>
-                    <p className="text-xs	default-font text-[#919FAF]">
-                      {t("The time of the product damage")}
-                    </p>
-                  </Col>
-                  <Col span={12} className="disable-input text-end">
+              <Row gutter={[16, 16]} className="claim_form">
+                <Col xs={24}>
+                  <Form.Item
+                    name="productId"
+                    label={t("product")}
+                    className="switch-backend"
+                    hasFeedback
+                    required
+                    tooltip={t("this_is_a_required_field")}
+                    help={errors.productId && t("please_select_product")}
+                    validateStatus={errors.productId ? "error" : "success"}
+                  >
                     <Controller
                       control={control}
-                      name="condition"
-                      defaultValue="Before" // Set this default value inside the Controller
+                      name="productId"
                       render={({ field }) => (
-                        <Radio.Group
+                        <Select
                           {...field}
-                          buttonStyle="solid"
-                          onChange={(e) => field.onChange(e.target.value)} // Make sure to update the value
-                        >
-                          <Radio.Button value="Before" className="default-font">
-                            {t("before")}
-                          </Radio.Button>
-                          <Radio.Button value="After" className="default-font">
-                            {t("after")}
-                          </Radio.Button>
-                        </Radio.Group>
+                          showSearch
+                          placeholder={t("Select a product")}
+                          filterOption={(input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          options={products}
+                          size="large"
+                          onChange={(value) => {
+                            field.onChange(value);
+                            fetchProductDetail(value);
+                          }}
+                        />
                       )}
                     />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 16]} className="claim_form">
+                <Col xs={24} sm={12} lg={6}>
+                  <label className="block text-[#919FAF] mb-2">
+                    {t("brand")}
+                  </label>
+                  <Input
+                    name="brand"
+                    value={brand ?? ""}
+                    disabled
+                    size="large"
+                  />
+                </Col>
+
+                <Col xs={24} sm={12} lg={6}>
+                  <label className="block text-[#919FAF] mb-2">
+                    {t("category")}
+                  </label>
+                  <Input
+                    name="category"
+                    value={category ?? ""}
+                    disabled
+                    size="large"
+                  />
+                </Col>
+
+                <Col xs={24} sm={12} lg={6}>
+                  <label className="block text-[#919FAF] mb-2">
+                    {t("model")}
+                  </label>
+                  <Input
+                    name="model"
+                    value={model ?? ""}
+                    disabled
+                    size="large"
+                  />
+                </Col>
+
+                <Col xs={24} sm={12} lg={6}>
+                  <label className="block text-[#919FAF] mb-2">
+                    {t("size")}
+                  </label>
+                  <Input name="size" value={size ?? ""} disabled size="large" />
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 8]}>
+                <Col span={24}>
+                  <hr className="my-6 md:my-8 hr-spacing" />
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 16]} className="items-start">
+                <Col xs={24} md={12} className="disable-label">
+                  <label className="default-font text-[#919FAF] block">
+                    {t("condition")}
+                  </label>
+                  <p className="text-xs default-font text-[#919FAF] mt-1 mb-0">
+                    {t("The time of the product damage")}
+                  </p>
+                </Col>
+
+                <Col xs={24} md={12} className="disable-input md:text-end">
+                  <Controller
+                    control={control}
+                    name="condition"
+                    defaultValue="Before"
+                    render={({ field }) => (
+                      <Radio.Group
+                        {...field}
+                        buttonStyle="solid"
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-full md:w-auto"
+                      >
+                        <Radio.Button value="Before" className="default-font">
+                          {t("before")}
+                        </Radio.Button>
+                        <Radio.Button value="After" className="default-font">
+                          {t("after")}
+                        </Radio.Button>
+                      </Radio.Group>
+                    )}
+                  />
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 16]} className="claim_form pt-4">
+                <Col xs={24}>
+                  <Form.Item
+                    name="details"
+                    label={t("details")}
+                    className="switch-backend"
+                    hasFeedback
+                    required
+                    tooltip={t("this_is_a_required_field")}
+                    help={errors.details && t("please_specify_details")}
+                    validateStatus={errors.details ? "error" : "success"}
+                  >
+                    <Controller
+                      control={control}
+                      name="details"
+                      render={({ field }) => (
+                        <TextArea
+                          {...field}
+                          placeholder={t("please_specify_details")}
+                          autoSize={{ minRows: 6, maxRows: 10 }}
+                        />
+                      )}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <div className="w-full">
+                <Row gutter={[16, 8]}>
+                  <Col span={24}>
+                    <hr className="my-6 md:my-8 hr-spacing" />
                   </Col>
                 </Row>
-                <Row gutter={[8, 8]} className="claim_form pt-4">
-                  <Col span={24}>
+
+                <Row gutter={[16, 16]} className="claim_form pt-2 md:pt-4">
+                  <Col xs={24}>
                     <Form.Item
-                      name="details"
-                      label={t("details")}
-                      className="switch-backend basis-1/2"
-                      hasFeedback
-                      required
-                      tooltip={t("this_is_a_required_field")}
-                      help={errors.details && t("please_specify_details")}
-                      validateStatus={errors.details ? "error" : "success"}
+                      name="imageClaims"
+                      label={t("Upload Damage Image")}
                     >
                       <Controller
                         control={control}
-                        name="details"
+                        name="imageClaims"
                         render={({ field }) => (
-                          <TextArea
-                            {...field}
-                            placeholder={t("please_specify_details")}
-                            autoSize={{ minRows: 10, maxRows: 10 }}
+                          <UploadRewardImage
+                            setImage={setImage}
+                            fileType="raw"
+                            allowType={["jpg", "png", "jpeg", "video"]}
+                            initialImage={image}
+                            multiple={true}
                           />
                         )}
                       />
                     </Form.Item>
                   </Col>
                 </Row>
-                <div className="sec2 basis-6/12">
-                  <Row gutter={[16, 8]}>
-                    <Col span={24}>
-                      <hr className="my-8 hr-spacing"></hr>
-                    </Col>
-                  </Row>
-                  <Row gutter={[8, 8]} className="claim_form pt-4">
-                    <Col span={24}>
-                      <Form.Item
-                        name="imageClaims"
-                        label={t("Upload Damage Image")}
-                      >
-                        <Controller
-                          control={control}
-                          name="imageClaims"
-                          render={({ field }) => (
-                            <UploadRewardImage
-                              setImage={setImage}
-                              fileType="raw"
-                              allowType={["jpg", "png", "jpeg", "video"]}
-                              initialImage={image}
-                              multiple={true}
-                              // id={editProductData?.id}
+
+                <div className="flex flex-wrap gap-3">
+                  {Array.isArray(image) &&
+                    image.map((albumItem, index) => {
+                      const isImage = ["jpg", "png", "jpeg"].some((ext) =>
+                        albumItem.url.includes(ext),
+                      );
+
+                      return (
+                        <div key={index}>
+                          {isImage ? (
+                            <Image
+                              className="border border-comp-gray-layout rounded-xl"
+                              alt="claim"
+                              width={80}
+                              height={80}
+                              src={albumItem.url}
+                              preview={{
+                                visible: visiblePreviewIndex === index,
+                                onVisibleChange: (vis) => {
+                                  if (!vis) handleClosePreview();
+                                },
+                                mask: (
+                                  <>
+                                    <EyeIcon
+                                      className="w-6"
+                                      style={{ color: "white" }}
+                                      onClick={() => handlePreview(index)}
+                                    />
+                                    <TrashIcon
+                                      className="w-6"
+                                      style={{ color: "white" }}
+                                      onClick={() => handleDelete(index)}
+                                    />
+                                  </>
+                                ),
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              alt="claim"
+                              width={80}
+                              height={80}
+                              preview={{
+                                destroyOnClose: true,
+                                imageRender: () => (
+                                  <video
+                                    muted
+                                    width="100%"
+                                    controls
+                                    src={albumItem.url}
+                                  />
+                                ),
+                                toolbarRender: () => null,
+                                mask: (
+                                  <>
+                                    <EyeIcon
+                                      className="w-6"
+                                      style={{ color: "white" }}
+                                      onClick={() => handlePreview(index)}
+                                    />
+                                    <TrashIcon
+                                      className="w-6"
+                                      style={{ color: "white" }}
+                                      onClick={() => handleDelete(index)}
+                                    />
+                                  </>
+                                ),
+                              }}
+                              src={NoVideo.src}
                             />
                           )}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <div className="flex flex-wrap">
-                    {Array.isArray(image) &&
-                      image.map((albumItem, index) => {
-                        const isImage = ["jpg", "png", "jpeg"].some((ext) =>
-                          albumItem.url.includes(ext)
-                        );
-
-                        return (
-                          <div key={index} className="m-2">
-                            {isImage ? (
-                              <Image
-                                className="border border-comp-gray-layout rounded-xl"
-                                alt="claim"
-                                width={80}
-                                height={80}
-                                src={albumItem.url}
-                                preview={{
-                                  visible: visiblePreviewIndex === index, // Show preview based on index
-                                  onVisibleChange: (vis) => {
-                                    if (!vis) handleClosePreview(); // Close preview when visibility changes to false
-                                  },
-                                  mask: (
-                                    <>
-                                      <EyeIcon
-                                        className="w-6"
-                                        style={{ color: "white" }}
-                                        onClick={() => handlePreview(index)}
-                                      />
-                                      <TrashIcon
-                                        className="w-6"
-                                        style={{ color: "white" }}
-                                        onClick={() => handleDelete(index)}
-                                      />
-                                    </>
-                                  ),
-                                }}
-                              />
-                            ) : (
-                              <Image
-                                alt="claim"
-                                width={80}
-                                height={80}
-                                preview={{
-                                  destroyOnClose: true,
-                                  imageRender: () => (
-                                    <video
-                                      muted
-                                      width="100%"
-                                      controls
-                                      src={albumItem.url}
-                                    />
-                                  ),
-                                  toolbarRender: () => null,
-                                  mask: (
-                                    <>
-                                      <EyeIcon
-                                        className="w-6"
-                                        style={{ color: "white" }}
-                                        onClick={() => handlePreview(index)}
-                                      />
-                                      <TrashIcon
-                                        className="w-6"
-                                        style={{ color: "white" }}
-                                        onClick={() => handleDelete(index)}
-                                      />
-                                    </>
-                                  ),
-                                }}
-                                src={NoVideo.src}
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
-                  </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>
           </div>
+
           <div
-            className="p-8 rounded-lg flex flex-col bg-white mt-4"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+            className="p-4 md:p-8 rounded-lg flex flex-col bg-white mt-4"
+            style={{ boxShadow: "0px 4px 16px 0px rgba(0, 0, 0, 0.08)" }}
           >
             <div className="flex justify-center flex-col text-center">
-              <h1 className="default-font text-xl text-black">
+              <h1 className="default-font text-xl text-black m-0">
                 {t("claim condition")}
               </h1>
-              <p className="default-font text-[#919FAF] text-base">
+              <p className="default-font text-[#919FAF] text-base mt-2 mb-0">
                 {t("Please check the product warranty details")}
               </p>
-              <hr className="my-8 hr-spacing"></hr>
+              <hr className="my-6 md:my-8 hr-spacing" />
             </div>
-            <div>
+
+            <div className="max-w-5xl mx-auto w-full">
               <p className="default-font text-xl text-black">
                 รายละเอียดและเงื่อนไขการรับประกันสินค้า ยาง Pirelli
               </p>
@@ -596,43 +598,49 @@ export default function Claim({ params }: { params: { id: number } }) {
                 ขอสงวนสิทธิ์ในการเปลี่ยนแปลงเงื่อนไขการรับประกันความบกพร่อง
                 ทางการผลิตสินค้าโดยไม่ต้องแจ้งให้ทราบล่วงหน้า
               </p>
-            </div>
-            <Row gutter={[8, 8]} className="claim_form pt-4">
-              <Col span={24}>
-                <Form.Item
-                  name="isAccept"
-                  label={false}
-                  className="switch-backend basis-1/2"
-                  hasFeedback
-                  required
-                  help={errors.isAccept && t("please_accept_terms")}
-                  validateStatus={errors.isAccept ? "error" : "success"}
-                >
-                  <Controller
-                    control={control}
+
+              <Row gutter={[16, 16]} className="claim_form pt-4">
+                <Col xs={24}>
+                  <Form.Item
                     name="isAccept"
-                    render={({ field }) => (
-                      <Checkbox {...field}>{t("agree to the terms")}</Checkbox>
-                    )}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <hr className="my-8 hr-spacing"></hr>
+                    label={false}
+                    className="switch-backend"
+                    hasFeedback
+                    required
+                    help={errors.isAccept && t("please_accept_terms")}
+                    validateStatus={errors.isAccept ? "error" : "success"}
+                  >
+                    <Controller
+                      control={control}
+                      name="isAccept"
+                      render={({ field }) => (
+                        <Checkbox {...field}>
+                          {t("agree to the terms")}
+                        </Checkbox>
+                      )}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <hr className="my-6 md:my-8 hr-spacing" />
+            </div>
           </div>
-          <div className="flex justify-center gap-4 pt-4">
+
+          <div className="flex flex-col-reverse sm:flex-row justify-center gap-3 sm:gap-4 pt-4">
             <Button
               type="primary"
               htmlType="submit"
-              className="bg-white text-[#0C8CE9] default-font text-base p-4"
+              className="w-full sm:w-auto bg-white text-[#0C8CE9] default-font text-base px-6 py-5"
             >
               {t("cancel")}
             </Button>
-            <Form.Item>
+
+            <Form.Item className="m-0 w-full sm:w-auto">
               <Button
                 type="primary"
                 htmlType="submit"
-                className="bg-[#0C8CE9] text-white default-font text-base p-4"
+                className="w-full sm:w-auto bg-[#0C8CE9] text-white default-font text-base px-6 py-5"
                 disabled={!isAccept || submitting}
                 loading={submitting}
                 onClick={(e) => e.currentTarget.blur()}
