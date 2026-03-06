@@ -377,8 +377,8 @@ const Dashboard = () => {
               </div>
             </div>
             {/* Reward */}
-             <div className="lg:col-span-4 w-full min-w-0">
-               <div className="w-full py-2 px-4 sm:px-8">
+            <div className="lg:col-span-4 w-full min-w-0">
+              <div className="w-full py-2 px-4 sm:px-8">
                 <div className="col-span-3 rounded mx-auto w-full py-1 flex items-center gap-4">
                   <h1 className="text-xl font-semibold	default-font">
                     {t("Reward")}
@@ -545,18 +545,20 @@ const Dashboard = () => {
           className="mt-4 p-4 col-span-6 rounded-lg bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
-          <TotalPurchase userId={session?.user?.id} />
+          <div className="total-purchase-scroll desktop-only-scroll">
+            <TotalPurchase userId={session?.user?.id} />
+          </div>
         </div>
-       <div
+        <div
           className="mt-4 p-4 col-span-6 lg:col-span-4 rounded-lg bg-white"
           style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
         >
           <SpecialBonus userId={session?.user?.id} mini={mini} />
         </div>
         <div
-            className="mt-4 p-4 col-span-6 lg:col-span-2 rounded-lg bg-white"
-            style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
-          >
+          className="mt-4 p-4 col-span-6 lg:col-span-2 rounded-lg bg-white"
+          style={{ boxShadow: `0px 4px 16px 0px rgba(0, 0, 0, 0.08)` }}
+        >
           <PromotionSlide custPriceGroup={session?.user?.customerGroupId} />
         </div>
         <div className="mt-4 py-4 col-span-6 rounded-lg">
@@ -585,7 +587,7 @@ const Dashboard = () => {
               />
             </div>
           </div>
-        )} 
+        )}
       </div>
       <ModalProfile
         isModalVisible={isModalVisible}

@@ -212,3 +212,54 @@
     }
   }
 }
+
+
+.special-bonus-scroll {
+  width: 100%;
+}
+
+.special-bonus-inner {
+  width: 100%;
+}
+
+/* mobile ใช้ layout เดิม */
+@media screen and (max-width: 767px) {
+  .special-bonus-scroll {
+    overflow: visible;
+  }
+
+  .special-bonus-inner {
+    min-width: auto;
+  }
+}
+
+/* desktop/tablet เท่านั้น */
+@media screen and (min-width: 768px) {
+  .special-bonus-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-color: #f8d5d7 #fcecee;
+    scrollbar-width: thin;
+  }
+
+  .special-bonus-scroll::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  .special-bonus-scroll::-webkit-scrollbar-track {
+    background: #fcecee;
+    border-radius: 999px;
+  }
+
+  .special-bonus-scroll::-webkit-scrollbar-thumb {
+    background: #f8d5d7;
+    border-radius: 999px;
+  }
+
+  .special-bonus-inner {
+    min-width: 700px; // ปรับได้ เช่น 950 / 1000 / 1100
+  }
+}
+

@@ -374,16 +374,19 @@ const SpecialBonus: React.FC<SpecialBonusProps> = ({ userId, mini }) => {
             </div>
           )}
         </div>
-        <div className="sm:col-span-5">
-          <div className="wrap-position">
-            <div className={`progress-wrapper total-s-${minisizeId}`}>
-              <Steps
-                direction={isMobile ? "vertical" : "horizontal"}
-                current={userLevel}
-                percent={100}
-                labelPlacement="vertical"
-                items={stepsItems}
-              />
+
+        <div className="sm:col-span-5 special-bonus-scroll">
+          <div className="special-bonus-inner">
+            <div className="wrap-position">
+              <div className={`progress-wrapper total-s-${minisizeId}`}>
+                <Steps
+                  direction={isMobile ? "vertical" : "horizontal"}
+                  current={userLevel}
+                  percent={100}
+                  labelPlacement="vertical"
+                  items={stepsItems}
+                />
+              </div>
             </div>
           </div>
         </div>

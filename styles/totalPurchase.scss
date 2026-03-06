@@ -207,3 +207,59 @@
     }
   }
 }
+.desktop-only-scroll {
+  width: 100%;
+}
+
+/* mobile: ใช้ layout เดิม ไม่ scroll */
+@media screen and (max-width: 767px) {
+  .desktop-only-scroll {
+    overflow-x: visible;
+  }
+}
+
+/* tablet / desktop: ถ้าล้นค่อย scroll */
+@media screen and (min-width: 768px) {
+  .desktop-only-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-color: #f8d5d7 #fcecee;
+    scrollbar-width: thin;
+  }
+
+  .desktop-only-scroll::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  .desktop-only-scroll::-webkit-scrollbar-track {
+    background: #fcecee;
+    border-radius: 999px;
+  }
+
+  .desktop-only-scroll::-webkit-scrollbar-thumb {
+    background: #f8d5d7;
+    border-radius: 999px;
+  }
+}
+
+.total-step {
+  width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .total-step {
+    min-width: 1400px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .total-step .ant-steps-item {
+    margin-right: 28px;
+  }
+
+  .total-step .ant-card {
+    min-width: 180px;
+  }
+}
