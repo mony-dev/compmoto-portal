@@ -249,7 +249,7 @@ const Reward = () => {
                           boxShadow: "0px 4px 16px 0px rgba(0, 0, 0, 0.16)",
                         }}
                         key={index}
-                        className="rounded-lg"
+                        className="rounded-lg reward-item-card h-full"
                         actions={[
                           <Tooltip
                             placement="top"
@@ -318,9 +318,9 @@ const Reward = () => {
                           </Tooltip>,
                         ]}
                       >
-                        <div className="flex-shrink-0">
+                        <div className="reward-image-wrap">
                           <Image
-                            className="w-full rounded-lg py-1"
+                            className="reward-image rounded-lg"
                             alt={item.name}
                             width={200}
                             height={200}
@@ -490,7 +490,7 @@ const Reward = () => {
                   boxShadow: " 0px 4px 16px 0px rgba(0, 0, 0, 0.16)",
                 }}
                 key={index}
-                className="rounded-lg"
+                className="rounded-lg reward-item-card h-full"
                 actions={[
                   <Tooltip
                     placement="top"
@@ -510,9 +510,18 @@ const Reward = () => {
                   </Tooltip>,
                 ]}
               >
-                <div className="flex-shrink-0">
+                {/* <div className="flex-shrink-0">
                   <Image
                     className="w-full rounded-lg py-1"
+                    alt={reward?.reward.name}
+                    width={200}
+                    height={200}
+                    src={reward.reward.image}
+                  />
+                </div> */}
+                <div className="reward-image-wrap">
+                  <Image
+                    className="reward-image rounded-lg"
                     alt={reward?.reward.name}
                     width={200}
                     height={200}

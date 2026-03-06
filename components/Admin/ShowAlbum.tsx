@@ -59,21 +59,38 @@ const ShowAlbum = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {albums.map((album: any) => (
             <div key={album.id} className="grid gap-4">
-              {album.images.slice(0, 3).map((image: any) => (  // Limit to 3 images per album
-                <div  className="relative" key={image.id} style={{ width: '100%', height: '200px', overflow: 'hidden', borderRadius: '1rem' }}>
-                  <Image
-                    src={image.url}
-                    alt={album.name}
-                    onClick={() => handleImageClick(album)}
-                    className="h-full w-full object-cover cursor-pointer"
-                    preview={false}
-                    loading="lazy"
-                  />
-                    <div className="absolute bottom-2 left-2 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-                    {album.name}
+              {album.images.slice(0, 3).map(
+                (
+                  image: any, // Limit to 3 images per album
+                ) => (
+                  <div
+                    key={image.id}
+                    className="relative w-full overflow-hidden rounded-2xl bg-[#f5f5f5]"
+                    style={{ aspectRatio: "4 / 3" }}
+                  >
+                    <Image
+                      src={image.url}
+                      alt={album.name}
+                      onClick={() => handleImageClick(album)}
+                      preview={false}
+                      loading="lazy"
+                      width="100%"
+                      height="100%"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center 70%",
+                        cursor: "pointer",
+                        display: "block",
+                      }}
+                    />
+                    <div className="absolute bottom-2 left-2 text-xs text-white bg-black/50 px-2 py-1 rounded">
+                      {album.name}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           ))}
         </div>
@@ -86,12 +103,11 @@ const ShowAlbum = () => {
           className="show-album bg-comp-gray-bg"
         >
           {selectedAlbum && (
-            <Carousel 
-            arrows 
-            infinite={false}
-            prevArrow={<CustomArrow icon={<LeftOutlined />} />}
-            nextArrow={<CustomArrow icon={<RightOutlined />} />} // Use custom arrow for next
-
+            <Carousel
+              arrows
+              infinite={false}
+              prevArrow={<CustomArrow icon={<LeftOutlined />} />}
+              nextArrow={<CustomArrow icon={<RightOutlined />} />} // Use custom arrow for next
             >
               {currentImages.map((image: any) => (
                 <div key={image.id}>
