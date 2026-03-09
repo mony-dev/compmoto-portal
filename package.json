@@ -29,7 +29,9 @@
     "fetch-reward-point": "node lib/web/utils/fetchRewardPoint.mjs",
     "create-reward-point": "node lib/web/utils/createRewardPoint.mjs",
     "update-point": "node lib/web/utils/updatePoint.mjs",
-    "update-customer-group": "node lib/web/utils/updateCustomerGroup.mjs"
+    "update-customer-group": "node lib/web/utils/updateCustomerGroup.mjs",
+    "rollover-reward-cycle": "node lib/web/utils/rollover-reward-cycle.mjs"
+
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
