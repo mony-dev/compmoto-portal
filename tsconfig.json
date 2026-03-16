@@ -36,7 +36,7 @@
       "@api/*": ["./app/api/*"],
     }
   },
-  "include": ["next-env.d.ts","next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-i18next.config.js", "lib/web/utils/fetchAdmin.mjs", "app/api/change-password/routests", "app/[locale]/(admin)/admin/(root)/(home)/layout.tsx"],
+  "include": ["next-env.d.ts","next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-i18next.config.js", "lib/web/utils/fetchAdmin.mjs", "app/api/change-password/routests", "app/[locale]/(admin)/admin/(root)/(home)/layout.tsx", "lib/web/utils/rollover-reward-cycle.mjs"],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {

@@ -184,7 +184,7 @@ export default function AdminRewardPointHistory({ params }: { params: { id: numb
       sorter: (a, b) => b.point - a.point,
     },
     {
-      title: t('intensive point'),
+      title: t('incentive point'),
       dataIndex: "incentivePoint",
       key: "incentivePoint",
       defaultSortOrder: "descend",

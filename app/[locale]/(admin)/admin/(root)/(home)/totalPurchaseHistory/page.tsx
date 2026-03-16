@@ -107,7 +107,7 @@ export default function totalPurchaseHistory() {
       ),
     },
     {
-      title: t("intensive point"),
+      title: t("incentive point"),
       dataIndex: "intensivePoint",
       key: "intensivePoint",
       sorter: (a, b) => b.intensivePoint - a.intensivePoint,

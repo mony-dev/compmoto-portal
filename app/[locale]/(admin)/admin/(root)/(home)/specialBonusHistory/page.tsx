@@ -102,7 +102,7 @@ export default function specialBonusHistory() {
   //       ),
   //     },
   //     {
-  //       title: t("intensive point"),
+  //       title: t("incentive point"),
   //       dataIndex: "intensivePoint",
   //       key: "intensivePoint",
   //       sorter: (a, b) => b.intensivePoint - a.intensivePoint,
@@ -259,7 +259,7 @@ export default function specialBonusHistory() {
       },
     },
     {
-      title: t("intensive point"),
+      title: t("incentive point"),
       dataIndex: "totalSpend", // Assuming 'totalSpend' is at the root level of record
       key: "intensivePoint",
       defaultSortOrder: "descend",

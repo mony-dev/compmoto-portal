@@ -476,8 +476,8 @@ const Cart = ({ params }: { params: { id: number } }) => {
       title: (
         <p>
           {t("All")}
-          <span className="count-items">
-            ({triggerCart ? backCount : normalCount} {t("items")} )
+          <span className="count-items flex">
+            ({triggerCart ? backCount : normalCount} {t("items")})
           </span>
         </p>
       ),
@@ -695,7 +695,7 @@ const Cart = ({ params }: { params: { id: number } }) => {
                       <InputNumber
                         {...field}
                         min={0}
-                        max={record.product.navStock}
+                        max={record.type === "Back" ? undefined : record.product.navStock}
                         step={1}
                         disabled={false}
                         className="w-full text-lg"

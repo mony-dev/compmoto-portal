@@ -138,56 +138,97 @@ const ModalMedia = ({
       coverImg: "",
       duration: "",
     });
+
+    setSubmitting(false);
+    submittingRef.current = false;
+    setType("Video");
+    setCoverImg("");
+
     setIsModalVisible(false);
     setId(0);
-    setEditMediaData(null)
+    setEditMediaData(null);
   };
 
+  // const onSubmit: SubmitHandler<MediaSchema> = async (values) => {
+  //   if (submittingRef.current) return; 
+  //   submittingRef.current = true;
+  //   setSubmitting(true);
+  //   if (mode === "EDIT" && editMediaData) {
+  //     try {
+  //       const response = await axios.put(
+  //         `/api/adminMedia/${editMediaData.id}`,
+  //         values,
+  //         {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+  //       resetForm();
+  //       setTriggerMedia(!triggerMedia);
+  //       setTriggerMe(!triggerMe);
+  //       toastSuccess(t("Media_updated_successfully"));
+  //       router.replace(`/${locale}/admin/adminMedia`);
+  //     } catch (error: any) {
+  //       setSubmitting(false);
+  //       toastError(error.message);
+  //       toastError(error.message);
+  //     }
+  //   } else {
+  //     try {
+  //       const response = await axios.post(`/api/adminMedia`, values, {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       resetForm();
+  //       setTriggerMedia(!triggerMedia);
+  //       setTriggerMe(!triggerMe);
+  //       toastSuccess(t("Media_created_successfully"));
+  //       router.replace(`/${locale}/admin/adminMedia`);
+  //     } catch (error: any) {
+  //       setSubmitting(false);
+  //       toastError(error.message);
+  //       toastError(error.message);
+  //     }
+  //   }
+  // };
   const onSubmit: SubmitHandler<MediaSchema> = async (values) => {
-    if (submittingRef.current) return; 
+    if (submittingRef.current) return;
+
     submittingRef.current = true;
     setSubmitting(true);
-    if (mode === "EDIT" && editMediaData) {
-      try {
-        const response = await axios.put(
-          `/api/adminMedia/${editMediaData.id}`,
-          values,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        resetForm();
-        setTriggerMedia(!triggerMedia);
-        setTriggerMe(!triggerMe);
-        toastSuccess(t("Media_updated_successfully"));
-        router.replace(`/${locale}/admin/adminMedia`);
-      } catch (error: any) {
-        setSubmitting(false);
-        toastError(error.message);
-        toastError(error.message);
-      }
-    } else {
-      try {
-        const response = await axios.post(`/api/adminMedia`, values, {
+
+    try {
+      if (mode === "EDIT" && editMediaData) {
+        await axios.put(`/api/adminMedia/${editMediaData.id}`, values, {
           headers: {
             "Content-Type": "application/json",
           },
         });
-        resetForm();
-        setTriggerMedia(!triggerMedia);
-        setTriggerMe(!triggerMe);
+
+        toastSuccess(t("Media_updated_successfully"));
+      } else {
+        await axios.post(`/api/adminMedia`, values, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
         toastSuccess(t("Media_created_successfully"));
-        router.replace(`/${locale}/admin/adminMedia`);
-      } catch (error: any) {
-        setSubmitting(false);
-        toastError(error.message);
-        toastError(error.message);
       }
+
+      resetForm();
+      setTriggerMedia(!triggerMedia);
+      setTriggerMe(!triggerMe);
+      router.replace(`/${locale}/admin/adminMedia`);
+    } catch (error: any) {
+      toastError(error.message);
+    } finally {
+      setSubmitting(false);
+      submittingRef.current = false;
     }
   };
-
   const onChangeType = (e: RadioChangeEvent) => {
     const selectedType = e.target.value;
     setType(selectedType);
