@@ -47,12 +47,12 @@ export async function PUT(request: Request) {
       throw new Error("User not found");
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        rewardPoint: (currentUser.rewardPoint - record.loyaltyPoint) + loyaltyPoint,
-      },
-    });
+    // const updatedUser = await prisma.user.update({
+    //   where: { id: userId },
+    //   data: {
+    //     rewardPoint: (currentUser.rewardPoint - record.loyaltyPoint) + loyaltyPoint,
+    //   },
+    // });
     const updated = await prisma.rewardPointHistory.update({
       where: {
         id: record.id,
