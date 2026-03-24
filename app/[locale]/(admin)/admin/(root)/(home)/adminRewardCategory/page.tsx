@@ -143,7 +143,7 @@ export default function AdminsRewardCategory({
   async function fetchData(query: string = "") {
     setLoadPage(true);
     try {
-      const { data } = await axios.get(`/api/rewardCategories`, {
+      const { data } = await axios.get(`/api/adminRewardCategories`, {
         params: {
           q: query,
           page: currentPage,
