@@ -19,9 +19,8 @@ export async function GET(request: Request) {
         include: {
           rewards: {
             where: {
-              endDate: {
-                gte: today,
-              },
+              startDate: { lte: today },
+              endDate: { gte: today },
             },
           },
         },
