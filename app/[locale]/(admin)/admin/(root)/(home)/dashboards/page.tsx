@@ -86,6 +86,7 @@ const Dashboard = () => {
     debounce(() => {
       setLoadPage(true);
       fetchData();
+      fetchCustomerCredit();
       fetchReward();
       fetchNews(currentPage, pageSize);
       fetchRank();
@@ -247,18 +248,18 @@ const Dashboard = () => {
     //     setRewardPoint(reward);
     //   }
     // }
-    if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
-      const credit = session?.user.data.CreditLimitLCY[0];
-      const balanceCredit = session?.user.data.BalanceDueLCY[0];
-      if (credit && balanceCredit) {
-        let calResult = 0;
-        const result = Number(credit) - Number(balanceCredit);
-        if (result > 0) {
-          calResult = result;
-        }
-        setBalance(calResult);
-      }
-    }
+    // if (session?.user.data.CreditLimitLCY && session?.user.data.BalanceDueLCY) {
+    //   const credit = session?.user.data.CreditLimitLCY[0];
+    //   const balanceCredit = session?.user.data.BalanceDueLCY[0];
+    //   if (credit && balanceCredit) {
+    //     let calResult = 0;
+    //     const result = Number(credit) - Number(balanceCredit);
+    //     if (result > 0) {
+    //       calResult = result;
+    //     }
+    //     setBalance(calResult);
+    //   }
+    // }
 
     if (session?.user.latestUserLogCreatedAt) {
       const date = new Date(session?.user.latestUserLogCreatedAt);
@@ -287,6 +288,30 @@ const Dashboard = () => {
       setLoadPage(false);
     }
   }
+
+  async function fetchCustomerCredit() {
+  try {
+    if (!session?.user?.custNo) return;
+
+    const { data } = await axios.get("/api/customer-credit", {
+      params: {
+        custNo: session.user.custNo,
+      },
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    });
+    const credit = Number(data?.creditLimitLCY ?? 0);
+    const balanceCredit = Number(data?.BalanceDueLCY ?? 0);
+
+    const result = credit - balanceCredit;
+    setBalance(result > 0 ? result : 0);
+  } catch (error) {
+    console.error("fetchCustomerCredit error:", error);
+    setBalance(0);
+  }
+}
 
   function showModal(isShow: boolean, idCate: number) {
     return () => {

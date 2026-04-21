@@ -142,7 +142,7 @@ const News = () => {
             transition: "background 0.5s ease-in-out",
           }}
         >
-          <Image
+          {/* <Image
             className="w-full"
             alt="media"
             width={1000}
@@ -155,7 +155,17 @@ const News = () => {
                 : NoImage.src
             }
             onLoad={() => setImageLoaded(true)}
-          />
+          /> */}
+          {minisizeData?.newsBanner && (
+            <Image
+              className="w-full"
+              alt="media"
+              width={1000}
+              height={1000}
+              src={minisizeData.newsBanner}
+              onLoad={() => setImageLoaded(true)}
+            />
+          )}
         </div>
         <nav
           className="flex justify-between flex default-font text-white text-sm nav-product"

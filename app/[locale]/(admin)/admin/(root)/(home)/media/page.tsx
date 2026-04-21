@@ -52,7 +52,7 @@ const Media = () => {
   const locale = useCurrentLocale(i18nConfig);
   const { data: session, status } = useSession();
   const [minisizeData, setMinisizeData] = useState<MinisizeDataType | null>(
-    null
+    null,
   );
   const [brandName, setBrandName] = useState("");
   const { setI18nName, setLoadPage, loadPage } = useCart();
@@ -95,7 +95,7 @@ const Media = () => {
             id: data.id,
             imageProfile: data.imageProfile,
             mediaBanner: data.mediaBanner,
-          })
+          }),
         );
         minisize[0] && setMinisizeData(minisize[0]);
       }
@@ -134,7 +134,7 @@ const Media = () => {
   async function fetchData(
     type: string = "",
     currentPage: number,
-    pageSize: number
+    pageSize: number,
   ) {
     setLoadPage(true);
     try {
@@ -144,7 +144,7 @@ const Media = () => {
           page: currentPage,
           pageSize: pageSize,
           isActive: true,
-          minisizeId: minisizeData!.id
+          minisizeId: minisizeData!.id,
         },
       });
 
@@ -159,7 +159,7 @@ const Media = () => {
             key: index + 1 + (currentPage - 1) * pageSize,
             size: fileSize ? `${(fileSize / 1024).toFixed(2)} KB` : "Unknown",
           };
-        })
+        }),
       );
 
       setMediaData(mediaDataWithKeys);
@@ -187,11 +187,11 @@ const Media = () => {
           style={{
             background: imageLoaded
               ? `linear-gradient(90deg, #DD2C37 0%, #FCD00D 100%)`
-              : "transparent", 
+              : "transparent",
             transition: "background 0.5s ease-in-out",
           }}
         >
-          <Image
+          {/* <Image
             className="w-full"
             alt="media"
             width={1000}
@@ -204,7 +204,17 @@ const Media = () => {
                 : NoImage.src
             }
             onLoad={() => setImageLoaded(true)}
-          />
+          /> */}
+          {minisizeData?.mediaBanner && (
+            <Image
+              className="w-full"
+              alt="media"
+              width={1000}
+              height={1000}
+              src={minisizeData.mediaBanner}
+              onLoad={() => setImageLoaded(true)}
+            />
+          )}
         </div>
         <nav
           className="flex justify-between flex default-font text-white text-sm nav-product"
@@ -337,14 +347,14 @@ const Media = () => {
             // onChange={changeTab}
             // className="default-font"
 
-            value={type}                 // controlled
+            value={type} // controlled
             buttonStyle="solid"
             onChange={(e) => {
-              if (loading) return;       // extra guard (keyboard/events)
+              if (loading) return; // extra guard (keyboard/events)
               changeTab(e);
             }}
             className="default-font"
-            disabled={loading}           // <-- disables all radios while loading
+            disabled={loading} // <-- disables all radios while loading
           >
             <Radio.Button value="Video">
               <span className="default-font">{t("Video")}</span>
